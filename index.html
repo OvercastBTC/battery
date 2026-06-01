@@ -23,7 +23,7 @@ backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px}
 padding:6px 10px;border-radius:16px;cursor:pointer;transition:.15s}
 #prof-switch button.on{background:var(--gold);color:var(--ink)}
 #prof-switch button.youth.on{background:var(--green)}
-#stage{position:absolute;top:0;left:0;right:0;bottom:56px}
+#stage{position:absolute;top:0;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom));}
 iframe{position:absolute;top:calc(env(safe-area-inset-top) + 52px);left:0;right:0;bottom:0;width:100%;height:calc(100% - env(safe-area-inset-top) - 52px);border:0;display:none;background:var(--ink)}
 iframe.on{display:block}
 #view-game{position:absolute;inset:0;display:none;overflow-y:auto;
@@ -859,17 +859,17 @@ body.youth #youth-banner{display:block}
       </div>
 
       <div class=&quot;bonus-bar&quot;>
-        <div class=&quot;bonus-label&quot;>◆ Bonus training days this week:</div>
-        <div class=&quot;bonus-chips&quot;>
-          <div class=&quot;bonus-chip active&quot; data-bonus=&quot;0&quot; onclick=&quot;setBonus(0)&quot;>0</div>
-          <div class=&quot;bonus-chip&quot; data-bonus=&quot;1&quot; onclick=&quot;setBonus(1)&quot;>1</div>
-          <div class=&quot;bonus-chip&quot; data-bonus=&quot;2&quot; onclick=&quot;setBonus(2)&quot;>2</div>
-          <div class=&quot;bonus-chip&quot; data-bonus=&quot;3&quot; onclick=&quot;setBonus(3)&quot;>3</div>
-          <div class=&quot;bonus-chip&quot; data-bonus=&quot;4&quot; onclick=&quot;setBonus(4)&quot;>4</div>
-          <div class=&quot;bonus-chip&quot; data-bonus=&quot;5&quot; onclick=&quot;setBonus(5)&quot;>5</div>
-          <div class=&quot;bonus-chip&quot; data-bonus=&quot;6&quot; onclick=&quot;setBonus(6)&quot;>6</div>
+        <div class=&quot;bonus-label&quot;>◆ Training days this week:</div>
+        <div class=&quot;bonus-chips&quot; id=&quot;weekday-chips&quot;>
+          <div class=&quot;bonus-chip&quot; data-day=&quot;MO&quot; onclick=&quot;toggleWeekday('MO')&quot;>MON</div>
+          <div class=&quot;bonus-chip&quot; data-day=&quot;TU&quot; onclick=&quot;toggleWeekday('TU')&quot;>TUE</div>
+          <div class=&quot;bonus-chip&quot; data-day=&quot;WE&quot; onclick=&quot;toggleWeekday('WE')&quot;>WED</div>
+          <div class=&quot;bonus-chip&quot; data-day=&quot;TH&quot; onclick=&quot;toggleWeekday('TH')&quot;>THU</div>
+          <div class=&quot;bonus-chip&quot; data-day=&quot;FR&quot; onclick=&quot;toggleWeekday('FR')&quot;>FRI</div>
+          <div class=&quot;bonus-chip&quot; data-day=&quot;SA&quot; onclick=&quot;toggleWeekday('SA')&quot;>SAT</div>
+          <div class=&quot;bonus-chip&quot; data-day=&quot;SU&quot; onclick=&quot;toggleWeekday('SU')&quot;>SUN</div>
         </div>
-        <div class=&quot;bonus-help&quot;>Above arm care. Affects suggestions on the Schedule and Daily Extras pages.</div>
+        <div class=&quot;bonus-help&quot;>Pick the days you train. Today highlighted gold; tap to mark a training day. Drives fueling + recovery suggestions.</div>
       </div>
 
     </div>
@@ -2870,6 +2870,35 @@ body.youth #youth-banner{display:block}
   }
   window.exportData=exportData; window.importData=importData;
 
+
+  /* ===== 2.1: weekday training selector (injected) ===== */
+  (function(){
+    function getDays(){try{return JSON.parse(localStorage.getItem('arm-care-traindays')||'[]');}catch(e){return[];}}
+    function setDays(a){localStorage.setItem('arm-care-traindays',JSON.stringify(a));
+      // keep legacy count in sync so any old logic still works
+      localStorage.setItem('arm-care-bonus', String(a.length));}
+    window.toggleWeekday=function(d){
+      const a=getDays(); const i=a.indexOf(d);
+      if(i>=0)a.splice(i,1); else a.push(d);
+      setDays(a); paintWeekdays();
+      if(typeof refreshSchedule==='function')refreshSchedule();
+      if(typeof refreshExtras==='function')refreshExtras();
+    };
+    function paintWeekdays(){
+      const days=getDays();
+      const todayCode=['SU','MO','TU','WE','TH','FR','SA'][new Date().getDay()];
+      document.querySelectorAll('#weekday-chips .bonus-chip').forEach(c=>{
+        const d=c.dataset.day;
+        c.classList.toggle('active', days.includes(d));
+        c.style.outline = (d===todayCode) ? '2px solid #d4a017' : 'none';
+        c.style.outlineOffset='1px';
+      });
+    }
+    window.paintWeekdays=paintWeekdays;
+    if(document.readyState!=='loading') setTimeout(paintWeekdays,200);
+    else document.addEventListener('DOMContentLoaded',()=>setTimeout(paintWeekdays,200));
+  })();
+
 </script>
 
 </body>
@@ -4776,6 +4805,14 @@ body.youth #youth-banner{display:block}
 
     <div class=&quot;qa-subgroup-label&quot; style=&quot;margin-top:14px&quot;>Dairy &amp;amp; snacks</div>
     <div class=&quot;qa-grid&quot;>
+      <button class=&quot;qa-btn protein&quot; onclick=&quot;addProtein(13, 'PB&amp;amp;J')&quot;>
+        <span class=&quot;qa-amt&quot;>+13<span class=&quot;u&quot;>g</span></span>
+        <span class=&quot;qa-name&quot;>PB&amp;amp;J · 2 slices</span>
+      </button>
+      <button class=&quot;qa-btn protein&quot; onclick=&quot;addProtein(7, 'Uncrustable')&quot;>
+        <span class=&quot;qa-amt&quot;>+7<span class=&quot;u&quot;>g</span></span>
+        <span class=&quot;qa-name&quot;>Uncrustables · 1</span>
+      </button>
       <button class=&quot;qa-btn protein&quot; onclick=&quot;addProtein(20, 'Greek yogurt')&quot;>
         <span class=&quot;qa-amt&quot;>+20<span class=&quot;u&quot;>g</span></span>
         <span class=&quot;qa-name&quot;>Greek yogurt · cup</span>
@@ -7005,26 +7042,41 @@ body.youth #youth-banner{display:block}
   window.exportData=exportData; window.importData=importData;
 
 
-  /* ===== BATTERY v1.1: relayout + editable history (injected) ===== */
+  /* ===== BATTERY v1.2: Today-up, collapsible history, named+time item editing ===== */
   (function(){
     function relayout(){
       try{
         const tracker=document.getElementById('page-tracker'); if(!tracker) return;
         const header=tracker.querySelector('.tracker-header');
-        // 1) Build a combined LOG + FAVORITES panel and place it right after the header (under bars)
-        if(!document.getElementById('battery-logfav')){
-          const panel=document.createElement('div');
-          panel.id='battery-logfav';
-          panel.innerHTML =
-            '<div id=&quot;battery-fav-strip&quot; style=&quot;margin:14px 0 8px&quot;></div>'+
-            '<div id=&quot;battery-hist&quot; style=&quot;margin:6px 0 10px&quot;></div>';
-          header.insertAdjacentElement('afterend', panel);
+
+        // 1) Move the app's own &quot;Today's log&quot; section UP to right under the stats header.
+        const todayLog=tracker.querySelector('.log-section');
+        if(todayLog &amp;&amp; header &amp;&amp; todayLog.previousElementSibling!==header){
+          header.insertAdjacentElement('afterend', todayLog);
         }
+
+        // 2) Favorites strip stays in Tracker, just under the moved Today log.
+        if(!document.getElementById('battery-fav-strip')){
+          const fav=document.createElement('div');
+          fav.id='battery-fav-strip'; fav.style.margin='14px 0 8px';
+          (todayLog||header).insertAdjacentElement('afterend', fav);
+        }
+
+        // 3) History (&quot;tap a day to edit&quot;) moves to the WEEKLY page, not Tracker.
+        const weekly=document.getElementById('page-weekly');
+        if(weekly &amp;&amp; !document.getElementById('battery-hist')){
+          const hist=document.createElement('div');
+          hist.id='battery-hist'; hist.style.margin='6px 0 18px';
+          // place it right after the weekly lede paragraph (or at top of weekly)
+          const lede=weekly.querySelector('.lede');
+          if(lede) lede.insertAdjacentElement('afterend', hist);
+          else weekly.insertAdjacentElement('afterbegin', hist);
+        }
+
         renderFavStrip();
         renderHistory();
       }catch(e){}
     }
-    // unified favorites strip (water + protein together) just under the bars
     function renderFavStrip(){
       const host=document.getElementById('battery-fav-strip'); if(!host) return;
       let favs={water:[],protein:[]};
@@ -7045,29 +7097,48 @@ body.youth #youth-banner{display:block}
             '+'+f.amount+u+' · '+(f.label||'')+'</button>';
         }).join('')+'</div>';
     }
-    // editable history: list recent days with totals; tap to open an editor
+
+    /* proper day label — returns a STRING (fixes [object Object]) */
+    function dayLabelStr(i, key){
+      if(i===0) return 'Today';
+      if(i===1) return 'Yesterday';
+      try{ const o=dayLabelForOffset(i); if(o&amp;&amp;o.dayName) return o.dayName; }catch(e){}
+      const d=new Date(key+'T00:00:00');
+      return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+    }
+
+    /* collapsible history (1.0) — remembers open/closed */
+    function histOpen(){ return localStorage.getItem('battery-hist-open')!=='0'; }
+    function toggleHist(){ localStorage.setItem('battery-hist-open', histOpen()?'0':'1'); renderHistory(); }
+    window.batteryToggleHist=toggleHist;
+
     function renderHistory(){
       const host=document.getElementById('battery-hist'); if(!host) return;
+      const open=histOpen();
       let rows='';
-      for(let i=0;i<8;i++){
-        const key=dateKeyForOffset(i);
-        const tot=getTotalsForDate(key);
-        const g=(typeof _goalForDate==='function')?_goalForDate(key,i===0):{protein:0,water:0};
-        const hit = g.protein &amp;&amp; tot.protein>=g.protein &amp;&amp; tot.water>=g.water;
-        const lbl = i===0?'Today':(i===1?'Yesterday':dayLabelForOffset(i));
-        rows+='<div onclick=&quot;batteryEditDay(\''+key+'\')&quot; style=&quot;display:flex;align-items:center;'+
-          'justify-content:space-between;padding:10px 12px;background:#161b22;border:1px solid '+
-          (hit?'#3fb95055':'#2d333b')+';border-radius:10px;margin-bottom:6px;cursor:pointer&quot;>'+
-          '<div style=&quot;font-size:13px;color:#e6edf3&quot;>'+lbl+'<span style=&quot;color:#6e7681;font-size:11px&quot;> · '+key.slice(5)+'</span></div>'+
-          '<div style=&quot;font-family:\'SF Mono\',monospace;font-size:12px&quot;>'+
-            '<span style=&quot;color:#d4a017&quot;>'+Math.round(tot.protein)+'g</span> · '+
-            '<span style=&quot;color:#58a6ff&quot;>'+Math.round(tot.water)+'oz</span>'+
-            (hit?' <span style=&quot;color:#3fb950&quot;>✓</span>':'')+'</div></div>';
+      if(open){
+        for(let i=0;i<8;i++){
+          const key=dateKeyForOffset(i);
+          const tot=getTotalsForDate(key);
+          const g=(typeof _goalForDate==='function')?_goalForDate(key,i===0):{protein:0,water:0};
+          const hit = g.protein &amp;&amp; tot.protein>=g.protein &amp;&amp; tot.water>=g.water;
+          const lbl = dayLabelStr(i,key);
+          rows+='<div onclick=&quot;batteryEditDay(\''+key+'\')&quot; style=&quot;display:flex;align-items:center;'+
+            'justify-content:space-between;padding:10px 12px;background:#161b22;border:1px solid '+
+            (hit?'#3fb95055':'#2d333b')+';border-radius:10px;margin-bottom:6px;cursor:pointer&quot;>'+
+            '<div style=&quot;font-size:13px;color:#e6edf3&quot;>'+lbl+'<span style=&quot;color:#6e7681;font-size:11px&quot;> · '+key.slice(5)+'</span></div>'+
+            '<div style=&quot;font-family:\'SF Mono\',monospace;font-size:12px&quot;>'+
+              '<span style=&quot;color:#d4a017&quot;>'+Math.round(tot.protein)+'g</span> · '+
+              '<span style=&quot;color:#58a6ff&quot;>'+Math.round(tot.water)+'oz</span>'+
+              (hit?' <span style=&quot;color:#3fb950&quot;>✓</span>':'')+'</div></div>';
+        }
       }
-      host.innerHTML='<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#8b949e;'+
-        'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin:4px 0 8px&quot;>Log · tap a day to edit</div>'+rows;
+      host.innerHTML='<div onclick=&quot;batteryToggleHist()&quot; style=&quot;display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin:4px 0 8px&quot;>'+
+        '<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#8b949e;font-family:\'SF Mono\',monospace;text-transform:uppercase&quot;>Daily log · tap a day to edit</div>'+
+        '<span style=&quot;color:#8b949e;font-size:13px;transform:rotate('+(open?'0':'-90')+'deg);transition:.2s&quot;>▾</span></div>'+rows;
     }
-    // per-item day editor: tap a day -> modal listing that day's entries, add/remove individually
+
+    /* ===== per-item day editor: named items + time editing (1.2, 1.3) ===== */
     window.batteryEditDay=function(key){
       let modal=document.getElementById('battery-dayedit');
       if(!modal){
@@ -7078,37 +7149,64 @@ body.youth #youth-banner{display:block}
       }
       function entriesFor(k){try{return JSON.parse(localStorage.getItem('fuel-entries-'+k)||'[]');}catch(e){return[];}}
       function save(k,arr){localStorage.setItem('fuel-entries-'+k,JSON.stringify(arr));}
+      function esc(s){return String(s==null?'':s).replace(/'/g,'').replace(/&quot;/g,'');}
       function render(){
         const arr=entriesFor(key).filter(e=>!e.shakeWater);
+        const g=(typeof _goalForDate==='function')?_goalForDate(key,false):{protein:0,water:0};
+        const tot=getTotalsForDate(key);
         const rows=arr.length? arr.slice().reverse().map(e=>{
           const c=e.type==='protein'?'#d4a017':(e.type==='water'?'#58a6ff':'#3fb950');
-          const u=e.type==='protein'?'g':'oz';
-          return '<div style=&quot;display:flex;align-items:center;justify-content:space-between;padding:9px 11px;background:#0d1117;border:1px solid #2d333b;border-radius:9px;margin-bottom:6px&quot;>'+
-            '<div style=&quot;font-size:13px&quot;><span style=&quot;color:'+c+';font-family:\'SF Mono\',monospace&quot;>+'+e.amount+u+'</span> <span style=&quot;color:#8b949e&quot;>'+(e.label||e.type)+'</span></div>'+
-            '<button onclick=&quot;window._dayDel('+e.id+')&quot; style=&quot;background:none;border:1px solid #da3633;color:#da3633;border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer&quot;>✕</button></div>';
+          const u=e.type==='protein'?'g':(e.type==='water'?'oz':'');
+          return '<div style=&quot;display:flex;align-items:center;gap:8px;padding:9px 11px;background:#0d1117;border:1px solid #2d333b;border-radius:9px;margin-bottom:6px&quot;>'+
+            '<span style=&quot;color:#6e7681;font-family:\'SF Mono\',monospace;font-size:11px;min-width:42px&quot;>'+(e.t||'—')+'</span>'+
+            '<span style=&quot;color:'+c+';font-family:\'SF Mono\',monospace;font-size:13px;min-width:46px&quot;>+'+e.amount+u+'</span>'+
+            '<span style=&quot;color:#c9d1d9;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap&quot;>'+esc(e.label||e.type)+'</span>'+
+            '<button onclick=&quot;window._dayDel('+e.id+')&quot; style=&quot;background:none;border:1px solid #da3633;color:#da3633;border-radius:7px;padding:5px 9px;font-size:12px;cursor:pointer&quot;>✕</button></div>';
         }).join('') : '<div style=&quot;color:#6e7681;font-size:13px;text-align:center;padding:14px&quot;>No entries this day.</div>';
-        modal.innerHTML='<div style=&quot;background:#161b22;border:1px solid #d4a017;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));width:100%;max-width:560px;max-height:82vh;overflow-y:auto&quot;>'+
-          '<div style=&quot;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px&quot;>'+
+        // goal vs actual header (1.2)
+        const goalLine = g.protein
+          ? '<div style=&quot;display:flex;gap:14px;font-family:\'SF Mono\',monospace;font-size:12px;margin-bottom:12px&quot;>'+
+            '<span style=&quot;color:#d4a017&quot;>P '+Math.round(tot.protein)+'/'+g.protein+'g</span>'+
+            '<span style=&quot;color:#58a6ff&quot;>W '+Math.round(tot.water)+'/'+g.water+'oz</span></div>'
+          : '';
+        modal.innerHTML='<div style=&quot;background:#161b22;border:1px solid #d4a017;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));width:100%;max-width:560px;max-height:86vh;overflow-y:auto&quot;>'+
+          '<div style=&quot;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px&quot;>'+
             '<div style=&quot;font-size:15px;font-weight:700;color:#e6edf3&quot;>Edit · '+key+'</div>'+
             '<button onclick=&quot;document.getElementById(\'battery-dayedit\').remove()&quot; style=&quot;background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer&quot;>✕</button></div>'+
-          rows+
-          '<div style=&quot;display:flex;gap:7px;margin-top:12px&quot;>'+
-            '<input id=&quot;_dayP&quot; type=&quot;number&quot; placeholder=&quot;protein g&quot; style=&quot;flex:1;min-width:0;background:#0d1117;border:1px solid #d4a017;color:#f0b832;padding:10px;border-radius:9px;font-size:14px&quot;>'+
-            '<button onclick=&quot;window._dayAdd(\'protein\')&quot; style=&quot;background:#d4a017;border:none;color:#0d1117;border-radius:9px;padding:0 14px;font-weight:700;cursor:pointer&quot;>+P</button></div>'+
-          '<div style=&quot;display:flex;gap:7px;margin-top:7px&quot;>'+
-            '<input id=&quot;_dayW&quot; type=&quot;number&quot; placeholder=&quot;water oz&quot; style=&quot;flex:1;min-width:0;background:#0d1117;border:1px solid #58a6ff;color:#79b8ff;padding:10px;border-radius:9px;font-size:14px&quot;>'+
-            '<button onclick=&quot;window._dayAdd(\'water\')&quot; style=&quot;background:#58a6ff;border:none;color:#0d1117;border-radius:9px;padding:0 14px;font-weight:700;cursor:pointer&quot;>+W</button></div>'+
-          '<div style=&quot;font-size:10px;color:#6e7681;margin-top:10px;text-align:center;font-family:\'SF Mono\',monospace&quot;>Edits this day only · totals + streak update live</div>'+
+          goalLine+ rows+
+          // add row: item name + amount + type + time (1.2/1.3)
+          '<div style=&quot;border-top:1px solid #2d333b;margin-top:12px;padding-top:12px&quot;>'+
+          '<input id=&quot;_dItem&quot; type=&quot;text&quot; placeholder=&quot;item (e.g. Cottage cheese)&quot; style=&quot;width:100%;background:#0d1117;border:1px solid #2d333b;color:#e6edf3;padding:10px;border-radius:9px;font-size:14px;margin-bottom:7px&quot;>'+
+          '<div style=&quot;display:flex;gap:7px;margin-bottom:7px&quot;>'+
+            '<input id=&quot;_dAmt&quot; type=&quot;number&quot; placeholder=&quot;amount&quot; style=&quot;flex:1;min-width:0;background:#0d1117;border:1px solid #2d333b;color:#e6edf3;padding:10px;border-radius:9px;font-size:14px&quot;>'+
+            '<select id=&quot;_dType&quot; style=&quot;background:#0d1117;border:1px solid #2d333b;color:#e6edf3;padding:10px;border-radius:9px;font-size:14px&quot;><option value=&quot;protein&quot;>g protein</option><option value=&quot;water&quot;>oz water</option></select>'+
+          '</div>'+
+          '<div style=&quot;display:flex;gap:7px;align-items:center;margin-bottom:9px&quot;>'+
+            '<input id=&quot;_dTime&quot; type=&quot;time&quot; style=&quot;flex:1;min-width:0;background:#0d1117;border:1px solid #2d333b;color:#79b8ff;padding:10px;border-radius:9px;font-size:14px&quot;>'+
+            '<span style=&quot;color:#6e7681;font-size:11px;font-family:\'SF Mono\',monospace&quot;>optional</span>'+
+          '</div>'+
+          '<button onclick=&quot;window._dayAdd()&quot; style=&quot;width:100%;background:#d4a017;border:none;color:#0d1117;border-radius:9px;padding:12px;font-weight:700;font-size:14px;cursor:pointer&quot;>+ ADD ITEM</button>'+
+          '</div>'+
+          '<div style=&quot;font-size:10px;color:#6e7681;margin-top:10px;text-align:center;font-family:\'SF Mono\',monospace&quot;>Named items + optional time · totals &amp;amp; streak update live</div>'+
           '</div>';
       }
-      window._dayDel=function(id){const arr=entriesFor(key).filter(e=>e.id!==id &amp;&amp; e.shakeId!==undefined?e.id!==id:e.id!==id);
-        save(key, entriesFor(key).filter(e=>e.id!==id)); render(); refreshPanels();};
-      window._dayAdd=function(type){
-        const inp=document.getElementById(type==='protein'?'_dayP':'_dayW');
-        const v=parseFloat(inp.value); if(isNaN(v)||v<=0)return;
+      function fmtTime(hhmm){
+        if(!hhmm) return 'edit';
+        let [h,m]=hhmm.split(':').map(Number); const ap=h>=12?'p':'a'; h=h%12||12;
+        return h+(m? ':'+(m<10?'0':'')+m : '')+ap;
+      }
+      window._dayDel=function(id){ save(key, entriesFor(key).filter(e=>e.id!==id)); render(); refreshPanels(); };
+      window._dayAdd=function(){
+        const item=(document.getElementById('_dItem').value||'').trim();
+        const amt=parseFloat(document.getElementById('_dAmt').value);
+        const type=document.getElementById('_dType').value;
+        const tm=document.getElementById('_dTime').value;
+        if(isNaN(amt)||amt<=0) return;
         const arr=entriesFor(key);
-        arr.push({id:Date.now()+Math.random(),t:'edit',type,amount:v,label:'Added',e:0});
-        save(key,arr); inp.value=''; render(); refreshPanels();
+        arr.push({id:Date.now()+Math.random(), t:fmtTime(tm), type, amount:amt, label:item||(type==='protein'?'Protein':'Water'), e:0});
+        save(key,arr);
+        document.getElementById('_dItem').value=''; document.getElementById('_dAmt').value=''; document.getElementById('_dTime').value='';
+        render(); refreshPanels();
       };
       function refreshPanels(){
         if(typeof refreshAll==='function')refreshAll();
@@ -7119,10 +7217,194 @@ body.youth #youth-banner{display:block}
       }
       render();
     };
+
     window.batteryRelayout=relayout;
     window.batteryRenderFav=renderFavStrip;
     window.batteryRenderHist=renderHistory;
-    // run after the app boots
+    if(document.readyState!=='loading') setTimeout(relayout,300);
+    else document.addEventListener('DOMContentLoaded',()=>setTimeout(relayout,300));
+  })();
+
+
+  /* ===== BATTERY v1.2: Today-up, collapsible history, named+time item editing ===== */
+  (function(){
+    function relayout(){
+      try{
+        const tracker=document.getElementById('page-tracker'); if(!tracker) return;
+        const header=tracker.querySelector('.tracker-header');
+
+        // 1) Move the app's own &quot;Today's log&quot; section UP to right under the stats header.
+        const todayLog=tracker.querySelector('.log-section');
+        if(todayLog &amp;&amp; header &amp;&amp; todayLog.previousElementSibling!==header){
+          header.insertAdjacentElement('afterend', todayLog);
+        }
+
+        // 2) Favorites strip stays in Tracker, just under the moved Today log.
+        if(!document.getElementById('battery-fav-strip')){
+          const fav=document.createElement('div');
+          fav.id='battery-fav-strip'; fav.style.margin='14px 0 8px';
+          (todayLog||header).insertAdjacentElement('afterend', fav);
+        }
+
+        // 3) History (&quot;tap a day to edit&quot;) moves to the WEEKLY page, not Tracker.
+        const weekly=document.getElementById('page-weekly');
+        if(weekly &amp;&amp; !document.getElementById('battery-hist')){
+          const hist=document.createElement('div');
+          hist.id='battery-hist'; hist.style.margin='6px 0 18px';
+          // place it right after the weekly lede paragraph (or at top of weekly)
+          const lede=weekly.querySelector('.lede');
+          if(lede) lede.insertAdjacentElement('afterend', hist);
+          else weekly.insertAdjacentElement('afterbegin', hist);
+        }
+
+        renderFavStrip();
+        renderHistory();
+      }catch(e){}
+    }
+    function renderFavStrip(){
+      const host=document.getElementById('battery-fav-strip'); if(!host) return;
+      let favs={water:[],protein:[]};
+      try{ favs=JSON.parse(localStorage.getItem('fuel-favorites')||'{&quot;water&quot;:[],&quot;protein&quot;:[]}'); }catch(e){}
+      const all=[...favs.protein.map(f=>({...f,type:'protein'})),
+                 ...favs.water.map(f=>({...f,type:'water'}))];
+      if(all.length===0){ host.innerHTML=''; return; }
+      host.innerHTML='<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
+        'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:7px&quot;>★ Favorites</div>'+
+        '<div style=&quot;display:flex;gap:8px;flex-wrap:wrap&quot;>'+
+        all.map(f=>{
+          const c = f.type==='protein' ? '#d4a017' : '#58a6ff';
+          const fn = f.type==='protein' ? 'addProtein' : 'addWater';
+          const u = f.type==='protein' ? 'g' : 'oz';
+          return '<button onclick=&quot;'+fn+'('+f.amount+',\''+(f.label||'').replace(/\x27/g,&quot;&quot;)+'\')&quot; '+
+            'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:10px;'+
+            'padding:9px 13px;font-family:\'SF Mono\',monospace;font-size:12px;cursor:pointer&quot;>'+
+            '+'+f.amount+u+' · '+(f.label||'')+'</button>';
+        }).join('')+'</div>';
+    }
+
+    /* proper day label — returns a STRING (fixes [object Object]) */
+    function dayLabelStr(i, key){
+      if(i===0) return 'Today';
+      if(i===1) return 'Yesterday';
+      try{ const o=dayLabelForOffset(i); if(o&amp;&amp;o.dayName) return o.dayName; }catch(e){}
+      const d=new Date(key+'T00:00:00');
+      return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+    }
+
+    /* collapsible history (1.0) — remembers open/closed */
+    function histOpen(){ return localStorage.getItem('battery-hist-open')!=='0'; }
+    function toggleHist(){ localStorage.setItem('battery-hist-open', histOpen()?'0':'1'); renderHistory(); }
+    window.batteryToggleHist=toggleHist;
+
+    function renderHistory(){
+      const host=document.getElementById('battery-hist'); if(!host) return;
+      const open=histOpen();
+      let rows='';
+      if(open){
+        for(let i=0;i<8;i++){
+          const key=dateKeyForOffset(i);
+          const tot=getTotalsForDate(key);
+          const g=(typeof _goalForDate==='function')?_goalForDate(key,i===0):{protein:0,water:0};
+          const hit = g.protein &amp;&amp; tot.protein>=g.protein &amp;&amp; tot.water>=g.water;
+          const lbl = dayLabelStr(i,key);
+          rows+='<div onclick=&quot;batteryEditDay(\''+key+'\')&quot; style=&quot;display:flex;align-items:center;'+
+            'justify-content:space-between;padding:10px 12px;background:#161b22;border:1px solid '+
+            (hit?'#3fb95055':'#2d333b')+';border-radius:10px;margin-bottom:6px;cursor:pointer&quot;>'+
+            '<div style=&quot;font-size:13px;color:#e6edf3&quot;>'+lbl+'<span style=&quot;color:#6e7681;font-size:11px&quot;> · '+key.slice(5)+'</span></div>'+
+            '<div style=&quot;font-family:\'SF Mono\',monospace;font-size:12px&quot;>'+
+              '<span style=&quot;color:#d4a017&quot;>'+Math.round(tot.protein)+'g</span> · '+
+              '<span style=&quot;color:#58a6ff&quot;>'+Math.round(tot.water)+'oz</span>'+
+              (hit?' <span style=&quot;color:#3fb950&quot;>✓</span>':'')+'</div></div>';
+        }
+      }
+      host.innerHTML='<div onclick=&quot;batteryToggleHist()&quot; style=&quot;display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin:4px 0 8px&quot;>'+
+        '<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#8b949e;font-family:\'SF Mono\',monospace;text-transform:uppercase&quot;>Daily log · tap a day to edit</div>'+
+        '<span style=&quot;color:#8b949e;font-size:13px;transform:rotate('+(open?'0':'-90')+'deg);transition:.2s&quot;>▾</span></div>'+rows;
+    }
+
+    /* ===== per-item day editor: named items + time editing (1.2, 1.3) ===== */
+    window.batteryEditDay=function(key){
+      let modal=document.getElementById('battery-dayedit');
+      if(!modal){
+        modal=document.createElement('div'); modal.id='battery-dayedit';
+        modal.style.cssText='position:fixed;inset:0;z-index:9998;background:#000a;display:flex;align-items:flex-end;justify-content:center';
+        modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+        document.body.appendChild(modal);
+      }
+      function entriesFor(k){try{return JSON.parse(localStorage.getItem('fuel-entries-'+k)||'[]');}catch(e){return[];}}
+      function save(k,arr){localStorage.setItem('fuel-entries-'+k,JSON.stringify(arr));}
+      function esc(s){return String(s==null?'':s).replace(/'/g,'').replace(/&quot;/g,'');}
+      function render(){
+        const arr=entriesFor(key).filter(e=>!e.shakeWater);
+        const g=(typeof _goalForDate==='function')?_goalForDate(key,false):{protein:0,water:0};
+        const tot=getTotalsForDate(key);
+        const rows=arr.length? arr.slice().reverse().map(e=>{
+          const c=e.type==='protein'?'#d4a017':(e.type==='water'?'#58a6ff':'#3fb950');
+          const u=e.type==='protein'?'g':(e.type==='water'?'oz':'');
+          return '<div style=&quot;display:flex;align-items:center;gap:8px;padding:9px 11px;background:#0d1117;border:1px solid #2d333b;border-radius:9px;margin-bottom:6px&quot;>'+
+            '<span style=&quot;color:#6e7681;font-family:\'SF Mono\',monospace;font-size:11px;min-width:42px&quot;>'+(e.t||'—')+'</span>'+
+            '<span style=&quot;color:'+c+';font-family:\'SF Mono\',monospace;font-size:13px;min-width:46px&quot;>+'+e.amount+u+'</span>'+
+            '<span style=&quot;color:#c9d1d9;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap&quot;>'+esc(e.label||e.type)+'</span>'+
+            '<button onclick=&quot;window._dayDel('+e.id+')&quot; style=&quot;background:none;border:1px solid #da3633;color:#da3633;border-radius:7px;padding:5px 9px;font-size:12px;cursor:pointer&quot;>✕</button></div>';
+        }).join('') : '<div style=&quot;color:#6e7681;font-size:13px;text-align:center;padding:14px&quot;>No entries this day.</div>';
+        // goal vs actual header (1.2)
+        const goalLine = g.protein
+          ? '<div style=&quot;display:flex;gap:14px;font-family:\'SF Mono\',monospace;font-size:12px;margin-bottom:12px&quot;>'+
+            '<span style=&quot;color:#d4a017&quot;>P '+Math.round(tot.protein)+'/'+g.protein+'g</span>'+
+            '<span style=&quot;color:#58a6ff&quot;>W '+Math.round(tot.water)+'/'+g.water+'oz</span></div>'
+          : '';
+        modal.innerHTML='<div style=&quot;background:#161b22;border:1px solid #d4a017;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));width:100%;max-width:560px;max-height:86vh;overflow-y:auto&quot;>'+
+          '<div style=&quot;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px&quot;>'+
+            '<div style=&quot;font-size:15px;font-weight:700;color:#e6edf3&quot;>Edit · '+key+'</div>'+
+            '<button onclick=&quot;document.getElementById(\'battery-dayedit\').remove()&quot; style=&quot;background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer&quot;>✕</button></div>'+
+          goalLine+ rows+
+          // add row: item name + amount + type + time (1.2/1.3)
+          '<div style=&quot;border-top:1px solid #2d333b;margin-top:12px;padding-top:12px&quot;>'+
+          '<input id=&quot;_dItem&quot; type=&quot;text&quot; placeholder=&quot;item (e.g. Cottage cheese)&quot; style=&quot;width:100%;background:#0d1117;border:1px solid #2d333b;color:#e6edf3;padding:10px;border-radius:9px;font-size:14px;margin-bottom:7px&quot;>'+
+          '<div style=&quot;display:flex;gap:7px;margin-bottom:7px&quot;>'+
+            '<input id=&quot;_dAmt&quot; type=&quot;number&quot; placeholder=&quot;amount&quot; style=&quot;flex:1;min-width:0;background:#0d1117;border:1px solid #2d333b;color:#e6edf3;padding:10px;border-radius:9px;font-size:14px&quot;>'+
+            '<select id=&quot;_dType&quot; style=&quot;background:#0d1117;border:1px solid #2d333b;color:#e6edf3;padding:10px;border-radius:9px;font-size:14px&quot;><option value=&quot;protein&quot;>g protein</option><option value=&quot;water&quot;>oz water</option></select>'+
+          '</div>'+
+          '<div style=&quot;display:flex;gap:7px;align-items:center;margin-bottom:9px&quot;>'+
+            '<input id=&quot;_dTime&quot; type=&quot;time&quot; style=&quot;flex:1;min-width:0;background:#0d1117;border:1px solid #2d333b;color:#79b8ff;padding:10px;border-radius:9px;font-size:14px&quot;>'+
+            '<span style=&quot;color:#6e7681;font-size:11px;font-family:\'SF Mono\',monospace&quot;>optional</span>'+
+          '</div>'+
+          '<button onclick=&quot;window._dayAdd()&quot; style=&quot;width:100%;background:#d4a017;border:none;color:#0d1117;border-radius:9px;padding:12px;font-weight:700;font-size:14px;cursor:pointer&quot;>+ ADD ITEM</button>'+
+          '</div>'+
+          '<div style=&quot;font-size:10px;color:#6e7681;margin-top:10px;text-align:center;font-family:\'SF Mono\',monospace&quot;>Named items + optional time · totals &amp;amp; streak update live</div>'+
+          '</div>';
+      }
+      function fmtTime(hhmm){
+        if(!hhmm) return 'edit';
+        let [h,m]=hhmm.split(':').map(Number); const ap=h>=12?'p':'a'; h=h%12||12;
+        return h+(m? ':'+(m<10?'0':'')+m : '')+ap;
+      }
+      window._dayDel=function(id){ save(key, entriesFor(key).filter(e=>e.id!==id)); render(); refreshPanels(); };
+      window._dayAdd=function(){
+        const item=(document.getElementById('_dItem').value||'').trim();
+        const amt=parseFloat(document.getElementById('_dAmt').value);
+        const type=document.getElementById('_dType').value;
+        const tm=document.getElementById('_dTime').value;
+        if(isNaN(amt)||amt<=0) return;
+        const arr=entriesFor(key);
+        arr.push({id:Date.now()+Math.random(), t:fmtTime(tm), type, amount:amt, label:item||(type==='protein'?'Protein':'Water'), e:0});
+        save(key,arr);
+        document.getElementById('_dItem').value=''; document.getElementById('_dAmt').value=''; document.getElementById('_dTime').value='';
+        render(); refreshPanels();
+      };
+      function refreshPanels(){
+        if(typeof refreshAll==='function')refreshAll();
+        if(window.batteryRenderHist)window.batteryRenderHist();
+        if(typeof refreshProgress==='function')refreshProgress();
+        if(typeof refreshMiniStrip==='function')refreshMiniStrip();
+        if(typeof refreshLog==='function')refreshLog();
+      }
+      render();
+    };
+
+    window.batteryRelayout=relayout;
+    window.batteryRenderFav=renderFavStrip;
+    window.batteryRenderHist=renderHistory;
     if(document.readyState!=='loading') setTimeout(relayout,300);
     else document.addEventListener('DOMContentLoaded',()=>setTimeout(relayout,300));
   })();
