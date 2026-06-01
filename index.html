@@ -7075,6 +7075,7 @@ body.youth #youth-banner{display:block}
 
         renderFavStrip();
         renderHistory();
+        if(window.batteryRenderRunway)window.batteryRenderRunway();
       }catch(e){}
     }
     function renderFavStrip(){
@@ -7259,6 +7260,7 @@ body.youth #youth-banner{display:block}
 
         renderFavStrip();
         renderHistory();
+        if(window.batteryRenderRunway)window.batteryRenderRunway();
       }catch(e){}
     }
     function renderFavStrip(){
@@ -7510,6 +7512,123 @@ body.youth #youth-banner{display:block}
                stimAdj:0,hotAdj:0,sexAdj:0,ageAdj:0,frameMult:1, youth:true };
     };
     try{ recomputeDayTargets(); }catch(e){}
+  })();
+
+
+  /* ===== BATTERY v1.3: Fueling Runway (injected) =====
+     Set a training time; back-counts a Zep-aware fueling plan from now to training,
+     respecting protein already logged today. Solid food early, liquid mid, sips late. */
+  (function(){
+    function trainKey(){ return 'fuel-train-'+ (typeof todayKey==='function'?todayKey():new Date().toISOString().slice(0,10)); }
+    function getTrain(){ return localStorage.getItem(trainKey())||''; }
+    function setTrainRaw(v){ if(v) localStorage.setItem(trainKey(),v); else localStorage.removeItem(trainKey()); renderRunway(); }
+
+    function mountRunway(){
+      const tracker=document.getElementById('page-tracker'); if(!tracker) return;
+      if(document.getElementById('battery-runway')) return;
+      const host=document.createElement('div'); host.id='battery-runway'; host.style.margin='4px 0 14px';
+      const header=tracker.querySelector('.tracker-header');
+      if(header) header.insertAdjacentElement('afterend', host);
+      else tracker.insertAdjacentElement('afterbegin', host);
+    }
+    function pad(n){return(n<10?'0':'')+n;}
+    function fmt(d){let h=d.getHours(),m=d.getMinutes(),ap=h>=12?'p':'a';h=h%12||12;return h+(m?':'+pad(m):'')+ap;}
+    function parseHM(s){const a=s.split(':').map(Number);const d=new Date();d.setHours(a[0],a[1],0,0);return d;}
+    function youth(){ return (window.BATTERY_TIER==='youth'); }
+
+    function renderRunway(){
+      mountRunway();
+      const host=document.getElementById('battery-runway'); if(!host) return;
+      const t=getTrain();
+      if(!t){
+        host.innerHTML='<button onclick=&quot;batteryRunwayPrompt()&quot; style=&quot;width:100%;background:#161b22;border:1px dashed #3fb950;color:#3fb950;font-family:\'SF Mono\',monospace;font-size:13px;letter-spacing:1px;padding:12px;border-radius:11px;cursor:pointer&quot;>🏋 TRAINING TODAY? — PLAN MY FUEL</button>';
+        return;
+      }
+      const train=parseHM(t), now=new Date();
+      let mins=Math.round((train-now)/60000);
+      const totals=(typeof getTotals==='function')?getTotals():{protein:0,water:0};
+      const tgt=(typeof computedTarget==='function')?computedTarget():{protein:180,water:200};
+      const pLeft=Math.max(0, tgt.protein-totals.protein);
+      const isYouth=youth();
+      let windows=[];
+      if(mins<=0){
+        windows=[{t:'NOW', tag:'go', what:isYouth?'Game/practice time. Water bottle, light snack only if hungry.':'Training now. Water only — you\'re set, don\'t add food.'}];
+      } else {
+        const solidEnd=new Date(train.getTime()-90*60000);
+        const liquidEnd=new Date(train.getTime()-45*60000);
+        if(now<solidEnd){
+          windows.push({t:fmt(now)+'–'+fmt(solidEnd), tag:'solid',
+            what:isYouth?'Real food OK now: PB&amp;J or Uncrustable + fruit + water. Easy to digest, nothing greasy.'
+              :(pLeft>40?'Solid window. Get protein in NOW: chicken/turkey + rice, Greek yogurt, or PB&amp;J. ~'+Math.min(pLeft,40)+'g here. Skip greasy/high-fat.'
+                        :'Light solid OK (near protein already): Greek yogurt, cottage cheese, or a PB&amp;J if hungry.')});
+        }
+        if(now<liquidEnd){
+          windows.push({t:fmt(new Date(Math.max(now,solidEnd)))+'–'+fmt(liquidEnd), tag:'liquid',
+            what:isYouth?'Switch to liquids: water or milk. Keep it light.'
+              :'Liquid only — solids won\'t clear in time. Core Power Elite (42g) or Thorne shake. Sip 12–16oz water.'});
+        }
+        windows.push({t:fmt(new Date(Math.max(now,liquidEnd)))+'–'+fmt(train), tag:'sip',
+          what:isYouth?'Final stretch: sips of water, bathroom break. Don\'t stuff him.'
+            :'Final 45 min: water sips only. Anti-bloat window — nothing solid. Pre-workout (if using) ~30–45 min out.'});
+      }
+      let zepNote='';
+      const prof=(typeof loadProfile==='function')?loadProfile():null;
+      if(prof &amp;&amp; prof.glp &amp;&amp; prof.glp!=='none' &amp;&amp; !isYouth){
+        zepNote='<div style=&quot;margin-top:10px;padding:9px 11px;border-left:2px solid #d4a017;background:#0d1117;border-radius:0 8px 8px 0;font-size:12px;color:#c9d1d9;line-height:1.5&quot;><b style=&quot;color:#f0b832&quot;>Zep-aware:</b> appetite will be low — don\'t wait to feel hungry. Hit protein in the solid window by the clock; lean on liquid calories if food feels like too much.</div>';
+      }
+      let armNote='';
+      if(prof &amp;&amp; (prof.lastThrow==='today'||prof.lastThrow==='yesterday') &amp;&amp; !isYouth){
+        armNote='<div style=&quot;margin-top:8px;padding:9px 11px;border-left:2px solid #3fb950;background:#0d1117;border-radius:0 8px 8px 0;font-size:12px;color:#c9d1d9;line-height:1.5&quot;><b style=&quot;color:#3fb950&quot;>Arm:</b> you threw '+prof.lastThrow+' — protein consistency aids recovery. Don\'t skimp even if appetite is low.</div>';
+      }
+      const tagColor={solid:'#d4a017',liquid:'#58a6ff',sip:'#6e7681',go:'#3fb950'};
+      const tagLabel={solid:'SOLID OK',liquid:'LIQUID',sip:'WATER ONLY',go:'GO'};
+      const rows=windows.map(w=>
+        '<div style=&quot;display:flex;gap:10px;padding:10px 12px;background:#161b22;border:1px solid #2d333b;border-radius:10px;margin-bottom:6px&quot;>'+
+        '<div style=&quot;min-width:90px&quot;><div style=&quot;font-family:\'SF Mono\',monospace;font-size:11px;color:#8b949e&quot;>'+w.t+'</div>'+
+        '<span style=&quot;font-size:8px;letter-spacing:1px;color:'+tagColor[w.tag]+';font-family:\'SF Mono\',monospace&quot;>'+tagLabel[w.tag]+'</span></div>'+
+        '<div style=&quot;flex:1;font-size:12.5px;color:#e6edf3;line-height:1.45&quot;>'+w.what+'</div></div>').join('');
+      const hLeft=mins>0?(mins>=60?Math.floor(mins/60)+'h '+(mins%60)+'m':mins+'m'):'now';
+      host.innerHTML='<div style=&quot;background:#11151c;border:1px solid #3fb950;border-radius:13px;padding:14px&quot;>'+
+        '<div style=&quot;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px&quot;>'+
+          '<div style=&quot;font-size:13px;font-weight:700;color:#3fb950;font-family:\'SF Mono\',monospace;letter-spacing:1px&quot;>🏋 FUEL RUNWAY</div>'+
+          '<button onclick=&quot;batterySetTrain(\'\')&quot; style=&quot;background:none;border:none;color:#6e7681;font-size:12px;cursor:pointer;font-family:\'SF Mono\',monospace&quot;>clear ✕</button></div>'+
+        '<div style=&quot;font-size:12px;color:#8b949e;margin-bottom:10px;font-family:\'SF Mono\',monospace&quot;>Training '+fmt(train)+' · '+hLeft+' out'+(!isYouth&amp;&amp;pLeft>0?' · '+pLeft+'g protein to go':'')+'</div>'+
+        rows+zepNote+armNote+
+        '<button onclick=&quot;batteryRunwayPrompt()&quot; style=&quot;width:100%;margin-top:8px;background:none;border:1px solid #2d333b;color:#8b949e;font-family:\'SF Mono\',monospace;font-size:11px;padding:8px;border-radius:9px;cursor:pointer&quot;>change time</button></div>';
+    }
+    window.batteryRunwayPrompt=function(){
+      let modal=document.getElementById('battery-train-modal');
+      if(!modal){ modal=document.createElement('div'); modal.id='battery-train-modal';
+        modal.style.cssText='position:fixed;inset:0;z-index:9998;background:#000a;display:flex;align-items:flex-end;justify-content:center';
+        modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+        document.body.appendChild(modal); }
+      const now=new Date();
+      function plus(h){const d=new Date(now.getTime()+h*3600000);d.setMinutes(d.getMinutes()<30?0:30,0,0);return d;}
+      function hm(d){return pad(d.getHours())+':'+pad(d.getMinutes());}
+      const opts=[{l:'in 1 hr',d:plus(1)},{l:'in 2 hr',d:plus(2)},{l:'in 3 hr',d:plus(3)}];
+      modal.innerHTML='<div style=&quot;background:#161b22;border:1px solid #3fb950;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));width:100%;max-width:560px&quot;>'+
+        '<div style=&quot;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px&quot;><div style=&quot;font-size:15px;font-weight:700;color:#e6edf3&quot;>When are you training?</div>'+
+        '<button onclick=&quot;document.getElementById(\'battery-train-modal\').remove()&quot; style=&quot;background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer&quot;>✕</button></div>'+
+        '<div style=&quot;display:flex;gap:8px;margin-bottom:10px&quot;>'+
+          opts.map(o=>'<button onclick=&quot;batterySetTrain(\''+hm(o.d)+'\');document.getElementById(\'battery-train-modal\').remove()&quot; style=&quot;flex:1;background:#0d1117;border:1px solid #3fb950;color:#3fb950;border-radius:10px;padding:13px 6px;cursor:pointer;font-family:\'SF Mono\',monospace;font-size:13px&quot;>'+o.l+'<br><span style=&quot;color:#6e7681;font-size:10px&quot;>'+fmt(o.d)+'</span></button>').join('')+'</div>'+
+        '<div style=&quot;display:flex;gap:8px;align-items:center&quot;><input type=&quot;time&quot; id=&quot;_trainCustom&quot; style=&quot;flex:1;background:#0d1117;border:1px solid #2d333b;color:#79b8ff;padding:11px;border-radius:10px;font-size:15px&quot;>'+
+          '<button onclick=&quot;(function(){var v=document.getElementById(\'_trainCustom\').value;if(v){batterySetTrain(v);document.getElementById(\'battery-train-modal\').remove();}})()&quot; style=&quot;background:#3fb950;border:none;color:#0d1117;font-weight:700;border-radius:10px;padding:11px 16px;cursor:pointer&quot;>set</button></div>'+
+        '<label style=&quot;display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:#8b949e;cursor:pointer&quot;><input type=&quot;checkbox&quot; id=&quot;_trainSaveEvent&quot; style=&quot;width:16px;height:16px&quot;> Also save as a workout event</label></div>';
+    };
+    window.batterySetTrain=function(v){
+      setTrainRaw(v);
+      try{ const cb=document.getElementById('_trainSaveEvent');
+        if(v &amp;&amp; cb &amp;&amp; cb.checked){
+          const evs=JSON.parse(localStorage.getItem('fuel-events')||'[]');
+          evs.push({id:Date.now(),type:'lift',date:(typeof todayKey==='function'?todayKey():new Date().toISOString().slice(0,10)),notes:'Training '+v});
+          localStorage.setItem('fuel-events',JSON.stringify(evs));
+        }
+      }catch(e){}
+    };
+    window.batteryRenderRunway=renderRunway;
+    if(document.readyState!=='loading') setTimeout(renderRunway,350);
+    else document.addEventListener('DOMContentLoaded',()=>setTimeout(renderRunway,350));
+    setInterval(()=>{ if(getTrain()) renderRunway(); }, 60000);
   })();
 
 </script>
