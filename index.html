@@ -58,7 +58,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">v1.7 · Jun 1</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.01</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -7797,6 +7797,7 @@ body.youth #youth-banner{display:block}
 "></iframe>
 <section id="view-game">
 <div id="youth-banner">Youth mode — Kole (6, active). Fuel = growth-based food protein + water, tuned for an active kid. No supplements or stimulants shown. Arm work is light/optional at this age.</div>
+<div id="outlook-3d"></div>
 <div class="gd-card gold"><h3>⚡ Game Day Fusion</h3><p>Pick a game from events (FUEL → Events) or set first pitch. BATTERY back-builds the prep — <span style="color:#ff6b68">arm (red)</span> + <span style="color:var(--goldb)">fuel (gold)</span>, one schedule.</p></div>
 <div class="evpick"><label>Game</label><select id="gd-event"><option value="">— manual —</option></select></div>
 <div class="evpick"><label>First Pitch</label><input type="time" id="gd-time" value="09:00"></div>
@@ -7898,10 +7899,10 @@ function reloadFrames(){const tier=(profile==='kole')?'youth':'adult';
  FRAMES.arm.srcdoc=FRAMES.arm.getAttribute('srcdoc');FRAMES.fuel.srcdoc=FRAMES.fuel.getAttribute('srcdoc');}
 function setProfile(p){if(p===profile)return;snapshotCurrent();profile=p;localStorage.setItem('battery-profile',p);
  renderSwitch();
- document.body.classList.toggle('youth',p==='kole');restoreProfile();reloadFrames();buildGameDay();}
+ document.body.classList.toggle('youth',p==='kole');restoreProfile();reloadFrames();buildGameDay();buildOutlook();}
 function go(v){FRAMES.arm.classList.toggle('on',v==='arm');FRAMES.fuel.classList.toggle('on',v==='fuel');
  document.getElementById('view-game').classList.toggle('on',v==='game');
- document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));if(v==='game')buildGameDay();}
+ document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));if(v==='game'){buildGameDay();buildOutlook();}}
 
 /* GAME DAY */
 const DAYOF=[{off:195,tag:'fuel',what:"Wake. Water + L-Theanine + Creatine/Alpha-GPC."},{off:180,tag:'fuel',what:"Main meal: cottage cheese (½c), banana, sourdough."},{off:120,tag:'arm',what:"J-bands + stretch at The Clubhouse (15–30 min)."},{off:90,tag:'fuel',what:"Thorne whey shake (post J-bands)."},{off:60,tag:'arm',what:"Arrive field. Team warmups, throwing progression."},{off:45,tag:'fuel',what:"Animal Pump NS stick pack."},{off:30,tag:'arm',what:"Position work / final long toss."},{off:30,tag:'fuel',what:"Optional ½ banana."},{off:15,tag:'fuel',what:"Water only from here."},{off:0,tag:'arm',what:"FIRST PITCH ⚡"}];
@@ -7909,6 +7910,70 @@ const DAYOF_YOUTH=[{off:120,tag:'fuel',what:"Breakfast: eggs/oatmeal + fruit + w
 const PRELOAD=[{d:2,tag:'fuel',what:"T-2: normal training day. Baseline. Sleep."},{d:1,tag:'fuel',what:"T-1: pre-load — protein +15%, water +20oz, 1 LMNT/Liquid IV."},{d:1,tag:'arm',what:"T-1: light arm-care only. No heavy bullpen. Mobility."}];
 const PRELOAD_YOUTH=[{d:1,tag:'fuel',what:"T-1: normal dinner, good hydration, early bedtime."}];
 function readEvents(){try{const r=localStorage.getItem('fuel-events');return r?JSON.parse(r):[];}catch(e){return[];}}
+
+/* ===== 3-DAY OUTLOOK — forward plan fusing games + training + arm taper ===== */
+function readTrainDays(){try{return JSON.parse(localStorage.getItem('arm-care-traindays')||'[]');}catch(e){return[];}}
+function buildOutlook(){
+  const host=document.getElementById('outlook-3d'); if(!host) return;
+  const youth=(profile==='kole');
+  const dayCodes=['SU','MO','TU','WE','TH','FR','SA'];
+  const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const events=readEvents();
+  const trainDays=readTrainDays();
+  function dstr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function gameOn(dateStr){ return events.find(e=>['game','bullpen','bp'].includes(e.type)&&e.date===dateStr); }
+  // any game within the next 5 days drives taper context
+  const today=new Date(); today.setHours(0,0,0,0);
+  function nextGameFrom(day){
+    return events.filter(e=>['game','bullpen','bp'].includes(e.type))
+      .map(e=>({...e,d:Math.round((new Date(e.date+'T00:00:00')-day)/864e5)}))
+      .filter(e=>e.d>=0).sort((a,b)=>a.d-b.d)[0]||null;
+  }
+  let cards='';
+  for(let i=0;i<3;i++){
+    const day=new Date(today.getTime()+i*864e5);
+    const code=dayCodes[day.getDay()];
+    const label = i===0?'Today':(i===1?'Tomorrow':dayNames[day.getDay()]);
+    const dk=dstr(day);
+    const game=gameOn(dk);
+    const isTrain=trainDays.includes(code);
+    const ng=nextGameFrom(day);
+    // determine the day's headline + fuel posture + arm note
+    let head, fuelNote, armNote, accent;
+    if(game){
+      head=(game.notes||game.type)+' — game day'; accent='#d4a017';
+      fuelNote=youth?'Light breakfast, water, fun.':'Full game-day fuel: pre-load done, water early, water-only final 45.';
+      armNote=youth?'Play ball.':'Full arm care + extended warmup. No bonus strength.';
+    } else if(ng && ng.d===1){
+      head='Day before '+(ng.notes||'game'); accent='#f0b832';
+      fuelNote=youth?'Normal dinner, hydrate, sleep.':'Pre-load: protein +15%, water +20oz, an electrolyte.';
+      armNote=youth?'Light catch only.':(positionsHasPitcher()?'PITCHER: no plyo/long-toss. Light bands + bullpen prep.':'Light catch. Skip heavy strength. Full arm care.');
+    } else if(ng && ng.d===2){
+      head=(ng.notes||'Game')+' in 2 days'; accent='#3fb950';
+      fuelNote=youth?'Eat normal, drink water.':'Baseline + good sleep. Last normal day before pre-load.';
+      armNote=youth?'Normal play.':'Long-toss heavy OK. Last full bonus day.';
+    } else if(isTrain){
+      head='Training day'; accent='#3fb950';
+      fuelNote=youth?'Good food + water before play.':'Train target: protein on point, water +50oz. Fuel runway when you set a time.';
+      armNote=youth?'Warm up with Dad.':'Full arm care around your session.';
+    } else {
+      head='Rest / baseline'; accent='#58a6ff';
+      fuelNote=youth?'Normal meals + water.':'Maintenance protein, steady water. Recovery focus.';
+      armNote=youth?'Optional light throwing.':'Recovery — J-bands, mobility, optional light catch.';
+    }
+    cards+='<div style="background:#161b22;border-left:3px solid '+accent+';border-radius:0 12px 12px 0;padding:12px 13px;margin-bottom:9px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">'+
+        '<span style="font-size:13px;font-weight:700;color:#e6edf3">'+label+'</span>'+
+        '<span style="font-size:11px;color:'+accent+';font-family:\'SF Mono\',monospace;letter-spacing:.5px">'+head+'</span></div>'+
+      '<div style="font-size:12px;color:#c9d1d9;line-height:1.5"><span style="color:#f0b832">⛽</span> '+fuelNote+'</div>'+
+      '<div style="font-size:12px;color:#c9d1d9;line-height:1.5;margin-top:3px"><span style="color:#ff6b68">💪</span> '+armNote+'</div></div>';
+  }
+  host.innerHTML='<div class="gd-card" style="border-color:#58a6ff"><h3 style="color:#58a6ff">🔭 Next 3 Days</h3>'+
+    '<p style="margin-bottom:10px">Forward plan from your games, training days, and taper.</p>'+cards+'</div>';
+}
+function positionsHasPitcher(){
+  try{ return (localStorage.getItem('arm-care-pos')||'').split(',').includes('pitcher'); }catch(e){ return false; }
+}
 function pad(n){return(n<10?'0':'')+n}
 function fmt(d){let h=d.getHours(),m=d.getMinutes(),ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+pad(m)+' '+ap}
 function buildGameDay(){
