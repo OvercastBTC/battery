@@ -16,13 +16,15 @@ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
 background:linear-gradient(180deg,#0d1117 80%,#0d111700);border-bottom:1px solid var(--line);
 backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px}
 #hostbar .bolt{width:22px;height:22px}#hostbar h1{font-size:15px;letter-spacing:3px;font-weight:800}
-#prof-switch{margin-left:auto;display:flex;gap:5px;background:var(--steel);border:1px solid var(--line);border-radius:20px;padding:3px}
-#prof-switch button{background:none;border:none;color:var(--dim);font-size:11px;font-weight:700;letter-spacing:.5px;
+#prof-switch{margin-left:auto;display:flex;gap:5px;background:var(--steel);border:1px solid var(--line);border-radius:20px;padding:3px;max-width:62%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#prof-switch::-webkit-scrollbar{display:none}
+#prof-switch .newbtn{color:var(--gold);border:1px dashed var(--line)!important;white-space:nowrap}
+#prof-switch button{background:none;border:none;color:var(--dim);font-size:11px;font-weight:700;letter-spacing:.5px;white-space:nowrap;
 padding:6px 10px;border-radius:16px;cursor:pointer;transition:.15s}
 #prof-switch button.on{background:var(--gold);color:var(--ink)}
 #prof-switch button.youth.on{background:var(--green)}
-#stage{position:absolute;top:0;left:0;right:0;bottom:56px;padding-top:calc(env(safe-area-inset-top) + 42px)}
-iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:var(--ink)}
+#stage{position:absolute;top:0;left:0;right:0;bottom:56px}
+iframe{position:absolute;top:calc(env(safe-area-inset-top) + 52px);left:0;right:0;bottom:0;width:100%;height:calc(100% - env(safe-area-inset-top) - 52px);border:0;display:none;background:var(--ink)}
 iframe.on{display:block}
 #view-game{position:absolute;inset:0;display:none;overflow-y:auto;
 padding:calc(env(safe-area-inset-top) + 54px) 14px 18px;-webkit-overflow-scrolling:touch}
@@ -57,11 +59,7 @@ body.youth #youth-banner{display:block}
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
 <h1>BATTERY</h1>
-<div id="prof-switch">
-<button class="on" data-prof="adam" onclick="setProfile('adam')">ADAM</button>
-<button class="youth" data-prof="kole" onclick="setProfile('kole')">KOLE</button>
-<button data-prof="guest" onclick="setProfile('guest')">GUEST</button>
-</div></div>
+<div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
 <html lang=&quot;en&quot;>
@@ -7267,6 +7265,45 @@ if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>se
 
 const FRAMES={arm:document.getElementById('f-arm'),fuel:document.getElementById('f-fuel')};
 let profile=localStorage.getItem('battery-profile')||'adam';
+
+/* ===== DYNAMIC PROFILE REGISTRY =====
+   Adam + Kole are pinned. Additional people are stored in 'battery-people'
+   as [{id,name}]. Each profile's app data is namespaced battery::<id>::<key>. */
+function getPeople(){try{return JSON.parse(localStorage.getItem('battery-people')||'[]');}catch(e){return[];}}
+function setPeople(a){localStorage.setItem('battery-people',JSON.stringify(a));}
+function profileName(id){
+  if(id==='adam')return 'ADAM'; if(id==='kole')return 'KOLE';
+  const p=getPeople().find(x=>x.id===id); return p?p.name.toUpperCase():id.toUpperCase();
+}
+function renderSwitch(){
+  const wrap=document.getElementById('prof-switch'); if(!wrap)return;
+  let html='<button class="'+(profile==='adam'?'on':'')+'" data-prof="adam" onclick="setProfile(\'adam\')">ADAM</button>';
+  html+='<button class="youth '+(profile==='kole'?'on':'')+'" data-prof="kole" onclick="setProfile(\'kole\')">KOLE</button>';
+  getPeople().forEach(p=>{
+    html+='<button class="'+(profile===p.id?'on':'')+'" data-prof="'+p.id+'" onclick="setProfile(\''+p.id+'\')" '+
+      'ondblclick="removePerson(\''+p.id+'\')">'+p.name.toUpperCase()+'</button>';
+  });
+  html+='<button class="newbtn" onclick="newPerson()">+ NEW</button>';
+  wrap.innerHTML=html;
+}
+function newPerson(){
+  const name=(prompt('New profile name (e.g. Rafe):')||'').trim();
+  if(!name)return;
+  const id='p'+Date.now().toString(36);
+  const people=getPeople(); people.push({id,name}); setPeople(people);
+  setProfile(id);   // switches + renders
+}
+function removePerson(id){
+  const p=getPeople().find(x=>x.id===id); if(!p)return;
+  if(!confirm('Delete profile "'+p.name+'" and its data? This cannot be undone.'))return;
+  // wipe that profile's namespaced data
+  const pre='battery::'+id+'::';
+  Object.keys(localStorage).filter(k=>k.startsWith(pre)).forEach(k=>localStorage.removeItem(k));
+  setPeople(getPeople().filter(x=>x.id!==id));
+  if(profile===id){ profile='adam'; localStorage.setItem('battery-profile','adam'); restoreProfile(); reloadFrames(); }
+  renderSwitch(); buildGameDay();
+}
+window.newPerson=newPerson; window.removePerson=removePerson; window.renderSwitch=renderSwitch;
 const PREFIXES=['fuel-','arm-care-'];
 function liveKeys(){return Object.keys(localStorage).filter(k=>PREFIXES.some(p=>k.startsWith(p)));}
 function snapshotCurrent(){liveKeys().forEach(k=>localStorage.setItem('battery::'+profile+'::'+k,localStorage.getItem(k)));}
@@ -7275,7 +7312,7 @@ function reloadFrames(){const tier=(profile==='kole')?'youth':'adult';
  FRAMES.fuel.onload=()=>{try{FRAMES.fuel.contentWindow.BATTERY_TIER=tier;const w=FRAMES.fuel.contentWindow;if(w.recomputeDayTargets)w.recomputeDayTargets();if(w.refreshAll)w.refreshAll();if(w.batteryRelayout)setTimeout(w.batteryRelayout,200);}catch(e){}};
  FRAMES.arm.srcdoc=FRAMES.arm.getAttribute('srcdoc');FRAMES.fuel.srcdoc=FRAMES.fuel.getAttribute('srcdoc');}
 function setProfile(p){if(p===profile)return;snapshotCurrent();profile=p;localStorage.setItem('battery-profile',p);
- document.querySelectorAll('#prof-switch button').forEach(b=>b.classList.toggle('on',b.dataset.prof===p));
+ renderSwitch();
  document.body.classList.toggle('youth',p==='kole');restoreProfile();reloadFrames();buildGameDay();}
 function go(v){FRAMES.arm.classList.toggle('on',v==='arm');FRAMES.fuel.classList.toggle('on',v==='fuel');
  document.getElementById('view-game').classList.toggle('on',v==='game');
@@ -7341,7 +7378,7 @@ window.exportGameICS=exportGameICS;
 setInterval(()=>{if(document.getElementById('view-game').classList.contains('on'))buildGameDay();},60000);
 
 /* BOOT */
-document.querySelectorAll('#prof-switch button').forEach(b=>b.classList.toggle('on',b.dataset.prof===profile));
+renderSwitch();
 document.body.classList.toggle('youth',profile==='kole');
 restoreProfile();reloadFrames();buildGameDay();
 </script></body></html>
