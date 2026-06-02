@@ -29,6 +29,16 @@ iframe.on{display:block}
 #view-game{position:absolute;inset:0;display:none;overflow-y:auto;
 padding:calc(env(safe-area-inset-top) + 54px) 14px 18px;-webkit-overflow-scrolling:touch}
 #view-game.on{display:block}
+#view-data{position:absolute;inset:0;display:none;overflow-y:auto;
+padding:calc(env(safe-area-inset-top) + 54px) 14px 24px;-webkit-overflow-scrolling:touch}
+#view-data.on{display:block}
+#view-data h3{margin:0 0 10px;font-size:15px;letter-spacing:1px}
+#view-data .gd-card{background:var(--steel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+#view-data .dbtn{width:100%;font-family:'SF Mono',monospace;font-size:13px;letter-spacing:1px;padding:13px;border-radius:11px;cursor:pointer;margin-bottom:10px;background:#161b22}
+#view-data .dbtn.bk{border:1px solid var(--gold);color:var(--gold)}
+#view-data .dbtn.rs{border:1px solid #3fb950;color:#3fb950}
+#view-data .dmeta{font-size:11px;color:var(--dim);line-height:1.5}
+#view-data #data-status{font-size:12px;margin-top:8px;min-height:16px}
 .gd-card{background:var(--steel);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px}
 .gd-card.gold{border-color:var(--gold)}.gd-card h3{font-size:15px;margin-bottom:7px}.gd-card p{font-size:13px;color:var(--dim);line-height:1.5}
 .evpick{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
@@ -58,7 +68,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.05</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.06</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -7881,17 +7891,33 @@ body.youth #youth-banner{display:block}
 <div class="evpick"><label>First Pitch</label><input type="time" id="gd-time" value="09:00"></div>
 <button onclick="exportGameICS()" style="width:100%;background:#161b22;border:1px solid #3fb950;color:#3fb950;font-family:'SF Mono',monospace;font-size:13px;letter-spacing:1px;padding:13px;border-radius:11px;cursor:pointer;margin-bottom:14px">📅 ADD PREP TO CALENDAR</button>
 <div id="gd-out"></div>
+</section>
+<section id="view-data">
+<h3>⚙️ Data &amp; Profiles</h3>
+<div class="gd-card gold">
+<h3 style="margin-bottom:6px">Whole-App Backup</h3>
+<p class="dmeta" style="margin:0 0 12px">Saves <b>every profile</b> (Adam, Kole, and anyone you added) plus the active profile and people list into one <code>.json</code> file. Use it to move BATTERY to a new device or to reset and restore later.</p>
+<button class="dbtn bk" onclick="batteryExportAll()">⬆ BACKUP EVERYTHING</button>
+<button class="dbtn rs" onclick="document.getElementById('data-import-file').click()">⬇ RESTORE FROM BACKUP</button>
+<input id="data-import-file" type="file" accept="application/json,.json" style="display:none" onchange="batteryImportAll(this.files[0]); this.value='';">
+<div id="data-status"></div>
+</div>
+<div class="gd-card">
+<h3 style="margin-bottom:6px">Profiles On This Device</h3>
+<div id="data-profiles" class="dmeta"></div>
+</div>
 </section></div>
 <div id="tabbar">
 <button class="on" data-v="arm" onclick="go('arm')"><span class="ico">🦾</span><span class="lb">ARM</span></button>
 <button data-v="fuel" onclick="go('fuel')"><span class="ico">🔋</span><span class="lb">FUEL</span></button>
 <button data-v="game" onclick="go('game')"><span class="ico">⚡</span><span class="lb">GAME</span></button>
+<button data-v="data" onclick="go('data')"><span class="ico">⚙️</span><span class="lb">DATA</span></button>
 </div>
 <div id="install"><span class="x" onclick="document.getElementById('install').style.display='none'">✕</span>
 <b>Install BATTERY</b><br>In Safari: Share → <b>Add to Home Screen</b>. Full-screen, offline.</div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v5').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v5').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v6').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v6').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== SEED of real data per profile (data-safe: only fills missing keys) ===== */
@@ -7990,7 +8016,74 @@ function setProfile(p){if(p===profile)return;snapshotCurrent();profile=p;localSt
  document.body.classList.toggle('youth',p==='kole');restoreProfile();reloadFrames();buildGameDay();buildOutlook();}
 function go(v){FRAMES.arm.classList.toggle('on',v==='arm');FRAMES.fuel.classList.toggle('on',v==='fuel');
  document.getElementById('view-game').classList.toggle('on',v==='game');
- document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));if(v==='game'){buildGameDay();buildOutlook();}}
+ document.getElementById('view-data').classList.toggle('on',v==='data');
+ document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));if(v==='game'){buildGameDay();buildOutlook();}if(v==='data'){renderDataView();}}
+
+/* ===== WHOLE-APP BACKUP / RESTORE (unified, all profiles) =====
+   Export covers every profile's namespaced data (battery::<id>::*) plus the
+   active-profile pointer, people registry, live-owner, and seed/migration
+   guards — so a restore reproduces the exact multi-profile state and does NOT
+   re-seed demo data over the imported data. */
+const BACKUP_META_KEYS=['battery-profile','battery-people','battery-live-owner','battery-seeded-v11','battery-fix-v16'];
+function batteryCollectAll(){
+  // Flush the active profile's live keys into its namespace first.
+  try{snapshotCurrent();}catch(e){}
+  const data={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(!k)continue;
+    if(k.startsWith('battery::')||BACKUP_META_KEYS.indexOf(k)!==-1){
+      data[k]=localStorage.getItem(k);
+    }
+  }
+  return data;
+}
+function batteryExportAll(){
+  const data=batteryCollectAll();
+  const profiles=['adam','kole'].concat(getPeople().map(p=>p.id));
+  const payload={app:'battery',kind:'full-backup',schema:1,exportedAt:new Date().toISOString(),activeProfile:profile,profiles:profiles,data:data};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  const stamp=new Date().toISOString().slice(0,10);
+  a.href=URL.createObjectURL(blob); a.download='battery-full-backup-'+stamp+'.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},0);
+  const n=Object.keys(data).length;
+  const st=document.getElementById('data-status');
+  if(st){st.style.color='var(--gold)';st.textContent='Backed up '+profiles.length+' profiles ('+n+' keys).';}
+}
+function batteryImportAll(file){
+  const st=document.getElementById('data-status');
+  if(!file){return;}
+  const rd=new FileReader();
+  rd.onload=()=>{
+    let payload;
+    try{payload=JSON.parse(rd.result);}catch(e){if(st){st.style.color='#ff6b68';st.textContent='Not a valid JSON file.';}return;}
+    if(!payload||payload.app!=='battery'||payload.kind!=='full-backup'||!payload.data){
+      if(st){st.style.color='#ff6b68';st.textContent='This is not a BATTERY full backup.';}return;
+    }
+    const keys=Object.keys(payload.data);
+    if(!confirm('Restore '+(payload.profiles?payload.profiles.length:'all')+' profiles from this backup?\n\nThis REPLACES all BATTERY data on this device with the backup ('+keys.length+' keys).'))return;
+    // Wipe existing namespaced + live + meta data, then write the backup.
+    Object.keys(localStorage).filter(k=>k.startsWith('battery::')||PREFIXES.some(p=>k.startsWith(p))||BACKUP_META_KEYS.indexOf(k)!==-1).forEach(k=>localStorage.removeItem(k));
+    keys.forEach(k=>localStorage.setItem(k,payload.data[k]));
+    // Ensure no re-seed clobbers the imported data on next boot.
+    localStorage.setItem('battery-seeded-v11','1');
+    if(st){st.style.color='#3fb950';st.textContent='Restored '+keys.length+' keys. Reloading…';}
+    setTimeout(()=>location.reload(),400);
+  };
+  rd.readAsText(file);
+}
+function renderDataView(){
+  const el=document.getElementById('data-profiles'); if(!el)return;
+  const rows=[];
+  const fmtCount=(id)=>{const pre='battery::'+id+'::';return Object.keys(localStorage).filter(k=>k.startsWith(pre)).length;};
+  rows.push('<b>ADAM</b> — '+fmtCount('adam')+' stored keys'+(profile==='adam'?' · active':''));
+  rows.push('<b>KOLE</b> (youth) — '+fmtCount('kole')+' stored keys'+(profile==='kole'?' · active':''));
+  getPeople().forEach(p=>{rows.push('<b>'+p.name.toUpperCase()+'</b> — '+fmtCount(p.id)+' stored keys'+(profile===p.id?' · active':''));});
+  el.innerHTML=rows.join('<br>');
+}
+window.batteryExportAll=batteryExportAll; window.batteryImportAll=batteryImportAll; window.renderDataView=renderDataView; window.batteryCollectAll=batteryCollectAll;
 
 /* GAME DAY */
 const DAYOF=[{off:195,tag:'fuel',what:"Wake. Water + L-Theanine + Creatine/Alpha-GPC."},{off:180,tag:'fuel',what:"Main meal: cottage cheese (½c), banana, sourdough."},{off:120,tag:'arm',what:"J-bands + stretch at The Clubhouse (15–30 min)."},{off:90,tag:'fuel',what:"Thorne whey shake (post J-bands)."},{off:60,tag:'arm',what:"Arrive field. Team warmups, throwing progression."},{off:45,tag:'fuel',what:"Animal Pump NS stick pack."},{off:30,tag:'arm',what:"Position work / final long toss."},{off:30,tag:'fuel',what:"Optional ½ banana."},{off:15,tag:'fuel',what:"Water only from here."},{off:0,tag:'arm',what:"FIRST PITCH ⚡"}];
