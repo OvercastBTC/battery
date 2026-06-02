@@ -58,7 +58,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.04</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.05</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -891,6 +891,7 @@ body.youth #youth-banner{display:block}
   <button class=&quot;tab&quot; data-tab=&quot;schedule&quot;>Schedule</button>
   <button class=&quot;tab&quot; data-tab=&quot;sources&quot;>Sources</button>
   <button class=&quot;tab&quot; data-tab=&quot;extras&quot;>Daily Extras</button>
+  <button class=&quot;tab&quot; data-tab=&quot;history&quot;>History</button>
 </nav>
 
 <!-- ============== OVERVIEW ============== -->
@@ -2599,6 +2600,14 @@ body.youth #youth-banner{display:block}
   </div>
 </div>
 
+<!-- ============== HISTORY (read-only) ============== -->
+<div class=&quot;page&quot; id=&quot;page-history&quot;>
+  <h2>History</h2>
+  <p class=&quot;lede&quot;>Your completed arm-care days, most recent first. Read-only &mdash; tap any day to see which exercises you logged.</p>
+  <div id=&quot;arm-hist-summary&quot; class=&quot;card blue&quot;></div>
+  <div id=&quot;arm-hist-list&quot;></div>
+</div>
+
 
 </div>
 
@@ -2617,6 +2626,8 @@ body.youth #youth-banner{display:block}
     pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + tabName));
     // Reset scroll to top of page area, NOT all the way to top — keeps header visible context
     window.scrollTo({ top: 0, behavior: 'auto' });
+    // Render read-only history on demand
+    if (tabName === 'history') renderArmHistory();
     // Persist last tab
     storeSet('arm-care-last-tab', tabName);
   }
@@ -2794,6 +2805,71 @@ body.youth #youth-banner{display:block}
     storeSet(today, '');
     document.querySelectorAll('.step').forEach(s => s.classList.remove('done'));
     updateCounter();
+  }
+
+  /* ===== HISTORY (read-only render of arm-care-done-* day keys) ===== */
+  function buildExNameMap() {
+    const map = {};
+    document.querySelectorAll('.step').forEach(s => {
+      const id = s.dataset.ex;
+      if (!id) return;
+      const nameEl = s.querySelector('.step-name');
+      let name = nameEl ? nameEl.textContent.trim() : id;
+      map[id] = name.replace(/\s+/g, ' ');
+    });
+    return map;
+  }
+
+  function collectArmHistory() {
+    const days = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      const m = k && k.match(/^arm-care-done-(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      if (!m) continue;
+      const ids = (localStorage.getItem(k) || '').split(',').filter(Boolean);
+      if (ids.length === 0) continue;
+      const dt = new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10));
+      days.push({ key: k, date: dt, ids: ids });
+    }
+    days.sort((a, b) => b.date - a.date);
+    return days;
+  }
+
+  function toggleHistDay(idx) {
+    const el = document.getElementById('hist-detail-' + idx);
+    if (el) el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+  }
+
+  function renderArmHistory() {
+    const listEl = document.getElementById('arm-hist-list');
+    const sumEl = document.getElementById('arm-hist-summary');
+    if (!listEl) return;
+    const nameMap = buildExNameMap();
+    const days = collectArmHistory();
+
+    if (sumEl) {
+      const totalDays = days.length;
+      const totalEx = days.reduce((n, d) => n + d.ids.length, 0);
+      const streak = parseInt(storeGet('arm-care-streak', '0'), 10) || 0;
+      const allTime = parseInt(storeGet('arm-care-total', '0'), 10) || 0;
+      sumEl.innerHTML =
+        `<div class='card-head'><div class='card-title'>Summary</div><span class='badge blue'>Read-Only</span></div>`
+        + `<p><b>${totalDays}</b> day${totalDays === 1 ? '' : 's'} logged &middot; <b>${totalEx}</b> exercise check-ins &middot; current streak <b>${streak}</b> &middot; all-time taps <b>${allTime}</b></p>`;
+    }
+
+    if (days.length === 0) {
+      listEl.innerHTML = `<p class='lede' style='opacity:.7'>No completed days yet. Check off exercises on the routine tabs and they will appear here.</p>`;
+      return;
+    }
+
+    const fmt = (dt) => dt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    listEl.innerHTML = days.map((d, idx) => {
+      const detail = d.ids.map(id => `<li>${nameMap[id] || id}</li>`).join('');
+      return `<div class='card' style='cursor:pointer' onclick='toggleHistDay(${idx})'>`
+        + `<div class='card-head'><div class='card-title'>${fmt(d.date)}</div><span class='badge blue'>${d.ids.length} done</span></div>`
+        + `<ul class='hist-detail' id='hist-detail-${idx}' style='display:none;margin-top:8px'>${detail}</ul>`
+        + `</div>`;
+    }).join('');
   }
 
   /* ===== INIT ===== */
@@ -7815,7 +7891,7 @@ body.youth #youth-banner{display:block}
 <b>Install BATTERY</b><br>In Safari: Share → <b>Add to Home Screen</b>. Full-screen, offline.</div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v4').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v4').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v5').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v5').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== SEED of real data per profile (data-safe: only fills missing keys) ===== */
