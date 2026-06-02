@@ -58,7 +58,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.01</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -7892,8 +7892,18 @@ function removePerson(id){
 window.newPerson=newPerson; window.removePerson=removePerson; window.renderSwitch=renderSwitch;
 const PREFIXES=['fuel-','arm-care-'];
 function liveKeys(){return Object.keys(localStorage).filter(k=>PREFIXES.some(p=>k.startsWith(p)));}
-function snapshotCurrent(){liveKeys().forEach(k=>localStorage.setItem('battery::'+profile+'::'+k,localStorage.getItem(k)));}
-function restoreProfile(){liveKeys().forEach(k=>localStorage.removeItem(k));const pre='battery::'+profile+'::';Object.keys(localStorage).filter(k=>k.startsWith(pre)).forEach(k=>localStorage.setItem(k.slice(pre.length),localStorage.getItem(k)));}
+function snapshotCurrent(){liveKeys().forEach(k=>localStorage.setItem('battery::'+profile+'::'+k,localStorage.getItem(k)));
+  localStorage.setItem('battery-live-owner',profile);}
+function restoreProfile(){liveKeys().forEach(k=>localStorage.removeItem(k));const pre='battery::'+profile+'::';Object.keys(localStorage).filter(k=>k.startsWith(pre)).forEach(k=>localStorage.setItem(k.slice(pre.length),localStorage.getItem(k)));
+  localStorage.setItem('battery-live-owner',profile);}
+/* CONTINUOUS PERSISTENCE — the live fuel and arm-care keys are mirrored to the active
+   profile's namespace constantly, so a reload or PWA eviction can never lose recent
+   entries. (The old bug: snapshot only ran on profile-switch, so data logged without a
+   switch was wiped by restoreProfile() on next boot.) */
+function persistLive(){ if(localStorage.getItem('battery-live-owner')===profile) snapshotCurrent(); }
+setInterval(persistLive, 4000);                       // mirror every 4s
+window.addEventListener('pagehide', persistLive);     // and on background/close
+window.addEventListener('visibilitychange', ()=>{ if(document.hidden) persistLive(); });
 function reloadFrames(){const tier=(profile==='kole')?'youth':'adult';
  FRAMES.fuel.onload=()=>{try{FRAMES.fuel.contentWindow.BATTERY_TIER=tier;const w=FRAMES.fuel.contentWindow;if(w.recomputeDayTargets)w.recomputeDayTargets();if(w.refreshAll)w.refreshAll();if(w.batteryRelayout)setTimeout(w.batteryRelayout,200);}catch(e){}};
  FRAMES.arm.srcdoc=FRAMES.arm.getAttribute('srcdoc');FRAMES.fuel.srcdoc=FRAMES.fuel.getAttribute('srcdoc');}
@@ -8030,5 +8040,16 @@ setInterval(()=>{if(document.getElementById('view-game').classList.contains('on'
 /* BOOT */
 renderSwitch();
 document.body.classList.toggle('youth',profile==='kole');
-restoreProfile();reloadFrames();buildGameDay();
+/* CRITICAL: before restoring, preserve any live data from the previous session.
+   The live keys belong to whoever last owned them (battery-live-owner). Snapshot
+   them into THAT owner's namespace first, so restoring the active profile can't
+   delete entries logged in the prior session. This fixes the reload data-loss bug. */
+(function safeBoot(){
+  const liveOwner=localStorage.getItem('battery-live-owner');
+  if(liveOwner){
+    const lk=liveKeys();
+    if(lk.length){ lk.forEach(k=>localStorage.setItem('battery::'+liveOwner+'::'+k, localStorage.getItem(k))); }
+  }
+})();
+restoreProfile();reloadFrames();buildGameDay();buildOutlook();
 </script></body></html>
