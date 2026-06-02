@@ -10,7 +10,7 @@
 :root{--ink:#0d1117;--steel:#161b22;--steel2:#1c2128;--line:#2d333b;--bone:#e6edf3;--dim:#8b949e;--faint:#6e7681;
 --gold:#d4a017;--goldb:#f0b832;--blood:#da3633;--green:#3fb950;--blue:#58a6ff}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:var(--ink);color:var(--bone);
+html,body{height:100%;height:-webkit-fill-available;background:var(--ink);color:var(--bone);
 font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;overflow:hidden}
 #hostbar{position:fixed;top:0;left:0;right:0;z-index:60;padding:calc(env(safe-area-inset-top) + 9px) 14px 9px;
 background:linear-gradient(180deg,#0d1117 80%,#0d111700);border-bottom:1px solid var(--line);
@@ -92,7 +92,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.10</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.11</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -7931,6 +7931,10 @@ body.youth #youth-banner{display:block}
 <h3 style="margin-bottom:6px">Profiles On This Device</h3>
 <div id="data-profiles" class="dmeta"></div>
 </div>
+<div class="gd-card" id="trt-card" style="display:none">
+<h3 style="margin-bottom:6px">TRT-Aware Hydration <span style="font-size:10px;color:var(--faint);letter-spacing:1px">ADULT ONLY</span></h3>
+<div id="trt-body"></div>
+</div>
 <div class="gd-card">
 <h3 style="margin-bottom:6px">Device &amp; Install</h3>
 <div id="data-device" class="dmeta"></div>
@@ -7956,7 +7960,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v10').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v10').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v11').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v11').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== SEED of real data per profile (data-safe: only fills missing keys) ===== */
@@ -8248,7 +8252,45 @@ function renderDataView(){
       '<div style="margin-top:8px">Screen: <b>'+di.w+'×'+di.h+'</b> pt · '+di.dpr+'× · ~'+(di.w*di.dpr)+'×'+(di.h*di.dpr)+' px</div>'+
       '<div>Likely device: <b>'+escHtml(di.guess)+'</b> <span style="opacity:.6">(inferred — iOS hides the exact model)</span></div>';
   }
+  renderTrtCard();
 }
+
+/* TRT-aware hydration (ADULT profiles only) — informational, NOT medical advice.
+   Stored per-profile at battery::<id>::trt = {on,hct,labs} so it rides in every
+   backup and is wiped when the profile is deleted. Youth profiles never see it. */
+function getTrt(id){try{const o=JSON.parse(localStorage.getItem('battery::'+id+'::trt')||'{}');return {on:!!o.on,hct:o.hct||'',labs:o.labs||''};}catch(e){return {on:false,hct:'',labs:''};}}
+function setTrt(id,o){try{localStorage.setItem('battery::'+id+'::trt',JSON.stringify(o));}catch(e){}}
+window.trtToggle=function(){if(!profile)return;const t=getTrt(profile);t.on=!t.on;setTrt(profile,t);renderTrtCard();};
+window.trtSave=function(field,val){if(!profile)return;const t=getTrt(profile);t[field]=val;setTrt(profile,t);renderTrtCard();};
+function renderTrtCard(){
+  const card=document.getElementById('trt-card'), body=document.getElementById('trt-body');
+  if(!card||!body)return;
+  if(!profile||profileTier(profile)!=='adult'){card.style.display='none';return;}
+  card.style.display='';
+  const t=getTrt(profile);
+  const ins='width:100%;margin-top:4px;background:#0d1117;border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:8px;font-size:13px';
+  let html='<label class="fr-check" style="margin:0 0 10px"><input type="checkbox" '+(t.on?'checked':'')+' onchange="trtToggle()"> On TRT — show hydration &amp; lab reminders for <b>'+escHtml(profileName(profile))+'</b></label>';
+  if(t.on){
+    html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+
+      '<label style="flex:1;min-width:120px;font-size:11px;color:var(--dim)">Hematocrit %<br><input type="number" step="0.1" min="0" max="70" value="'+escHtml(t.hct)+'" onchange="trtSave(\'hct\',this.value)" style="'+ins+'"></label>'+
+      '<label style="flex:1;min-width:120px;font-size:11px;color:var(--dim)">Last bloodwork<br><input type="date" value="'+escHtml(t.labs)+'" onchange="trtSave(\'labs\',this.value)" style="'+ins+'"></label>'+
+      '</div>';
+    const notes=[]; const hct=parseFloat(t.hct);
+    if(!isNaN(hct)){
+      if(hct>=54)notes.push(['blood','Hematocrit '+hct+'% is high — many clinicians act at ≥54%. Push water and talk with your physician about your levels.']);
+      else if(hct>=50)notes.push(['gold','Hematocrit '+hct+'% is on the higher side. Hydration matters more here — a higher hematocrit thickens blood, so keep water intake up and mention it at your next visit.']);
+      else notes.push(['green','Hematocrit '+hct+'% looks within a typical range. Keep hydrating normally.']);
+    }
+    if(t.labs){const days=Math.floor((Date.now()-new Date(t.labs).getTime())/86400000);
+      if(days>=90)notes.push(['gold','Last bloodwork was '+days+' days ago. TRT usually calls for periodic labs (hematocrit, PSA, etc.) — consider scheduling a check.']);}
+    else notes.push(['dim','Add your last bloodwork date to get a check-up reminder.']);
+    notes.forEach(function(n){const col=n[0]==='blood'?'var(--blood)':n[0]==='green'?'var(--green)':n[0]==='gold'?'var(--gold)':'var(--faint)';
+      html+='<div style="font-size:12px;line-height:1.5;color:'+col+';margin-bottom:8px">'+(n[0]==='dim'?'':'⚠ ')+n[1]+'</div>';});
+    html+='<div style="font-size:10px;color:var(--faint);margin-top:6px;border-top:1px solid var(--line);padding-top:8px">Informational only — BATTERY is not a medical device and this is not medical advice. Decisions about TRT, dosing, and bloodwork belong with your physician.</div>';
+  }
+  body.innerHTML=html;
+}
+window.renderTrtCard=renderTrtCard;
 window.batteryExportAll=batteryExportAll; window.batteryImportAll=batteryImportAll; window.renderDataView=renderDataView; window.batteryCollectAll=batteryCollectAll;
 
 /* GAME DAY */
