@@ -87,12 +87,14 @@ body.youth #youth-banner{display:block}
 #tabbar button{flex:1;height:50px;background:none;border:none;color:var(--faint);padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:"SF Mono",monospace}
 #tabbar button .ico{font-size:16px}#tabbar button .lb{font-size:9px;letter-spacing:1.5px}
 #tabbar button.on{color:var(--gold)}
+#tabbar button{position:relative}
+#tabbar button.warn .ico::after{content:'';position:absolute;top:6px;margin-left:14px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
 #install{position:fixed;left:14px;right:14px;bottom:70px;z-index:70;display:none;background:var(--steel);border:1px solid var(--gold);border-radius:13px;padding:13px 15px;font-size:12px;line-height:1.5;box-shadow:0 10px 30px #00000060}
 #install b{color:var(--goldb)}#install .x{position:absolute;top:8px;right:11px;color:var(--dim);cursor:pointer;font-size:16px}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.13</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.14</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -7929,6 +7931,7 @@ body.youth #youth-banner{display:block}
 <p class="dmeta" style="margin:10px 0 0">On iPhone, <b>Save / Share</b> opens the share sheet — tap <b>Save to Files</b> to pick a folder. (iOS apps can’t silently write to a Downloads folder, so the app also keeps an automatic in-app <b>restore point</b> every couple of minutes.)</p>
 <div id="data-lastbackup" class="dmeta" style="margin-top:10px"></div>
 <div id="data-autosnap" class="dmeta" style="margin-top:4px"></div>
+<div id="data-nudge" style="display:none;margin-top:10px;padding:10px 12px;border:1px solid var(--gold);border-radius:10px;background:#1c160a;color:var(--goldb);font-size:12px;line-height:1.5"></div>
 <div id="data-status"></div>
 </div>
 <div class="gd-card">
@@ -7964,7 +7967,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v13').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v13').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v14').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v14').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -8286,6 +8289,24 @@ function batteryRestoreAuto(){
   location.reload();
 }
 window.batteryRestoreAuto=batteryRestoreAuto;
+/* BACKUP-STALENESS GUARDIAN — the in-app auto-snapshot is wiped if the app is
+   deleted/reinstalled, so a FILE backup is the only loss-proof copy. If the last
+   file backup is missing or >7 days old (and profiles exist), flag the DATA tab
+   with an amber dot so the user sees it from anywhere, and show a prominent
+   nudge in the DATA view. Pure read + class toggle — no data touched. */
+function backupStaleDays(){
+  const ts=localStorage.getItem('battery-last-backup');
+  if(!ts)return Infinity;
+  const d=(Date.now()-new Date(ts).getTime())/86400000;
+  return isFinite(d)?d:Infinity;
+}
+function checkBackupHealth(){
+  const btn=document.querySelector('#tabbar button[data-v="data"]'); if(!btn)return;
+  const stale=getPeople().length>0 && backupStaleDays()>7;
+  btn.classList.toggle('warn',stale);
+  return stale;
+}
+window.checkBackupHealth=checkBackupHealth; window.backupStaleDays=backupStaleDays;
 function batteryImportAll(file){
   const st=document.getElementById('data-status');
   if(!file){return;}
@@ -8358,6 +8379,14 @@ function renderDataView(){
   if(as){const ats=batteryAutoSnapAge();
     if(ats){const d=new Date(ats);as.innerHTML='In-app restore point: <b>'+d.toLocaleString()+'</b>';as.style.color='';}
     else{as.innerHTML='In-app restore point: none yet (auto-saves a couple minutes after use).';as.style.color='var(--faint)';}}
+  const nudge=document.getElementById('data-nudge');
+  if(nudge){const days=backupStaleDays();
+    if(getPeople().length>0 && days>7){
+      const txt=days===Infinity?'You have never saved a file backup on this device.':'Your last file backup is '+Math.floor(days)+' days old.';
+      nudge.style.display='block';
+      nudge.innerHTML='⚠ '+txt+' The in-app restore point is wiped if you delete the app — <b>Save / Share a file backup</b> to be truly safe.';
+    }else{nudge.style.display='none';}}
+  try{checkBackupHealth();}catch(e){}
   const dv=document.getElementById('data-device');
   if(dv){
     const sa=isStandalone(); const di=deviceInfo();
@@ -8535,6 +8564,7 @@ setInterval(()=>{if(document.getElementById('view-game').classList.contains('on'
 /* BOOT */
 renderSwitch();
 try{var _vs=document.getElementById('ver-stamp');if(_vs&&isStandalone())_vs.textContent=_vs.textContent+' ⌂';}catch(e){}
+try{checkBackupHealth();}catch(e){}
 document.body.classList.toggle('youth',profileTier(profile)==='youth');
 maybeFirstRun();
 /* CRITICAL: before restoring, preserve any live data from the previous session.
