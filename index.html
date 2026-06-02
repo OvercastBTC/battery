@@ -10,7 +10,7 @@
 :root{--ink:#0d1117;--steel:#161b22;--steel2:#1c2128;--line:#2d333b;--bone:#e6edf3;--dim:#8b949e;--faint:#6e7681;
 --gold:#d4a017;--goldb:#f0b832;--blood:#da3633;--green:#3fb950;--blue:#58a6ff}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;height:-webkit-fill-available;background:var(--ink);color:var(--bone);
+html,body{height:100%;height:-webkit-fill-available;height:var(--apph,-webkit-fill-available);background:var(--ink);color:var(--bone);
 font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;overflow:hidden}
 #hostbar{position:fixed;top:0;left:0;right:0;z-index:60;padding:calc(env(safe-area-inset-top) + 9px) 14px 9px;
 background:linear-gradient(180deg,#0d1117 80%,#0d111700);border-bottom:1px solid var(--line);
@@ -23,14 +23,14 @@ backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px}
 padding:6px 10px;border-radius:16px;cursor:pointer;transition:.15s}
 #prof-switch button.on{background:var(--gold);color:var(--ink)}
 #prof-switch button.youth.on{background:var(--green)}
-#stage{position:absolute;top:0;left:0;right:0;bottom:calc(50px + max(env(safe-area-inset-bottom), var(--sab, 0px)));}
+#stage{position:absolute;top:0;left:0;right:0;bottom:50px;}
 iframe{position:absolute;top:calc(env(safe-area-inset-top) + 52px);left:0;right:0;bottom:0;width:100%;height:calc(100% - env(safe-area-inset-top) - 52px);border:0;display:none;background:var(--ink)}
 iframe.on{display:block}
 #view-game{position:absolute;inset:0;display:none;overflow-y:auto;
-padding:calc(env(safe-area-inset-top) + 54px) 14px calc(64px + max(env(safe-area-inset-bottom), var(--sab, 0px)));-webkit-overflow-scrolling:touch}
+padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolling:touch}
 #view-game.on{display:block}
 #view-data{position:absolute;inset:0;display:none;overflow-y:auto;
-padding:calc(env(safe-area-inset-top) + 54px) 14px calc(64px + max(env(safe-area-inset-bottom), var(--sab, 0px)));-webkit-overflow-scrolling:touch}
+padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolling:touch}
 #view-data.on{display:block}
 #view-data h3{margin:0 0 10px;font-size:15px;letter-spacing:1px}
 #view-data .gd-card{background:var(--steel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
@@ -94,7 +94,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.15</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.16</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -7967,7 +7967,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v15').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v15').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v16').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v16').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -7977,9 +7977,13 @@ if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>se
    the real inset with a hidden probe; if it is 0 in standalone on a notched
    device we substitute 34px into --sab so the bar fills to the physical bottom.
    Pure additive: CSS uses max(env(safe-area-inset-bottom), var(--sab)), so when
-   env() already works it wins and nothing changes. (We do NOT override body
-   height — pinning it to visualViewport.height opened a gap between the
-   absolutely-positioned #stage and the position:fixed tab bar.) */
+   env() already works it wins and nothing changes. We ALSO pin body height to
+   --apph (visualViewport.height): a position:fixed tab bar anchors to the layout
+   viewport, but in standalone that bottom sits ABOVE the physical edge unless the
+   body is sized to the visible viewport. To avoid the .14 gap above the bar,
+   #stage bottom + content padding use a plain 50px/64px (no inset) while ONLY the
+   tab bar carries the inset padding -- so the bar reaches the true bottom and
+   #stage meets its top exactly. */
 (function fitViewport(){
   var stand=(window.navigator.standalone===true)||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
   var notched=Math.max(screen.width,screen.height)>=812;   // Face ID-class iPhone
@@ -7995,6 +7999,8 @@ if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>se
     var sab=probeInset();
     if(sab===0 && stand && notched)sab=34;
     de.style.setProperty('--sab',sab+'px');
+    var vh=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;
+    if(vh)de.style.setProperty('--apph',vh+'px');
   }
   if(document.body)fit(); else document.addEventListener('DOMContentLoaded',fit);
   window.addEventListener('resize',fit);
