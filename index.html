@@ -58,7 +58,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.03</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -782,7 +782,9 @@ body.youth #youth-banner{display:block}
   footer .v { color: var(--gold); }
 
   @media (max-width: 480px) {
-    h1.stencil { font-size: 28px; }
+    h1.stencil { font-size: 30px; }
+    h1.stencil span { display: block; }   /* drop "// Arm Care" to its own line — no mid-phrase wrap */
+    .title-row { align-items: center; }    /* balance the toggle against the 2-line title */
     .tab { padding: 12px 8px; font-size: 10px; }
     .step-row { grid-template-columns: 38px 1fr auto; padding: 10px; }
     .check { width: 22px; height: 22px; }
@@ -7813,7 +7815,7 @@ body.youth #youth-banner{display:block}
 <b>Install BATTERY</b><br>In Safari: Share → <b>Add to Home Screen</b>. Full-screen, offline.</div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v2').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v2').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v3').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v3').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== SEED of real data per profile (data-safe: only fills missing keys) ===== */
