@@ -92,7 +92,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.11</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.12</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -7960,7 +7960,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v11').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v11').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v12').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v12').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== SEED of real data per profile (data-safe: only fills missing keys) ===== */
@@ -8122,12 +8122,14 @@ function firstRunCreate(){
   const name=(inp&&inp.value||'').trim(); if(!name){if(inp)inp.focus();return;}
   const youth=!!(document.getElementById('fr-youth')&&document.getElementById('fr-youth').checked);
   const id='p'+Date.now().toString(36);
-  const people=getPeople(); people.push({id:id,name:name,tier:youth?'youth':'adult'}); setPeople(people);
-  profile=id; localStorage.setItem('battery-profile',id);
-  document.body.classList.toggle('youth',youth);
-  if(inp)inp.value=''; const yc=document.getElementById('fr-youth'); if(yc)yc.checked=false;
-  renderSwitch(); restoreProfile(); reloadFrames(); buildGameDay(); buildOutlook();
-  maybeFirstRun();
+  try{
+    const people=getPeople(); people.push({id:id,name:name,tier:youth?'youth':'adult'}); setPeople(people);
+    localStorage.setItem('battery-profile',id);
+  }catch(e){ alert('Could not save the athlete: '+(e&&e.message||e)); return; }
+  // Reload to boot cleanly into the new profile. This is the SAME reliable path
+  // the demo button uses — it guarantees the first-run overlay can never get
+  // stuck if a later render step throws for a brand-new (empty) profile.
+  location.reload();
 }
 window.maybeFirstRun=maybeFirstRun; window.firstRunCreate=firstRunCreate;
 const PREFIXES=['fuel-','arm-care-'];
@@ -8196,9 +8198,9 @@ function batteryImportAll(file){
   const rd=new FileReader();
   rd.onload=()=>{
     let payload;
-    try{payload=JSON.parse(rd.result);}catch(e){if(st){st.style.color='#ff6b68';st.textContent='Not a valid JSON file.';}return;}
+    try{payload=JSON.parse(rd.result);}catch(e){const m='Not a valid JSON file.';if(st){st.style.color='#ff6b68';st.textContent=m;}alert(m);return;}
     if(!payload||payload.app!=='battery'||payload.kind!=='full-backup'||!payload.data){
-      if(st){st.style.color='#ff6b68';st.textContent='This is not a BATTERY full backup.';}return;
+      const m='This is not a BATTERY full backup file.';if(st){st.style.color='#ff6b68';st.textContent=m;}alert(m);return;
     }
     const keys=Object.keys(payload.data);
     if(!confirm('Restore '+(payload.profiles?payload.profiles.length:'all')+' profiles from this backup?\n\nThis REPLACES all BATTERY data on this device with the backup ('+keys.length+' keys).'))return;
@@ -8207,6 +8209,22 @@ function batteryImportAll(file){
     keys.forEach(k=>localStorage.setItem(k,payload.data[k]));
     // Restore the active-profile pointer (backup may predate battery-profile being set).
     if(payload.activeProfile){localStorage.setItem('battery-profile',payload.activeProfile);}
+    // SAFETY NET: if the backup lacked a people registry (older format), rebuild
+    // it from the namespaced keys so the restored data is reachable and the
+    // first-run overlay does NOT reappear. Tier defaults to adult; the user can
+    // flip any athlete to Youth from the DATA tab.
+    try{
+      let reg=JSON.parse(localStorage.getItem('battery-people')||'[]');
+      if(!Array.isArray(reg)||!reg.length){
+        const seen={};
+        Object.keys(localStorage).forEach(k=>{const m=k.match(/^battery::([^:]+)::/);if(m)seen[m[1]]=1;});
+        reg=Object.keys(seen).map(id=>({id:id,name:id.charAt(0).toUpperCase()+id.slice(1),tier:'adult'}));
+        if(reg.length){
+          localStorage.setItem('battery-people',JSON.stringify(reg));
+          if(!localStorage.getItem('battery-profile'))localStorage.setItem('battery-profile',reg[0].id);
+        }
+      }
+    }catch(e){}
     // Ensure no re-seed clobbers the imported data on next boot.
     localStorage.setItem('battery-seeded-v11','1');
     // Ensure migration won't re-inject Adam/Kole over a restored registry.
