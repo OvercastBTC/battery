@@ -27,10 +27,10 @@ padding:6px 10px;border-radius:16px;cursor:pointer;transition:.15s}
 iframe{position:absolute;top:calc(env(safe-area-inset-top) + 52px);left:0;right:0;bottom:0;width:100%;height:calc(100% - env(safe-area-inset-top) - 52px);border:0;display:none;background:var(--ink)}
 iframe.on{display:block}
 #view-game{position:absolute;inset:0;display:none;overflow-y:auto;
-padding:calc(env(safe-area-inset-top) + 54px) 14px 18px;-webkit-overflow-scrolling:touch}
+padding:calc(env(safe-area-inset-top) + 54px) 14px calc(64px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
 #view-game.on{display:block}
 #view-data{position:absolute;inset:0;display:none;overflow-y:auto;
-padding:calc(env(safe-area-inset-top) + 54px) 14px 24px;-webkit-overflow-scrolling:touch}
+padding:calc(env(safe-area-inset-top) + 54px) 14px calc(64px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
 #view-data.on{display:block}
 #view-data h3{margin:0 0 10px;font-size:15px;letter-spacing:1px}
 #view-data .gd-card{background:var(--steel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
@@ -83,8 +83,8 @@ body.youth #youth-banner{display:block}
 #first-run .fr-or{color:var(--dim);font-size:11px;margin:6px 0 12px;letter-spacing:1px}
 #first-run .fr-restore{background:#161b22;border:1px solid var(--green,#3fb950);color:var(--green,#3fb950)}
 #first-run .fr-demo{background:none;border:1px dashed var(--line);color:var(--dim)}
-#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;background:var(--steel2);border-top:1px solid var(--line);padding-bottom:max(6px,env(safe-area-inset-bottom));backdrop-filter:blur(10px)}
-#tabbar button{flex:1;background:none;border:none;color:var(--faint);padding:6px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:"SF Mono",monospace}
+#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;background:var(--steel2);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);backdrop-filter:blur(10px)}
+#tabbar button{flex:1;height:50px;background:none;border:none;color:var(--faint);padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:"SF Mono",monospace}
 #tabbar button .ico{font-size:16px}#tabbar button .lb{font-size:9px;letter-spacing:1.5px}
 #tabbar button.on{color:var(--gold)}
 #install{position:fixed;left:14px;right:14px;bottom:70px;z-index:70;display:none;background:var(--steel);border:1px solid var(--gold);border-radius:13px;padding:13px 15px;font-size:12px;line-height:1.5;box-shadow:0 10px 30px #00000060}
@@ -92,7 +92,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.09</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.10</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -7931,6 +7931,10 @@ body.youth #youth-banner{display:block}
 <h3 style="margin-bottom:6px">Profiles On This Device</h3>
 <div id="data-profiles" class="dmeta"></div>
 </div>
+<div class="gd-card">
+<h3 style="margin-bottom:6px">Device &amp; Install</h3>
+<div id="data-device" class="dmeta"></div>
+</div>
 </section></div>
 <div id="tabbar">
 <button class="on" data-v="arm" onclick="go('arm')"><span class="ico">🦾</span><span class="lb">ARM</span></button>
@@ -7952,7 +7956,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v9').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v9').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v10').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v10').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== SEED of real data per profile (data-safe: only fills missing keys) ===== */
@@ -8015,6 +8019,18 @@ function getPerson(id){return getPeople().find(x=>x.id===id)||null;}
 function profileName(id){const p=getPerson(id);return p?String(p.name).toUpperCase():(id?String(id).toUpperCase():'');}
 function profileTier(id){const p=getPerson(id);return (p&&p.tier==='youth')?'youth':'adult';}
 function escHtml(s){return String(s).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);});}
+
+/* Install / device awareness. iOS does NOT expose the exact model, and a site
+   opened in Safari vs one Added to Home Screen can hold SEPARATE localStorage —
+   so backup/restore is the only reliable bridge between them. */
+function isStandalone(){try{return (window.navigator.standalone===true)||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);}catch(e){return false;}}
+function deviceInfo(){
+  const dpr=window.devicePixelRatio||1;
+  const lw=Math.min(screen.width,screen.height), lh=Math.max(screen.width,screen.height);
+  const map={'320x568':'iPhone SE (1st gen) / 5s','375x667':'iPhone SE (2nd/3rd) / 6 / 7 / 8','414x736':'iPhone 6+/7+/8 Plus','375x812':'iPhone X / XS / 11 Pro / 12-13 mini','390x844':'iPhone 12 / 13 / 14','393x852':'iPhone 14 Pro / 15 / 16','414x896':'iPhone XR / XS Max / 11 / 11 Pro Max','428x926':'iPhone 12-13 Pro Max / 14 Plus','430x932':'iPhone 14 Pro Max / 15 Plus / 15-16 Pro Max'};
+  return {w:lw,h:lh,dpr,guess:(map[lw+'x'+lh]||'iPhone (size not in table)')};
+}
+window.isStandalone=isStandalone; window.deviceInfo=deviceInfo;
 
 /* One-time migration: fold the formerly-pinned Adam/Kole into the registry so
    existing devices keep every profile + all data. Fresh installs stay empty. */
@@ -8222,6 +8238,16 @@ function renderDataView(){
   if(lb){const ts=localStorage.getItem('battery-last-backup');
     if(ts){const d=new Date(ts);lb.innerHTML='Last backup: <b>'+d.toLocaleString()+'</b>';lb.style.color='';}
     else{lb.innerHTML='⚠ No backup taken yet on this device.';lb.style.color='var(--gold)';}}
+  const dv=document.getElementById('data-device');
+  if(dv){
+    const sa=isStandalone(); const di=deviceInfo();
+    dv.innerHTML=
+      '<div>Mode: <b style="color:'+(sa?'var(--green)':'var(--gold)')+'">'+(sa?'Installed app (Home Screen)':'Safari browser')+'</b></div>'+
+      (sa?'':'<div style="margin-top:6px">To install: <b>Share</b> → <b>Add to Home Screen</b>.</div>')+
+      '<div style="margin-top:6px;color:var(--gold)">⚠ On iOS, the installed app and Safari can keep <b>separate</b> data. To move yours, <b>Backup</b> here, then <b>Restore</b> in the other.</div>'+
+      '<div style="margin-top:8px">Screen: <b>'+di.w+'×'+di.h+'</b> pt · '+di.dpr+'× · ~'+(di.w*di.dpr)+'×'+(di.h*di.dpr)+' px</div>'+
+      '<div>Likely device: <b>'+escHtml(di.guess)+'</b> <span style="opacity:.6">(inferred — iOS hides the exact model)</span></div>';
+  }
 }
 window.batteryExportAll=batteryExportAll; window.batteryImportAll=batteryImportAll; window.renderDataView=renderDataView; window.batteryCollectAll=batteryCollectAll;
 
@@ -8350,6 +8376,7 @@ setInterval(()=>{if(document.getElementById('view-game').classList.contains('on'
 
 /* BOOT */
 renderSwitch();
+try{var _vs=document.getElementById('ver-stamp');if(_vs&&isStandalone())_vs.textContent=_vs.textContent+' ⌂';}catch(e){}
 document.body.classList.toggle('youth',profileTier(profile)==='youth');
 maybeFirstRun();
 /* CRITICAL: before restoring, preserve any live data from the previous session.
