@@ -10,7 +10,7 @@
 :root{--ink:#0d1117;--steel:#161b22;--steel2:#1c2128;--line:#2d333b;--bone:#e6edf3;--dim:#8b949e;--faint:#6e7681;
 --gold:#d4a017;--goldb:#f0b832;--blood:#da3633;--green:#3fb950;--blue:#58a6ff}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;height:-webkit-fill-available;background:var(--ink);color:var(--bone);
+html,body{height:100%;height:-webkit-fill-available;height:var(--apph,-webkit-fill-available);background:var(--ink);color:var(--bone);
 font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;overflow:hidden}
 #hostbar{position:fixed;top:0;left:0;right:0;z-index:60;padding:calc(env(safe-area-inset-top) + 9px) 14px 9px;
 background:linear-gradient(180deg,#0d1117 80%,#0d111700);border-bottom:1px solid var(--line);
@@ -23,14 +23,14 @@ backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px}
 padding:6px 10px;border-radius:16px;cursor:pointer;transition:.15s}
 #prof-switch button.on{background:var(--gold);color:var(--ink)}
 #prof-switch button.youth.on{background:var(--green)}
-#stage{position:absolute;top:0;left:0;right:0;bottom:calc(50px + env(safe-area-inset-bottom));}
+#stage{position:absolute;top:0;left:0;right:0;bottom:calc(50px + max(env(safe-area-inset-bottom), var(--sab, 0px)));}
 iframe{position:absolute;top:calc(env(safe-area-inset-top) + 52px);left:0;right:0;bottom:0;width:100%;height:calc(100% - env(safe-area-inset-top) - 52px);border:0;display:none;background:var(--ink)}
 iframe.on{display:block}
 #view-game{position:absolute;inset:0;display:none;overflow-y:auto;
-padding:calc(env(safe-area-inset-top) + 54px) 14px calc(64px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+padding:calc(env(safe-area-inset-top) + 54px) 14px calc(64px + max(env(safe-area-inset-bottom), var(--sab, 0px)));-webkit-overflow-scrolling:touch}
 #view-game.on{display:block}
 #view-data{position:absolute;inset:0;display:none;overflow-y:auto;
-padding:calc(env(safe-area-inset-top) + 54px) 14px calc(64px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+padding:calc(env(safe-area-inset-top) + 54px) 14px calc(64px + max(env(safe-area-inset-bottom), var(--sab, 0px)));-webkit-overflow-scrolling:touch}
 #view-data.on{display:block}
 #view-data h3{margin:0 0 10px;font-size:15px;letter-spacing:1px}
 #view-data .gd-card{background:var(--steel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
@@ -83,7 +83,7 @@ body.youth #youth-banner{display:block}
 #first-run .fr-or{color:var(--dim);font-size:11px;margin:6px 0 12px;letter-spacing:1px}
 #first-run .fr-restore{background:#161b22;border:1px solid var(--green,#3fb950);color:var(--green,#3fb950)}
 #first-run .fr-demo{background:none;border:1px dashed var(--line);color:var(--dim)}
-#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;background:var(--steel2);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);backdrop-filter:blur(10px)}
+#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;background:var(--steel2);border-top:1px solid var(--line);padding-bottom:max(env(safe-area-inset-bottom), var(--sab, 0px));backdrop-filter:blur(10px)}
 #tabbar button{flex:1;height:50px;background:none;border:none;color:var(--faint);padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:"SF Mono",monospace}
 #tabbar button .ico{font-size:16px}#tabbar button .lb{font-size:9px;letter-spacing:1.5px}
 #tabbar button.on{color:var(--gold)}
@@ -92,7 +92,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.12</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.13</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -7922,9 +7922,13 @@ body.youth #youth-banner{display:block}
 <h3 style="margin-bottom:6px">Whole-App Backup</h3>
 <p class="dmeta" style="margin:0 0 12px">Saves <b>every profile</b> (Adam, Kole, and anyone you added) plus the active profile and people list into one <code>.json</code> file. Use it to move BATTERY to a new device or to reset and restore later.</p>
 <button class="dbtn bk" onclick="batteryExportAll()">⬆ BACKUP EVERYTHING</button>
+<button class="dbtn bk" onclick="batteryShareBackup()">⤴ SAVE / SHARE BACKUP…</button>
 <button class="dbtn rs" onclick="document.getElementById('data-import-file').click()">⬇ RESTORE FROM BACKUP</button>
+<button class="dbtn rs" onclick="batteryRestoreAuto()">↩ RESTORE LAST AUTO-SNAPSHOT</button>
 <input id="data-import-file" type="file" accept="application/json,.json" style="display:none" onchange="batteryImportAll(this.files[0]); this.value='';">
+<p class="dmeta" style="margin:10px 0 0">On iPhone, <b>Save / Share</b> opens the share sheet — tap <b>Save to Files</b> to pick a folder. (iOS apps can’t silently write to a Downloads folder, so the app also keeps an automatic in-app <b>restore point</b> every couple of minutes.)</p>
 <div id="data-lastbackup" class="dmeta" style="margin-top:10px"></div>
+<div id="data-autosnap" class="dmeta" style="margin-top:4px"></div>
 <div id="data-status"></div>
 </div>
 <div class="gd-card">
@@ -7960,8 +7964,40 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v12').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v12').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v13').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v13').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
+
+/* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
+   In an installed PWA, WebKit (Safari + DuckDuckGo, but NOT Firefox) can report
+   env(safe-area-inset-bottom)=0 on notched iPhones, so the steel tab bar never
+   extends into the home-indicator strip and the OS paints it black. We MEASURE
+   the real inset with a hidden probe; if it is 0 in standalone on a notched
+   device we substitute 34px so the bar fills to the physical bottom. We also pin
+   body height to the live visual-viewport height (--apph). Pure additive: when
+   env() works, max(env, --sab) just picks env and nothing changes. */
+(function fitViewport(){
+  var stand=(window.navigator.standalone===true)||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
+  var notched=Math.max(screen.width,screen.height)>=812;   // Face ID-class iPhone
+  function probeInset(){
+    try{
+      var p=document.createElement('div');
+      p.style.cssText='position:fixed;left:0;bottom:0;width:1px;height:env(safe-area-inset-bottom,0px);visibility:hidden;pointer-events:none';
+      document.body.appendChild(p); var v=p.offsetHeight; p.parentNode.removeChild(p); return v;
+    }catch(e){return 0;}
+  }
+  function fit(){
+    var de=document.documentElement;
+    var h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;
+    if(h)de.style.setProperty('--apph',h+'px');
+    var sab=probeInset();
+    if(sab===0 && stand && notched)sab=34;
+    de.style.setProperty('--sab',sab+'px');
+  }
+  if(document.body)fit(); else document.addEventListener('DOMContentLoaded',fit);
+  window.addEventListener('resize',fit);
+  window.addEventListener('orientationchange',function(){setTimeout(fit,250);});
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',fit);
+})();
 
 /* ===== SEED of real data per profile (data-safe: only fills missing keys) ===== */
 (function seed(){
@@ -8192,6 +8228,64 @@ function batteryExportAll(){
   if(st){st.style.color='var(--gold)';st.textContent='Backed up '+profiles.length+' profiles ('+n+' keys).';}
   try{renderDataView();}catch(e){}
 }
+/* SAVE / SHARE backup — iOS WebKit has NO showSaveFilePicker, so the real way to
+   "choose a backup location" is the native share sheet: it offers Save to Files
+   (pick any folder), AirDrop, Mail, etc. Falls back to a plain download where
+   Web Share with files is unavailable (e.g. desktop, Firefox iOS). */
+async function batteryShareBackup(){
+  const data=batteryCollectAll();
+  const profiles=getPeople().map(p=>p.id);
+  const payload={app:'battery',kind:'full-backup',schema:1,exportedAt:new Date().toISOString(),activeProfile:profile,profiles:profiles,data:data};
+  const json=JSON.stringify(payload,null,2);
+  const stamp=new Date().toISOString().slice(0,10);
+  const fname='battery-full-backup-'+stamp+'.json';
+  const st=document.getElementById('data-status');
+  try{
+    const file=new File([json],fname,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:'BATTERY backup',text:'BATTERY full backup '+stamp});
+      try{localStorage.setItem('battery-last-backup',new Date().toISOString());}catch(e){}
+      if(st){st.style.color='var(--green)';st.textContent='Shared backup — choose “Save to Files” to pick a folder.';}
+      try{renderDataView();}catch(e){}
+      return;
+    }
+  }catch(e){ if(e&&e.name==='AbortError'){return;} }
+  batteryExportAll();   // fallback: classic download
+}
+window.batteryShareBackup=batteryShareBackup;
+
+/* AUTO-SNAPSHOT safety net — iOS cannot silently write files to a folder, so we
+   keep a rolling whole-app snapshot INSIDE the app (its own localStorage key) on
+   a timer and on background/close. It is an in-app RESTORE POINT, not a file:
+   the user still exports a .json to move devices, but a fat-finger delete or a
+   bad import can be rolled back. Kept out of backups (own key, never battery::)
+   so it never recurses. */
+function batteryAutoSnapshot(){
+  try{
+    if(!getPeople().length)return;           // nothing worth snapshotting yet
+    const data=batteryCollectAll();
+    const payload={app:'battery',kind:'full-backup',schema:1,exportedAt:new Date().toISOString(),activeProfile:profile,profiles:getPeople().map(p=>p.id),data:data};
+    localStorage.setItem('battery-auto-snapshot',JSON.stringify({at:new Date().toISOString(),payload:payload}));
+  }catch(e){}
+}
+setInterval(batteryAutoSnapshot,120000);
+window.addEventListener('pagehide',batteryAutoSnapshot);
+window.batteryAutoSnapshot=batteryAutoSnapshot;
+function batteryAutoSnapAge(){
+  try{const s=JSON.parse(localStorage.getItem('battery-auto-snapshot')||'null');return s&&s.at?s.at:null;}catch(e){return null;}
+}
+function batteryRestoreAuto(){
+  let snap; try{snap=JSON.parse(localStorage.getItem('battery-auto-snapshot')||'null');}catch(e){}
+  if(!snap||!snap.payload){alert('No in-app auto-snapshot exists yet. It is written automatically a couple of minutes after you start using the app.');return;}
+  if(!confirm('Restore the in-app auto-snapshot from '+new Date(snap.at).toLocaleString()+'?\n\nThis REPLACES the current data with that restore point.'))return;
+  const payload=snap.payload, keys=Object.keys(payload.data||{});
+  Object.keys(localStorage).filter(k=>k.startsWith('battery::')||PREFIXES.some(p=>k.startsWith(p))||BACKUP_META_KEYS.indexOf(k)!==-1).forEach(k=>localStorage.removeItem(k));
+  keys.forEach(k=>localStorage.setItem(k,payload.data[k]));
+  if(payload.activeProfile)localStorage.setItem('battery-profile',payload.activeProfile);
+  localStorage.setItem('battery-seeded-v11','1'); localStorage.setItem('battery-migrate-v17','1');
+  location.reload();
+}
+window.batteryRestoreAuto=batteryRestoreAuto;
 function batteryImportAll(file){
   const st=document.getElementById('data-status');
   if(!file){return;}
@@ -8260,6 +8354,10 @@ function renderDataView(){
   if(lb){const ts=localStorage.getItem('battery-last-backup');
     if(ts){const d=new Date(ts);lb.innerHTML='Last backup: <b>'+d.toLocaleString()+'</b>';lb.style.color='';}
     else{lb.innerHTML='⚠ No backup taken yet on this device.';lb.style.color='var(--gold)';}}
+  const as=document.getElementById('data-autosnap');
+  if(as){const ats=batteryAutoSnapAge();
+    if(ats){const d=new Date(ats);as.innerHTML='In-app restore point: <b>'+d.toLocaleString()+'</b>';as.style.color='';}
+    else{as.innerHTML='In-app restore point: none yet (auto-saves a couple minutes after use).';as.style.color='var(--faint)';}}
   const dv=document.getElementById('data-device');
   if(dv){
     const sa=isStandalone(); const di=deviceInfo();
