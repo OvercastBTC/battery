@@ -89,12 +89,13 @@ body.youth #youth-banner{display:block}
 #tabbar button.on{color:var(--gold)}
 #tabbar button{position:relative}
 #tabbar button.warn .ico::after{content:'';position:absolute;top:6px;margin-left:14px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
+#tabbar button.todo .ico::after{content:'';position:absolute;top:6px;margin-left:14px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
 #install{position:fixed;left:14px;right:14px;bottom:70px;z-index:70;display:none;background:var(--steel);border:1px solid var(--gold);border-radius:13px;padding:13px 15px;font-size:12px;line-height:1.5;box-shadow:0 10px 30px #00000060}
 #install b{color:var(--goldb)}#install .x{position:absolute;top:8px;right:11px;color:var(--dim);cursor:pointer;font-size:16px}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.02.16</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.04.17</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -2657,6 +2658,46 @@ body.youth #youth-banner{display:block}
   const tabs = document.querySelectorAll('.tab');
   const pages = document.querySelectorAll('.page');
 
+  /* ===== HOST GROUP ROUTING — ARM (arm-care) vs DRILLS (position/fielding + conditioning) =====
+     The bottom menu bar (host) has separate ARM and DRILLS tabs; both surface THIS one
+     iframe. The host postMessages which GROUP to show. We filter the internal tab strip
+     and relabel the title, and the daily counter reflects only the active group.
+     COMPLETION IS ONE SHARED STORE keyed by data-ex (arm-care-done-*): an exercise is
+     recorded once no matter which group surfaces it. If a drill ever needs to live in
+     both contexts, give it the SAME data-ex and it stays in sync automatically. */
+  const DRILL_TABS = ['washington','extras'];
+  let activeGroup = 'arm';
+  function stepGroup(step){
+    const pg = step.closest('.page');
+    const id = pg ? pg.id.replace('page-','') : '';
+    return DRILL_TABS.includes(id) ? 'drills' : 'arm';
+  }
+  function groupCount(g){
+    let done=0,total=0;
+    document.querySelectorAll('.step').forEach(s=>{ if(stepGroup(s)===g){ total++; if(s.classList.contains('done'))done++; } });
+    return {done:done,total:total};
+  }
+  function postCounts(){ try{ parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills')},'*'); }catch(e){} }
+  function applyGroup(group){
+    activeGroup = (group==='drills') ? 'drills' : 'arm';
+    document.querySelectorAll('.tab').forEach(t=>{
+      const isDrill = DRILL_TABS.includes(t.dataset.tab);
+      t.style.display = ((activeGroup==='drills')===isDrill) ? '' : 'none';
+    });
+    const span = document.querySelector('.title-left h1 span');
+    if(span) span.textContent = (activeGroup==='drills') ? '// Drills' : '// Arm Care';
+    const active = document.querySelector('.tab.active');
+    const curIsDrill = active ? DRILL_TABS.includes(active.dataset.tab) : false;
+    if(curIsDrill !== (activeGroup==='drills')){
+      const last = storeGet('arm-care-last-tab-'+activeGroup,'');
+      let target = last && document.querySelector('.tab[data-tab='+last+']');
+      if(!target){ target = (activeGroup==='drills') ? document.querySelector('.tab[data-tab=washington]') : document.querySelector('.tab[data-tab=overview]'); }
+      if(target) switchTab(target.dataset.tab);
+    }
+    updateCounter();
+  }
+  window.addEventListener('message', function(e){ const d=e&&e.data; if(d&&d.type==='bat-group') applyGroup(d.group); });
+
   function switchTab(tabName) {
     tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
     pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + tabName));
@@ -2664,8 +2705,9 @@ body.youth #youth-banner{display:block}
     window.scrollTo({ top: 0, behavior: 'auto' });
     // Render read-only history on demand
     if (tabName === 'history') renderArmHistory();
-    // Persist last tab
+    // Persist last tab (global + per-group so each bottom tab remembers its own page)
     storeSet('arm-care-last-tab', tabName);
+    storeSet('arm-care-last-tab-' + (DRILL_TABS.includes(tabName) ? 'drills' : 'arm'), tabName);
   }
 
   tabs.forEach(t => {
@@ -2801,11 +2843,11 @@ body.youth #youth-banner{display:block}
   }
 
   function updateCounter() {
-    const total = document.querySelectorAll('.step').length;
-    const done = document.querySelectorAll('.step.done').length;
-    document.getElementById('counter-today').textContent = `${done} / ${total}`;
+    const c = groupCount(activeGroup);
+    document.getElementById('counter-today').textContent = `${c.done} / ${c.total}`;
     const sumToday = document.getElementById('summary-today');
-    if (sumToday) sumToday.textContent = `${done}/${total}`;
+    if (sumToday) sumToday.textContent = `${c.done}/${c.total}`;
+    postCounts();
   }
 
   function bumpTotal() {
@@ -2925,6 +2967,8 @@ body.youth #youth-banner{display:block}
   // Restore last tab
   const lastTab = storeGet('arm-care-last-tab', 'overview');
   switchTab(lastTab);
+  // Host boots on the ARM bottom tab; show the arm group (filters tabs + relabels title)
+  applyGroup('arm');
 
   /* ===== COLLAPSE TOGGLE ===== */
   function toggleControls() {
@@ -7949,6 +7993,7 @@ body.youth #youth-banner{display:block}
 </section></div>
 <div id="tabbar">
 <button class="on" data-v="arm" onclick="go('arm')"><span class="ico">🦾</span><span class="lb">ARM</span></button>
+<button data-v="drills" onclick="go('drills')"><span class="ico">🧤</span><span class="lb">DRILLS</span></button>
 <button data-v="fuel" onclick="go('fuel')"><span class="ico">🔋</span><span class="lb">FUEL</span></button>
 <button data-v="game" onclick="go('game')"><span class="ico">⚡</span><span class="lb">GAME</span></button>
 <button data-v="data" onclick="go('data')"><span class="ico">⚙️</span><span class="lb">DATA</span></button>
@@ -7967,7 +8012,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v16').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v16').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v17').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v17').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -8056,6 +8101,7 @@ window.batteryRestoreSeed=function(){
 };
 
 const FRAMES={arm:document.getElementById('f-arm'),fuel:document.getElementById('f-fuel')};
+let _curTab='arm';
 
 /* ===== PROFILE REGISTRY (fully dynamic, tier-aware) =====
    Every athlete lives in 'battery-people' as [{id,name,tier}] where tier is
@@ -8192,15 +8238,23 @@ setInterval(persistLive, 4000);                       // mirror every 4s
 window.addEventListener('pagehide', persistLive);     // and on background/close
 window.addEventListener('visibilitychange', ()=>{ if(document.hidden) persistLive(); });
 function reloadFrames(){const tier=profileTier(profile);
+ FRAMES.arm.onload=()=>{try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:(_curTab==='drills'?'drills':'arm')},'*');}catch(e){}};
  FRAMES.fuel.onload=()=>{try{FRAMES.fuel.contentWindow.BATTERY_TIER=tier;const w=FRAMES.fuel.contentWindow;if(w.recomputeDayTargets)w.recomputeDayTargets();if(w.refreshAll)w.refreshAll();if(w.batteryRelayout)setTimeout(w.batteryRelayout,200);}catch(e){}};
  FRAMES.arm.srcdoc=FRAMES.arm.getAttribute('srcdoc');FRAMES.fuel.srcdoc=FRAMES.fuel.getAttribute('srcdoc');}
 function setProfile(p){if(p===profile)return;snapshotCurrent();profile=p;localStorage.setItem('battery-profile',p);
  renderSwitch();
  document.body.classList.toggle('youth',profileTier(p)==='youth');restoreProfile();reloadFrames();buildGameDay();buildOutlook();}
-function go(v){FRAMES.arm.classList.toggle('on',v==='arm');FRAMES.fuel.classList.toggle('on',v==='fuel');
+function go(v){_curTab=v;var armish=(v==='arm'||v==='drills');FRAMES.arm.classList.toggle('on',armish);FRAMES.fuel.classList.toggle('on',v==='fuel');
  document.getElementById('view-game').classList.toggle('on',v==='game');
  document.getElementById('view-data').classList.toggle('on',v==='data');
- document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));if(v==='game'){buildGameDay();buildOutlook();}if(v==='data'){renderDataView();}}
+ document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ if(armish){try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:(v==='drills'?'drills':'arm')},'*');}catch(e){}}
+ if(v==='game'){buildGameDay();buildOutlook();}if(v==='data'){renderDataView();}}
+/* Glanceable progress: the iframe reports per-group done/total; light a gold dot on
+   the ARM / DRILLS bottom tabs whenever that group still has unchecked items today. */
+window.addEventListener('message',function(e){var d=e&&e.data;if(!d||d.type!=='bat-counts')return;
+ function dot(v,c){var b=document.querySelector('#tabbar button[data-v="'+v+'"]');if(b)b.classList.toggle('todo',!!(c&&c.total>0&&c.done<c.total));}
+ dot('arm',d.arm);dot('drills',d.drills);});
 
 /* ===== WHOLE-APP BACKUP / RESTORE (unified, all profiles) =====
    Export covers every profile's namespaced data (battery::<id>::*) plus the
