@@ -109,7 +109,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.04.17</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.11.18</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -7970,6 +7970,7 @@ body.youth #youth-banner{display:block}
 <section id="view-game">
 <div id="youth-banner">Youth mode — Kole (6, active). Fuel = growth-based food protein + water, tuned for an active kid. No supplements or stimulants shown. Arm work is light/optional at this age.</div>
 <div id="outlook-3d"></div>
+<div id="arm-guardian"></div>
 <div class="gd-card gold"><h3>⚡ Game Day Fusion</h3><p>Pick a game from events (FUEL → Events) or set first pitch. BATTERY back-builds the prep — <span style="color:#ff6b68">arm (red)</span> + <span style="color:var(--goldb)">fuel (gold)</span>, one schedule.</p></div>
 <div class="evpick"><label>Game</label><select id="gd-event"><option value="">— manual —</option></select></div>
 <div class="evpick"><label>First Pitch</label><input type="time" id="gd-time" value="09:00"></div>
@@ -8027,7 +8028,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v17').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v17').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v18').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v18').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -8160,6 +8161,8 @@ function setPeople(a){localStorage.setItem('battery-people',JSON.stringify(a));}
 function getPerson(id){return getPeople().find(x=>x.id===id)||null;}
 function profileName(id){const p=getPerson(id);return p?String(p.name).toUpperCase():(id?String(id).toUpperCase():'');}
 function profileTier(id){const p=getPerson(id);return (p&&p.tier==='youth')?'youth':'adult';}
+function profileAge(id){const p=getPerson(id);const a=p?parseInt(p.age,10):0;return (a&&a>0)?a:null;}
+function setProfileAge(id,age){const a=parseInt(age,10)||null;setPeople(getPeople().map(function(x){return x.id===id?Object.assign({},x,{age:a}):x;}));}
 function escHtml(s){return String(s).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);});}
 
 /* Install / device awareness. iOS does NOT expose the exact model, and a site
@@ -8246,12 +8249,12 @@ async function renameProfile(id){
   const r=await batteryModal({title:'Rename profile',input:{value:p.name,select:true},okLabel:'Rename'});
   if(!r)return;
   const name=(r.value||'').trim(); if(!name)return;
-  setPeople(getPeople().map(function(x){return x.id===id?{id:x.id,name:name,tier:x.tier}:x;}));
+  setPeople(getPeople().map(function(x){return x.id===id?Object.assign({},x,{name:name}):x;}));
   renderSwitch(); try{renderDataView();}catch(e){} buildGameDay();
 }
 function setProfileTier(id,tier){
   const t=tier==='youth'?'youth':'adult';
-  setPeople(getPeople().map(function(x){return x.id===id?{id:x.id,name:x.name,tier:t}:x;}));
+  setPeople(getPeople().map(function(x){return x.id===id?Object.assign({},x,{tier:t}):x;}));
   if(profile===id){ document.body.classList.toggle('youth',t==='youth'); reloadFrames(); }
   renderSwitch(); try{renderDataView();}catch(e){}
 }
@@ -8568,6 +8571,8 @@ function buildOutlook(){
   const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const events=readEvents();
   const trainDays=readTrainDays();
+  const ri=pitchRestInfo();
+  const isPitcher=positionsHasPitcher();
   function dstr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
   function gameOn(dateStr){ return events.find(e=>['game','bullpen','bp'].includes(e.type)&&e.date===dateStr); }
   // any game within the next 5 days drives taper context
@@ -8609,6 +8614,10 @@ function buildOutlook(){
       fuelNote=youth?'Normal meals + water.':'Maintenance protein, steady water. Recovery focus.';
       armNote=youth?'Optional light throwing.':'Recovery — J-bands, mobility, optional light catch.';
     }
+    if(isPitcher&&ri&&day<ri.cleared&&ri.rest>0){
+      const clr=ri.cleared.toLocaleDateString(undefined,{weekday:'short',month:'numeric',day:'numeric'});
+      armNote='🛑 Pitch Smart: not cleared to pitch until '+clr+'. '+armNote;
+    }
     cards+='<div style="background:#161b22;border-left:3px solid '+accent+';border-radius:0 12px 12px 0;padding:12px 13px;margin-bottom:9px">'+
       '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">'+
         '<span style="font-size:13px;font-weight:700;color:#e6edf3">'+label+'</span>'+
@@ -8618,6 +8627,7 @@ function buildOutlook(){
   }
   host.innerHTML='<div class="gd-card" style="border-color:#58a6ff"><h3 style="color:#58a6ff">🔭 Next 3 Days</h3>'+
     '<p style="margin-bottom:10px">Forward plan from your games, training days, and taper.</p>'+cards+'</div>';
+  renderArmGuardian();
 }
 function positionsHasPitcher(){
   try{ return (localStorage.getItem('arm-care-pos')||'').split(',').includes('pitcher'); }catch(e){ return false; }
@@ -8673,6 +8683,101 @@ function exportGameICS(){
   setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},500);
 }
 window.exportGameICS=exportGameICS;
+
+/* ===== ARM GUARDIAN (GAME tab) — Pitch Smart workload guard =====
+   USA Baseball / MLB Pitch Smart: age-banded daily pitch maximums and required
+   rest days between outings. Outings live in 'arm-care-pitchlog' — a live key,
+   so they ride the per-profile namespace mirror and every backup for free.
+   Age travels on the registry entry (battery-people). Guidance, not a rulebook:
+   leagues vary — when in doubt the stricter local rule wins. */
+const PITCH_SMART=[
+  {min:7, max:8,  daily:50,  rest:[[20,0],[35,1],[Infinity,2]]},
+  {min:9, max:10, daily:75,  rest:[[20,0],[35,1],[50,2],[65,3],[Infinity,4]]},
+  {min:11,max:12, daily:85,  rest:[[20,0],[35,1],[50,2],[65,3],[Infinity,4]]},
+  {min:13,max:14, daily:95,  rest:[[20,0],[35,1],[50,2],[65,3],[Infinity,4]]},
+  {min:15,max:16, daily:95,  rest:[[30,0],[45,1],[60,2],[75,3],[Infinity,4]]},
+  {min:17,max:18, daily:105, rest:[[30,0],[45,1],[60,2],[80,3],[Infinity,4]]},
+  {min:19,max:99, daily:120, rest:[[30,0],[45,1],[60,2],[80,3],[Infinity,4]]}
+];
+function pitchBand(age){if(!age)return null;if(age<7)return PITCH_SMART[0];return PITCH_SMART.find(function(b){return age>=b.min&&age<=b.max;})||PITCH_SMART[PITCH_SMART.length-1];}
+function pitchRestDays(age,p){const b=pitchBand(age);if(!b||!p||p<1)return 0;for(let i=0;i<b.rest.length;i++){if(p<=b.rest[i][0])return b.rest[i][1];}return b.rest[b.rest.length-1][1];}
+function readPitchLog(){try{const a=JSON.parse(localStorage.getItem('arm-care-pitchlog')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}}
+function writePitchLog(a){localStorage.setItem('arm-care-pitchlog',JSON.stringify(a.slice(0,60)));try{persistLive();}catch(e){}}
+function pitchRestInfo(){
+  const log=readPitchLog().slice().sort(function(a,b){return a.date<b.date?1:-1;});
+  if(!log.length)return null;
+  const age=profileAge(profile); if(!age)return null;
+  const last=log[0];
+  const rest=pitchRestDays(age,last.p);
+  const cleared=new Date(last.date+'T00:00:00'); cleared.setDate(cleared.getDate()+rest+1);
+  return {last:last,rest:rest,cleared:cleared};
+}
+window.armGuardSetAge=function(v){if(!profile)return;setProfileAge(profile,v);buildOutlook();};
+window.armGuardLog=async function(){
+  if(!profile)return;
+  const age=profileAge(profile), b=pitchBand(age);
+  const r=await batteryModal({title:'Log outing — today',
+    body:'Total pitches thrown in today&rsquo;s outing.'+(b?' Pitch Smart daily max for age '+age+': <b>'+b.daily+'</b>.':''),
+    input:{type:'number',placeholder:'Pitches'},okLabel:'Log'});
+  if(!r)return;
+  const p=parseInt(r.value,10); if(!p||p<1)return;
+  const t=new Date(), key=t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate());
+  const log=readPitchLog().filter(function(e){return e.date!==key;});
+  log.unshift({date:key,p:p}); writePitchLog(log);
+  buildOutlook();
+  if(b&&p>b.daily)await modalAlert('Over the daily max','That is '+(p-b.daily)+' pitches over the Pitch Smart daily max (<b>'+b.daily+'</b>) for age '+age+'. Extra rest — and a word with the coach — are in order.');
+};
+window.armGuardRemove=async function(date){
+  if(!await modalConfirm('Remove outing?','Remove the '+escHtml(date)+' outing from the log?',{okLabel:'Remove',danger:true}))return;
+  writePitchLog(readPitchLog().filter(function(e){return e.date!==date;}));
+  buildOutlook();
+};
+function renderArmGuardian(){
+  const host=document.getElementById('arm-guardian'); if(!host)return;
+  if(!profile){host.innerHTML='';return;}
+  const age=profileAge(profile), b=pitchBand(age);
+  const log=readPitchLog().slice().sort(function(a,b2){return a.date<b2.date?1:-1;});
+  const ri=pitchRestInfo();
+  const today=new Date(); today.setHours(0,0,0,0);
+  let ageOpts='<option value="">age?</option>';
+  for(let a=6;a<=22;a++)ageOpts+='<option value="'+a+'"'+(age===a?' selected':'')+'>'+a+'</option>';
+  ageOpts+='<option value="23"'+(age>=23?' selected':'')+'>23+</option>';
+  let status='';
+  if(!log.length){
+    status='<div style="font-size:12px;color:var(--dim);line-height:1.5">No outings logged yet. Log the pitch count after each outing and BATTERY tracks the rest required before the next one.</div>';
+  }else{
+    const last=log[0];
+    status='<div style="font-size:12px;color:var(--bone);margin-bottom:4px">Last outing: <b>'+last.p+' pitches</b> · '+last.date+'</div>';
+    if(age&&ri){
+      const resting=today<ri.cleared;
+      const clr=ri.cleared.toLocaleDateString(undefined,{weekday:'short',month:'numeric',day:'numeric'});
+      if(resting){
+        status+=ri.rest>0
+          ?'<div style="font-size:12px;color:#ff6b68;font-weight:700">🛑 RESTING — '+ri.rest+' rest day'+(ri.rest===1?'':'s')+' required · cleared to pitch '+clr+'</div>'
+          :'<div style="font-size:12px;color:var(--gold);font-weight:700">Done for today — cleared to pitch tomorrow.</div>';
+      }else{
+        status+='<div style="font-size:12px;color:var(--green);font-weight:700">✅ Cleared to pitch'+(ri.rest>0?' — rest served':'')+'.</div>';
+      }
+    }else{
+      status+='<div style="font-size:12px;color:var(--gold)">Set the age (top right) to compute required rest days.</div>';
+    }
+  }
+  let recent='';
+  log.slice(0,3).forEach(function(e){
+    recent+='<div style="display:flex;justify-content:space-between;font-family:\'SF Mono\',monospace;font-size:11px;color:var(--dim);padding:4px 0;border-top:1px solid var(--line)"><span>'+e.date+'</span><span>'+e.p+' pitches <span style="color:#ff6b68;cursor:pointer;padding:0 4px" onclick="armGuardRemove(\''+e.date+'\')">✕</span></span></div>';
+  });
+  host.innerHTML='<div class="gd-card" style="border-color:var(--blood)">'+
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><h3 style="margin:0">🛡 Arm Guardian</h3>'+
+    '<span style="font-size:9px;letter-spacing:1px;color:var(--faint)">PITCH SMART</span>'+
+    '<select onchange="armGuardSetAge(this.value)" style="margin-left:auto;background:var(--ink);border:1px solid var(--line);color:var(--goldb);border-radius:8px;padding:5px 7px;font-size:12px;font-family:\'SF Mono\',monospace">'+ageOpts+'</select></div>'+
+    (b?'<p style="margin-bottom:8px">Age '+(age>=23?'23+':age)+': daily max <b style="color:var(--goldb)">'+b.daily+'</b> pitches'+(age>=23?' (19–22 college guideline)':'')+'. Leagues vary — the stricter local rule wins.</p>'
+      :'<p style="margin-bottom:8px">Pick the athlete&rsquo;s age to enable Pitch Smart daily limits and rest rules.</p>')+
+    status+
+    '<button onclick="armGuardLog()" style="width:100%;margin-top:10px;background:#161b22;border:1px solid var(--blood);color:#ff6b68;font-family:\'SF Mono\',monospace;font-size:12px;letter-spacing:1px;padding:11px;border-radius:10px;cursor:pointer">＋ LOG OUTING (PITCH COUNT)</button>'+
+    (recent?'<div style="margin-top:10px">'+recent+'</div>':'')+
+    '</div>';
+}
+window.renderArmGuardian=renderArmGuardian;
 setInterval(()=>{if(document.getElementById('view-game').classList.contains('on'))buildGameDay();},60000);
 
 /* BOOT */
