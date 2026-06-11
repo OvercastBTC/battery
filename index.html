@@ -7966,7 +7966,7 @@ body.youth #youth-banner{display:block}
 <h3>⚙️ Data &amp; Profiles</h3>
 <div class="gd-card gold">
 <h3 style="margin-bottom:6px">Whole-App Backup</h3>
-<p class="dmeta" style="margin:0 0 12px">Saves <b>every profile</b> (Adam, Kole, and anyone you added) plus the active profile and people list into one <code>.json</code> file. Use it to move BATTERY to a new device or to reset and restore later.</p>
+<p class="dmeta" style="margin:0 0 12px">Saves <b>every profile on this device</b> plus the active profile and people list into one <code>.json</code> file. Use it to move BATTERY to a new device or to reset and restore later.</p>
 <button class="dbtn bk" onclick="batteryExportAll()">⬆ BACKUP EVERYTHING</button>
 <button class="dbtn bk" onclick="batteryShareBackup()">⤴ SAVE / SHARE BACKUP…</button>
 <button class="dbtn rs" onclick="document.getElementById('data-import-file').click()">⬇ RESTORE FROM BACKUP</button>
@@ -8509,7 +8509,7 @@ function readEvents(){try{const r=localStorage.getItem('fuel-events');return r?J
 function readTrainDays(){try{return JSON.parse(localStorage.getItem('arm-care-traindays')||'[]');}catch(e){return[];}}
 function buildOutlook(){
   const host=document.getElementById('outlook-3d'); if(!host) return;
-  const youth=(profile==='kole');
+  const youth=(profileTier(profile)==='youth');
   const dayCodes=['SU','MO','TU','WE','TH','FR','SA'];
   const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const events=readEvents();
@@ -8571,7 +8571,7 @@ function positionsHasPitcher(){
 function pad(n){return(n<10?'0':'')+n}
 function fmt(d){let h=d.getHours(),m=d.getMinutes(),ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+pad(m)+' '+ap}
 function buildGameDay(){
- const youth=(profile==='kole');const sel=document.getElementById('gd-event');
+ const youth=(profileTier(profile)==='youth');const sel=document.getElementById('gd-event');
  const games=readEvents().filter(e=>['game','bullpen','bp'].includes(e.type)).map(e=>({...e,d:Math.round((new Date(e.date+'T00:00:00')-new Date().setHours(0,0,0,0))/864e5)})).filter(e=>e.d>=0).sort((a,b)=>a.d-b.d);
  const cur=sel.value;sel.innerHTML='<option value="">— manual time —</option>'+games.map(e=>{const lbl=(e.notes||e.type),when=(e.d===0?'today':e.d+'d');return '<option value="'+e.date+'">'+lbl+' · '+e.date+' ('+when+')</option>';}).join('');
  if([...sel.options].some(o=>o.value===cur))sel.value=cur;
@@ -8589,7 +8589,7 @@ document.getElementById('gd-event').addEventListener('change',buildGameDay);
 
 /* ===== ICS CALENDAR EXPORT (the real iOS bridge — tap to Add) ===== */
 function exportGameICS(){
-  const youth=(profile==='kole');
+  const youth=(profileTier(profile)==='youth');
   const sel=document.getElementById('gd-event');
   const dateStr=sel.value; // YYYY-MM-DD or '' for manual -> use today
   const base=new Date((dateStr||new Date().toISOString().slice(0,10))+'T00:00:00');
