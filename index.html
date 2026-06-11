@@ -109,7 +109,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.11.18</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.11.19</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -2672,40 +2672,46 @@ body.youth #youth-banner{display:block}
   const tabs = document.querySelectorAll('.tab');
   const pages = document.querySelectorAll('.page');
 
-  /* ===== HOST GROUP ROUTING — ARM (arm-care) vs DRILLS (position/fielding + conditioning) =====
-     The bottom menu bar (host) has separate ARM and DRILLS tabs; both surface THIS one
-     iframe. The host postMessages which GROUP to show. We filter the internal tab strip
-     and relabel the title, and the daily counter reflects only the active group.
+  /* ===== HOST GROUP ROUTING — ARM (arm-care) / DRILLS (position+fielding) / BODY (phys-care) =====
+     The bottom menu bar (host) has separate ARM, DRILLS and BODY tabs; all three surface
+     THIS one iframe. The host postMessages which GROUP to show. We filter the internal tab
+     strip and relabel the title, and the daily counter reflects only the active group.
+     ARM = throwing-arm protocol (J-Bands, tube, plyo, long toss, schedule).
+     DRILLS = Washington position/fielding drills.
+     BODY = whole-body care (recovery, TB12 pliability, flexibility, daily extras).
      COMPLETION IS ONE SHARED STORE keyed by data-ex (arm-care-done-*): an exercise is
      recorded once no matter which group surfaces it. If a drill ever needs to live in
      both contexts, give it the SAME data-ex and it stays in sync automatically. */
-  const DRILL_TABS = ['washington','extras'];
+  const TAB_GROUPS = { washington:'drills', recovery:'body', extras:'body' };
+  function tabGroup(id){ return TAB_GROUPS[id] || 'arm'; }
   let activeGroup = 'arm';
   function stepGroup(step){
     const pg = step.closest('.page');
     const id = pg ? pg.id.replace('page-','') : '';
-    return DRILL_TABS.includes(id) ? 'drills' : 'arm';
+    return tabGroup(id);
   }
   function groupCount(g){
     let done=0,total=0;
     document.querySelectorAll('.step').forEach(s=>{ if(stepGroup(s)===g){ total++; if(s.classList.contains('done'))done++; } });
     return {done:done,total:total};
   }
-  function postCounts(){ try{ parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills')},'*'); }catch(e){} }
+  function postCounts(){ try{ parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills'),body:groupCount('body')},'*'); }catch(e){} }
   function applyGroup(group){
-    activeGroup = (group==='drills') ? 'drills' : 'arm';
+    activeGroup = (group==='drills'||group==='body') ? group : 'arm';
     document.querySelectorAll('.tab').forEach(t=>{
-      const isDrill = DRILL_TABS.includes(t.dataset.tab);
-      t.style.display = ((activeGroup==='drills')===isDrill) ? '' : 'none';
+      t.style.display = (tabGroup(t.dataset.tab)===activeGroup) ? '' : 'none';
     });
     const span = document.querySelector('.title-left h1 span');
-    if(span) span.textContent = (activeGroup==='drills') ? '// Drills' : '// Arm Care';
+    if(span) span.textContent = activeGroup==='drills' ? '// Drills' : (activeGroup==='body' ? '// Body Care' : '// Arm Care');
     const active = document.querySelector('.tab.active');
-    const curIsDrill = active ? DRILL_TABS.includes(active.dataset.tab) : false;
-    if(curIsDrill !== (activeGroup==='drills')){
+    const curGroup = active ? tabGroup(active.dataset.tab) : 'arm';
+    if(curGroup !== activeGroup){
       const last = storeGet('arm-care-last-tab-'+activeGroup,'');
       let target = last && document.querySelector('.tab[data-tab='+last+']');
-      if(!target){ target = (activeGroup==='drills') ? document.querySelector('.tab[data-tab=washington]') : document.querySelector('.tab[data-tab=overview]'); }
+      if(!target){
+        const def = activeGroup==='drills' ? 'washington' : (activeGroup==='body' ? 'recovery' : 'overview');
+        target = document.querySelector('.tab[data-tab='+def+']');
+      }
       if(target) switchTab(target.dataset.tab);
     }
     updateCounter();
@@ -2721,7 +2727,7 @@ body.youth #youth-banner{display:block}
     if (tabName === 'history') renderArmHistory();
     // Persist last tab (global + per-group so each bottom tab remembers its own page)
     storeSet('arm-care-last-tab', tabName);
-    storeSet('arm-care-last-tab-' + (DRILL_TABS.includes(tabName) ? 'drills' : 'arm'), tabName);
+    storeSet('arm-care-last-tab-' + tabGroup(tabName), tabName);
   }
 
   tabs.forEach(t => {
@@ -6393,6 +6399,9 @@ body.youth #youth-banner{display:block}
     // Status flags
     renderStatusFlags(tot, t);
 
+    // Mirror today's totals to the host shell (same pattern as arm-care's bat-counts)
+    try { parent.postMessage({ type:'bat-fuel', water:Math.round(tot.water), protein:Math.round(tot.protein), tWater:t.water, tProtein:t.protein, day:t.label }, '*'); } catch (e) {}
+
     // Also refresh mini stats / strip / weekly / suggestions each time
     refreshMiniStrip();
     refreshMiniStats();
@@ -7969,6 +7978,7 @@ body.youth #youth-banner{display:block}
 "></iframe>
 <section id="view-game">
 <div id="youth-banner">Youth mode — Kole (6, active). Fuel = growth-based food protein + water, tuned for an active kid. No supplements or stimulants shown. Arm work is light/optional at this age.</div>
+<div id="scoreboard"></div>
 <div id="outlook-3d"></div>
 <div id="arm-guardian"></div>
 <div class="gd-card gold"><h3>⚡ Game Day Fusion</h3><p>Pick a game from events (FUEL → Events) or set first pitch. BATTERY back-builds the prep — <span style="color:#ff6b68">arm (red)</span> + <span style="color:var(--goldb)">fuel (gold)</span>, one schedule.</p></div>
@@ -8009,6 +8019,7 @@ body.youth #youth-banner{display:block}
 <div id="tabbar">
 <button class="on" data-v="arm" onclick="go('arm')"><span class="ico">🦾</span><span class="lb">ARM</span></button>
 <button data-v="drills" onclick="go('drills')"><span class="ico">🧤</span><span class="lb">DRILLS</span></button>
+<button data-v="body" onclick="go('body')"><span class="ico">🧘</span><span class="lb">BODY</span></button>
 <button data-v="fuel" onclick="go('fuel')"><span class="ico">🔋</span><span class="lb">FUEL</span></button>
 <button data-v="game" onclick="go('game')"><span class="ico">⚡</span><span class="lb">GAME</span></button>
 <button data-v="data" onclick="go('data')"><span class="ico">⚙️</span><span class="lb">DATA</span></button>
@@ -8028,7 +8039,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v18').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v18').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v19').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v19').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -8295,23 +8306,29 @@ setInterval(persistLive, 4000);                       // mirror every 4s
 window.addEventListener('pagehide', persistLive);     // and on background/close
 window.addEventListener('visibilitychange', ()=>{ if(document.hidden) persistLive(); });
 function reloadFrames(){const tier=profileTier(profile);
- FRAMES.arm.onload=()=>{try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:(_curTab==='drills'?'drills':'arm')},'*');}catch(e){}};
+ FRAMES.arm.onload=()=>{try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:((_curTab==='drills'||_curTab==='body')?_curTab:'arm')},'*');}catch(e){}};
  FRAMES.fuel.onload=()=>{try{FRAMES.fuel.contentWindow.BATTERY_TIER=tier;const w=FRAMES.fuel.contentWindow;if(w.recomputeDayTargets)w.recomputeDayTargets();if(w.refreshAll)w.refreshAll();if(w.batteryRelayout)setTimeout(w.batteryRelayout,200);}catch(e){}};
  FRAMES.arm.srcdoc=FRAMES.arm.getAttribute('srcdoc');FRAMES.fuel.srcdoc=FRAMES.fuel.getAttribute('srcdoc');}
 function setProfile(p){if(p===profile)return;snapshotCurrent();profile=p;localStorage.setItem('battery-profile',p);
  renderSwitch();
  document.body.classList.toggle('youth',profileTier(p)==='youth');restoreProfile();reloadFrames();buildGameDay();buildOutlook();}
-function go(v){_curTab=v;var armish=(v==='arm'||v==='drills');FRAMES.arm.classList.toggle('on',armish);FRAMES.fuel.classList.toggle('on',v==='fuel');
+function go(v){_curTab=v;var armish=(v==='arm'||v==='drills'||v==='body');FRAMES.arm.classList.toggle('on',armish);FRAMES.fuel.classList.toggle('on',v==='fuel');
  document.getElementById('view-game').classList.toggle('on',v==='game');
  document.getElementById('view-data').classList.toggle('on',v==='data');
  document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
- if(armish){try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:(v==='drills'?'drills':'arm')},'*');}catch(e){}}
+ if(armish){try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:((v==='drills'||v==='body')?v:'arm')},'*');}catch(e){}}
  if(v==='game'){buildGameDay();buildOutlook();}if(v==='data'){renderDataView();}}
-/* Glanceable progress: the iframe reports per-group done/total; light a gold dot on
-   the ARM / DRILLS bottom tabs whenever that group still has unchecked items today. */
-window.addEventListener('message',function(e){var d=e&&e.data;if(!d||d.type!=='bat-counts')return;
+/* Glanceable progress: the iframes report their day state; light a gold dot on the
+   ARM / DRILLS / BODY bottom tabs whenever that group still has unchecked items today,
+   and keep the latest snapshot for the GAME scoreboard. */
+let _batCounts=null,_batFuel=null;
+window.addEventListener('message',function(e){var d=e&&e.data;if(!d)return;
+ if(d.type==='bat-fuel'){_batFuel=d;renderScoreboard();return;}
+ if(d.type!=='bat-counts')return;
+ _batCounts=d;
  function dot(v,c){var b=document.querySelector('#tabbar button[data-v="'+v+'"]');if(b)b.classList.toggle('todo',!!(c&&c.total>0&&c.done<c.total));}
- dot('arm',d.arm);dot('drills',d.drills);});
+ dot('arm',d.arm);dot('drills',d.drills);dot('body',d.body);
+ renderScoreboard();});
 
 /* ===== WHOLE-APP BACKUP / RESTORE (unified, all profiles) =====
    Export covers every profile's namespaced data (battery::<id>::*) plus the
@@ -8628,6 +8645,7 @@ function buildOutlook(){
   host.innerHTML='<div class="gd-card" style="border-color:#58a6ff"><h3 style="color:#58a6ff">🔭 Next 3 Days</h3>'+
     '<p style="margin-bottom:10px">Forward plan from your games, training days, and taper.</p>'+cards+'</div>';
   renderArmGuardian();
+  renderScoreboard();
 }
 function positionsHasPitcher(){
   try{ return (localStorage.getItem('arm-care-pos')||'').split(',').includes('pitcher'); }catch(e){ return false; }
@@ -8778,6 +8796,41 @@ function renderArmGuardian(){
     '</div>';
 }
 window.renderArmGuardian=renderArmGuardian;
+
+/* ===== TODAY SCOREBOARD (GAME tab) — one glance across all four streams =====
+   Live snapshots arrive by postMessage: 'bat-counts' from the arm iframe
+   (arm/drills/body done-totals) and 'bat-fuel' from the fuel iframe (today's
+   water/protein vs targets + day type). Zero extra storage — pure display.
+   Youth profiles never show a protein target (same gate as the fuel app). */
+function renderScoreboard(){
+  const host=document.getElementById('scoreboard'); if(!host)return;
+  if(!profile){host.innerHTML='';return;}
+  const youth=profileTier(profile)==='youth';
+  function bar(label,ico,done,total,color,tab){
+    const pct=total>0?Math.min(100,Math.round(done/total*100)):0;
+    const full=total>0&&done>=total;
+    return '<div onclick="go(\''+tab+'\')" style="cursor:pointer;margin-bottom:8px">'+
+      '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">'+
+      '<span style="color:var(--dim);letter-spacing:1px">'+ico+' '+label+'</span>'+
+      '<span style="font-family:\'SF Mono\',monospace;color:'+(full?'var(--green)':'var(--bone)')+'">'+done+'/'+total+'</span></div>'+
+      '<div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden"><div style="width:'+pct+'%;height:100%;border-radius:3px;background:'+(full?'var(--green)':color)+'"></div></div></div>';
+  }
+  let rows='';
+  if(_batCounts){
+    rows+=bar('ARM CARE','🦾',_batCounts.arm.done,_batCounts.arm.total,'var(--blood)','arm');
+    rows+=bar('DRILLS','🧤',_batCounts.drills.done,_batCounts.drills.total,'var(--blue)','drills');
+    const bd=_batCounts.body||{done:0,total:0};
+    rows+=bar('BODY','🧘',bd.done,bd.total,'#bc8cff','body');
+  }
+  if(_batFuel){
+    rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'var(--blue)','fuel');
+    if(!youth)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'var(--gold)','fuel');
+  }
+  if(!rows){host.innerHTML='';return;}
+  host.innerHTML='<div class="gd-card"><h3>🏁 Today'+(_batFuel&&_batFuel.day?' <span style="font-size:10px;color:var(--faint);letter-spacing:1px">'+escHtml(_batFuel.day).toUpperCase()+' DAY</span>':'')+'</h3>'+
+    '<p style="margin-bottom:10px">One glance — arm, drills, body, fuel. Tap a row to jump.</p>'+rows+'</div>';
+}
+window.renderScoreboard=renderScoreboard;
 setInterval(()=>{if(document.getElementById('view-game').classList.contains('on'))buildGameDay();},60000);
 
 /* BOOT */
