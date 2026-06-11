@@ -1,2 +1,5 @@
-# Local-only dev docs (not deployed to GitHub Pages)
+# Local-only dev docs (NOT pushed — this repo is PUBLIC; HANDOFF holds internal
+# coordination + health notes. Both agents share it via the local clone on disk,
+# so it does not need to be committed. Keep it ignored so neither agent can
+# accidentally `git add .` it into the public repo.)
 HANDOFF.md
