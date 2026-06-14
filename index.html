@@ -85,7 +85,8 @@ body.youth #youth-banner{display:block}
 #first-run .fr-demo{background:none;border:1px dashed var(--line);color:var(--dim)}
 #tabbar{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;background:var(--steel2);border-top:1px solid var(--line);padding-bottom:max(env(safe-area-inset-bottom), var(--sab, 0px));backdrop-filter:blur(10px)}
 #tabbar button{flex:1;height:50px;background:none;border:none;color:var(--faint);padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:"SF Mono",monospace}
-#tabbar button .ico{font-size:16px}#tabbar button .lb{font-size:9px;letter-spacing:1.5px}
+#tabbar button .ico{font-size:16px}#tabbar button .lb{font-size:9px;letter-spacing:1.5px;white-space:nowrap}
+@media(max-width:390px){#tabbar button .lb{font-size:8px;letter-spacing:.4px}#tabbar button .ico{font-size:15px}}
 #tabbar button.on{color:var(--gold)}
 #tabbar button{position:relative}
 #tabbar button.warn .ico::after{content:'';position:absolute;top:6px;margin-left:14px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
@@ -109,7 +110,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.11.19</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.13.20</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -2898,10 +2899,15 @@ body.youth #youth-banner{display:block}
   }
 
   function resetDay() {
-    if (!confirm('Reset today\'s checkboxes? (All-time count and streak unaffected.)')) return;
+    const label = activeGroup==='drills' ? 'Drills' : (activeGroup==='body' ? 'Body Care' : 'Arm Care');
+    if (!confirm('Reset today\'s ' + label + ' checkboxes? (Other tabs, all-time count and streak are unaffected.)')) return;
     const today = getTodayKey();
-    storeSet(today, '');
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('done'));
+    const keep = [];
+    document.querySelectorAll('.step').forEach(s => {
+      if (stepGroup(s) === activeGroup) { s.classList.remove('done'); }
+      else if (s.classList.contains('done')) { keep.push(s.dataset.ex); }
+    });
+    storeSet(today, keep.join(','));
     updateCounter();
   }
 
@@ -8039,7 +8045,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v19').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v19').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v20').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v20').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -8312,7 +8318,7 @@ function reloadFrames(){const tier=profileTier(profile);
 function setProfile(p){if(p===profile)return;snapshotCurrent();profile=p;localStorage.setItem('battery-profile',p);
  renderSwitch();
  document.body.classList.toggle('youth',profileTier(p)==='youth');restoreProfile();reloadFrames();buildGameDay();buildOutlook();}
-function go(v){_curTab=v;var armish=(v==='arm'||v==='drills'||v==='body');FRAMES.arm.classList.toggle('on',armish);FRAMES.fuel.classList.toggle('on',v==='fuel');
+function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(e){}var armish=(v==='arm'||v==='drills'||v==='body');FRAMES.arm.classList.toggle('on',armish);FRAMES.fuel.classList.toggle('on',v==='fuel');
  document.getElementById('view-game').classList.toggle('on',v==='game');
  document.getElementById('view-data').classList.toggle('on',v==='data');
  document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
@@ -8851,4 +8857,16 @@ maybeFirstRun();
   }
 })();
 restoreProfile();reloadFrames();buildGameDay();buildOutlook();
+/* Open to the LAST view the user was on (per-device UI state, not backed up), so
+   reopening the app lands where they left off instead of always defaulting to ARM.
+   Skip while the first-run overlay is up; 'arm' is already the default .on tab. */
+(function restoreLastView(){
+  try{
+    var fr=document.getElementById('first-run');
+    if(fr&&fr.classList.contains('on'))return;
+    var v=localStorage.getItem('battery-last-view');
+    var valid={arm:1,drills:1,body:1,fuel:1,game:1,data:1};
+    if(v&&valid[v]&&v!=='arm')go(v);
+  }catch(e){}
+})();
 </script></body></html>
