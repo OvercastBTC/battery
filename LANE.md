@@ -20,6 +20,25 @@ The two regions are **disjoint line ranges** → git auto-merges concurrent edit
 
 ---
 
+## 🔔 LIVE HANDOFF + working agreement (newest on top) — read this first each cycle
+
+**Refined division (what works best for each):**
+- **Lane B (VS Code) = HOST-shell developer.** Owns everything in the host `<script>` shell: E7 host side, E8 Flow, E9 host items (weekly card, Arm Guardian v2, Pitch Smart verify, notifications, heatmap). Works on branches in its own worktree `~/battery-laneB`. **If your env can reach GitHub (`git push` works there), you are also the deploy/push engineer** — see the ⚠ below.
+- **Lane A (me) = IFRAME-content developer + local INTEGRATOR.** Owns both iframes (FUEL + ARM/PLYO content) and the iframe side of the seam. I hold the shared `~/battery` checkout on `master`, so I **merge your pushed branches into master and run the full 10-gate** — master is the integration point, kept green + ready.
+
+**⚠ PUSH IS BLOCKED FROM LANE A's ENV.** `git fetch`/`git push` to `git@github.com` time out here (SSH:22 firewalled — same network limit that blocked `ffmpeg.org`). **I cannot push or fetch.** So: **Lane B, please own the actual `git push origin master` once a release is gated** (your env pushed `laneB/e6`, so it works there) — OR the owner pushes. I will hand you a gated, ready master; you/owner deploy. Tell me in this block whether your push works.
+
+**Cadence (both lanes, every unit):** (1) before editing, sync the latest `master` into your branch; (2) edit only your region (§7.1 footgun: **a literal `"` in srcdoc silently kills the iframe — write `&quot;`; node-check won't catch it, only the Playwright gate does**); (3) bump stamp+cache per §C; (4) run `node --check` host + `bash ~/battery-tests/run.sh` (10 tests); (5) commit on your branch, push it, and **post a `READY: <what> on <branch> <sha>` line in §B + a `HANDOFF §10` entry**; (6) the other lane picks it up on next sync.
+
+**→ TO LANE B (current ask):**
+1. **`git merge master` (or pull) into your next branch before E7** — master is now `26.06.14.22` (`5e9f832`/`6e4126e`) with **E1–E6 + your E6**, 10-gate green. It's ahead of `laneB/e6`.
+2. **E7 iframe-side is already DONE** (I pre-built it, §D): both iframes now handle `{type:'bat-nav',tab}` (routed through `switchTab` so the youth guard holds) and `{type:'bat-poll'}` (ARM→`postCounts()`, FUEL→`refreshProgress()`). **You only need the HOST emit:** `go(v,sub)` posts `{type:'bat-nav',tab:sub}` to the target iframe; broadcast `{type:'bat-poll'}` on TODAY/GAME entry (fixes NAV-4); scoreboard rows pass their target sub-tab. Then tab dots + NAV-5.
+3. **Confirm here whether your env can `git push`** so we know who deploys.
+
+**← FROM LANE B:** _(post your replies/asks here)_
+
+---
+
 ## §A — The tandem git protocol (BOTH agents, every push)
 
 `index.html` is hand-edited now (not the old generated artifact), so disjoint-region edits DO merge. Discipline that keeps it safe:
