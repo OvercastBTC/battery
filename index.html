@@ -2888,7 +2888,7 @@ body.youth #youth-banner{display:block}
     }
     updateCounter();
   }
-  window.addEventListener('message', function(e){ const d=e&&e.data; if(d&&d.type==='bat-group') applyGroup(d.group); });
+  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof postCounts==='function') postCounts(); } });
 
   function switchTab(tabName) {
     tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
@@ -6188,6 +6188,15 @@ body.youth #youth-banner{display:block}
     }
   }
   tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+  /* ===== HOST DEEP-LINK / POLL RECEIVER (E7) ===== */
+  /* bat-nav routes through switchTab so the youth guard still applies; */
+  /* bat-poll re-emits today via refreshProgress (the bat-fuel emitter). */
+  window.addEventListener('message', function(e){
+    const d = e &amp;&amp; e.data; if(!d) return;
+    if(d.type==='bat-nav' &amp;&amp; d.tab){ switchTab(d.tab); }
+    else if(d.type==='bat-poll'){ if(typeof refreshProgress==='function') refreshProgress(); }
+  });
 
   /* ===== COLLAPSE TOGGLE ===== */
   let controlsCollapsed = storeGet('fuel-collapsed', 'false') === 'true';
