@@ -29,7 +29,13 @@ iframe.on{display:block}
 #view-game{position:absolute;inset:0;display:none;overflow-y:auto;
 padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolling:touch}
 #view-game.on{display:block}
-#view-data{position:absolute;inset:0;display:none;overflow-y:auto;
+#view-today{position:absolute;inset:0;display:none;overflow-y:auto;
+padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolling:touch}
+#view-today.on{display:block}
+#today-ring{width:172px;height:172px;border-radius:50%;margin:10px auto 8px;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--rc,var(--green)) calc(var(--p,0)*1%), var(--line) 0)}
+#today-ring .inner{width:138px;height:138px;border-radius:50%;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center}
+#today-ring .score{font-size:44px;font-weight:800;font-family:&quot;SF Mono&quot;,monospace;line-height:1;color:var(--bone)}
+#today-ring .lbl{font-size:10px;letter-spacing:3px;color:var(--dim);margin-top:4px}
 padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolling:touch}
 #view-data.on{display:block}
 #view-data h3{margin:0 0 10px;font-size:15px;letter-spacing:1px}
@@ -109,7 +115,7 @@ body.youth #youth-banner{display:block}
 #bmodal .bm-btns button.dgr{background:var(--blood);border-color:var(--blood);color:#fff}
 </style></head><body>
 <div id="hostbar">
-<svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
+<svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
 <div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.14.21</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
@@ -8380,6 +8386,13 @@ body.youth #youth-banner{display:block}
 </body>
 </html>
 "></iframe>
+<section id="view-today">
+<div class="gd-card"><h3 id="today-greet">Today</h3><p id="today-sub">Your daily readiness — arm, drills, body and fuel in one number.</p>
+<div id="today-ring" style="--p:0;--rc:var(--green)"><div class="inner"><span class="score" id="today-score">–</span><span class="lbl">READY</span></div></div>
+<div id="today-rows"></div>
+<div id="today-note" class="dmeta" style="margin-top:8px"></div>
+</div>
+</section>
 <section id="view-game">
 <div id="youth-banner">Youth mode — Kole (6, active). Fuel = growth-based food protein + water, tuned for an active kid. No supplements or stimulants shown. Arm work is light/optional at this age.</div>
 <div id="scoreboard"></div>
@@ -8719,20 +8732,21 @@ function setProfile(p){if(p===profile)return;snapshotCurrent();profile=p;localSt
 function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(e){}var armish=(v==='arm'||v==='drills'||v==='body');FRAMES.arm.classList.toggle('on',armish);FRAMES.fuel.classList.toggle('on',v==='fuel');
  document.getElementById('view-game').classList.toggle('on',v==='game');
  document.getElementById('view-data').classList.toggle('on',v==='data');
+ document.getElementById('view-today').classList.toggle('on',v==='today');
  document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
  if(armish){try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:((v==='drills'||v==='body')?v:'arm')},'*');}catch(e){}}
- if(v==='game'){buildGameDay();buildOutlook();}if(v==='data'){renderDataView();}}
+ if(v==='game'){buildGameDay();buildOutlook();}if(v==='data'){renderDataView();}if(v==='today'){renderToday();}}
 /* Glanceable progress: the iframes report their day state; light a gold dot on the
    ARM / DRILLS / BODY bottom tabs whenever that group still has unchecked items today,
    and keep the latest snapshot for the GAME scoreboard. */
 let _batCounts=null,_batFuel=null;
 window.addEventListener('message',function(e){var d=e&&e.data;if(!d)return;
- if(d.type==='bat-fuel'){_batFuel=d;renderScoreboard();return;}
+ if(d.type==='bat-fuel'){_batFuel=d;renderScoreboard();renderToday();return;}
  if(d.type!=='bat-counts')return;
  _batCounts=d;
  function dot(v,c){var b=document.querySelector('#tabbar button[data-v="'+v+'"]');if(b)b.classList.toggle('todo',!!(c&&c.total>0&&c.done<c.total));}
  dot('arm',d.arm);dot('drills',d.drills);dot('body',d.body);
- renderScoreboard();});
+ renderScoreboard();renderToday();});
 
 /* ===== WHOLE-APP BACKUP / RESTORE (unified, all profiles) =====
    Export covers every profile's namespaced data (battery::<id>::*) plus the
@@ -9235,6 +9249,86 @@ function renderScoreboard(){
     '<p style="margin-bottom:10px">One glance — arm, drills, body, fuel. Tap a row to jump.</p>'+rows+'</div>';
 }
 window.renderScoreboard=renderScoreboard;
+/* ===== E6: TODAY landing + Daily Readiness ring =====
+   A 0–100 readiness score fusing the same live streams the scoreboard uses:
+   arm/drills/body completion (bat-counts) + water/protein vs target (bat-fuel).
+   YOUTH excludes the protein/macro component (same safety gate as the fuel app,
+   HANDOFF §4.3). renderToday() RETURNS the integer score (the test reads it) and
+   renders the ring + tappable rows + a Pitch-Smart/day-type note. */
+function readinessScore(){
+  var youth=profileTier(profile)==='youth';
+  var parts=[];
+  if(_batCounts){
+    ['arm','drills','body'].forEach(function(k){var c=_batCounts[k];if(c&&c.total>0)parts.push(Math.min(1,c.done/c.total));});
+  }
+  if(_batFuel){
+    if(_batFuel.tWater>0)parts.push(Math.min(1,_batFuel.water/_batFuel.tWater));
+    if(!youth&&_batFuel.tProtein>0)parts.push(Math.min(1,_batFuel.protein/_batFuel.tProtein));
+  }
+  if(!parts.length)return 0;
+  var avg=parts.reduce(function(a,b){return a+b;},0)/parts.length;
+  return Math.round(avg*100);
+}
+function renderToday(){
+  var score=readinessScore();
+  var youth=profileTier(profile)==='youth';
+  var ring=document.getElementById('today-ring');
+  if(ring){
+    var rc=score>=75?'var(--green)':(score>=40?'var(--goldb)':'var(--blood)');
+    ring.style.setProperty('--p',score);
+    ring.style.setProperty('--rc',rc);
+    var sc=document.getElementById('today-score'); if(sc)sc.textContent=profile?score:'–';
+  }
+  var greet=document.getElementById('today-greet');
+  if(greet){
+    var h=new Date().getHours();
+    var part=h<12?'Good morning':(h<18?'Good afternoon':'Good evening');
+    var nm=(typeof profileName==='function'&&profile)?profileName(profile):'';
+    greet.textContent=part+(nm?', '+escHtml(nm):'')+'.';
+  }
+  var rowsEl=document.getElementById('today-rows');
+  if(rowsEl){
+    function bar(label,ico,done,total,color,tab){
+      var pct=total>0?Math.min(100,Math.round(done/total*100)):0;
+      var full=total>0&&done>=total;
+      return '<div onclick="go(\''+tab+'\')" style="cursor:pointer;margin:10px 0">'+
+        '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">'+
+        '<span style="color:var(--dim);letter-spacing:1px">'+ico+' '+label+'</span>'+
+        '<span style="font-family:\'SF Mono\',monospace;color:'+(full?'var(--green)':'var(--bone)')+'">'+done+'/'+total+'</span></div>'+
+        '<div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden"><div style="width:'+pct+'%;height:100%;border-radius:3px;background:'+(full?'var(--green)':color)+'"></div></div></div>';
+    }
+    var rows='';
+    if(_batCounts){
+      rows+=bar('ARM CARE','🦾',_batCounts.arm.done,_batCounts.arm.total,'var(--blood)','arm');
+      rows+=bar('DRILLS','🧤',_batCounts.drills.done,_batCounts.drills.total,'var(--blue)','drills');
+      var bd=_batCounts.body||{done:0,total:0};
+      rows+=bar('BODY','🧘',bd.done,bd.total,'#bc8cff','body');
+    }
+    if(_batFuel){
+      rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'var(--blue)','fuel');
+      if(!youth)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'var(--gold)','fuel');
+    }
+    rowsEl.innerHTML=rows||'<p class="dmeta" style="text-align:center">Open a tab to start logging today.</p>';
+  }
+  var note=document.getElementById('today-note');
+  if(note){
+    var msg='';
+    try{
+      var ri=(typeof pitchRestInfo==='function')?pitchRestInfo():null;
+      if(ri){
+        var t=new Date(); t.setHours(0,0,0,0);
+        if(t<ri.cleared){
+          var clr=ri.cleared.toLocaleDateString(undefined,{weekday:'short',month:'numeric',day:'numeric'});
+          msg=ri.rest>0?'🛑 Arm resting — cleared to pitch '+clr+'.':'Arm: cleared to pitch tomorrow.';
+        }else{ msg='✅ Arm cleared to pitch.'; }
+      }
+    }catch(e){}
+    if(_batFuel&&_batFuel.day)msg=(msg?msg+'  ·  ':'')+String(_batFuel.day).toUpperCase()+' DAY';
+    note.textContent=msg;
+  }
+  return score;
+}
+window.renderToday=renderToday;window.readinessScore=readinessScore;
 setInterval(()=>{if(document.getElementById('view-game').classList.contains('on'))buildGameDay();},60000);
 
 /* BOOT */
@@ -9263,8 +9357,9 @@ restoreProfile();reloadFrames();buildGameDay();buildOutlook();
     var fr=document.getElementById('first-run');
     if(fr&&fr.classList.contains('on'))return;
     var v=localStorage.getItem('battery-last-view');
-    var valid={arm:1,drills:1,body:1,fuel:1,game:1,data:1};
-    if(v&&valid[v]&&v!=='arm')go(v);
+    var valid={arm:1,drills:1,body:1,fuel:1,game:1,data:1,today:1};
+    if(v&&valid[v]){ if(v!=='arm')go(v); }
+    else { go('today'); }   // brand-new / no stored view → TODAY home landing
   }catch(e){}
 })();
 </script></body></html>
