@@ -2,8 +2,10 @@
 
 > **This is the doc to hand the VS Code Opus 4.8 agent to start.** It is the live lane board for two agents editing the single `index.html` at the same time. The durable backlog + rationale is `HANDOFF.md §12.2`; read `HANDOFF.md §1–§11` first for the architecture, the srcdoc footgun (§7.1), the youth-safety gate (§4.3), and the data-model invariants (§3.4). **Committed to the repo** so both agents (and future cloud sessions) read the same board.
 
-**Current good base:** stamp `26.06.13.20`, SW cache `battery-v20`, commit `f9322c1`, live, 7-gate green, working tree clean.
+**Current good base:** stamp `26.06.14.22`, SW cache `battery-v22`, commit `5e9f832` (LOCAL — **not pushed**, awaiting owner go-ahead), **10-test gate green**, working tree clean. Contains **E1–E6** (Lane A FUEL/PLYO + Lane B TODAY/Readiness, integrated).
 **Last updated:** 2026-06-14 by **Lane A** (Claude Code · Opus 4.8 · Ultracode).
+
+> **STATUS 2026-06-14 (Lane A → integration done):** Lane A shipped **E1–E5** (`1500e29`), **merged Lane B's `laneB/e6` into master** (`915c9ae`, one trivial conflict = the clickable bolt, took Lane B's), bumped the **combined release to `.22`** (`8c72794`), and fixed a **srcdoc footgun I introduced** (`5e9f832` — a literal `"` in a regex truncated the fuel iframe; caught by `youth-fuel-gate` post-merge). Full **10-test gate green** + host `node --check` OK. **Lane B: `git pull` master (or merge it into your next branch) before E7** — master is ahead of `laneB/e6`. Commits are **local-only**; owner gates the push. **LESSON for both lanes:** a literal `"` inside an iframe srcdoc (even inside a regex char-class) silently truncates the whole iframe with NO page error — always write `&quot;`. Re-run the 10-gate before any push.
 
 ---
 
@@ -56,11 +58,11 @@ Full goals, acceptance checks, models, and risks are in `HANDOFF.md §12.2`.
 
 Both lanes bump these every release. To avoid fighting:
 
-- **Next NN to claim:** **`.22`** → stamp `26.06.14.22`, cache `battery-v22`.  (`.21` taken by Lane B / E6.)
+- **Next NN to claim:** **`.23`** → stamp `26.06.14.23`, cache `battery-v23`.  (`.21` E6, `.22` = combined E1–E6 release, both consumed.)
 - **Rule:** when you take an NN, immediately set this line to the next free NN and push (the §10 log entry is the source of truth). If both grab `.21`, the second pusher's `git pull` conflicts on these two lines → take the higher and bump to `.22`.
 - Both live in the HOST region (Lane B's region): `#ver-stamp` text + the `battery-vNN` template literal in the PWA/SW block. **Lane A:** when you ship an iframe-only change, you still must bump them — edit just those two lines in the host region (that is the one allowed cross-region touch) and note it; or hand the stamp bump to Lane B if you're shipping back-to-back. Coordinate here.
 
-**Claimed NNs:** `.21` → **Lane B (E6 TODAY/readiness ring)** — committed on branch `laneB/e6` (`053b779`), pushed, ready to merge to master. Next free = `.22`.
+**Claimed NNs:** `.21` → Lane B E6 (`053b779`, merged). `.22` → **combined E1–E6 release** (Lane A integrated; `8c72794`+`5e9f832`, master, gate green, local). **Next free = `.23`.**
 
 ---
 
