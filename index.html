@@ -116,7 +116,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.14.22</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.15.23</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -8403,7 +8403,7 @@ body.youth #youth-banner{display:block}
 </div>
 </section>
 <section id="view-game">
-<div id="youth-banner">Youth mode — Kole (6, active). Fuel = growth-based food protein + water, tuned for an active kid. No supplements or stimulants shown. Arm work is light/optional at this age.</div>
+<div id="youth-banner">Youth mode — growth-based food protein + water, tuned for an active kid. No supplements or stimulants shown. Arm work is light/optional at this age.</div>
 <div id="scoreboard"></div>
 <div id="outlook-3d"></div>
 <div id="arm-guardian"></div>
@@ -8465,7 +8465,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v22').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v22').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v23').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v23').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -8651,7 +8651,7 @@ function renderSwitch(){
 }
 function updateYouthBanner(){
   const b=document.getElementById('youth-banner'); if(!b)return;
-  b.textContent='Youth mode — '+(profileName(profile)||'this athlete').replace(/^./,function(c){return c;})+' is set to YOUTH. Fuel = growth-based food protein + water for an active kid. No supplements or stimulants shown. Arm work is light/optional at this age.';
+  b.textContent='Youth mode — '+(profileName(profile)||'this athlete')+' is set to YOUTH. Fuel = growth-based food protein + water for an active kid. No supplements or stimulants shown. Arm work is light/optional at this age.';
 }
 async function newPerson(){
   const r=await batteryModal({title:'New athlete',
@@ -8744,18 +8744,46 @@ function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(
  document.getElementById('view-today').classList.toggle('on',v==='today');
  document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
  if(armish){try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:((v==='drills'||v==='body')?v:'arm')},'*');}catch(e){}}
- if(v==='game'){buildGameDay();buildOutlook();}if(v==='data'){renderDataView();}if(v==='today'){renderToday();}}
+ if(v==='game'){buildGameDay();buildOutlook();batPoll();}if(v==='data'){renderDataView();}if(v==='today'){renderToday();batPoll();}}
 /* Glanceable progress: the iframes report their day state; light a gold dot on the
    ARM / DRILLS / BODY bottom tabs whenever that group still has unchecked items today,
    and keep the latest snapshot for the GAME scoreboard. */
 let _batCounts=null,_batFuel=null;
 window.addEventListener('message',function(e){var d=e&&e.data;if(!d)return;
- if(d.type==='bat-fuel'){_batFuel=d;renderScoreboard();renderToday();return;}
+ if(d.type==='bat-fuel'){_batFuel=d;refreshFuelDot();renderScoreboard();renderToday();return;}
  if(d.type!=='bat-counts')return;
  _batCounts=d;
  function dot(v,c){var b=document.querySelector('#tabbar button[data-v="'+v+'"]');if(b)b.classList.toggle('todo',!!(c&&c.total>0&&c.done<c.total));}
  dot('arm',d.arm);dot('drills',d.drills);dot('body',d.body);
  renderScoreboard();renderToday();});
+/* ===== E7: host deep-link (bat-nav) + on-entry poll (bat-poll, fixes NAV-4) + tab dots =====
+   The iframe receivers (Lane A, da5058f) already handle bat-nav -> switchTab
+   (youth guard holds) and bat-poll -> re-emit counts/fuel. The host emits them. */
+function batPoll(){
+  try{FRAMES.arm.contentWindow.postMessage({type:'bat-poll'},'*');}catch(e){}
+  try{FRAMES.fuel.contentWindow.postMessage({type:'bat-poll'},'*');}catch(e){}
+}
+function goTab(view,sub){
+  go(view);
+  if(sub){var f=(view==='fuel')?FRAMES.fuel:FRAMES.arm;try{f.contentWindow.postMessage({type:'bat-nav',tab:sub},'*');}catch(e){}}
+}
+window.batPoll=batPoll; window.goTab=goTab;
+/* FUEL tab dot: behind on water (always) or protein (ADULT only — youth never
+   shows a protein target, §4.3). */
+function refreshFuelDot(){
+  var b=document.querySelector('#tabbar button[data-v="fuel"]'); if(!b)return;
+  var youth=profileTier(profile)==='youth', d=_batFuel, behind=false;
+  if(d){ behind=(d.tWater>0&&d.water<d.tWater)||(!youth&&d.tProtein>0&&d.protein<d.tProtein); }
+  b.classList.toggle('todo',!!behind);
+}
+/* GAME tab dot: warn (gold) when Arm Guardian says the athlete is RESTING. */
+function refreshGameDot(){
+  var b=document.querySelector('#tabbar button[data-v="game"]'); if(!b)return;
+  var resting=false;
+  try{var ri=pitchRestInfo(); if(ri&&ri.rest>0){var t=new Date();t.setHours(0,0,0,0);resting=t<ri.cleared;}}catch(e){}
+  b.classList.toggle('warn',resting);
+}
+window.refreshFuelDot=refreshFuelDot; window.refreshGameDot=refreshGameDot;
 
 /* ===== WHOLE-APP BACKUP / RESTORE (unified, all profiles) =====
    Export covers every profile's namespaced data (battery::<id>::*) plus the
@@ -9073,6 +9101,7 @@ function buildOutlook(){
     '<p style="margin-bottom:10px">Forward plan from your games, training days, and taper.</p>'+cards+'</div>';
   renderArmGuardian();
   renderScoreboard();
+  try{refreshGameDot();}catch(e){}
 }
 function positionsHasPitcher(){
   try{ return (localStorage.getItem('arm-care-pos')||'').split(',').includes('pitcher'); }catch(e){ return false; }
@@ -9233,10 +9262,11 @@ function renderScoreboard(){
   const host=document.getElementById('scoreboard'); if(!host)return;
   if(!profile){host.innerHTML='';return;}
   const youth=profileTier(profile)==='youth';
-  function bar(label,ico,done,total,color,tab){
+  function bar(label,ico,done,total,color,tab,sub){
     const pct=total>0?Math.min(100,Math.round(done/total*100)):0;
     const full=total>0&&done>=total;
-    return '<div onclick="go(\''+tab+'\')" style="cursor:pointer;margin-bottom:8px">'+
+    const act=sub?'goTab(\''+tab+'\',\''+sub+'\')':'go(\''+tab+'\')';
+    return '<div onclick="'+act+'" style="cursor:pointer;margin-bottom:8px">'+
       '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">'+
       '<span style="color:var(--dim);letter-spacing:1px">'+ico+' '+label+'</span>'+
       '<span style="font-family:\'SF Mono\',monospace;color:'+(full?'var(--green)':'var(--bone)')+'">'+done+'/'+total+'</span></div>'+
@@ -9250,8 +9280,8 @@ function renderScoreboard(){
     rows+=bar('BODY','🧘',bd.done,bd.total,'#bc8cff','body');
   }
   if(_batFuel){
-    rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'var(--blue)','fuel');
-    if(!youth)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'var(--gold)','fuel');
+    rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'var(--blue)','fuel','hydration');
+    if(!youth)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'var(--gold)','fuel','protein');
   }
   if(!rows){host.innerHTML='';return;}
   host.innerHTML='<div class="gd-card"><h3>🏁 Today'+(_batFuel&&_batFuel.day?' <span style="font-size:10px;color:var(--faint);letter-spacing:1px">'+escHtml(_batFuel.day).toUpperCase()+' DAY</span>':'')+'</h3>'+
