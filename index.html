@@ -110,7 +110,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.13.20</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.14.21</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -842,6 +842,74 @@ body.youth #youth-banner{display:block}
     .check { width: 22px; height: 22px; }
     .step.done .check::after { font-size: 14px; }
   }
+
+  /* PLYO demo-clip button (lives inside .step-detail body) */
+  .clip-btn {
+    display: inline-block;
+    margin: 2px 0 8px;
+    background: rgba(88,166,255,0.12);
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 6px 11px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .clip-btn:hover { background: rgba(88,166,255,0.22); }
+
+  /* PLYO youth gate (§4.3): heavy plyo is training load — hidden for kids */
+  .plyo-youth-only { display: none; }
+  body.youth .plyo-youth-only { display: block; }
+  body.youth .plyo-heavy { display: none; }
+
+  /* Shared in-iframe demo-clip modal (dark overlay, matches host #bmodal) */
+  #clip-modal {
+    display: none;
+    position: fixed; inset: 0; z-index: 400;
+    background: rgba(13,17,23,0.9);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  #clip-modal.on { display: flex; }
+  #clip-modal .clip-card {
+    width: 100%; max-width: 560px;
+    background: var(--steel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 18px 50px #000a;
+  }
+  #clip-modal .clip-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  #clip-modal .clip-title {
+    font-family: 'Courier New', monospace;
+    font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--gold);
+  }
+  #clip-modal .clip-close {
+    background: var(--steel-2); border: 1px solid var(--line);
+    color: var(--bone); border-radius: 8px;
+    font-size: 16px; line-height: 1; font-weight: 700;
+    width: 32px; height: 32px; cursor: pointer; flex: none;
+  }
+  #clip-modal video {
+    width: 100%; max-height: 70vh; display: block;
+    background: #000; border-radius: 8px;
+  }
+  #clip-modal .clip-soon {
+    display: none;
+    font-size: 13px; color: var(--dim);
+    text-align: center; padding: 40px 16px;
+    border: 1px dashed var(--line); border-radius: 8px;
+  }
+  #clip-modal.no-clip video { display: none; }
+  #clip-modal.no-clip .clip-soon { display: block; }
 </style>
 </head>
 <body>
@@ -1305,101 +1373,198 @@ body.youth #youth-banner{display:block}
 <!-- ============== PLYO ============== -->
 <div class=&quot;page&quot; id=&quot;page-plyo&quot;>
   <h2>PlyoCare</h2>
-  <p class=&quot;lede&quot;>Driveline weighted balls — color-coded by weight. Designed to load throwing patterns under tactile load. Full pitcher protocol below; position-specific filtering shows which subset matters per role.</p>
+  <p class=&quot;lede&quot;>Trevor Bauer's daily weighted-ball routine, adapted from his <b>Baseball 401 · Daily Weighted Ball Routine</b> video. The logic is <b>back-chaining</b> — start at the very last action of the delivery (the arm/glove finish) and work backward, drill by drill, until you've rebuilt the whole delivery. He runs it <b>every day</b> to groove sequencing before catch play.</p>
 
-  <div class=&quot;card gold&quot;>
-    <div class=&quot;card-head&quot;>
-      <div class=&quot;card-title&quot;>The 5-Ball Set</div>
-      <span class=&quot;badge gold&quot;>Confirmed</span>
+  <div class=&quot;plyo-youth-only&quot;>
+    <div class=&quot;card blue&quot;>
+      <div class=&quot;card-head&quot;>
+        <div class=&quot;card-title&quot;>Youth: light catch / play only</div>
+        <span class=&quot;badge blue&quot;>Under ~13</span>
+      </div>
+      <p>Heavy plyo balls are <b>not for kids</b>. Skip the weighted-ball routine entirely — light catch and free play build a healthy young arm better than load work. The full prescriptions below unlock on an adult profile.</p>
     </div>
-    <ul>
-      <li><b>Blue · 100g</b> — over-speed / quick hands</li>
-      <li><b>Red · 225g</b> — slightly under regulation, decel work</li>
-      <li><b>Yellow · 450g</b> — heavy load, arm path</li>
-      <li><b>Gray · 1000g</b> — max load, slow patterns only</li>
-      <li><b>Black/Sand · variable</b> — softer, recovery throws</li>
-    </ul>
-    <div class=&quot;cue&quot;>No plyos? Rice-filled sock (~225g) substitutes for red. Tennis ball substitutes for blue. <b>Don't substitute for gray</b> — the soft Driveline material is what makes 1kg safe.</div>
   </div>
 
-  <h3>The Drills (Full Protocol)</h3>
+  <div class=&quot;plyo-heavy&quot;>
+  <div class=&quot;card gold&quot;>
+    <div class=&quot;card-head&quot;>
+      <div class=&quot;card-title&quot;>The 6-Ball Set</div>
+      <span class=&quot;badge gold&quot;>From the video</span>
+    </div>
+    <ul>
+      <li><b>2000 g · 71 oz</b> — Bauer's &quot;4 lb&quot; — kneeling reverse + spiral warm-up</li>
+      <li><b>1000 g · 35 oz</b> — Bauer's &quot;2 lb&quot; — sequence drills (standing / stomp / hop-step)</li>
+      <li><b>450 g · 16 oz</b> — Bauer's &quot;1 lb&quot; — drop-step pickoffs</li>
+      <li><b>225 g · 8 oz</b> — drop drill</li>
+      <li><b>150 g · 5 oz</b> — step-behind w/ arm swing</li>
+      <li><b>100 g · 3 oz</b> — mound / stretch throws</li>
+    </ul>
+    <div class=&quot;cue&quot;>Weights ramp the routine from <b>heavy &amp; slow</b> (rotational warm-up) down to <b>light &amp; fast</b> (full-delivery throws) — heavier first to groove the pattern, lighter last to add speed.</div>
+  </div>
+
+  <h3>The Routine (in order)</h3>
 
   <ul class=&quot;steplist&quot;>
-    <li class=&quot;step&quot; data-ex=&quot;p1&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;plyo-reverse&quot; data-clip=&quot;clips/plyo-reverse.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-          <div class=&quot;step-name&quot;>01 · Reverse Throws</div>
-          <div class=&quot;step-target&quot;>Decel · Posterior Cuff</div>
+          <div class=&quot;step-name&quot;>01 · Kneeling Reverse Throw</div>
+          <div class=&quot;step-target&quot;>Core / Rotational Warm-up</div>
         </div>
-        <div class=&quot;step-reps&quot;>2 × 5 · 225g</div>
+        <div class=&quot;step-reps&quot;>10R+10L · 2000g/4lb · RPE 2</div>
       </div>
       <div class=&quot;step-detail&quot;>
-        <p>Stand 10 ft from a wall. Hold red ball in throwing hand. Throw the ball BACKWARD into the wall behind you (over the shoulder). The wall absorbs and the ball bounces back — catch with throwing hand.</p>
-        <em>Teaches deceleration — most arm injuries happen here, not in acceleration</em>
+        <p>Front knee locked to the ground for a stable base. Open the T-spine and throw across your body. Bauer uses this as a <b>core / rotational</b> warm-up — it is NOT a shoulder drill.</p>
+        <button class=&quot;clip-btn&quot; onclick=&quot;openClip('plyo-reverse.mp4')&quot;>▶ Demo clip · 0:43</button>
+        <em>Stable base · open the T-spine · rotate, don't reach</em>
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;p2&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;plyo-spiral&quot; data-clip=&quot;clips/plyo-spiral.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-          <div class=&quot;step-name&quot;>02 · Pivot Pickoffs</div>
-          <div class=&quot;step-target&quot;>Hands + Footwork Integration</div>
+          <div class=&quot;step-name&quot;>02 · Spiral Drill</div>
+          <div class=&quot;step-target&quot;>Elbow Spiral · Rotation Point</div>
         </div>
-        <div class=&quot;step-reps&quot;>2 × 8 · 100g</div>
+        <div class=&quot;step-reps&quot;>10R+10L · 2000g/4lb · RPE 3</div>
       </div>
       <div class=&quot;step-detail&quot;>
-        <p>Athletic stance, glove side toward target. Receive a fed ball or self-toss. Quick transfer — pivot on throwing foot, snap throw. Light ball forces speed without strain.</p>
-        <em>Infield throwing in miniature — most useful for 2B and SS</em>
+        <p>Yank the glove side first to end range — that's your rotation point. Lead with the <b>back of the elbow</b> (the elbow spiral) and throw STRAIGHT into the wall so it bounces straight back. Do NOT catch off the wall — catch behind your back.</p>
+        <button class=&quot;clip-btn&quot; onclick=&quot;openClip('plyo-spiral.mp4')&quot;>▶ Demo clip · 1:48</button>
+        <em>Glove side to end range · lead with the elbow · catch behind the back</em>
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;p3&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;plyo-ramp-light&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-          <div class=&quot;step-name&quot;>03 · Wall Drills</div>
-          <div class=&quot;step-target&quot;>Arm Action Consistency</div>
+          <div class=&quot;step-name&quot;>03 · Reverse + Spiral, repeat lighter</div>
+          <div class=&quot;step-target&quot;>Ramp Down a Weight</div>
         </div>
-        <div class=&quot;step-reps&quot;>2 × 10 · 450g</div>
+        <div class=&quot;step-reps&quot;>10 rev + 10 spiral / side · 1000g/2lb · RPE 4</div>
       </div>
       <div class=&quot;step-detail&quot;>
-        <p>Stand 8 ft from concrete wall. Throw the heavy ball INTO the wall using only arm action (no stride). Catch on rebound.</p>
-        <em>Heavy ball forces correct path; wall gives instant feedback</em>
+        <p>Same two drills, same cues — drop to the lighter ball and run both again, each side. This is the ramp: heavy to groove it, lighter to add speed.</p>
+        <em>Same cues as 01 &amp; 02 · lighter ball · keep it crisp</em>
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;p4&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;plyo-seq-standing&quot; data-clip=&quot;clips/plyo-seq-standing.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-          <div class=&quot;step-name&quot;>04 · Pivot Picks</div>
-          <div class=&quot;step-target&quot;>Cocking → Release Transition</div>
+          <div class=&quot;step-name&quot;>04 · Standing Sequence</div>
+          <div class=&quot;step-target&quot;>Shoulder-Hip Separation</div>
         </div>
-        <div class=&quot;step-reps&quot;>2 × 8 · 450g</div>
+        <div class=&quot;step-reps&quot;>5 · 1000g/2lb · RPE 4</div>
       </div>
       <div class=&quot;step-detail&quot;>
-        <p>Start in throwing position (arm at &quot;L&quot;). Step + throw to a target 15–20 ft away. Heavy ball reinforces stable cocking.</p>
-        <em>Pitcher staple — also great for catchers</em>
+        <p><b>MOVE THE HIPS FIRST.</b> Do not let the torso or arms move until the hips move. Turn the front foot in to start the swivel. This trains shoulder-hip separation and the sequence of the delivery.</p>
+        <button class=&quot;clip-btn&quot; onclick=&quot;openClip('plyo-seq-standing.mp4')&quot;>▶ Demo clip · 3:28</button>
+        <em>Hips first · front foot turns in · torso and arm wait</em>
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;p5&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;plyo-seq-stomp&quot; data-clip=&quot;clips/plyo-seq-stomp.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-          <div class=&quot;step-name&quot;>05 · Drop-Step Throws</div>
-          <div class=&quot;step-target&quot;>Full Body Pattern</div>
+          <div class=&quot;step-name&quot;>05 · Stomp Sequence</div>
+          <div class=&quot;step-target&quot;>Stretch-Shortening Cycle</div>
         </div>
-        <div class=&quot;step-reps&quot;>2 × 5 · 1000g</div>
+        <div class=&quot;step-reps&quot;>5 · 1000g/2lb · RPE 4-5</div>
       </div>
       <div class=&quot;step-detail&quot;>
-        <p>Heaviest ball. Drop step, stride, throw to a target ~15 ft. Slow, deliberate. The weight enforces correct sequencing — you cannot rush it.</p>
-        <em>1kg is max — never go heavier. Don't substitute non-Driveline material here.</em>
+        <p>Attack the ground with the front foot — <b>stomp</b> — to drive hip rotation. Back foot points at the target, hips at roughly 45°. The stomp loads the stretch-shortening cycle.</p>
+        <button class=&quot;clip-btn&quot; onclick=&quot;openClip('plyo-seq-stomp.mp4')&quot;>▶ Demo clip · 4:30</button>
+        <em>Stomp the front foot · back foot at target · hips ~45°</em>
+      </div>
+    </li>
+
+    <li class=&quot;step&quot; data-ex=&quot;plyo-seq-hop&quot; data-clip=&quot;clips/plyo-seq-hop.mp4&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>06 · Hop-Step (Javelin Step) Sequence</div>
+          <div class=&quot;step-target&quot;>Block → Hip Rotation</div>
+        </div>
+        <div class=&quot;step-reps&quot;>5 · 1000g/2lb · RPE 4-5</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Keep the back foot pointed at the target on landing and land with hips at ~45° — do NOT square off. Blocking the front leg is what drives the hip rotation.</p>
+        <button class=&quot;clip-btn&quot; onclick=&quot;openClip('plyo-seq-hop.mp4')&quot;>▶ Demo clip · 6:24</button>
+        <em>Back foot at target on landing · hips ~45° · block the front leg</em>
+      </div>
+    </li>
+
+    <li class=&quot;step&quot; data-ex=&quot;plyo-dropstep&quot; data-clip=&quot;clips/plyo-dropstep.mp4&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>07 · Drop-Step Pickoffs</div>
+          <div class=&quot;step-target&quot;>Hips Start the Delivery</div>
+        </div>
+        <div class=&quot;step-reps&quot;>5 · 450g/1lb · RPE 5-6</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Simulates the hips starting the delivery into the block. Drop the back foot behind and gain ground toward the target. This one starts <b>closed</b> (the sequence drills start open). Order stays the same: hips → torso → shoulder → arm.</p>
+        <button class=&quot;clip-btn&quot; onclick=&quot;openClip('plyo-dropstep.mp4')&quot;>▶ Demo clip · 7:14</button>
+        <em>Start closed · drop back foot, gain ground · hips → torso → shoulder → arm</em>
+      </div>
+    </li>
+
+    <li class=&quot;step&quot; data-ex=&quot;plyo-drop&quot; data-clip=&quot;clips/plyo-drop.mp4&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>08 · Drop Drill</div>
+          <div class=&quot;step-target&quot;>The Drop Phase · Absorb</div>
+        </div>
+        <div class=&quot;step-reps&quot;>5 · 225g/8oz · RPE 5-6</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Single-leg depth drop off a box (no box: pick the back foot up, lift the front foot, land on the back foot). This is the <b>drop phase</b> — absorb the energy. Do NOT push or triple-extend; let the back leg rotate the back hip. It's rotational even though it looks linear.</p>
+        <button class=&quot;clip-btn&quot; onclick=&quot;openClip('plyo-drop.mp4')&quot;>▶ Demo clip · 9:32</button>
+        <em>Absorb, don't push · no triple extension · back leg rotates the back hip</em>
+      </div>
+    </li>
+
+    <li class=&quot;step&quot; data-ex=&quot;plyo-stepbehind&quot; data-clip=&quot;clips/plyo-stepbehind.mp4&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>09 · Step-Behind w/ Arm Swing</div>
+          <div class=&quot;step-target&quot;>Add Energy → Block It</div>
+        </div>
+        <div class=&quot;step-reps&quot;>5 · 150g/5oz · RPE 5-6</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Now add energy and block it. Step behind, land and accept the energy in the back leg, sink as the back hip rotates, then the front foot contacts and drives the hips into the upper half.</p>
+        <button class=&quot;clip-btn&quot; onclick=&quot;openClip('plyo-stepbehind.mp4')&quot;>▶ Demo clip · 11:58</button>
+        <em>Accept energy in the back leg · sink as the hip rotates · front foot drives the upper half</em>
+      </div>
+    </li>
+
+    <li class=&quot;step&quot; data-ex=&quot;plyo-mound&quot; data-clip=&quot;clips/plyo-mound.mp4&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>10 · Mound / Stretch Throws</div>
+          <div class=&quot;step-target&quot;>Full Delivery · Integrate</div>
+        </div>
+        <div class=&quot;step-reps&quot;>5 · 100g/3oz · RPE 6</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Take it to the mound (or flat ground) and throw out of the stretch: lift leg → drop phase → rotation → block the front leg. This integrates everything — the back-chain is complete and you've rebuilt the full delivery.</p>
+        <button class=&quot;clip-btn&quot; onclick=&quot;openClip('plyo-mound.mp4')&quot;>▶ Demo clip · 12:48</button>
+        <em>Out of the stretch · lift → drop → rotate → block · everything together</em>
       </div>
     </li>
   </ul>
+  </div>
 
   <h3>Position-Specific Subset</h3>
 
@@ -2722,6 +2887,8 @@ body.youth #youth-banner{display:block}
   function switchTab(tabName) {
     tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
     pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + tabName));
+    // Re-apply the PLYO youth gate on every page show (reads live host tier)
+    if (typeof gatePlyoYouth === 'function') gatePlyoYouth();
     // Reset scroll to top of page area, NOT all the way to top — keeps header visible context
     window.scrollTo({ top: 0, behavior: 'auto' });
     // Render read-only history on demand
@@ -3128,6 +3295,59 @@ body.youth #youth-banner{display:block}
     else document.addEventListener('DOMContentLoaded',()=>setTimeout(paintWeekdays,200));
   })();
 
+</script>
+
+<!-- ===== PLYO: shared demo-clip modal (injected before </body>) ===== -->
+<div id=&quot;clip-modal&quot; onclick=&quot;if(event.target===this)closeClip()&quot;>
+  <div class=&quot;clip-card&quot;>
+    <div class=&quot;clip-head&quot;>
+      <span class=&quot;clip-title&quot;>Demo clip</span>
+      <button class=&quot;clip-close&quot; onclick=&quot;closeClip()&quot; aria-label=&quot;Close&quot;>×</button>
+    </div>
+    <video id=&quot;clip-video&quot; controls playsinline preload=&quot;none&quot; onerror=&quot;clipFailed()&quot;></video>
+    <div class=&quot;clip-soon&quot;>Clip coming soon — this demo hasn't been added to the <b>clips/</b> folder yet.</div>
+  </div>
+</div>
+
+<script>
+  /* PLYO demo-clip modal. SRCDOC base-url gotcha: an srcdoc iframe's base URL is
+     about:srcdoc, so a relative 'clips/x.mp4' will not resolve. Build the src from
+     the parent document's URL at open time. <video> onerror degrades gracefully. */
+  function openClip(name){
+    var m=document.getElementById('clip-modal');
+    var v=document.getElementById('clip-video');
+    if(!m||!v)return;
+    m.classList.remove('no-clip');
+    var src;
+    try{ src = parent.location.href.replace(/[^/]*$/,'') + 'clips/' + name; }
+    catch(e){ src = 'clips/' + name; }
+    v.src = src;
+    try{ v.load(); }catch(e){}
+    m.classList.add('on');
+  }
+  function clipFailed(){
+    var m=document.getElementById('clip-modal');
+    if(m) m.classList.add('no-clip');
+  }
+  function closeClip(){
+    var m=document.getElementById('clip-modal');
+    var v=document.getElementById('clip-video');
+    if(v){ try{ v.pause(); }catch(e){} v.removeAttribute('src'); try{ v.load(); }catch(e){} }
+    if(m){ m.classList.remove('on'); m.classList.remove('no-clip'); }
+  }
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeClip(); });
+
+  /* PLYO youth gate (§4.3): plyo is heavy training load. Read the host tier
+     same-origin (host toggles body.youth on the HOST body per profile tier) and
+     mirror it onto THIS iframe's own body so the CSS gate hides the heavy
+     prescriptions and shows the light-catch note. Runs at init and on page show. */
+  function gatePlyoYouth(){
+    var isYouth=false;
+    try{ isYouth = parent.document.body.classList.contains('youth'); }catch(e){ isYouth=false; }
+    document.body.classList.toggle('youth', isYouth);
+  }
+  if(document.readyState!=='loading') gatePlyoYouth();
+  else document.addEventListener('DOMContentLoaded', gatePlyoYouth);
 </script>
 
 </body>
@@ -3804,6 +4024,8 @@ body.youth #youth-banner{display:block}
   .qa-btn.water .qa-amt { color: var(--blue); }
   .qa-btn.protein .qa-amt { color: var(--gold); }
   .qa-btn.electrolyte .qa-amt { color: var(--green); }
+  /* Youth safety gate (§4.3): supplement/stimulant quick-add hidden for youth */
+  body.fuel-youth .qa-adult { display: none !important; }
 
   /* Custom add form */
   .custom-add-form {
@@ -3958,7 +4180,12 @@ body.youth #youth-banner{display:block}
   .log-list {
     list-style: none;
     padding: 0;
-    max-height: 240px;
+    /* Fixed reserved height so adding entries never reflows the quick-add
+       buttons below it (the relayout IIFE hoists this list above the grids).
+       ~5 rows visible; the rest scroll internally. */
+    height: 150px;
+    min-height: 150px;
+    max-height: 150px;
     overflow-y: auto;
   }
   .log-list li {
@@ -3998,6 +4225,22 @@ body.youth #youth-banner{display:block}
     letter-spacing: 0.5px;
   }
   .log-undo:hover { color: var(--bone); }
+  /* E3 4.3: pin-from-log ★ affordance on each log row */
+  .log-pin {
+    background: none;
+    border: none;
+    color: var(--dim);
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    padding: 4px 4px;
+    margin-right: 2px;
+  }
+  .log-pin:hover { color: var(--gold); }
+  .log-pin.pinned { color: var(--gold); }
+  /* E3 4.3: auto (most-used) vs manual pin markers in the top fav strip */
+  .fav-strip-pin { color: var(--gold); margin-right: 4px; }
+  .fav-strip-auto { color: var(--dim); margin-right: 4px; font-size: 10px; }
   .log-empty { color: var(--dim); font-size: 11px; font-style: italic; padding: 8px 0; }
 
   .reset-btn {
@@ -4687,10 +4930,10 @@ body.youth #youth-banner{display:block}
   <button class=&quot;tab&quot; data-tab=&quot;profile&quot;>Profile</button>
   <button class=&quot;tab&quot; data-tab=&quot;weekly&quot;>Weekly</button>
   <button class=&quot;tab&quot; data-tab=&quot;events&quot;>Events</button>
-  <button class=&quot;tab&quot; data-tab=&quot;overview&quot;>Overview</button>
-  <button class=&quot;tab&quot; data-tab=&quot;protein&quot;>Protein</button>
-  <button class=&quot;tab&quot; data-tab=&quot;hydration&quot;>Hydration</button>
-  <button class=&quot;tab&quot; data-tab=&quot;products&quot;>Products</button>
+  <button class=&quot;tab qa-adult&quot; data-tab=&quot;overview&quot;>Overview</button>
+  <button class=&quot;tab qa-adult&quot; data-tab=&quot;protein&quot;>Protein</button>
+  <button class=&quot;tab qa-adult&quot; data-tab=&quot;hydration&quot;>Hydration</button>
+  <button class=&quot;tab qa-adult&quot; data-tab=&quot;products&quot;>Products</button>
   <button class=&quot;tab&quot; data-tab=&quot;schedule&quot;>Schedule</button>
   <button class=&quot;tab&quot; data-tab=&quot;sources&quot;>Sources</button>
 </nav>
@@ -4787,9 +5030,9 @@ body.youth #youth-banner{display:block}
         <span class=&quot;qa-amt&quot;>+26<span class=&quot;u&quot;>oz</span></span>
         <span class=&quot;qa-name&quot;>Ocean Bottle 26oz</span>
       </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(22, 'Yeti shaker')&quot;>
-        <span class=&quot;qa-amt&quot;>+22<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Yeti shaker 22oz</span>
+      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(24, 'Yeti shaker')&quot;>
+        <span class=&quot;qa-amt&quot;>+24<span class=&quot;u&quot;>oz</span></span>
+        <span class=&quot;qa-name&quot;>Yeti shaker 24oz</span>
       </button>
       <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(33.8, 'Smart Water 1L')&quot;>
         <span class=&quot;qa-amt&quot;>+33.8<span class=&quot;u&quot;>oz</span></span>
@@ -4805,14 +5048,14 @@ body.youth #youth-banner{display:block}
       </button>
     </div>
 
-    <div class=&quot;qa-subgroup-label&quot; style=&quot;margin-top:14px&quot;>
+    <div class=&quot;qa-subgroup-label qa-adult&quot; style=&quot;margin-top:14px&quot;>
       Mix-ins · electrolytes only (no water added)
       <span class=&quot;qa-info-toggle&quot; onclick=&quot;toggleMixinInfo()&quot; title=&quot;What's this?&quot;>(?)</span>
     </div>
-    <div class=&quot;qa-mixin-info&quot; id=&quot;mixin-info&quot; style=&quot;display:none&quot;>
+    <div class=&quot;qa-mixin-info qa-adult&quot; id=&quot;mixin-info&quot; style=&quot;display:none&quot;>
       <strong>Liquid IV</strong> and <strong>LMNT</strong> are electrolyte powder/salt mix sticks you pour into water. They don't add water themselves — they boost sodium / potassium / magnesium. Log your container separately. Liquid IV ≈ 500mg Na + 11g sugar. LMNT ≈ 1000mg Na, no sugar.
     </div>
-    <div class=&quot;qa-grid&quot;>
+    <div class=&quot;qa-grid qa-adult&quot;>
       <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addMixIn('Liquid IV', 1)&quot;>
         <span class=&quot;qa-amt&quot;>+1<span class=&quot;u&quot;> stick</span></span>
         <span class=&quot;qa-name&quot;>Liquid IV ⚡ full</span>
@@ -4851,6 +5094,18 @@ body.youth #youth-banner{display:block}
       </button>
     </div>
 
+    <div class=&quot;qa-subgroup-label qa-adult&quot; style=&quot;margin-top:14px&quot;>Shaker + Liquid IV · water + ⚡ in one tap</div>
+    <div class=&quot;qa-grid qa-adult&quot;>
+      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addItem({water:24,elec:1,label:'24oz shaker + Liquid IV'})&quot;>
+        <span class=&quot;qa-amt&quot;>+24<span class=&quot;u&quot;>oz ⚡</span></span>
+        <span class=&quot;qa-name&quot;>24oz shaker + Liquid IV</span>
+      </button>
+      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addItem({water:24,elec:1,label:'24oz shaker + Liquid IV Energy'})&quot;>
+        <span class=&quot;qa-amt&quot;>+24<span class=&quot;u&quot;>oz ⚡</span></span>
+        <span class=&quot;qa-name&quot;>24oz shaker + Liquid IV Energy</span>
+      </button>
+    </div>
+
     <div class=&quot;custom-add-form&quot; id=&quot;custom-water-form&quot;>
       <div class=&quot;caf-row&quot;>
         <input type=&quot;number&quot; id=&quot;custom-water-amt&quot; placeholder=&quot;oz&quot; min=&quot;1&quot; class=&quot;caf-amt&quot; />
@@ -4880,15 +5135,15 @@ body.youth #youth-banner{display:block}
       <div class=&quot;fav-list&quot; id=&quot;fav-protein-list&quot;></div>
     </div>
 
-    <div class=&quot;qa-subgroup-label&quot;>Shakes · protein + water (one tap)</div>
-    <div class=&quot;qa-grid&quot;>
-      <button class=&quot;qa-btn protein&quot; onclick=&quot;addShake(63, 22, 'Thorne 3sc / shaker 22')&quot;>
+    <div class=&quot;qa-subgroup-label qa-adult&quot;>Shakes · protein + water (one tap)</div>
+    <div class=&quot;qa-grid qa-adult&quot;>
+      <button class=&quot;qa-btn protein&quot; onclick=&quot;addShake(63, 24, 'Thorne 3sc / shaker 24')&quot;>
         <span class=&quot;qa-amt&quot;>+63<span class=&quot;u&quot;>g</span></span>
-        <span class=&quot;qa-name&quot;>Thorne 3 scoops · shaker 22oz</span>
+        <span class=&quot;qa-name&quot;>Thorne 3 scoops · shaker 24oz</span>
       </button>
-      <button class=&quot;qa-btn protein&quot; onclick=&quot;addShake(42, 22, 'Thorne 2sc / shaker 22')&quot;>
+      <button class=&quot;qa-btn protein&quot; onclick=&quot;addShake(42, 24, 'Thorne 2sc / shaker 24')&quot;>
         <span class=&quot;qa-amt&quot;>+42<span class=&quot;u&quot;>g</span></span>
-        <span class=&quot;qa-name&quot;>Thorne 2 scoops · shaker 22oz</span>
+        <span class=&quot;qa-name&quot;>Thorne 2 scoops · shaker 24oz</span>
       </button>
       <button class=&quot;qa-btn protein&quot; onclick=&quot;addShake(42, 14, 'Core Power Elite')&quot;>
         <span class=&quot;qa-amt&quot;>+42<span class=&quot;u&quot;>g</span></span>
@@ -5909,6 +6164,9 @@ body.youth #youth-banner{display:block}
   const pages = document.querySelectorAll('.page');
 
   function switchTab(tabName) {
+    // Youth safety (§4.3): adult-content tabs (supplements/stimulant/dosing) are
+    // off-limits to youth profiles — covers direct nav AND the boot tab-restore.
+    if ((window.BATTERY_TIER||'adult')==='youth' &amp;&amp; ['overview','protein','hydration','products'].indexOf(tabName) >= 0) tabName = 'tracker';
     tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
     pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + tabName));
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -6268,6 +6526,20 @@ body.youth #youth-banner{display:block}
     refreshLog();
     refreshFavorites();
   }
+
+  // Generic one-tap logger (4.2): credit ANY combination of water (oz),
+  // protein (g) and electrolyte (stick-equivalents) in a single undoable entry.
+  // Routes to the existing bundling paths so display + Undo stay consistent.
+  function addItem(o){
+    o = o || {};
+    var w = +o.water || 0, p = +o.protein || 0, el = +o.elec || 0;
+    var label = o.label || 'Item';
+    if (p > 0 &amp;&amp; w > 0 &amp;&amp; el > 0) { addShakeWithElec(p, w, label, el); return; }
+    if (p > 0 &amp;&amp; w > 0)            { addShake(p, w, label); return; }
+    if (p > 0)                       { addProtein(p, label); return; }
+    if (w > 0)                       { addWater(w, label, el); return; }
+    if (el > 0)                      { addMixIn(label, el); return; }
+  }
   function addCustomWater() {
     const amt = parseFloat(document.getElementById('custom-water-amt').value);
     if (!amt || amt <= 0) return;
@@ -6485,9 +6757,18 @@ body.youth #youth-banner{display:block}
       if (e.type === 'water' &amp;&amp; e.e > 0) {
         elIcon = ` · ⚡${e.e % 1 === 0 ? e.e : e.e.toFixed(1)}`;
       }
+      // E3 4.3: pin-from-log ★. Suppressed for youth-unsafe rows (electrolyte/
+      // branded supplements) so youth can never pin them. Marked when already pinned.
+      const pinItem = { type: e.type, amount: e.amount, label: e.label, e: e.e || 0 };
+      const safeLbl = String(e.label || '').replace(/['"\\]/g, '');
+      const pinned = _favIsPinned(pinItem);
+      const pinBtn = _favIsYouthSafe(pinItem)
+        ? `<button class=&quot;log-pin${pinned ? ' pinned' : ''}&quot; title=&quot;${pinned ? 'Unpin from favorites' : 'Pin to favorites'}&quot; onclick=&quot;togglePinFromLog('${e.type}', ${e.amount}, '${safeLbl}', ${e.e || 0})&quot;>${pinned ? '★' : '☆'}</button>`
+        : '';
       return `<li>
         <span class=&quot;log-time&quot;>${e.t}</span>
         <span class=&quot;log-desc&quot;><span class=&quot;tag ${tag}&quot;>${tagLabel}</span>${e.label} · ${amt}${elIcon}</span>
+        ${pinBtn}
         <button class=&quot;log-undo&quot; onclick=&quot;removeShakeEntry(${e.id}, '${e.shakeId || ''}')&quot;>Undo</button>
       </li>`;
     }).join('');
@@ -6536,6 +6817,114 @@ body.youth #youth-banner{display:block}
       }).join('');
     });
   }
+
+  /* ===== E3 (4.3) FAVORITES: most-used auto-pop + pin-from-log + youth gate ===== */
+  // Youth detection: tier global (set on contentWindow) OR the body class that
+  // recomputeDayTargets toggles. Either is authoritative.
+  function _favYouth() {
+    try {
+      if ((window.BATTERY_TIER || 'adult') === 'youth') return true;
+      if (document.body.classList.contains('fuel-youth')) return true;
+    } catch (e) {}
+    return false;
+  }
+  // Youth safety (4.3): suppress supplement/electrolyte/branded favs for youth.
+  // Plain water + food/protein favs are fine. Adult: everything allowed.
+  function _favIsYouthSafe(item) {
+    if (!_favYouth()) return true;
+    if (!item) return false;
+    if (item.type === 'electrolyte') return false;
+    const lbl = (item.label || '').toLowerCase();
+    // branded supplements / electrolyte mixes / stim — never surfaced to youth
+    const bad = ['liquid iv', 'liquid i.v', 'lmnt', 'thorne', 'core power',
+                 'electrolyte', 'stick', 'mix-in', 'mixin', 'pre-workout',
+                 'preworkout', 'caffeine', 'creatine'];
+    for (let i = 0; i < bad.length; i++) { if (lbl.indexOf(bad[i]) !== -1) return false; }
+    return true;
+  }
+  // Stable key for de-dupe / pin matching: type|label|amount.
+  function _favKey(it) {
+    return (it.type || '') + '|' + (it.label || '') + '|' + (+it.amount || 0);
+  }
+  // Manual pins live in the existing 'fuel-favorites' key. We PRESERVE its
+  // {water,protein} shape and additively read an optional 'elec' array.
+  function _favManualList() {
+    const favs = loadFavorites();
+    const out = [];
+    ['water', 'protein', 'elec'].forEach(t => {
+      const arr = Array.isArray(favs[t]) ? favs[t] : [];
+      arr.forEach(f => out.push({ type: t === 'elec' ? 'electrolyte' : t, amount: +f.amount || 0, label: f.label || '', e: +f.e || 0, manual: true }));
+    });
+    return out;
+  }
+  function _favIsPinned(item) {
+    const k = _favKey(item);
+    return _favManualList().some(m => _favKey(m) === k);
+  }
+  // Scan recent 'fuel-entries-*' days, tally by label+type+amount, return top N.
+  // Auto items are DERIVED on render — nothing new is persisted for them.
+  function _favMostUsed(topN) {
+    const counts = {};
+    const meta = {};
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || key.indexOf('fuel-entries-') !== 0) continue;
+        let arr;
+        try { arr = JSON.parse(localStorage.getItem(key) || '[]') || []; } catch (e) { continue; }
+        arr.forEach(e => {
+          if (!e || e.shakeWater) return;                 // skip paired-water helper rows
+          if (e.type === 'electrolyte' &amp;&amp; e.bundled) return; // skip bundled elec dupes
+          const it = { type: e.type, amount: +e.amount || 0, label: e.label || (e.type || ''), e: +e.e || 0 };
+          const k = _favKey(it);
+          counts[k] = (counts[k] || 0) + 1;
+          if (!meta[k]) meta[k] = it;
+        });
+      }
+    } catch (e) {}
+    return Object.keys(counts)
+      .sort((a, b) => counts[b] - counts[a])
+      .map(k => Object.assign({ count: counts[k], manual: false }, meta[k]))
+      .slice(0, topN || 6);
+  }
+  // Merge manual pins (win / marked) with most-used auto items, youth-filtered.
+  // Manual pins first; auto items fill remaining slots, deduped against pins.
+  function _favMerged(limit) {
+    const manual = _favManualList().filter(_favIsYouthSafe);
+    const seen = {};
+    manual.forEach(m => { seen[_favKey(m)] = true; });
+    const auto = _favMostUsed(12).filter(a => _favIsYouthSafe(a) &amp;&amp; !seen[_favKey(a)]);
+    return manual.concat(auto).slice(0, limit || 8);
+  }
+  // Re-log a fav via the generic addItem one-tap path (4.2).
+  function useFavStripItem(type, amount, label, elec) {
+    const o = { label: label || 'Item' };
+    if (type === 'water') { o.water = +amount; if (+elec > 0) o.elec = +elec; }
+    else if (type === 'protein') o.protein = +amount;
+    else if (type === 'electrolyte') o.elec = +amount;
+    addItem(o);
+  }
+  // Pin/unpin an item from a log row. Routes elec -> favs.elec (additive).
+  function togglePinFromLog(type, amount, label, elec) {
+    const favs = loadFavorites();
+    const bucket = type === 'water' ? 'water' : (type === 'protein' ? 'protein' : 'elec');
+    if (!Array.isArray(favs[bucket])) favs[bucket] = [];
+    const amt = +amount || 0;
+    const idx = favs[bucket].findIndex(f => (f.label || '') === (label || '') &amp;&amp; (+f.amount || 0) === amt);
+    if (idx !== -1) favs[bucket].splice(idx, 1);   // unpin
+    else {
+      if (favs[bucket].length >= 6) favs[bucket].shift();
+      favs[bucket].push({ amount: amt, label: label || '', e: +elec || 0 });
+    }
+    saveFavorites(favs);
+    refreshFavorites();
+    refreshLog();
+    if (window.batteryRenderFav) try { window.batteryRenderFav(); } catch (e) {}
+  }
+  window.useFavStripItem = useFavStripItem;
+  window.togglePinFromLog = togglePinFromLog;
+  window._favMerged = _favMerged;
+  window._favIsPinned = _favIsPinned;
 
   /* ===== STREAK + 7-DAY STATS ===== */
   function dateKeyForOffset(daysAgo) {
@@ -7313,22 +7702,25 @@ body.youth #youth-banner{display:block}
     }
     function renderFavStrip(){
       const host=document.getElementById('battery-fav-strip'); if(!host) return;
-      let favs={water:[],protein:[]};
-      try{ favs=JSON.parse(localStorage.getItem('fuel-favorites')||'{&quot;water&quot;:[],&quot;protein&quot;:[]}'); }catch(e){}
-      const all=[...favs.protein.map(f=>({...f,type:'protein'})),
-                 ...favs.water.map(f=>({...f,type:'water'}))];
+      // E3 4.3: merge manual pins (win / marked ★) with most-used auto items
+      // (derived on render, nothing persisted), youth-filtered. Top of tracker.
+      let all=[];
+      try{ if(typeof window._favMerged==='function') all=window._favMerged(8); }catch(e){}
       if(all.length===0){ host.innerHTML=''; return; }
       host.innerHTML='<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
         'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:7px&quot;>★ Favorites</div>'+
         '<div style=&quot;display:flex;gap:8px;flex-wrap:wrap&quot;>'+
         all.map(f=>{
-          const c = f.type==='protein' ? '#d4a017' : '#58a6ff';
-          const fn = f.type==='protein' ? 'addProtein' : 'addWater';
-          const u = f.type==='protein' ? 'g' : 'oz';
-          return '<button onclick=&quot;'+fn+'('+f.amount+',\''+(f.label||'').replace(/\x27/g,&quot;&quot;)+'\')&quot; '+
+          const c = f.type==='protein' ? '#d4a017' : (f.type==='water' ? '#58a6ff' : '#3fb950');
+          const u = f.type==='protein' ? 'g' : (f.type==='water' ? 'oz' : '');
+          const lbl=(f.label||'').replace(/\x27/g,&quot;&quot;);
+          const mark = f.manual ? '<span style=&quot;color:#d4a017;margin-right:4px&quot;>★</span>'
+                                : '<span style=&quot;color:#6e7681;margin-right:4px;font-size:10px&quot;>↻</span>';
+          return '<button onclick=&quot;useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+')&quot; '+
+            'title=&quot;'+(f.manual?'Pinned favorite':'Most-used')+'&quot; '+
             'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:10px;'+
             'padding:9px 13px;font-family:\'SF Mono\',monospace;font-size:12px;cursor:pointer&quot;>'+
-            '+'+f.amount+u+' · '+(f.label||'')+'</button>';
+            mark+'+'+f.amount+u+' · '+(f.label||'')+'</button>';
         }).join('')+'</div>';
     }
 
@@ -7500,22 +7892,25 @@ body.youth #youth-banner{display:block}
     }
     function renderFavStrip(){
       const host=document.getElementById('battery-fav-strip'); if(!host) return;
-      let favs={water:[],protein:[]};
-      try{ favs=JSON.parse(localStorage.getItem('fuel-favorites')||'{&quot;water&quot;:[],&quot;protein&quot;:[]}'); }catch(e){}
-      const all=[...favs.protein.map(f=>({...f,type:'protein'})),
-                 ...favs.water.map(f=>({...f,type:'water'}))];
+      // E3 4.3: merge manual pins (win / marked ★) with most-used auto items
+      // (derived on render, nothing persisted), youth-filtered. Top of tracker.
+      let all=[];
+      try{ if(typeof window._favMerged==='function') all=window._favMerged(8); }catch(e){}
       if(all.length===0){ host.innerHTML=''; return; }
       host.innerHTML='<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
         'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:7px&quot;>★ Favorites</div>'+
         '<div style=&quot;display:flex;gap:8px;flex-wrap:wrap&quot;>'+
         all.map(f=>{
-          const c = f.type==='protein' ? '#d4a017' : '#58a6ff';
-          const fn = f.type==='protein' ? 'addProtein' : 'addWater';
-          const u = f.type==='protein' ? 'g' : 'oz';
-          return '<button onclick=&quot;'+fn+'('+f.amount+',\''+(f.label||'').replace(/\x27/g,&quot;&quot;)+'\')&quot; '+
+          const c = f.type==='protein' ? '#d4a017' : (f.type==='water' ? '#58a6ff' : '#3fb950');
+          const u = f.type==='protein' ? 'g' : (f.type==='water' ? 'oz' : '');
+          const lbl=(f.label||'').replace(/\x27/g,&quot;&quot;);
+          const mark = f.manual ? '<span style=&quot;color:#d4a017;margin-right:4px&quot;>★</span>'
+                                : '<span style=&quot;color:#6e7681;margin-right:4px;font-size:10px&quot;>↻</span>';
+          return '<button onclick=&quot;useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+')&quot; '+
+            'title=&quot;'+(f.manual?'Pinned favorite':'Most-used')+'&quot; '+
             'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:10px;'+
             'padding:9px 13px;font-family:\'SF Mono\',monospace;font-size:12px;cursor:pointer&quot;>'+
-            '+'+f.amount+u+' · '+(f.label||'')+'</button>';
+            mark+'+'+f.amount+u+' · '+(f.label||'')+'</button>';
         }).join('')+'</div>';
     }
 
@@ -7736,6 +8131,9 @@ body.youth #youth-banner{display:block}
     if (typeof recomputeDayTargets !== 'function') return;
     const _orig = recomputeDayTargets;
     window.recomputeDayTargets = recomputeDayTargets = function(){
+      // Youth safety gate (§4.3): hide supplement/stimulant quick-add (.qa-adult)
+      // for youth profiles. Runs on every recompute incl. tier change + onload.
+      try{ document.body.classList.toggle('fuel-youth', (window.BATTERY_TIER||'adult')==='youth'); }catch(e){}
       if ((window.BATTERY_TIER||'adult') !== 'youth') return _orig();
       const p = loadProfile() || {weightLb:80, age:6};
       const kg = p.weightLb / 2.20462;
@@ -8045,7 +8443,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v20').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v20').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v21').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v21').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
