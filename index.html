@@ -6766,7 +6766,7 @@ body.youth #youth-banner{display:block}
       // E3 4.3: pin-from-log ★. Suppressed for youth-unsafe rows (electrolyte/
       // branded supplements) so youth can never pin them. Marked when already pinned.
       const pinItem = { type: e.type, amount: e.amount, label: e.label, e: e.e || 0 };
-      const safeLbl = String(e.label || '').replace(/['"\\]/g, '');
+      const safeLbl = String(e.label || '').replace(/['&quot;\\]/g, '');
       const pinned = _favIsPinned(pinItem);
       const pinBtn = _favIsYouthSafe(pinItem)
         ? `<button class=&quot;log-pin${pinned ? ' pinned' : ''}&quot; title=&quot;${pinned ? 'Unpin from favorites' : 'Pin to favorites'}&quot; onclick=&quot;togglePinFromLog('${e.type}', ${e.amount}, '${safeLbl}', ${e.e || 0})&quot;>${pinned ? '★' : '☆'}</button>`
