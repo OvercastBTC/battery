@@ -136,7 +136,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.36</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.37</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -8617,7 +8617,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v36').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v36').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v37').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v37').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -9545,6 +9545,30 @@ function renderArmGuardian(){
     var d=new Date(+p[0],+p[1]-1,+p[2]); d.setHours(0,0,0,0);
     if(d>=weekStart && d<=today){wkPitches+=(+e.p||0); wkOutings++;}
   });
+  // Acute:chronic workload ratio (ACWR, VISION 4.1) — the sports-science injury-
+  // risk standard (Gabbett 2016): acute = last 7d load, chronic = average weekly
+  // load over the last 28d (28d total / 4); ratio = acute / chronic. Established
+  // bands: <0.8 under-prepared, 0.8-1.3 "sweet spot" (lowest risk), >1.5 "danger
+  // zone" (spike). ADULT-ONLY (youth load-ratio research is unestablished — §4.3,
+  // VISION 4.1); informational, not medical advice. Guard the cold-start: if there
+  // is no chronic history older than the acute week the ratio is meaningless.
+  var acwr=null, acwrState=null;
+  if(age && profileTier(profile)==='adult'){
+    var chronStart=new Date(today); chronStart.setDate(chronStart.getDate()-27);
+    var chron28=0, olderLoad=0;
+    log.forEach(function(e){
+      var p=e.date.split('-'); if(p.length<3)return;
+      var d=new Date(+p[0],+p[1]-1,+p[2]); d.setHours(0,0,0,0);
+      if(d>=chronStart && d<=today){chron28+=(+e.p||0); if(d<weekStart)olderLoad+=(+e.p||0);}
+    });
+    if(olderLoad>0){
+      var chronWeekly=chron28/4;
+      if(chronWeekly>0){
+        acwr=wkPitches/chronWeekly;
+        acwrState=acwr>1.5?'danger':(acwr>=0.8?'sweet':'low');
+      }
+    }else if(wkPitches>0){ acwrState='baseline'; }
+  }
   // Rest-forecast (Pitch Smart §4.3 planner): if there's a future game on the
   // calendar, how many pitches can be thrown TODAY and still be rested by it.
   // cleared = throwDay + rest + 1, so to clear by a game G days out we need
@@ -9598,6 +9622,19 @@ function renderArmGuardian(){
       '<span style="font-family:\'SF Mono\',monospace;font-size:17px;color:var(--goldb)">'+wkPitches+'</span>'+
       '<span style="font-size:11px;color:var(--dim);line-height:1.4">pitches over the last 7 days'+
       '<br><span style="color:var(--faint)">'+wkOutings+' outing'+(wkOutings===1?'':'s')+' \u00b7 rolling workload</span></span></div>':'')+
+    (acwrState?(function(){
+      if(acwrState==='baseline')return '<div style="margin:0 0 8px;padding:8px 10px;background:#161b22;border:1px solid var(--line);border-radius:9px;font-size:11px;color:var(--faint);line-height:1.5">Keep logging outings to build a 4-week baseline — then BATTERY shows your acute:chronic workload ratio (a throwing-load injury-risk gauge).</div>';
+      var col=acwrState==='danger'?'#ff6b68':(acwrState==='sweet'?'var(--green)':'var(--gold)');
+      var word=acwrState==='danger'?'DANGER ZONE':(acwrState==='sweet'?'SWEET SPOT':'UNDER-LOADED');
+      var note=acwrState==='danger'?'Your last-7-day throwing load is a sharp spike over your 4-week base — the range tied to the highest injury risk. Ease off and add rest.'
+        :(acwrState==='sweet'?'Your recent load sits in the lowest-injury-risk range vs your 4-week base. Nicely managed.'
+        :'Your last-7-day load is well below your 4-week base — fine for a taper/recovery week, just avoid a big jump back.');
+      return '<div style="margin:0 0 8px;padding:8px 10px;background:#0d1117;border:1px solid '+col+';border-radius:9px">'+
+        '<div style="display:flex;align-items:baseline;gap:8px"><span style="font-family:\'SF Mono\',monospace;font-size:17px;color:'+col+'">'+acwr.toFixed(2)+'</span>'+
+        '<span style="font-size:10px;letter-spacing:1px;color:'+col+'">ACUTE:CHRONIC \u00b7 '+word+'</span></div>'+
+        '<div style="font-size:11px;color:var(--dim);line-height:1.5;margin-top:4px">'+note+'</div>'+
+        '<div style="font-size:9px;color:var(--faint);margin-top:5px">7-day load vs 4-week weekly average. Sweet spot 0.8\u20131.3, danger &gt;1.5 (Gabbett, team-sport research \u2014 a guide, not a rule). Informational, not medical advice.</div></div>';
+    })():'')+
     (forecast?'<div style="margin:0 0 8px;padding:8px 10px;background:#0d1a17;border:1px solid #1f6f4f;border-radius:9px;font-size:12px;line-height:1.5;color:#c9d1d9">'+
       '<span style="color:#3fb950">\ud83d\udd2d Next game</span> '+escHtml(forecast.label)+' \u00b7 '+forecast.date+' (in '+forecast.g+' day'+(forecast.g===1?'':'s')+'). '+
       (forecast.maxP>0
