@@ -7758,15 +7758,12 @@ body.youth #youth-banner{display:block}
     }
     function renderFavStrip(){
       const host=document.getElementById('battery-fav-strip'); if(!host) return;
-      // E3 4.3: merge manual pins (win / marked ★) with most-used auto items
-      // (derived on render, nothing persisted), youth-filtered. Top of tracker.
+      // 4.1: top-of-tracker favorites, grouped by type (Water/Electrolyte/Protein),
+      // manual pins (★) before most-used (↻), youth-filtered.
       let all=[];
-      try{ if(typeof window._favMerged==='function') all=window._favMerged(8); }catch(e){}
+      try{ if(typeof window._favMerged==='function') all=window._favMerged(12); }catch(e){}
       if(all.length===0){ host.innerHTML=''; return; }
-      host.innerHTML='<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
-        'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:7px&quot;>★ Favorites</div>'+
-        '<div style=&quot;display:flex;gap:8px;flex-wrap:wrap&quot;>'+
-        all.map(f=>{
+      const favChip=f=>{
           const c = f.type==='protein' ? '#d4a017' : (f.type==='water' ? '#58a6ff' : '#3fb950');
           const u = f.type==='protein' ? 'g' : (f.type==='water' ? 'oz' : '');
           const lbl=(f.label||'').replace(/\x27/g,&quot;&quot;);
@@ -7774,10 +7771,21 @@ body.youth #youth-banner{display:block}
                                 : '<span style=&quot;color:#6e7681;margin-right:4px;font-size:10px&quot;>↻</span>';
           return '<button onclick=&quot;useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+')&quot; '+
             'title=&quot;'+(f.manual?'Pinned favorite':'Most-used')+'&quot; '+
-            'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:10px;'+
-            'padding:9px 13px;font-family:\'SF Mono\',monospace;font-size:12px;cursor:pointer&quot;>'+
+            'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:9px;'+
+            'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>'+
             mark+'+'+f.amount+u+' · '+(f.label||'')+'</button>';
-        }).join('')+'</div>';
+      };
+      const grp={water:[],electrolyte:[],protein:[]};
+      all.forEach(f=>{ (grp[f.type]||grp.water).push(f); });
+      let h='<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
+        'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px&quot;>★ Favorites</div>';
+      [['water','💧 Water'],['electrolyte','⚡ Electrolytes'],['protein','🥤 Protein']].forEach(g=>{
+        const arr=grp[g[0]]; if(!arr.length) return;
+        h+='<div style=&quot;font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
+          'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin:7px 0 4px&quot;>'+g[1]+'</div>'+
+          '<div style=&quot;display:flex;gap:6px;flex-wrap:wrap&quot;>'+arr.map(favChip).join('')+'</div>';
+      });
+      host.innerHTML=h;
     }
 
     /* proper day label — returns a STRING (fixes [object Object]) */
@@ -7948,15 +7956,12 @@ body.youth #youth-banner{display:block}
     }
     function renderFavStrip(){
       const host=document.getElementById('battery-fav-strip'); if(!host) return;
-      // E3 4.3: merge manual pins (win / marked ★) with most-used auto items
-      // (derived on render, nothing persisted), youth-filtered. Top of tracker.
+      // 4.1: top-of-tracker favorites, grouped by type (Water/Electrolyte/Protein),
+      // manual pins (★) before most-used (↻), youth-filtered.
       let all=[];
-      try{ if(typeof window._favMerged==='function') all=window._favMerged(8); }catch(e){}
+      try{ if(typeof window._favMerged==='function') all=window._favMerged(12); }catch(e){}
       if(all.length===0){ host.innerHTML=''; return; }
-      host.innerHTML='<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
-        'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:7px&quot;>★ Favorites</div>'+
-        '<div style=&quot;display:flex;gap:8px;flex-wrap:wrap&quot;>'+
-        all.map(f=>{
+      const favChip=f=>{
           const c = f.type==='protein' ? '#d4a017' : (f.type==='water' ? '#58a6ff' : '#3fb950');
           const u = f.type==='protein' ? 'g' : (f.type==='water' ? 'oz' : '');
           const lbl=(f.label||'').replace(/\x27/g,&quot;&quot;);
@@ -7964,10 +7969,21 @@ body.youth #youth-banner{display:block}
                                 : '<span style=&quot;color:#6e7681;margin-right:4px;font-size:10px&quot;>↻</span>';
           return '<button onclick=&quot;useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+')&quot; '+
             'title=&quot;'+(f.manual?'Pinned favorite':'Most-used')+'&quot; '+
-            'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:10px;'+
-            'padding:9px 13px;font-family:\'SF Mono\',monospace;font-size:12px;cursor:pointer&quot;>'+
+            'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:9px;'+
+            'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>'+
             mark+'+'+f.amount+u+' · '+(f.label||'')+'</button>';
-        }).join('')+'</div>';
+      };
+      const grp={water:[],electrolyte:[],protein:[]};
+      all.forEach(f=>{ (grp[f.type]||grp.water).push(f); });
+      let h='<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
+        'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px&quot;>★ Favorites</div>';
+      [['water','💧 Water'],['electrolyte','⚡ Electrolytes'],['protein','🥤 Protein']].forEach(g=>{
+        const arr=grp[g[0]]; if(!arr.length) return;
+        h+='<div style=&quot;font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
+          'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin:7px 0 4px&quot;>'+g[1]+'</div>'+
+          '<div style=&quot;display:flex;gap:6px;flex-wrap:wrap&quot;>'+arr.map(favChip).join('')+'</div>';
+      });
+      host.innerHTML=h;
     }
 
     /* proper day label — returns a STRING (fixes [object Object]) */
