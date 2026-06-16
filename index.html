@@ -136,7 +136,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.33</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.34</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -8616,7 +8616,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v33').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v33').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v34').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v34').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -9523,6 +9523,16 @@ function renderArmGuardian(){
   const log=readPitchLog().slice().sort(function(a,b2){return a.date<b2.date?1:-1;});
   const ri=pitchRestInfo();
   const today=new Date(); today.setHours(0,0,0,0);
+  // 7-day throwing workload — informational rolling total from the same log.
+  // No invented "weekly max" (Pitch Smart only defines daily max + rest); this
+  // just surfaces the load the user has already logged so it's glanceable.
+  var weekStart=new Date(today); weekStart.setDate(weekStart.getDate()-6);
+  var wkPitches=0, wkOutings=0;
+  log.forEach(function(e){
+    var p=e.date.split('-'); if(p.length<3)return;
+    var d=new Date(+p[0],+p[1]-1,+p[2]); d.setHours(0,0,0,0);
+    if(d>=weekStart && d<=today){wkPitches+=(+e.p||0); wkOutings++;}
+  });
   let ageOpts='<option value="">age?</option>';
   for(let a=6;a<=22;a++)ageOpts+='<option value="'+a+'"'+(age===a?' selected':'')+'>'+a+'</option>';
   ageOpts+='<option value="23"'+(age>=23?' selected':'')+'>23+</option>';
@@ -9556,6 +9566,10 @@ function renderArmGuardian(){
     '<select onchange="armGuardSetAge(this.value)" style="margin-left:auto;background:var(--ink);border:1px solid var(--line);color:var(--goldb);border-radius:8px;padding:5px 7px;font-size:12px;font-family:\'SF Mono\',monospace">'+ageOpts+'</select></div>'+
     (b?'<p style="margin-bottom:8px">Age '+(age>=23?'23+':age)+': daily max <b style="color:var(--goldb)">'+b.daily+'</b> pitches'+(age>=23?' (19–22 college guideline)':'')+'. Leagues vary — the stricter local rule wins.</p>'
       :'<p style="margin-bottom:8px">Pick the athlete&rsquo;s age to enable Pitch Smart daily limits and rest rules.</p>')+
+    (wkOutings?'<div style="display:flex;align-items:center;gap:8px;margin:0 0 8px;padding:8px 10px;background:#161b22;border:1px solid var(--line);border-radius:9px">'+
+      '<span style="font-family:\'SF Mono\',monospace;font-size:17px;color:var(--goldb)">'+wkPitches+'</span>'+
+      '<span style="font-size:11px;color:var(--dim);line-height:1.4">pitches over the last 7 days'+
+      '<br><span style="color:var(--faint)">'+wkOutings+' outing'+(wkOutings===1?'':'s')+' \u00b7 rolling workload</span></span></div>':'')+
     status+
     '<button onclick="armGuardLog()" style="width:100%;margin-top:10px;background:#161b22;border:1px solid var(--blood);color:#ff6b68;font-family:\'SF Mono\',monospace;font-size:12px;letter-spacing:1px;padding:11px;border-radius:10px;cursor:pointer">＋ LOG OUTING (PITCH COUNT)</button>'+
     (recent?'<div style="margin-top:10px">'+recent+'</div>':'')+
