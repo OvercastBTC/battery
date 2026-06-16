@@ -137,7 +137,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.15.27</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.15.28</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -8522,7 +8522,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v27').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v27').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v28').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v28').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -9348,6 +9348,19 @@ window.renderArmGuardian=renderArmGuardian;
    (arm/drills/body done-totals) and 'bat-fuel' from the fuel iframe (today's
    water/protein vs targets + day type). Zero extra storage — pure display.
    Youth profiles never show a protein target (same gate as the fuel app). */
+/* Mini battery-gauge icon (owner ask): each stream shown as a little battery cell
+   that charges bottom-up in its own colour and glows when full. Colour resolves via
+   CSS so var(--x) works (SVG fill attribute wouldn't). */
+function batIcon(pct,color){
+  pct=Math.max(0,Math.min(100,Math.round(pct)));
+  var top=7,bot=19.6,h=(bot-top)*pct/100,y=bot-h,full=pct>=100;
+  return '<span style="display:inline-flex;margin-right:6px;'+(full?'filter:drop-shadow(0 0 3px '+color+')':'')+'">'+
+    '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">'+
+      '<rect x="9" y="2.8" width="6" height="2.2" rx="1" style="fill:'+color+';opacity:.55"/>'+
+      '<rect x="5.4" y="5.2" width="13.2" height="15.6" rx="2.5" style="fill:#0d1117;stroke:'+color+';stroke-width:1.5;opacity:.9"/>'+
+      (h>0?'<rect x="7.3" y="'+y.toFixed(1)+'" width="9.4" height="'+h.toFixed(1)+'" rx="1.1" style="fill:'+color+'"/>':'')+
+    '</svg></span>';
+}
 function renderScoreboard(){
   const host=document.getElementById('scoreboard'); if(!host)return;
   if(!profile){host.innerHTML='';return;}
@@ -9358,7 +9371,7 @@ function renderScoreboard(){
     const act=sub?'goTab(\''+tab+'\',\''+sub+'\')':'go(\''+tab+'\')';
     return '<div onclick="'+act+'" style="cursor:pointer;margin-bottom:8px">'+
       '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">'+
-      '<span style="color:var(--dim);letter-spacing:1px">'+ico+' '+label+'</span>'+
+      '<span style="color:var(--dim);letter-spacing:1px;display:inline-flex;align-items:center">'+batIcon(pct,color)+label+'</span>'+
       '<span style="font-family:\'SF Mono\',monospace;color:'+(full?'var(--green)':'var(--bone)')+'">'+done+'/'+total+'</span></div>'+
       '<div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden"><div style="width:'+pct+'%;height:100%;border-radius:3px;background:'+(full?'var(--green)':color)+'"></div></div></div>';
   }
@@ -9370,8 +9383,8 @@ function renderScoreboard(){
     rows+=bar('BODY','🧘',bd.done,bd.total,'#bc8cff','body');
   }
   if(_batFuel){
-    rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'var(--blue)','fuel','hydration');
-    if(!youth)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'var(--gold)','fuel','protein');
+    rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'#39bdf0','fuel','hydration');
+    if(!youth)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'#f0a23c','fuel','protein');
   }
   if(!rows){host.innerHTML='';return;}
   host.innerHTML='<div class="gd-card"><h3>🏁 Today'+(_batFuel&&_batFuel.day?' <span style="font-size:10px;color:var(--faint);letter-spacing:1px">'+escHtml(_batFuel.day).toUpperCase()+' DAY</span>':'')+'</h3>'+
@@ -9422,7 +9435,7 @@ function renderToday(){
       var full=total>0&&done>=total;
       return '<div onclick="go(\''+tab+'\')" style="cursor:pointer;margin:10px 0">'+
         '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">'+
-        '<span style="color:var(--dim);letter-spacing:1px">'+ico+' '+label+'</span>'+
+        '<span style="color:var(--dim);letter-spacing:1px;display:inline-flex;align-items:center">'+batIcon(pct,color)+label+'</span>'+
         '<span style="font-family:\'SF Mono\',monospace;color:'+(full?'var(--green)':'var(--bone)')+'">'+done+'/'+total+'</span></div>'+
         '<div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden"><div style="width:'+pct+'%;height:100%;border-radius:3px;background:'+(full?'var(--green)':color)+'"></div></div></div>';
     }
@@ -9434,8 +9447,8 @@ function renderToday(){
       rows+=bar('BODY','🧘',bd.done,bd.total,'#bc8cff','body');
     }
     if(_batFuel){
-      rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'var(--blue)','fuel');
-      if(!youth)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'var(--gold)','fuel');
+      rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'#39bdf0','fuel');
+      if(!youth)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'#f0a23c','fuel');
     }
     rowsEl.innerHTML=rows||'<p class="dmeta" style="text-align:center">Open a tab to start logging today.</p>';
   }
