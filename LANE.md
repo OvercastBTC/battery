@@ -2,7 +2,7 @@
 
 > **This is the doc to hand the VS Code Opus 4.8 agent to start.** It is the live lane board for two agents editing the single `index.html` at the same time. The durable backlog + rationale is `HANDOFF.md §12.2`; read `HANDOFF.md §1–§11` first for the architecture, the srcdoc footgun (§7.1), the youth-safety gate (§4.3), and the data-model invariants (§3.4). **Committed to the repo** so both agents (and future cloud sessions) read the same board.
 
-**Current good base:** stamp `26.06.14.22`, SW cache `battery-v22`, commit `5e9f832` (LOCAL — **not pushed**, awaiting owner go-ahead), **10-test gate green**, working tree clean. Contains **E1–E6** (Lane A FUEL/PLYO + Lane B TODAY/Readiness, integrated).
+**Current good base (DEPLOYED / live):** `master` `c8c22b9`, stamp `26.06.14.22`, SW cache `battery-v22`, **10-test gate green**. Contains **E1–E6** + the **E7 iframe-side seam** + docs. **PENDING release (on `laneA/content` `c8813fb`, NOT deployed):** the PlyoCare pos-card reconciliation — awaiting **Lane B's final DA + gate + push** (release ownership moved to Lane B, see the 🔔 block).
 **Last updated:** 2026-06-14 by **Lane A** (Claude Code · Opus 4.8 · Ultracode).
 
 > **STATUS 2026-06-14 (Lane A → integration done):** Lane A shipped **E1–E5** (`1500e29`), **merged Lane B's `laneB/e6` into master** (`915c9ae`, one trivial conflict = the clickable bolt, took Lane B's), bumped the **combined release to `.22`** (`8c72794`), and fixed a **srcdoc footgun I introduced** (`5e9f832` — a literal `"` in a regex truncated the fuel iframe; caught by `youth-fuel-gate` post-merge). Full **10-test gate green** + host `node --check` OK. **Lane B: `git pull` master (or merge it into your next branch) before E7** — master is ahead of `laneB/e6`. Commits are **local-only**; owner gates the push. **LESSON for both lanes:** a literal `"` inside an iframe srcdoc (even inside a regex char-class) silently truncates the whole iframe with NO page error — always write `&quot;`. Re-run the 10-gate before any push.
@@ -22,26 +22,39 @@ The two regions are **disjoint line ranges** → git auto-merges concurrent edit
 
 ## 🔔 LIVE HANDOFF + working agreement (newest on top) — read this first each cycle
 
-**Refined division (what works best for each):**
-- **Lane B (VS Code) = HOST-shell developer.** Owns everything in the host `<script>` shell: E7 host side, E8 Flow, E9 host items (weekly card, Arm Guardian v2, Pitch Smart verify, notifications, heatmap). Works on branches in its own worktree `~/battery-laneB`. **If your env can reach GitHub (`git push` works there), you are also the deploy/push engineer** — see the ⚠ below.
-- **Lane A (me) = IFRAME-content developer + local INTEGRATOR.** Owns both iframes (FUEL + ARM/PLYO content) and the iframe side of the seam. I hold the shared `~/battery` checkout on `master`, so I **merge your pushed branches into master and run the full 10-gate** — master is the integration point, kept green + ready.
+> **OWNER DIRECTIVE 2026-06-15 — RELEASE OWNERSHIP CHANGED.** **Lane B (VS Code) is the SOLE release engineer: it owns ALL git commits, merges to `master`, stamp/cache bumps, and pushes/deploys — and runs a FINAL Devil's-Advocate pass + the FULL test gate BEFORE every commit/push.** Lane A (this session) develops iframe content, runs its own sanity checks, and HANDS OFF on a `laneA/*` branch — **Lane A no longer commits to `master`, bumps the release stamp, or pushes/deploys.** (This follows Lane A shipping a srcdoc footgun that a pre-push gate would have caught — centralizing the final gate in one place prevents a repeat.)
 
-**⚠ PUSH IS BLOCKED FROM LANE A's ENV.** `git fetch`/`git push` to `git@github.com` time out here (SSH:22 firewalled — same network limit that blocked `ffmpeg.org`). **I cannot push or fetch.** So: **Lane B, please own the actual `git push origin master` once a release is gated** (your env pushed `laneB/e6`, so it works there) — OR the owner pushes. I will hand you a gated, ready master; you/owner deploy. Tell me in this block whether your push works.
+**Division:**
+- **Lane B (VS Code) = HOST-shell developer + RELEASE ENGINEER.** Develops the host `<script>` shell (E7 host, E8 Flow, E9 host items). **AND owns the release pipeline for BOTH lanes:** merge `laneA/*` + your own work into `master`, run the final-DA checklist below, bump stamp+cache (§C), commit, `git push origin master` (deploy). You are the single writer of `master` and the single gate before deploy.
+- **Lane A (this session) = IFRAME-content developer.** Develops FUEL + ARM/PLYO iframe content + the iframe side of the seam, on `laneA/*` branches in `~/battery` (now checked out on `laneA/content`, so `master` is free for you). Runs my own `bash ~/battery-tests/run.sh` as a sanity check, then posts `READY:` in §B. **I do not touch `master`, the release stamp, or `git push`.**
 
-**Cadence (both lanes, every unit):** (1) before editing, sync the latest `master` into your branch; (2) edit only your region (§7.1 footgun: **a literal `"` in srcdoc silently kills the iframe — write `&quot;`; node-check won't catch it, only the Playwright gate does**); (3) bump stamp+cache per §C; (4) run `node --check` host + `bash ~/battery-tests/run.sh` (10 tests); (5) commit on your branch, push it, and **post a `READY: <what> on <branch> <sha>` line in §B + a `HANDOFF §10` entry**; (6) the other lane picks it up on next sync.
+**Handoff mechanism (shared `.git` — no push needed between us):** `~/battery` and `~/battery-laneB` share the same `.git`, so my `laneA/*` branches are visible in your worktree directly. You `git merge laneA/content` (or cherry-pick), DA+gate, then release. No inter-lane push required; only YOU push `master` to deploy.
 
-**→ TO LANE B (current ask):**
-1. **`git merge master` (or pull) into your next branch before E7** — master is now `26.06.14.22` (`5e9f832`/`6e4126e`) with **E1–E6 + your E6**, 10-gate green. It's ahead of `laneB/e6`.
-2. **E7 iframe-side is already DONE** (I pre-built it, §D): both iframes now handle `{type:'bat-nav',tab}` (routed through `switchTab` so the youth guard holds) and `{type:'bat-poll'}` (ARM→`postCounts()`, FUEL→`refreshProgress()`). **You only need the HOST emit:** `go(v,sub)` posts `{type:'bat-nav',tab:sub}` to the target iframe; broadcast `{type:'bat-poll'}` on TODAY/GAME entry (fixes NAV-4); scoreboard rows pass their target sub-tab. Then tab dots + NAV-5.
-3. **Confirm here whether your env can `git push`** so we know who deploys.
+**Lane B's FINAL-DA + GATE checklist (run BEFORE every commit/push — encodes the lessons):**
+1. **srcdoc footgun sweep** — grep both iframe regions for a literal `"` that should be `&quot;` (a stray `"` silently truncates the whole iframe). **`node --check` does NOT catch this**; only the Playwright gate (which loads the real iframe) does. Quick check: `python3` scan that the first `"` after each `srcdoc="` is the closing `"></iframe>`.
+2. **Full Playwright gate** — `bash ~/battery-tests/run.sh` (all tests green). This is the authoritative gate; never push on `node --check` alone for iframe edits.
+3. **Clip-playback** — serve `~/battery` (so `clips/` resolve), open PlyoCare, click a ▶, confirm the `<video>` actually loads (and a missing clip shows "coming soon").
+4. **Youth gates end-to-end** — a youth profile must reach NO supplement/stimulant/dosing/macro-target/heavy-plyo surface (quick-add, the 4 adult tabs, favorites, plyo).
+5. **Data-model/Undo** — dual-credit bundles undo cleanly; favorites replay carries electrolytes.
+6. Then bump stamp+cache (§C), commit, push.
 
-**← FROM LANE B:** _(post your replies/asks here)_
+**→ TO LANE B (current handoff):**
+1. **PENDING for your DA+gate+release:** branch **`laneA/content`** (`c8813fb`) = `master` + the **PlyoCare pos-card reconciliation** (8 cards updated off the old/removed drills). Merge it, run the checklist above, release as the next `.NN`.
+2. **Also fold into this DA pass:** the two finalize checks that hung on my side — **clip-playback verify** (item 3) and a **fresh footgun/youth sweep** (items 1+4) over the whole live build.
+3. **Deployed/live right now = `master` `c8c22b9`** (E1–E6 + the E7 iframe-side seam + docs). **E7 iframe receivers are already in** (`bat-nav`→`switchTab`, `bat-poll`→ARM `postCounts()`/FUEL `refreshProgress()`); you only need the **host emit** to finish E7.
+4. **Lane A's next:** fuel/arm native-dialog→modal conversion (iframe), on a fresh `laneA/*` branch — I'll post READY when done.
+5. **NEW project config on `laneA/content`** (merge it): **`CLAUDE.md`** (auto-loaded context) + **`.claude/agents/`** (`release-engineer` = your release pipeline as a spawnable agent, `srcdoc-guard` = footgun sweep, `iframe-content-dev` = escaping conventions) + **`/gate`** command. DA-reviewed + corrected.
+6. **⚠ GATE THE RIGHT WORKTREE:** `~/battery-tests/run.sh` defaults to testing `~/battery` (Lane A's worktree). I added a **`BATTERY_REPO` override** — when you gate your merged release in `~/battery-laneB`, run **`BATTERY_REPO=/Users/bacona/battery-laneB bash ~/battery-tests/run.sh`** (the `release-engineer` agent + `/gate` already do this). Otherwise you'd gate Lane A's content, not your release.
+
+**← FROM LANE B:** _(post replies/asks here)_
 
 ---
 
-## §A — The tandem git protocol (BOTH agents, every push)
+## §A — The git protocol (release pipeline owned by Lane B as of 2026-06-15)
 
-`index.html` is hand-edited now (not the old generated artifact), so disjoint-region edits DO merge. Discipline that keeps it safe:
+> **Only Lane B commits to `master`, bumps the release stamp, and pushes/deploys** — after the final-DA + full-gate checklist in the 🔔 block. Lane A develops on `laneA/*` branches and hands off (shared `.git`, no push). The steps below are now **Lane B's release procedure**; Lane A only does steps 1–2 + 4's sanity gate on its branch, then posts `READY`.
+
+`index.html` is hand-edited (not the old generated artifact), so disjoint-region edits DO merge. Release discipline:
 
 1. **Before editing:** `git fetch origin && git pull --no-rebase origin master` (merge in the other lane's latest). Resolve nothing if you stayed in your region — a clean auto-merge is expected.
 2. **Edit only your region** (table above). Respect the srcdoc footgun (`HANDOFF §7.1`): **no literal `"` inside the iframe srcdoc** — single quotes or `&quot;`; ARM script uses raw `&&`, FUEL script uses `&amp;&amp;`.
