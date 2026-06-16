@@ -4986,10 +4986,10 @@ body.youth #youth-banner{display:block}
           <div class=&quot;day-chip&quot; data-day=&quot;rest&quot; onclick=&quot;toggleDay('rest')&quot;>Rest</div>
           <div class=&quot;day-chip&quot; data-day=&quot;light&quot; onclick=&quot;toggleDay('light')&quot;>Light</div>
           <div class=&quot;day-chip active&quot; data-day=&quot;train&quot; onclick=&quot;toggleDay('train')&quot;>Train</div>
-          <div class=&quot;day-chip&quot; data-day=&quot;heavy&quot; onclick=&quot;toggleDay('heavy')&quot;>Heavy / Hot</div>
+          <div class=&quot;day-chip&quot; data-day=&quot;heavy&quot; onclick=&quot;toggleDay('heavy')&quot;>Heavy</div>
           <div class=&quot;day-chip&quot; data-day=&quot;travel&quot; onclick=&quot;toggleDay('travel')&quot;>Travel</div>
         </div>
-        <div class=&quot;day-help&quot;>Tap to combine (e.g. Travel + Train). Targets take the highest demand; ceilings adjust accordingly.</div>
+        <div class=&quot;day-help&quot;>Tap to combine (e.g. Travel + Train). Targets take the highest demand; ceilings adjust accordingly. <b>Heavy</b> = a hard-throwing or field day; your Hot Climate profile setting adds the extra hot-weather water on top automatically.</div>
       </div>
 
       <div class=&quot;goal-row&quot;>
@@ -5485,7 +5485,7 @@ body.youth #youth-banner{display:block}
         <div class=&quot;ptg-row&quot;><span class=&quot;ptg-p&quot; id=&quot;pt-train-p&quot;>—</span><span class=&quot;ptg-w&quot; id=&quot;pt-train-w&quot;>—</span></div>
       </div>
       <div class=&quot;ptg-cell&quot;>
-        <div class=&quot;ptg-label&quot;>Heavy/Hot</div>
+        <div class=&quot;ptg-label&quot;>Heavy</div>
         <div class=&quot;ptg-row&quot;><span class=&quot;ptg-p&quot; id=&quot;pt-heavy-p&quot;>—</span><span class=&quot;ptg-w&quot; id=&quot;pt-heavy-w&quot;>—</span></div>
       </div>
       <div class=&quot;ptg-cell&quot;>
@@ -6234,7 +6234,7 @@ body.youth #youth-banner{display:block}
 </div><!-- /wrap -->
 
 <footer>
-  <div>FUEL STACK · v1.0 · <span class=&quot;v&quot;>PROTEIN + HYDRATION</span></div>
+  <div>FUEL STACK · <span id=&quot;fuel-build&quot;>live</span> · <span class=&quot;v&quot;>PROTEIN + HYDRATION</span></div>
   <div style=&quot;margin-top: 6px;&quot;>DAILY · SAVE TO HOME SCREEN</div>
 </footer>
 
@@ -8455,6 +8455,11 @@ body.youth #youth-banner{display:block}
       if(wLeft>0) bits.push('<b style=&quot;color:#58a6ff&quot;>'+wLeft+'oz</b> water');
       const remain = bits.length? bits.join(' · ')+' to go' : '<span style=&quot;color:#3fb950&quot;>goals hit ✓</span>';
 
+      // time-of-day pace (eating window 7a–10p) — so we never call someone &quot;behind&quot; when they're on pace mid-day
+      var _now=new Date(), _hr=_now.getHours()+_now.getMinutes()/60;
+      var _frac=Math.min(1,Math.max(0,(_hr-7)/15));
+      function paceState(consumed,target){ if(target<=0||consumed>=target) return 'done'; var exp=target*_frac; if(exp<=0.01) return 'early'; var r=consumed/exp; return r>=1.05?'ahead':r>=0.85?'onpace':'behind'; }
+
       if(isYouth){
         // child: simple, encouraging, food-only
         if(game &amp;&amp; game.d===0) { lead='Game day! Light breakfast, water bottle, have fun.'; accent='#3fb950'; }
@@ -8479,9 +8484,11 @@ body.youth #youth-banner{display:block}
       } else if(prof &amp;&amp; (prof.lastThrow==='today'||prof.lastThrow==='yesterday') &amp;&amp; pLeft>0){
         lead='Threw '+prof.lastThrow+' — protein drives recovery. '+remain+'.';
         accent='#3fb950';
-      } else if(prof &amp;&amp; prof.glp &amp;&amp; prof.glp!=='none' &amp;&amp; pLeft>50){
-        lead='On Zep, appetite\'s low but you\'re '+pLeft+'g behind — lean on a shake, eat by the clock. '+(wLeft>0?wLeft+'oz water too.':'');
-        accent='#f0b832';
+      } else if(prof &amp;&amp; prof.glp &amp;&amp; prof.glp!=='none' &amp;&amp; pLeft>0){
+        var _ps=paceState(totals.protein,tgt.protein);
+        var _pace=_ps==='ahead'?'ahead of pace':_ps==='onpace'?'on pace':_ps==='behind'?'behind pace — front-load now':'early yet';
+        lead='On Zep, appetite runs low — '+pLeft+'g protein to go, '+_pace+'. Lean on a shake, eat by the clock.'+(wLeft>0?' '+wLeft+'oz water too.':'');
+        accent=_ps==='behind'?'#f0b832':'#3fb950';
       } else if(pLeft===0 &amp;&amp; wLeft===0){
         lead='Dialed in — both goals hit. Maintain and recover.';
         accent='#3fb950';
@@ -8521,6 +8528,15 @@ body.youth #youth-banner{display:block}
     function arm(){ wrap('refreshProgress'); }
     if(document.readyState!=='loading') setTimeout(arm,400);
     else document.addEventListener('DOMContentLoaded',()=>setTimeout(arm,400));
+  })();
+
+  /* footer build stamp — mirror the live host version (single source of truth) */
+  (function(){
+    function setBuild(){ var el=document.getElementById('fuel-build'); if(!el) return;
+      var v=''; try{ v=(parent.document.getElementById('ver-stamp').textContent||'').trim(); }catch(e){}
+      el.textContent = v ? 'build '+v : 'v3'; }
+    if(document.readyState!=='loading') setTimeout(setBuild,440);
+    else document.addEventListener('DOMContentLoaded',function(){ setTimeout(setBuild,440); });
   })();
 
 </script>
