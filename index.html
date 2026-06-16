@@ -91,12 +91,27 @@ body.youth #youth-banner{display:block}
 #first-run .fr-demo{background:none;border:1px dashed var(--line);color:var(--dim)}
 #tabbar{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;background:var(--steel2);border-top:1px solid var(--line);padding-bottom:max(env(safe-area-inset-bottom), var(--sab, 0px));backdrop-filter:blur(10px)}
 #tabbar button{flex:1;height:50px;background:none;border:none;color:var(--faint);padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:"SF Mono",monospace}
-#tabbar button .ico{font-size:16px}#tabbar button .lb{font-size:9px;letter-spacing:1.5px;white-space:nowrap}
-@media(max-width:390px){#tabbar button .lb{font-size:8px;letter-spacing:.4px}#tabbar button .ico{font-size:15px}}
+#tabbar button .ico{display:flex;align-items:center;justify-content:center;height:24px}#tabbar button .lb{font-size:9px;letter-spacing:1.5px;white-space:nowrap}
+#tabbar{overflow:hidden}
+/* ===== Live charge-gauge tab icons (BATTERY) ===== */
+.gz{position:relative;width:24px;height:24px;display:block;transition:transform .18s}
+.gz-b{width:24px;height:24px;color:var(--faint);fill:currentColor;display:block}
+.gz-c{position:absolute;left:0;right:0;bottom:0;height:0;overflow:hidden;transition:height .55s cubic-bezier(.2,.8,.2,1)}
+.gz-f{position:absolute;left:0;bottom:0;width:24px;height:24px;color:var(--gz-col,var(--gold));fill:currentColor;display:block}
+.ic1{width:24px;height:24px;color:var(--faint);fill:currentColor;display:block}
+#tabbar button.on .gz-b,#tabbar button.on .ic1{color:var(--gold)}
+#tabbar button.on::before{content:'';position:absolute;top:0;left:28%;right:28%;height:2px;border-radius:0 0 2px 2px;background:var(--gold);box-shadow:0 0 6px var(--gold)}
+.gz.charged{filter:drop-shadow(0 0 4px var(--gz-col,var(--gold)))}
+.gz.charged .gz-f{animation:gzpulse 1.9s ease-in-out infinite}
+@keyframes gzpulse{0%,100%{opacity:1}50%{opacity:.55}}
+#tabbar button:active .gz{transform:scale(.85)}
+#tabbar.allcharged::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:5;background:linear-gradient(105deg,transparent 35%,rgba(240,184,50,.42) 50%,transparent 65%);transform:translateX(-110%);animation:tbsweep 2.3s ease-in-out}
+@keyframes tbsweep{to{transform:translateX(110%)}}
+@media(max-width:390px){#tabbar button .lb{font-size:8px;letter-spacing:.4px}#tabbar button .ico{height:21px}.gz,.gz-b,.gz-f,.ic1{width:21px;height:21px}}
 #tabbar button.on{color:var(--gold)}
 #tabbar button{position:relative}
 #tabbar button.warn .ico::after{content:'';position:absolute;top:6px;margin-left:14px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
-#tabbar button.todo .ico::after{content:'';position:absolute;top:6px;margin-left:14px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
+#tabbar button.todo .ico::after{content:none}
 #install{position:fixed;left:14px;right:14px;bottom:70px;z-index:70;display:none;background:var(--steel);border:1px solid var(--gold);border-radius:13px;padding:13px 15px;font-size:12px;line-height:1.5;box-shadow:0 10px 30px #00000060}
 #install b{color:var(--goldb)}#install .x{position:absolute;top:8px;right:11px;color:var(--dim);cursor:pointer;font-size:16px}
 #bmodal{display:none;position:fixed;inset:0;z-index:300;background:rgba(13,17,23,.88);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px}
@@ -116,7 +131,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.15.23</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.15.24</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -8442,13 +8457,21 @@ body.youth #youth-banner{display:block}
 <div id="data-device" class="dmeta"></div>
 </div>
 </section></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="bi-arm" viewBox="0 0 24 24"><path d="M7 4h3a1 1 0 0 1 1 1v3.1c2.9.4 5 2.9 5 5.9a6 6 0 0 1-6 6H8a2 2 0 0 1-2-2v-2.5H5.5A1.5 1.5 0 0 1 4 14v-2a1.5 1.5 0 0 1 1.5-1.5H6V5a1 1 0 0 1 1-1z"/></symbol>
+<symbol id="bi-drills" viewBox="0 0 24 24"><path d="M5 4H19V12L12 20L5 12Z"/></symbol>
+<symbol id="bi-body" viewBox="0 0 24 24"><path d="M12 20.5l-1.3-1.2C6.1 15.1 3.5 12.6 3.5 9.6 3.5 7.2 5.4 5.3 7.8 5.3c1.3 0 2.6.6 3.5 1.6.9-1 2.2-1.6 3.5-1.6 2.4 0 4.3 1.9 4.3 4.3 0 3-2.6 5.5-7.2 9.7L12 20.5z"/></symbol>
+<symbol id="bi-fuel" viewBox="0 0 24 24"><path d="M9 3h6v2H9z M6 6h12a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"/></symbol>
+<symbol id="bi-game" viewBox="0 0 24 24"><path d="M13 2L4 13h6l-1 9 9-12h-6l1-8z"/></symbol>
+<symbol id="bi-data" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.4 13a7.5 7.5 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.3 7.3 0 0 0-1.7-1l-.4-2.5H9.1l-.4 2.5a7.3 7.3 0 0 0-1.7 1l-2.4-1-2 3.4L2.6 11a7.5 7.5 0 0 0 0 2l-2 1.6 2 3.4 2.4-1c.5.4 1.1.7 1.7 1l.4 2.5h4.2l.4-2.5c.6-.3 1.2-.6 1.7-1l2.4 1 2-3.4-2-1.6zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></symbol>
+</defs></svg>
 <div id="tabbar">
-<button class="on" data-v="arm" onclick="go('arm')"><span class="ico">🦾</span><span class="lb">ARM</span></button>
-<button data-v="drills" onclick="go('drills')"><span class="ico">🧤</span><span class="lb">DRILLS</span></button>
-<button data-v="body" onclick="go('body')"><span class="ico">🧘</span><span class="lb">BODY</span></button>
-<button data-v="fuel" onclick="go('fuel')"><span class="ico">🔋</span><span class="lb">FUEL</span></button>
-<button data-v="game" onclick="go('game')"><span class="ico">⚡</span><span class="lb">GAME</span></button>
-<button data-v="data" onclick="go('data')"><span class="ico">⚙️</span><span class="lb">DATA</span></button>
+<button class="on" data-v="arm" onclick="go('arm')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-arm"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-arm"/></svg></span></span></span><span class="lb">ARM</span></button>
+<button data-v="drills" onclick="go('drills')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-drills"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-drills"/></svg></span></span></span><span class="lb">DRILLS</span></button>
+<button data-v="body" onclick="go('body')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-body"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-body"/></svg></span></span></span><span class="lb">BODY</span></button>
+<button data-v="fuel" onclick="go('fuel')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-fuel"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-fuel"/></svg></span></span></span><span class="lb">FUEL</span></button>
+<button data-v="game" onclick="go('game')"><span class="ico"><svg class="ic1" viewBox="0 0 24 24"><use href="#bi-game"/></svg></span><span class="lb">GAME</span></button>
+<button data-v="data" onclick="go('data')"><span class="ico"><svg class="ic1" viewBox="0 0 24 24"><use href="#bi-data"/></svg></span><span class="lb">DATA</span></button>
 </div>
 <div id="bmodal"></div>
 <div id="install"><span class="x" onclick="document.getElementById('install').style.display='none'">✕</span>
@@ -8465,7 +8488,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v23').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v23').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v24').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v24').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -8750,12 +8773,12 @@ function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(
    and keep the latest snapshot for the GAME scoreboard. */
 let _batCounts=null,_batFuel=null;
 window.addEventListener('message',function(e){var d=e&&e.data;if(!d)return;
- if(d.type==='bat-fuel'){_batFuel=d;refreshFuelDot();renderScoreboard();renderToday();return;}
+ if(d.type==='bat-fuel'){_batFuel=d;refreshFuelDot();refreshTabIcons();renderScoreboard();renderToday();return;}
  if(d.type!=='bat-counts')return;
  _batCounts=d;
  function dot(v,c){var b=document.querySelector('#tabbar button[data-v="'+v+'"]');if(b)b.classList.toggle('todo',!!(c&&c.total>0&&c.done<c.total));}
  dot('arm',d.arm);dot('drills',d.drills);dot('body',d.body);
- renderScoreboard();renderToday();});
+ refreshTabIcons();renderScoreboard();renderToday();});
 /* ===== E7: host deep-link (bat-nav) + on-entry poll (bat-poll, fixes NAV-4) + tab dots =====
    The iframe receivers (Lane A, da5058f) already handle bat-nav -> switchTab
    (youth guard holds) and bat-poll -> re-emit counts/fuel. The host emits them. */
@@ -8784,6 +8807,39 @@ function refreshGameDot(){
   b.classList.toggle('warn',resting);
 }
 window.refreshFuelDot=refreshFuelDot; window.refreshGameDot=refreshGameDot;
+/* ===== Live charge-gauge tab icons (surprise) =====
+   Each progress tab's SVG fills bottom-up like a battery as that stream completes
+   today, glowing in its theme colour at 100%. Pure display over the same bat-counts
+   / bat-fuel data the scoreboard uses. YOUTH fuel = water only (no macros, §4.3).
+   When ALL four streams are full, the bar does a one-time/day “fully charged” sweep. */
+var TAB_COL={arm:'var(--blood)',drills:'var(--blue)',body:'#bc8cff',fuel:'var(--green)'};
+function _tabGz(v){var btn=document.querySelector('#tabbar button[data-v="'+v+'"]');return btn?btn.querySelector('.gz'):null;}
+function setGauge(v,pct){
+  var g=_tabGz(v); if(!g)return;
+  pct=Math.max(0,Math.min(100,Math.round(pct)));
+  var c=g.querySelector('.gz-c'); if(c)c.style.height=pct+'%';
+  g.style.setProperty('--gz-col',TAB_COL[v]||'var(--gold)');
+  g.classList.toggle('charged',pct>=100);
+}
+function maybeAllCharged(){
+  var bar=document.getElementById('tabbar'); if(!bar)return;
+  var all=['arm','drills','body','fuel'].every(function(v){var g=_tabGz(v);return g&&g.classList.contains('charged');});
+  if(!all)return;
+  try{var key='battery-charged-'+new Date().toISOString().slice(0,10);
+    if(!localStorage.getItem(key)){localStorage.setItem(key,'1');bar.classList.add('allcharged');setTimeout(function(){bar.classList.remove('allcharged');},2400);}
+  }catch(e){}
+}
+function refreshTabIcons(){
+  if(_batCounts){['arm','drills','body'].forEach(function(k){var c=_batCounts[k];setGauge(k,(c&&c.total>0)?(c.done/c.total*100):0);});}
+  if(_batFuel){
+    var youth=profileTier(profile)==='youth',parts=[];
+    if(_batFuel.tWater>0)parts.push(Math.min(1,_batFuel.water/_batFuel.tWater));
+    if(!youth&&_batFuel.tProtein>0)parts.push(Math.min(1,_batFuel.protein/_batFuel.tProtein));
+    setGauge('fuel',parts.length?parts.reduce(function(a,b){return a+b;},0)/parts.length*100:0);
+  }
+  maybeAllCharged();
+}
+window.refreshTabIcons=refreshTabIcons; window.setGauge=setGauge;
 
 /* ===== WHOLE-APP BACKUP / RESTORE (unified, all profiles) =====
    Export covers every profile's namespaced data (battery::<id>::*) plus the
