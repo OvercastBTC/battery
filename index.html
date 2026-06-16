@@ -6982,6 +6982,20 @@ body.youth #youth-banner{display:block}
   window._favMerged = _favMerged;
   window._favIsPinned = _favIsPinned;
 
+  // 4.2: edit favorites — toggle edit mode (× on manual pins) + remove a manual pin.
+  function toggleFavEdit(){ window._favEdit=!window._favEdit; if(window.batteryRenderFav)try{window.batteryRenderFav();}catch(e){} }
+  function removeManualFav(type, amount, label){
+    const favs=loadFavorites();
+    const bucket = type==='water'?'water':(type==='protein'?'protein':'elec');
+    if(Array.isArray(favs[bucket])){
+      const amt=+amount||0;
+      const i=favs[bucket].findIndex(f => (f.label||'')===(label||'') &amp;&amp; (+f.amount||0)===amt);
+      if(i!==-1){ favs[bucket].splice(i,1); saveFavorites(favs); }
+    }
+    if(window.batteryRenderFav)try{window.batteryRenderFav();}catch(e){}
+  }
+  window.toggleFavEdit=toggleFavEdit; window.removeManualFav=removeManualFav;
+
   /* ===== STREAK + 7-DAY STATS ===== */
   function dateKeyForOffset(daysAgo) {
     const d = new Date();
@@ -7763,22 +7777,27 @@ body.youth #youth-banner{display:block}
       let all=[];
       try{ if(typeof window._favMerged==='function') all=window._favMerged(12); }catch(e){}
       if(all.length===0){ host.innerHTML=''; return; }
+      const ed=!!window._favEdit;
       const favChip=f=>{
           const c = f.type==='protein' ? '#d4a017' : (f.type==='water' ? '#58a6ff' : '#3fb950');
           const u = f.type==='protein' ? 'g' : (f.type==='water' ? 'oz' : '');
           const lbl=(f.label||'').replace(/\x27/g,&quot;&quot;);
           const mark = f.manual ? '<span style=&quot;color:#d4a017;margin-right:4px&quot;>★</span>'
                                 : '<span style=&quot;color:#6e7681;margin-right:4px;font-size:10px&quot;>↻</span>';
-          return '<button onclick=&quot;useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+')&quot; '+
+          const rm = (ed &amp;&amp; f.manual) ? '<span onclick=&quot;event.stopPropagation();removeManualFav(\''+f.type+'\','+f.amount+',\''+lbl+'\')&quot; style=&quot;margin-left:7px;color:#f85149;font-weight:700&quot;>×</span>' : '';
+          return '<button onclick=&quot;'+(ed?'':'useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+')')+'&quot; '+
             'title=&quot;'+(f.manual?'Pinned favorite':'Most-used')+'&quot; '+
             'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:9px;'+
             'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>'+
-            mark+'+'+f.amount+u+' · '+(f.label||'')+'</button>';
+            mark+'+'+f.amount+u+' · '+(f.label||'')+rm+'</button>';
       };
       const grp={water:[],electrolyte:[],protein:[]};
       all.forEach(f=>{ (grp[f.type]||grp.water).push(f); });
-      let h='<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
-        'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px&quot;>★ Favorites</div>';
+      let h='<div style=&quot;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px&quot;>'+
+        '<span style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
+        'font-family:\'SF Mono\',monospace;text-transform:uppercase&quot;>★ Favorites</span>'+
+        '<button onclick=&quot;toggleFavEdit()&quot; style=&quot;background:none;border:1px solid #30363d;color:'+(ed?'#d4a017':'#8b949e')+';'+
+        'font-family:\'SF Mono\',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:6px;cursor:pointer&quot;>'+(ed?'Done':'Edit')+'</button></div>';
       [['water','💧 Water'],['electrolyte','⚡ Electrolytes'],['protein','🥤 Protein']].forEach(g=>{
         const arr=grp[g[0]]; if(!arr.length) return;
         h+='<div style=&quot;font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
@@ -7961,22 +7980,27 @@ body.youth #youth-banner{display:block}
       let all=[];
       try{ if(typeof window._favMerged==='function') all=window._favMerged(12); }catch(e){}
       if(all.length===0){ host.innerHTML=''; return; }
+      const ed=!!window._favEdit;
       const favChip=f=>{
           const c = f.type==='protein' ? '#d4a017' : (f.type==='water' ? '#58a6ff' : '#3fb950');
           const u = f.type==='protein' ? 'g' : (f.type==='water' ? 'oz' : '');
           const lbl=(f.label||'').replace(/\x27/g,&quot;&quot;);
           const mark = f.manual ? '<span style=&quot;color:#d4a017;margin-right:4px&quot;>★</span>'
                                 : '<span style=&quot;color:#6e7681;margin-right:4px;font-size:10px&quot;>↻</span>';
-          return '<button onclick=&quot;useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+')&quot; '+
+          const rm = (ed &amp;&amp; f.manual) ? '<span onclick=&quot;event.stopPropagation();removeManualFav(\''+f.type+'\','+f.amount+',\''+lbl+'\')&quot; style=&quot;margin-left:7px;color:#f85149;font-weight:700&quot;>×</span>' : '';
+          return '<button onclick=&quot;'+(ed?'':'useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+')')+'&quot; '+
             'title=&quot;'+(f.manual?'Pinned favorite':'Most-used')+'&quot; '+
             'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:9px;'+
             'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>'+
-            mark+'+'+f.amount+u+' · '+(f.label||'')+'</button>';
+            mark+'+'+f.amount+u+' · '+(f.label||'')+rm+'</button>';
       };
       const grp={water:[],electrolyte:[],protein:[]};
       all.forEach(f=>{ (grp[f.type]||grp.water).push(f); });
-      let h='<div style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
-        'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px&quot;>★ Favorites</div>';
+      let h='<div style=&quot;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px&quot;>'+
+        '<span style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
+        'font-family:\'SF Mono\',monospace;text-transform:uppercase&quot;>★ Favorites</span>'+
+        '<button onclick=&quot;toggleFavEdit()&quot; style=&quot;background:none;border:1px solid #30363d;color:'+(ed?'#d4a017':'#8b949e')+';'+
+        'font-family:\'SF Mono\',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:6px;cursor:pointer&quot;>'+(ed?'Done':'Edit')+'</button></div>';
       [['water','💧 Water'],['electrolyte','⚡ Electrolytes'],['protein','🥤 Protein']].forEach(g=>{
         const arr=grp[g[0]]; if(!arr.length) return;
         h+='<div style=&quot;font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
