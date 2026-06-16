@@ -2855,6 +2855,16 @@ body.youth #youth-banner{display:block}
 </footer>
 
 <script>
+  /* ===== HOST MODAL BRIDGE — use the app modal when reachable, native fallback when standalone ===== */
+  async function uiConfirm(title, body, danger){
+    try { if (window.parent && window.parent !== window && window.parent.modalConfirm) return await window.parent.modalConfirm(title, body, {danger: !!danger}); } catch(e){}
+    return confirm(body || title);
+  }
+  async function uiAlert(title, body){
+    try { if (window.parent && window.parent !== window && window.parent.modalAlert) { await window.parent.modalAlert(title, body); return; } } catch(e){}
+    alert(body || title);
+  }
+
   /* ===== TAB SWITCHING — full page swap with scroll reset ===== */
   const tabs = document.querySelectorAll('.tab');
   const pages = document.querySelectorAll('.page');
@@ -3086,9 +3096,9 @@ body.youth #youth-banner{display:block}
     if (sumStreak) sumStreak.textContent = streak;
   }
 
-  function resetDay() {
+  async function resetDay() {
     const label = activeGroup==='drills' ? 'Drills' : (activeGroup==='body' ? 'Body Care' : 'Arm Care');
-    if (!confirm('Reset today\'s ' + label + ' checkboxes? (Other tabs, all-time count and streak are unaffected.)')) return;
+    if (!(await uiConfirm('Reset Day', 'Reset today\'s ' + label + ' checkboxes? (Other tabs, all-time count and streak are unaffected.)', true))) return;
     const today = getTodayKey();
     const keep = [];
     document.querySelectorAll('.step').forEach(s => {
@@ -3216,12 +3226,12 @@ body.youth #youth-banner{display:block}
     const file=ev.target.files&amp;&amp;ev.target.files[0];
     if(!file) return;
     const r=new FileReader();
-    r.onload=()=>{
+    r.onload=async ()=>{
       try{
         const payload=JSON.parse(r.result);
         if(!payload||!payload.data){_eiToast('Not a valid backup file.');return;}
         const keys=Object.keys(payload.data);
-        if(!confirm('Import '+keys.length+' saved items? This overwrites matching current data.')) return;
+        if(!(await uiConfirm('Import', 'Import '+keys.length+' saved items? This overwrites matching current data.', true))) return;
         keys.forEach(k=>{ if(_eiPrefixes().some(p=>k.startsWith(p))) localStorage.setItem(k,payload.data[k]); });
         _eiToast('Imported '+keys.length+' items. Reloading…');
         setTimeout(()=>location.reload(),900);
@@ -6180,6 +6190,16 @@ body.youth #youth-banner{display:block}
     try { localStorage.setItem(k, v); } catch (e) {}
   }
 
+  /* ===== HOST MODAL BRIDGE (native fallback if parent unreachable) ===== */
+  async function uiConfirm(title, body, danger){
+    try { if (window.parent &amp;&amp; window.parent !== window &amp;&amp; window.parent.modalConfirm) return await window.parent.modalConfirm(title, body, {danger: !!danger}); } catch(e){}
+    return confirm(body || title);
+  }
+  async function uiAlert(title, body){
+    try { if (window.parent &amp;&amp; window.parent !== window &amp;&amp; window.parent.modalAlert) { await window.parent.modalAlert(title, body); return; } } catch(e){}
+    alert(body || title);
+  }
+
   /* ===== TAB SWITCHING ===== */
   const tabs = document.querySelectorAll('.tab');
   const pages = document.querySelectorAll('.page');
@@ -6612,8 +6632,8 @@ body.youth #youth-banner{display:block}
     document.getElementById('custom-protein-save').checked = false;
   }
 
-  function resetDay() {
-    if (!confirm('Reset all of today\'s entries?')) return;
+  async function resetDay() {
+    if (!(await uiConfirm('Reset Day', 'Reset all of today\'s entries?', true))) return;
     saveEntries([]);
     refreshProgress();
     refreshLog();
@@ -7149,11 +7169,11 @@ body.youth #youth-banner{display:block}
     'other':      { label: 'Other high-output',  impact: 'med'  }
   };
 
-  function addEvent() {
+  async function addEvent() {
     const type = document.getElementById('event-type').value;
     const date = document.getElementById('event-date').value;
     const notes = document.getElementById('event-notes').value.trim();
-    if (!date) { alert('Pick a date.'); return; }
+    if (!date) { await uiAlert('Pick a date', 'Pick a date.'); return; }
     const events = loadEvents();
     events.push({ id: Date.now(), type, date, notes });
     saveEvents(events);
@@ -7162,8 +7182,8 @@ body.youth #youth-banner{display:block}
     refreshSuggestions();
   }
 
-  function removeEvent(id) {
-    if (!confirm('Remove this event?')) return;
+  async function removeEvent(id) {
+    if (!(await uiConfirm('Remove event', 'Remove this event?', true))) return;
     saveEvents(loadEvents().filter(e => e.id !== id));
     refreshEventsDisplay();
     refreshSuggestions();
@@ -7463,7 +7483,7 @@ body.youth #youth-banner{display:block}
     refreshProfileSummary();
   }
 
-  function saveProfile() {
+  async function saveProfile() {
     // Collect form values
     const name = document.getElementById('prof-name').value.trim();
     const weightRaw = parseFloat(document.getElementById('prof-weight').value);
@@ -7472,11 +7492,11 @@ body.youth #youth-banner{display:block}
     const age = parseInt(document.getElementById('prof-age').value);
 
     if (isNaN(weightRaw) || weightRaw <= 0) {
-      alert('Enter a weight to save your profile.');
+      await uiAlert('Enter weight', 'Enter a weight to save your profile.');
       return;
     }
     if (isNaN(age) || age < 2) {
-      alert('Enter your age.');
+      await uiAlert('Enter age', 'Enter your age.');
       return;
     }
     // Normalize weight to lb
@@ -7512,8 +7532,8 @@ body.youth #youth-banner{display:block}
     }
   }
 
-  function resetProfile() {
-    if (!confirm('Clear your profile and use the default targets? Your logged entries are kept.')) return;
+  async function resetProfile() {
+    if (!(await uiConfirm('Use defaults', 'Clear your profile and use the default targets? Your logged entries are kept.', true))) return;
     clearProfile();
     profileForm.name = ''; profileForm.weightLb = null; profileForm.heightIn = null; profileForm.age = null;
     document.getElementById('prof-name').value = '';
@@ -7666,12 +7686,12 @@ body.youth #youth-banner{display:block}
     const file=ev.target.files&amp;&amp;ev.target.files[0];
     if(!file) return;
     const r=new FileReader();
-    r.onload=()=>{
+    r.onload=async ()=>{
       try{
         const payload=JSON.parse(r.result);
         if(!payload||!payload.data){_eiToast('Not a valid backup file.');return;}
         const keys=Object.keys(payload.data);
-        if(!confirm('Import '+keys.length+' saved items? This overwrites matching current data.')) return;
+        if(!(await uiConfirm('Import', 'Import '+keys.length+' saved items? This overwrites matching current data.', true))) return;
         keys.forEach(k=>{ if(_eiPrefixes().some(p=>k.startsWith(p))) localStorage.setItem(k,payload.data[k]); });
         _eiToast('Imported '+keys.length+' items. Reloading…');
         setTimeout(()=>location.reload(),900);
@@ -8107,8 +8127,8 @@ body.youth #youth-banner{display:block}
   (function(){
     if(typeof saveProfile!=='function')return;
     const _orig=saveProfile;
-    window.saveProfile=saveProfile=function(){
-      _orig.apply(this,arguments);
+    window.saveProfile=saveProfile=async function(){
+      await _orig.apply(this,arguments);
       try{
         const p=loadProfile(); if(!p)return;
         const PF=window.profileForm||{};
