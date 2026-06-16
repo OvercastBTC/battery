@@ -93,21 +93,27 @@ body.youth #youth-banner{display:block}
 #tabbar button{flex:1;height:50px;background:none;border:none;color:var(--faint);padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:"SF Mono",monospace}
 #tabbar button .ico{display:flex;align-items:center;justify-content:center;height:24px}#tabbar button .lb{font-size:9px;letter-spacing:1.5px;white-space:nowrap}
 #tabbar{overflow:hidden}
-/* ===== Live charge-gauge tab icons (BATTERY) ===== */
-.gz{position:relative;width:24px;height:24px;display:block;transition:transform .18s}
-.gz-b{width:24px;height:24px;color:var(--faint);fill:currentColor;display:block}
+/* ===== Live charge-gauge tab icons (BATTERY) — machined-steel chips that charge in team colour ===== */
+.gz{position:relative;width:26px;height:26px;display:block;transition:transform .18s}
+.gz-b{position:absolute;inset:0;width:26px;height:26px;display:block;filter:drop-shadow(0 1px 0 rgba(0,0,0,.5))}
 .gz-c{position:absolute;left:0;right:0;bottom:0;height:0;overflow:hidden;transition:height .55s cubic-bezier(.2,.8,.2,1)}
-.gz-f{position:absolute;left:0;bottom:0;width:24px;height:24px;color:var(--gz-col,var(--gold));fill:currentColor;display:block}
-.ic1{width:24px;height:24px;color:var(--faint);fill:currentColor;display:block}
-#tabbar button.on .gz-b,#tabbar button.on .ic1{color:var(--gold)}
-#tabbar button.on::before{content:'';position:absolute;top:0;left:28%;right:28%;height:2px;border-radius:0 0 2px 2px;background:var(--gold);box-shadow:0 0 6px var(--gold)}
-.gz.charged{filter:drop-shadow(0 0 4px var(--gz-col,var(--gold)))}
+.gz-f{position:absolute;left:0;bottom:0;width:26px;height:26px;color:var(--gz-col,var(--gold));fill:currentColor;display:block;filter:drop-shadow(0 0 3px var(--gz-col,var(--gold)))}
+.gz-sheen{position:absolute;left:0;bottom:0;width:26px;height:26px;display:block;fill:url(#g-sheen);mix-blend-mode:screen;opacity:.75}
+.ic1{width:26px;height:26px;display:block;fill:url(#g-steel);filter:drop-shadow(0 1px 0 rgba(0,0,0,.5))}
+/* per-tab dim, dimensional empty state — reads as its team colour even at 0% (not flat grey) */
+#tabbar button[data-v=arm] .gz-b{fill:url(#g-arm)}
+#tabbar button[data-v=drills] .gz-b{fill:url(#g-drills)}
+#tabbar button[data-v=body] .gz-b{fill:url(#g-body)}
+#tabbar button[data-v=fuel] .gz-b{fill:url(#g-fuel)}
+#tabbar button.on .gz-b,#tabbar button.on .ic1{fill:url(#g-gold)}
+#tabbar button.on::before{content:'';position:absolute;top:0;left:24%;right:24%;height:2px;border-radius:0 0 3px 3px;background:var(--gold);box-shadow:0 0 7px var(--gold)}
+.gz.charged{filter:drop-shadow(0 0 5px var(--gz-col,var(--gold)))}
 .gz.charged .gz-f{animation:gzpulse 1.9s ease-in-out infinite}
-@keyframes gzpulse{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes gzpulse{0%,100%{opacity:1}50%{opacity:.6}}
 #tabbar button:active .gz{transform:scale(.85)}
-#tabbar.allcharged::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:5;background:linear-gradient(105deg,transparent 35%,rgba(240,184,50,.42) 50%,transparent 65%);transform:translateX(-110%);animation:tbsweep 2.3s ease-in-out}
+#tabbar.allcharged::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:5;background:linear-gradient(105deg,transparent 35%,rgba(240,184,50,.45) 50%,transparent 65%);transform:translateX(-110%);animation:tbsweep 2.3s ease-in-out}
 @keyframes tbsweep{to{transform:translateX(110%)}}
-@media(max-width:390px){#tabbar button .lb{font-size:8px;letter-spacing:.4px}#tabbar button .ico{height:21px}.gz,.gz-b,.gz-f,.ic1{width:21px;height:21px}}
+@media(max-width:390px){#tabbar button .lb{font-size:8px;letter-spacing:.4px}#tabbar button .ico{height:22px}.gz,.gz-b,.gz-f,.gz-sheen,.ic1{width:22px;height:22px}}
 #tabbar button.on{color:var(--gold)}
 #tabbar button{position:relative}
 #tabbar button.warn .ico::after{content:'';position:absolute;top:6px;margin-left:14px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
@@ -131,7 +137,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.15.26</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.15.27</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -8479,18 +8485,25 @@ body.youth #youth-banner{display:block}
 </div>
 </section></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="g-steel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#454f5c"/><stop offset="1" stop-color="#1c2128"/></linearGradient>
+<linearGradient id="g-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd45e"/><stop offset="1" stop-color="#c8860b"/></linearGradient>
+<linearGradient id="g-arm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e2424"/><stop offset="1" stop-color="#2a1414"/></linearGradient>
+<linearGradient id="g-drills" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#244a6e"/><stop offset="1" stop-color="#14202a"/></linearGradient>
+<linearGradient id="g-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#49356e"/><stop offset="1" stop-color="#1e1830"/></linearGradient>
+<linearGradient id="g-fuel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#246e3a"/><stop offset="1" stop-color="#14241a"/></linearGradient>
+<linearGradient id="g-sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".55"/><stop offset=".45" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
 <symbol id="bi-arm" viewBox="0 0 24 24"><path d="M7 4h3a1 1 0 0 1 1 1v3.1c2.9.4 5 2.9 5 5.9a6 6 0 0 1-6 6H8a2 2 0 0 1-2-2v-2.5H5.5A1.5 1.5 0 0 1 4 14v-2a1.5 1.5 0 0 1 1.5-1.5H6V5a1 1 0 0 1 1-1z"/></symbol>
 <symbol id="bi-drills" viewBox="0 0 24 24"><path d="M5 4H19V12L12 20L5 12Z"/></symbol>
 <symbol id="bi-body" viewBox="0 0 24 24"><path d="M12 20.5l-1.3-1.2C6.1 15.1 3.5 12.6 3.5 9.6 3.5 7.2 5.4 5.3 7.8 5.3c1.3 0 2.6.6 3.5 1.6.9-1 2.2-1.6 3.5-1.6 2.4 0 4.3 1.9 4.3 4.3 0 3-2.6 5.5-7.2 9.7L12 20.5z"/></symbol>
-<symbol id="bi-fuel" viewBox="0 0 24 24"><path d="M9 3h6v2H9z M6 6h12a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"/></symbol>
+<symbol id="bi-fuel" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M9 3h6v2H9z M5 6h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z M13 8.2l-4 6.3h2.7l-1 4.8 4.3-7.1h-3z"/></symbol>
 <symbol id="bi-game" viewBox="0 0 24 24"><path d="M13 2L4 13h6l-1 9 9-12h-6l1-8z"/></symbol>
 <symbol id="bi-data" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.4 13a7.5 7.5 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.3 7.3 0 0 0-1.7-1l-.4-2.5H9.1l-.4 2.5a7.3 7.3 0 0 0-1.7 1l-2.4-1-2 3.4L2.6 11a7.5 7.5 0 0 0 0 2l-2 1.6 2 3.4 2.4-1c.5.4 1.1.7 1.7 1l.4 2.5h4.2l.4-2.5c.6-.3 1.2-.6 1.7-1l2.4 1 2-3.4-2-1.6zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></symbol>
 </defs></svg>
 <div id="tabbar">
-<button class="on" data-v="arm" onclick="go('arm')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-arm"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-arm"/></svg></span></span></span><span class="lb">ARM</span></button>
-<button data-v="drills" onclick="go('drills')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-drills"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-drills"/></svg></span></span></span><span class="lb">DRILLS</span></button>
-<button data-v="body" onclick="go('body')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-body"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-body"/></svg></span></span></span><span class="lb">BODY</span></button>
-<button data-v="fuel" onclick="go('fuel')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-fuel"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-fuel"/></svg></span></span></span><span class="lb">FUEL</span></button>
+<button class="on" data-v="arm" onclick="go('arm')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-arm"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-arm"/></svg><svg class="gz-sheen" viewBox="0 0 24 24"><use href="#bi-arm"/></svg></span></span></span><span class="lb">ARM</span></button>
+<button data-v="drills" onclick="go('drills')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-drills"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-drills"/></svg><svg class="gz-sheen" viewBox="0 0 24 24"><use href="#bi-drills"/></svg></span></span></span><span class="lb">DRILLS</span></button>
+<button data-v="body" onclick="go('body')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-body"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-body"/></svg><svg class="gz-sheen" viewBox="0 0 24 24"><use href="#bi-body"/></svg></span></span></span><span class="lb">BODY</span></button>
+<button data-v="fuel" onclick="go('fuel')"><span class="ico"><span class="gz"><svg class="gz-b" viewBox="0 0 24 24"><use href="#bi-fuel"/></svg><span class="gz-c"><svg class="gz-f" viewBox="0 0 24 24"><use href="#bi-fuel"/></svg><svg class="gz-sheen" viewBox="0 0 24 24"><use href="#bi-fuel"/></svg></span></span></span><span class="lb">FUEL</span></button>
 <button data-v="game" onclick="go('game')"><span class="ico"><svg class="ic1" viewBox="0 0 24 24"><use href="#bi-game"/></svg></span><span class="lb">GAME</span></button>
 <button data-v="data" onclick="go('data')"><span class="ico"><svg class="ic1" viewBox="0 0 24 24"><use href="#bi-data"/></svg></span><span class="lb">DATA</span></button>
 </div>
@@ -8509,7 +8522,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v26').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v26').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v27').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v27').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
