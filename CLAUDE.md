@@ -99,6 +99,7 @@ Run order: `node --check` first (fast), then `~/battery-tests/run.sh` (definitiv
 
 | File | Purpose |
 |------|---------|
+| `~/battery-comms.md` | **Direct comms pipe** (Lane A ⇄ Lane B) — shared non-git file, instant cross-worktree. Read on start/finish of a unit; self-documents its protocol + a watcher. |
 | `LANE.md` | Live board — current lane status, READY signals, blockers |
 | `HANDOFF.md` | Durable release log (§10 entries); **gitignored** — internal only |
 | `.claude/agents/` | Sub-agent definitions for this project |
