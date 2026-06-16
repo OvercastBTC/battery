@@ -136,7 +136,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.32</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.33</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -8565,6 +8565,10 @@ body.youth #youth-banner{display:block}
 <h3 style="margin-bottom:6px">Athlete Details</h3>
 <div id="demo-body"></div>
 </div>
+<div class="gd-card" id="consist-card" style="display:none">
+<h3 style="margin-bottom:6px">Training Consistency <span style="font-size:10px;color:var(--faint);letter-spacing:1px">LAST 12 WEEKS</span></h3>
+<div id="consist-body"></div>
+</div>
 <div class="gd-card" id="trt-card" style="display:none">
 <h3 style="margin-bottom:6px">TRT-Aware Hydration <span style="font-size:10px;color:var(--faint);letter-spacing:1px">ADULT ONLY</span></h3>
 <div id="trt-body"></div>
@@ -8612,7 +8616,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v32').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v32').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v33').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v33').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -9183,6 +9187,7 @@ function renderDataView(){
   }
   renderTrtCard();
   try{renderDemoCard();}catch(e){}
+  try{renderConsistencyCard();}catch(e){}
 }
 
 /* TRT-aware hydration (ADULT profiles only) — informational, NOT medical advice.
@@ -9261,6 +9266,75 @@ function renderDemoCard(){
   body.innerHTML=html;
 }
 window.renderDemoCard=renderDemoCard;
+/* ===== Training Consistency heatmap in DATA (host E9) =====
+   A 12-week calendar heat-grid of arm-care activity, read straight from the
+   per-profile completion keys the arm app already writes:
+   battery::<id>::arm-care-done-YYYY-M-D = CSV of completed exercise ids. Pure
+   READ — no new storage, rides every backup. A day's heat = how many exercises
+   were logged that day. Applies to every tier (arm-care is not macro-gated, so
+   no §4.3 concern). Shows current streak + active days + best run. */
+function consistencyMap(id){
+  var map={}, pre='battery::'+id+'::arm-care-done-';
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      if(!k||k.indexOf(pre)!==0)continue;
+      var v=localStorage.getItem(k); if(!v||!v.trim())continue;
+      var parts=k.slice(pre.length).split('-'); if(parts.length<3)continue;
+      var d=new Date(+parts[0],+parts[1]-1,+parts[2]); if(isNaN(d.getTime()))continue;
+      var n=v.split(',').filter(function(x){return x.trim();}).length; if(n<1)continue;
+      map[d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())]=n;
+    }
+  }catch(e){}
+  return map;
+}
+function renderConsistencyCard(){
+  var card=document.getElementById('consist-card'), body=document.getElementById('consist-body');
+  if(!card||!body)return;
+  if(!profile){card.style.display='none';return;}
+  card.style.display='';
+  var map=consistencyMap(profile);
+  var WEEKS=12, today=new Date(); today.setHours(0,0,0,0);
+  function canon(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  // grid starts on the Sunday of the week WEEKS-1 weeks ago, so the last column is this week.
+  var start=new Date(today); start.setDate(start.getDate()-today.getDay()-(WEEKS-1)*7);
+  function heat(n){return n<=0?'#161c26':n<=3?'#4a1d20':n<=7?'#8f262c':'var(--blood)';}
+  // active-day stats over the visible window
+  var active=0, best=0, run=0, cur=0, curBroken=false;
+  for(var w=0;w<WEEKS;w++){
+    for(var r=0;r<7;r++){
+      var d=new Date(start); d.setDate(start.getDate()+w*7+r);
+      if(d>today)continue;
+      var on=(map[canon(d)]||0)>0;
+      if(on){active++;run++;if(run>best)best=run;}else{run=0;}
+    }
+  }
+  // current streak: consecutive active days counting back from today (grace: if
+  // today isn't logged yet, start at yesterday so an in-progress day doesn't zero it).
+  var probe=new Date(today);
+  if(!(map[canon(probe)]>0))probe.setDate(probe.getDate()-1);
+  while(map[canon(probe)]>0){cur++;probe.setDate(probe.getDate()-1);}
+  // build the grid: 12 week-columns, each a 7-day row (Sun..Sat top-to-bottom)
+  var cells='';
+  for(var w2=0;w2<WEEKS;w2++){
+    cells+='<div style="display:flex;flex-direction:column;gap:3px">';
+    for(var r2=0;r2<7;r2++){
+      var dd=new Date(start); dd.setDate(start.getDate()+w2*7+r2);
+      if(dd>today){cells+='<span style="width:12px;height:12px"></span>';continue;}
+      var c=map[canon(dd)]||0;
+      cells+='<span title="'+canon(dd)+(c?' \u00b7 '+c+' exercises':'')+'" style="width:12px;height:12px;border-radius:3px;background:'+heat(c)+'"></span>';
+    }
+    cells+='</div>';
+  }
+  var stat=function(v,l){return '<div style="text-align:center"><div style="font-family:\'SF Mono\',monospace;font-size:18px;color:var(--bone)">'+v+'</div><div style="font-size:10px;color:var(--faint);letter-spacing:1px">'+l+'</div></div>';};
+  body.innerHTML=
+    '<div style="display:flex;gap:18px;margin-bottom:12px">'+stat(cur+'d','STREAK')+stat(active,'ACTIVE DAYS')+stat(best+'d','BEST RUN')+'</div>'+
+    '<div style="display:flex;gap:3px;overflow-x:auto;padding-bottom:2px">'+cells+'</div>'+
+    '<div style="display:flex;align-items:center;gap:6px;margin-top:10px;font-size:10px;color:var(--faint)">Less '+
+      ['#161c26','#4a1d20','#8f262c','var(--blood)'].map(function(c){return '<span style="width:11px;height:11px;border-radius:3px;background:'+c+';display:inline-block"></span>';}).join('')+
+      ' More <span style="margin-left:auto">arm-care days</span></div>';
+}
+window.renderConsistencyCard=renderConsistencyCard;
 window.batteryExportAll=batteryExportAll; window.batteryImportAll=batteryImportAll; window.renderDataView=renderDataView; window.batteryCollectAll=batteryCollectAll;
 
 /* GAME DAY */
