@@ -136,7 +136,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.37</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.38</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -8570,6 +8570,10 @@ body.youth #youth-banner{display:block}
 <h3 style="margin-bottom:6px">Training Consistency <span style="font-size:10px;color:var(--faint);letter-spacing:1px">LAST 12 WEEKS</span></h3>
 <div id="consist-body"></div>
 </div>
+<div class="gd-card" id="week-card" style="display:none">
+<h3 style="margin-bottom:6px">This Week in Review</h3>
+<div id="week-body"></div>
+</div>
 <div class="gd-card" id="trt-card" style="display:none">
 <h3 style="margin-bottom:6px">TRT-Aware Hydration <span style="font-size:10px;color:var(--faint);letter-spacing:1px">ADULT ONLY</span></h3>
 <div id="trt-body"></div>
@@ -8617,7 +8621,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v37').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v37').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v38').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v38').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -9189,6 +9193,7 @@ function renderDataView(){
   renderTrtCard();
   try{renderDemoCard();}catch(e){}
   try{renderConsistencyCard();}catch(e){}
+  try{renderWeekCard();}catch(e){}
 }
 
 /* TRT-aware hydration (ADULT profiles only) — informational, NOT medical advice.
@@ -9336,6 +9341,65 @@ function renderConsistencyCard(){
       ' More <span style="margin-left:auto">arm-care days</span></div>';
 }
 window.renderConsistencyCard=renderConsistencyCard;
+/* ===== Weekly report card in DATA (host E9 / VISION 1.9) =====
+   A narrative "week in review" that rolls up across streams — training days,
+   streak, and (adult) throwing load — from data the host already reads:
+   arm-care-done-* keys (consistencyMap) + arm-care-pitchlog. Pure READ. Distinct
+   from the heatmap (which is the 12-week visual): this is the one-glance summary
+   + a single focus for next week. Youth: training days + a kid-voice focus, no
+   pitch counts / load (§4.3). */
+function weeklyReport(id){
+  var map=consistencyMap(id), today=new Date(); today.setHours(0,0,0,0);
+  function canon(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  // this week = the trailing 7 days incl. today
+  var trainDays=0, weekStart=new Date(today); weekStart.setDate(weekStart.getDate()-6);
+  for(var i=0;i<7;i++){var d=new Date(weekStart);d.setDate(weekStart.getDate()+i);if((map[canon(d)]||0)>0)trainDays++;}
+  // current streak (same grace rule as the heatmap card)
+  var streak=0, probe=new Date(today);
+  if(!(map[canon(probe)]>0))probe.setDate(probe.getDate()-1);
+  while(map[canon(probe)]>0){streak++;probe.setDate(probe.getDate()-1);}
+  // throwing this week from the pitchlog (adult-relevant)
+  var wkPitches=0, wkOutings=0;
+  try{
+    readPitchLog().forEach(function(e){
+      var p=(e.date||'').split('-'); if(p.length<3)return;
+      var d=new Date(+p[0],+p[1]-1,+p[2]); d.setHours(0,0,0,0);
+      if(d>=weekStart&&d<=today){wkPitches+=(+e.p||0);wkOutings++;}
+    });
+  }catch(e){}
+  return {trainDays:trainDays,streak:streak,wkPitches:wkPitches,wkOutings:wkOutings};
+}
+function renderWeekCard(){
+  var card=document.getElementById('week-card'), body=document.getElementById('week-body');
+  if(!card||!body)return;
+  if(!profile){card.style.display='none';return;}
+  var youth=profileTier(profile)==='youth', r=weeklyReport(profile);
+  // nothing logged at all → keep it hidden so the DATA tab isn't noisy for new profiles
+  if(r.trainDays===0 && r.wkOutings===0){card.style.display='none';return;}
+  card.style.display='';
+  var headline = r.trainDays>=5?(youth?'Awesome week! \u2b50':'Strong week'):
+                 r.trainDays>=3?(youth?'Nice work this week!':'Solid, building'):
+                 (youth?'Let\u2019s charge up more next week!':'Light week');
+  var stat=function(v,l){return '<div style="text-align:center;min-width:64px"><div style="font-family:\'SF Mono\',monospace;font-size:18px;color:var(--bone)">'+v+'</div><div style="font-size:10px;color:var(--faint);letter-spacing:1px">'+l+'</div></div>';};
+  var html='<div style="font-size:13px;font-weight:700;color:var(--goldb);margin-bottom:10px">'+headline+'</div>'+
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px">'+
+    stat(r.trainDays+'/7','TRAIN DAYS')+stat(r.streak+'d','STREAK')+
+    (!youth&&r.wkOutings?stat(r.wkOutings,'OUTINGS')+stat(r.wkPitches,'PITCHES'):'')+
+    '</div>';
+  // one focus for next week
+  var focus;
+  if(youth){
+    focus = r.trainDays>=5?'Keep it up — play catch and drink your water! \u26a1'
+      : 'Try to play or do arm care one more day next week. You\u2019ve got this! \ud83d\udd0b';
+  }else{
+    focus = r.trainDays>=5?'Great consistency. Hold the routine and keep an eye on rest between outings.'
+      : r.trainDays>=3?'You\u2019re building a base — one more arm-care day next week tightens the habit.'
+      : 'Next week\u2019s focus: get to 3+ arm-care days to rebuild the base (consistency is the arm\u2019s best insurance).';
+  }
+  html+='<div style="font-size:12px;line-height:1.5;color:var(--dim);border-top:1px solid var(--line);padding-top:9px"><span style="color:var(--bone)">Focus \u2192</span> '+focus+'</div>';
+  body.innerHTML=html;
+}
+window.renderWeekCard=renderWeekCard;
 window.batteryExportAll=batteryExportAll; window.batteryImportAll=batteryImportAll; window.renderDataView=renderDataView; window.batteryCollectAll=batteryCollectAll;
 
 /* GAME DAY */
