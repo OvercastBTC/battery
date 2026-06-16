@@ -136,7 +136,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.29</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.30</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -8474,6 +8474,10 @@ body.youth #youth-banner{display:block}
 <h3 style="margin-bottom:6px">Profiles On This Device</h3>
 <div id="data-profiles" class="dmeta"></div>
 </div>
+<div class="gd-card" id="demo-card" style="display:none">
+<h3 style="margin-bottom:6px">Athlete Details</h3>
+<div id="demo-body"></div>
+</div>
 <div class="gd-card" id="trt-card" style="display:none">
 <h3 style="margin-bottom:6px">TRT-Aware Hydration <span style="font-size:10px;color:var(--faint);letter-spacing:1px">ADULT ONLY</span></h3>
 <div id="trt-body"></div>
@@ -8521,7 +8525,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v29').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v29').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v30').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v30').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -9091,6 +9095,7 @@ function renderDataView(){
       '<div>Likely device: <b>'+escHtml(di.guess)+'</b> <span style="opacity:.6">(inferred — iOS hides the exact model)</span></div>';
   }
   renderTrtCard();
+  try{renderDemoCard();}catch(e){}
 }
 
 /* TRT-aware hydration (ADULT profiles only) — informational, NOT medical advice.
@@ -9129,6 +9134,46 @@ function renderTrtCard(){
   body.innerHTML=html;
 }
 window.renderTrtCard=renderTrtCard;
+/* ===== Athlete Details (demographics) editor in DATA (owner 4.0 host half) =====
+   Single source of truth: reads/writes the SAME battery::<id>::fuel-profile JSON the
+   FUEL app already uses (so no duplicate store; rides backups; wiped on delete). After
+   a save we tell the fuel iframe to recompute its targets so DATA + FUEL stay in sync.
+   Youth: height/weight/age/sex shown (age-appropriate), but NO macro 'goal' or stimulant
+   fields (those are adult-only, §4.3). */
+function getDemo(id){try{return JSON.parse(localStorage.getItem('battery::'+id+'::fuel-profile')||'{}')||{};}catch(e){return {};}}
+function setDemo(id,o){try{o.savedAt=Date.now();localStorage.setItem('battery::'+id+'::fuel-profile',JSON.stringify(o));}catch(e){}}
+window.demoSave=function(field,val){
+  if(!profile)return;
+  var p=getDemo(profile);
+  if(field==='weightLb'||field==='heightIn'||field==='age'){val=val===''?'':Math.max(0,parseFloat(val)||0);}
+  if(field==='stim')val=!!val;
+  p[field]=val; setDemo(profile,p);
+  // keep the live fuel iframe in sync (recompute targets) without a full reload.
+  try{var w=FRAMES.fuel.contentWindow;if(w){if(w.recomputeDayTargets)w.recomputeDayTargets();if(w.refreshAll)w.refreshAll();}}catch(e){}
+  renderDemoCard();
+};
+function renderDemoCard(){
+  var card=document.getElementById('demo-card'), body=document.getElementById('demo-body');
+  if(!card||!body)return;
+  if(!profile){card.style.display='none';return;}
+  card.style.display='';
+  var youth=profileTier(profile)==='youth', p=getDemo(profile);
+  var ins='width:100%;margin-top:4px;background:#0d1117;border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:8px;font-size:13px';
+  var lab='flex:1;min-width:120px;font-size:11px;color:var(--dim)';
+  function num(field,label,unit){return '<label style="'+lab+'">'+label+(unit?' ('+unit+')':'')+'<br><input type="number" step="1" min="0" value="'+escHtml(p[field]==null?'':p[field])+'" onchange="demoSave(\''+field+'\',this.value)" style="'+ins+'"></label>';}
+  var html='<p class="dmeta" style="margin:0 0 10px">These details power '+(youth?'water + growth-based food targets':'your fuel, hydration &amp; readiness math')+' for <b>'+escHtml(profileName(profile))+'</b>. One source of truth — the FUEL tab reads the same numbers.</p>';
+  html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+num('heightIn','Height','in')+num('weightLb','Weight','lb')+'</div>';
+  html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+num('age','Age','yrs')+
+    '<label style="'+lab+'">Sex<br><select onchange="demoSave(\'sex\',this.value)" style="'+ins+'"><option value=""'+(!p.sex?' selected':'')+'>—</option><option value="male"'+(p.sex==='male'?' selected':'')+'>Male</option><option value="female"'+(p.sex==='female'?' selected':'')+'>Female</option></select></label></div>';
+  if(!youth){
+    html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+
+      '<label style="'+lab+'">Frame<br><select onchange="demoSave(\'frame\',this.value)" style="'+ins+'"><option value="medium"'+(!p.frame||p.frame==='medium'?' selected':'')+'>Medium</option><option value="small"'+(p.frame==='small'?' selected':'')+'>Small</option><option value="large"'+(p.frame==='large'?' selected':'')+'>Large</option></select></label>'+
+      '<label style="'+lab+'">Goal<br><select onchange="demoSave(\'goal\',this.value)" style="'+ins+'"><option value="preserve"'+(!p.goal||p.goal==='preserve'?' selected':'')+'>Preserve</option><option value="build"'+(p.goal==='build'?' selected':'')+'>Build</option><option value="cut"'+(p.goal==='cut'?' selected':'')+'>Cut</option></select></label></div>';
+    html+='<label class="fr-check" style="margin:2px 0 0"><input type="checkbox" '+(p.stim?'checked':'')+' onchange="demoSave(\'stim\',this.checked)"> On a stimulant (ADHD med / pre-workout) — adjusts hydration</label>';
+  }
+  body.innerHTML=html;
+}
+window.renderDemoCard=renderDemoCard;
 window.batteryExportAll=batteryExportAll; window.batteryImportAll=batteryImportAll; window.renderDataView=renderDataView; window.batteryCollectAll=batteryCollectAll;
 
 /* GAME DAY */
