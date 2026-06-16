@@ -5504,13 +5504,12 @@ body.youth #youth-banner{display:block}
 
   <h3>Your inputs</h3>
 
-  <div class=&quot;card blue&quot; style=&quot;margin-bottom:12px&quot;>
-    <p style=&quot;font-size:13px;color:var(--bone);margin:0 0 8px;line-height:1.4&quot;>📋 Your athlete profile — height, weight, age, sex, goal — now lives in the <b>DATA tab</b>, shared across the whole app. Edit it there so your fuel targets stay in sync everywhere.</p>
-    <button onclick=&quot;try{parent.go('data')}catch(e){}&quot; style=&quot;background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);font-family:'Courier New',monospace;font-size:12px;letter-spacing:0.5px;padding:8px 14px;border-radius:8px;cursor:pointer&quot;>✎ Edit profile in DATA →</button>
-  </div>
-
   <div class=&quot;profile-form&quot;>
 
+    <!-- 5.1: demographics are owned by the DATA tab (one profile per person). Read-only summary here. -->
+    <div id=&quot;prof-ro-summary&quot; class=&quot;card&quot; style=&quot;margin-bottom:14px&quot;></div>
+
+    <div id=&quot;prof-legacy&quot; style=&quot;display:none&quot;>
     <div class=&quot;pform-row&quot;>
       <label>Display name <span class=&quot;optional&quot;>(optional)</span></label>
       <input type=&quot;text&quot; id=&quot;prof-name&quot; placeholder=&quot;e.g. Mike, Sarah&quot; maxlength=&quot;30&quot; />
@@ -5572,8 +5571,11 @@ body.youth #youth-banner{display:block}
       <div class=&quot;hint&quot; id=&quot;goal-hint&quot; style=&quot;margin-top: 4px;&quot;>Preserve muscle while training (~1.6 g/kg).</div>
     </div>
 
+    </div><!-- /prof-legacy : DATA-owned demographics, hidden in fuel -->
+
+    <!-- stim seg stays in the DOM (hidden) so the calc keeps working; it's edited in DATA -->
     <div class=&quot;pform-row pform-row-split&quot;>
-      <div class=&quot;pform-half&quot;>
+      <div class=&quot;pform-half&quot; style=&quot;display:none&quot;>
         <label>On stimulant ADHD med?</label>
         <div class=&quot;seg-control&quot; id=&quot;seg-stim&quot;>
           <button data-val=&quot;no&quot; class=&quot;seg-btn active&quot;>No</button>
@@ -5581,7 +5583,7 @@ body.youth #youth-banner{display:block}
         </div>
       </div>
       <div class=&quot;pform-half&quot;>
-        <label>Hot-climate / outdoor?</label>
+        <label>Hot-climate / outdoor? <span class=&quot;hint&quot;>— fuel-specific</span></label>
         <div class=&quot;seg-control&quot; id=&quot;seg-hot&quot;>
           <button data-val=&quot;no&quot; class=&quot;seg-btn active&quot;>No</button>
           <button data-val=&quot;yes&quot; class=&quot;seg-btn&quot;>Yes</button>
@@ -5627,8 +5629,7 @@ body.youth #youth-banner{display:block}
     </div>
 
     <div class=&quot;pform-actions&quot;>
-      <button class=&quot;prof-save-btn&quot; onclick=&quot;saveProfile()&quot;>Save profile</button>
-      <button class=&quot;prof-reset-btn&quot; onclick=&quot;resetProfile()&quot;>Use defaults</button>
+      <button class=&quot;prof-save-btn&quot; onclick=&quot;saveProfile()&quot;>Save fuel settings</button>
     </div>
 
     <div class=&quot;prof-share-note&quot;>
@@ -7556,51 +7557,28 @@ body.youth #youth-banner{display:block}
   }
 
   async function saveProfile() {
-    // Collect form values
-    const name = document.getElementById('prof-name').value.trim();
-    const weightRaw = parseFloat(document.getElementById('prof-weight').value);
-    const ft = parseInt(document.getElementById('prof-height-ft').value);
-    const inch = parseInt(document.getElementById('prof-height-in').value);
-    const age = parseInt(document.getElementById('prof-age').value);
-
-    if (isNaN(weightRaw) || weightRaw <= 0) {
-      await uiAlert('Enter weight', 'Enter a weight to save your profile.');
+    // 5.1: sex / weight / height / age / frame / goal / stim are owned by the DATA tab
+    // (one profile per person). Fuel only writes the fuel-specific Hot-climate flag here;
+    // everything else is preserved from the stored profile so a DATA edit is never clobbered.
+    const stored = loadProfile();
+    if (!stored || (!stored.weightLb &amp;&amp; !stored.age)) {
+      await uiAlert('Set up in DATA', 'Add your athlete details — weight, height, age, goal — in the DATA tab first. Your fuel targets then calculate automatically.');
+      try { parent.go('data'); } catch (e) {}
       return;
     }
-    if (isNaN(age) || age < 2) {
-      await uiAlert('Enter age', 'Enter your age.');
-      return;
-    }
-    // Normalize weight to lb
-    const weightLb = profileForm.unit === 'kg'
-      ? Math.round(weightRaw * 2.20462)
-      : Math.round(weightRaw);
-    // Height in inches (optional but recommended)
-    let heightIn = null;
-    if (!isNaN(ft)) heightIn = (ft * 12) + (isNaN(inch) ? 0 : inch);
-
-    const profile = {
-      name, sex: profileForm.sex, weightLb, heightIn, age,
-      frame: profileForm.frame, goal: profileForm.goal,
-      stim: profileForm.stim, hot: profileForm.hot, unit: profileForm.unit,
-      savedAt: Date.now()
-    };
+    const profile = Object.assign({}, stored, { hot: !!profileForm.hot, savedAt: Date.now() });
     saveProfileObj(profile);
     recomputeDayTargets();
     refreshTargets();
     refreshProgress();
     refreshProfileSummary();
     refreshProfilePrompt();
-    // Small confirmation
     const badge = document.getElementById('profile-status-badge');
     if (badge) {
-      const orig = badge.textContent;
       badge.textContent = '✓ Saved';
       badge.style.color = 'var(--green)';
       badge.style.borderColor = 'var(--green)';
-      setTimeout(() => {
-        refreshProfileSummary();
-      }, 1500);
+      setTimeout(() => { refreshProfileSummary(); }, 1500);
     }
   }
 
@@ -7629,6 +7607,37 @@ body.youth #youth-banner{display:block}
 
   function refreshProfileSummary() {
     const p = loadProfile();
+
+    // 5.1: read-only demographic summary — these fields are managed in the DATA tab
+    const roEl = document.getElementById('prof-ro-summary');
+    if (roEl) {
+      if (p &amp;&amp; (p.weightLb || p.age)) {
+        const _ft = p.heightIn ? Math.floor(p.heightIn / 12) : null;
+        const _in = p.heightIn ? p.heightIn % 12 : 0;
+        const _rows = [
+          ['Sex', p.sex || '—'],
+          ['Weight', p.weightLb ? p.weightLb + ' lb' : '—'],
+          ['Height', _ft != null ? _ft + '′' + _in + '″' : '—'],
+          ['Age', p.age || '—'],
+          ['Frame', (p.frame || '—').toString()]
+        ];
+        if (window.BATTERY_TIER !== 'youth') {
+          _rows.push(['Goal', p.goal || '—']);
+          _rows.push(['Stimulant', p.stim ? 'yes' : 'no']);
+        }
+        roEl.innerHTML =
+          '<div style=&quot;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:8px&quot;>Athlete profile · managed in DATA</div>' +
+          _rows.map(function (r) {
+            return '<div style=&quot;display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0&quot;><span style=&quot;color:var(--dim);font-size:12px&quot;>' + r[0] + '</span><span style=&quot;color:var(--bone);font-weight:600;font-size:13px&quot;>' + r[1] + '</span></div>';
+          }).join('') +
+          '<button onclick=&quot;try{parent.go(\'data\')}catch(e){}&quot; style=&quot;margin-top:10px;background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);font-family:\'Courier New\',monospace;font-size:12px;letter-spacing:0.5px;padding:8px 14px;border-radius:8px;cursor:pointer&quot;>✎ Edit in DATA →</button>';
+      } else {
+        roEl.innerHTML =
+          '<div style=&quot;font-size:13px;color:var(--bone);line-height:1.5&quot;>👤 No athlete details yet. Add your height, weight, age &amp;amp; goal in the <b>DATA tab</b> — fuel targets then calculate automatically.</div>' +
+          '<button onclick=&quot;try{parent.go(\'data\')}catch(e){}&quot; style=&quot;margin-top:10px;background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);font-family:\'Courier New\',monospace;font-size:12px;letter-spacing:0.5px;padding:8px 14px;border-radius:8px;cursor:pointer&quot;>✎ Set up in DATA →</button>';
+      }
+    }
+
     const badge = document.getElementById('profile-status-badge');
     if (!badge) return;
 
