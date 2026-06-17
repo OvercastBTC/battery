@@ -16,7 +16,11 @@ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
 background:linear-gradient(180deg,#0d1117 80%,#0d111700);border-bottom:1px solid var(--line);
 backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px}
 #hostbar .bolt{width:22px;height:22px}#hostbar h1{font-size:15px;letter-spacing:3px;font-weight:800}
-#prof-switch{margin-left:auto;display:flex;gap:5px;background:var(--steel);border:1px solid var(--line);border-radius:20px;padding:3px;max-width:62%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#prof-switch{margin-left:auto;display:flex;gap:5px;background:var(--steel);border:1px solid var(--line);border-radius:20px;padding:3px;max-width:54%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#host-gear{position:relative;flex:0 0 auto;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);background:var(--steel);color:var(--dim);cursor:pointer;padding:0;transition:color .15s,border-color .15s}
+#host-gear:active{transform:scale(.9)}#host-gear svg{width:19px;height:19px;display:block;fill:currentColor}
+#host-gear.on{color:var(--gold);border-color:var(--gold)}
+#host-gear.warn::after{content:'';position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
 #prof-switch::-webkit-scrollbar{display:none}
 #prof-switch .newbtn{color:var(--gold);border:1px dashed var(--line)!important;white-space:nowrap}
 #prof-switch button{background:none;border:none;color:var(--dim);font-size:11px;font-weight:700;letter-spacing:.5px;white-space:nowrap;
@@ -148,8 +152,9 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.44</span></div>
-<div id="prof-switch"></div></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.45</span></div>
+<div id="prof-switch"></div>
+<button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
 <html lang=&quot;en&quot;>
@@ -8461,12 +8466,38 @@ body.youth #youth-banner{display:block}
 <linearGradient id="g-fuel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#246e3a"/><stop offset="1" stop-color="#14241a"/></linearGradient>
 <linearGradient id="g-sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".55"/><stop offset=".45" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
 <linearGradient id="g-iconmetal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9dde4"/><stop offset="1" stop-color="#626974"/></linearGradient>
-<symbol id="bi-arm" viewBox="34 32 62 62"><g transform="translate(0,2)"><path d="M46 82 Q50 63 62 60 Q70 59 72 66 L74 75 Q76 81 72 85 Q66 91 56 89 L43 84 Q36 82 36 76 Q36 72 40 69 L44 66 Q45 60 46 54 Q47 51 49 49 L54 44 Q58 41 63 41 H67 Q69 41 70 43 V52 Q70 56 66 57 L62 58 Q61 63 59 69 L65 71 Q74 74 72 82 Q70 88 63 89 Q54 90 46 87 Z" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/><circle cx="82" cy="80" r="11" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/></g></symbol>
-<symbol id="bi-drills" viewBox="34 32 62 62"><path d="M46 54 A26 26 0 0 1 82 54" fill="none" stroke="url(#g-iconmetal)" stroke-width="2.2" opacity="0.5"/><rect x="51" y="51" width="26" height="26" rx="3" transform="rotate(45 64 64)" fill="#0d1320" stroke="url(#g-iconmetal)" stroke-width="3"/><circle cx="64" cy="46.5" r="2.6" fill="url(#g-iconmetal)"/><circle cx="81.5" cy="64" r="2.6" fill="url(#g-iconmetal)"/><circle cx="46.5" cy="64" r="2.6" fill="url(#g-iconmetal)"/><path d="M60.5 78 h7 v3.2 l-3.5 3 l-3.5 -3 z" fill="url(#g-iconmetal)"/><circle cx="64" cy="64" r="2.1" fill="url(#g-iconmetal)"/></symbol>
-<symbol id="bi-body" viewBox="34 32 62 62"><g transform="translate(0,1)"><path d="M58 39 Q60 35 64 35 Q68 35 70 39 L76 42 Q80 44 82 49 L86 58 Q88 62 86 66 L82 79 Q81 83 77 84 L73 85 L70 72 L65 68 L63 68 L58 72 L55 85 L51 84 Q47 83 46 79 L42 66 Q40 62 42 58 L46 49 Q48 44 52 42 Z" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/><path d="M58 39 Q60 43 64 43 Q68 43 70 39" fill="none" stroke="#0f131b" stroke-width="1.1" stroke-opacity="0.35"/><path d="M52 42 L47 48 L44 59 L48 64 L52 59 L54 51 Z" fill="#7a818c" opacity="0.75"/><path d="M76 42 L81 48 L84 59 L80 64 L76 59 L74 51 Z" fill="#7a818c" opacity="0.75"/></g></symbol>
-<symbol id="bi-fuel" viewBox="40 40 52 52"><polygon points="68,44 80,44 68,64 80,64 60,89 66,68 52,68" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/></symbol>
-<symbol id="bi-game" viewBox="34 32 62 62"><rect x="38" y="40" width="52" height="38" rx="5" fill="#0d1320" stroke="url(#g-iconmetal)" stroke-width="3"/><path d="M38 45 a5 5 0 0 1 5 -5 h42 a5 5 0 0 1 5 5 v4 h-52 z" fill="url(#g-iconmetal)"/><rect x="45" y="55" width="11" height="7" rx="1.5" fill="url(#g-iconmetal)"/><rect x="59" y="55" width="11" height="7" rx="1.5" fill="url(#g-iconmetal)"/><rect x="73" y="55" width="9" height="7" rx="1.5" fill="url(#g-iconmetal)"/><rect x="45" y="65" width="11" height="7" rx="1.5" fill="url(#g-iconmetal)" opacity="0.85"/><rect x="59" y="65" width="11" height="7" rx="1.5" fill="url(#g-iconmetal)" opacity="0.85"/><rect x="73" y="65" width="9" height="7" rx="1.5" fill="url(#g-iconmetal)" opacity="0.85"/><rect x="48" y="78" width="3" height="8" rx="1" fill="url(#g-iconmetal)"/><rect x="77" y="78" width="3" height="8" rx="1" fill="url(#g-iconmetal)"/></symbol>
-<symbol id="bi-data" viewBox="34 32 62 62"><g transform="translate(0,2)"><rect x="48" y="62" width="8" height="24" rx="1.6" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.0" stroke-opacity="0.45"/><rect x="61" y="50" width="8" height="36" rx="1.6" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.0" stroke-opacity="0.45"/><rect x="74" y="56" width="8" height="30" rx="1.6" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.0" stroke-opacity="0.45"/><rect x="87" y="42" width="8" height="44" rx="1.6" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.0" stroke-opacity="0.45"/></g></symbol>
+<symbol id="bi-arm" viewBox="0 0 128 128"><g transform="translate(0,2)">
+      <path d="M46 82 Q50 63 62 60 Q70 59 72 66 L74 75 Q76 81 72 85 Q66 91 56 89 L43 84 Q36 82 36 76 Q36 72 40 69 L44 66 Q45 60 46 54 Q47 51 49 49 L54 44 Q58 41 63 41 H67 Q69 41 70 43 V52 Q70 56 66 57 L62 58 Q61 63 59 69 L65 71 Q74 74 72 82 Q70 88 63 89 Q54 90 46 87 Z" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/>
+      <circle cx="82" cy="80" r="11" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/>
+    </g></symbol>
+<symbol id="bi-drills" viewBox="0 0 128 128"><g transform="translate(0,1)">
+      <path d="M64 39 L90 39 Q90 45 88 49 L64 92 L40 49 Q38 45 38 39 Z" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/>
+      <path d="M44 45 H84 V47 L64 84 L44 47 Z" fill="#0d1320"/>
+      <circle cx="64" cy="56" r="1.8" fill="url(#g-iconmetal)"/><circle cx="58" cy="62" r="1.8" fill="url(#g-iconmetal)"/><circle cx="64" cy="62" r="1.8" fill="url(#g-iconmetal)"/><circle cx="70" cy="62" r="1.8" fill="url(#g-iconmetal)"/><circle cx="52" cy="68" r="1.8" fill="url(#g-iconmetal)"/><circle cx="58" cy="68" r="1.8" fill="url(#g-iconmetal)"/><circle cx="64" cy="68" r="1.8" fill="url(#g-iconmetal)"/><circle cx="70" cy="68" r="1.8" fill="url(#g-iconmetal)"/><circle cx="76" cy="68" r="1.8" fill="url(#g-iconmetal)"/><circle cx="58" cy="74" r="1.8" fill="url(#g-iconmetal)"/><circle cx="64" cy="74" r="1.8" fill="url(#g-iconmetal)"/><circle cx="70" cy="74" r="1.8" fill="url(#g-iconmetal)"/><circle cx="64" cy="80" r="1.8" fill="url(#g-iconmetal)"/>
+    </g></symbol>
+<symbol id="bi-body" viewBox="0 0 128 128"><g transform="translate(0,1)">
+      <path d="M58 39 Q60 35 64 35 Q68 35 70 39 L76 42 Q80 44 82 49 L86 58 Q88 62 86 66 L82 79 Q81 83 77 84 L73 85 L70 72 L65 68 L63 68 L58 72 L55 85 L51 84 Q47 83 46 79 L42 66 Q40 62 42 58 L46 49 Q48 44 52 42 Z" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/>
+      <path d="M58 39 Q60 43 64 43 Q68 43 70 39" fill="none" stroke="#0f131b" stroke-width="1.1" stroke-opacity="0.35"/>
+      <path d="M52 42 L47 48 L44 59 L48 64 L52 59 L54 51 Z" fill="#7a818c" opacity="0.75"/>
+      <path d="M76 42 L81 48 L84 59 L80 64 L76 59 L74 51 Z" fill="#7a818c" opacity="0.75"/>
+    </g></symbol>
+<symbol id="bi-game" viewBox="0 0 128 128"><g transform="translate(0,1)">
+      <path d="M64 38 L90 38 V50 L64 91 L38 50 V38 Z" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/>
+      <path d="M44 45 V50 L64 82 L84 50 V45" fill="#0d1320"/>
+      <rect x="49" y="49" width="8" height="8" rx="1" fill="#0d1320" stroke="url(#g-iconmetal)" stroke-width="2"/>
+      <rect x="71" y="49" width="8" height="8" rx="1" fill="#0d1320" stroke="url(#g-iconmetal)" stroke-width="2"/>
+      <rect x="60" y="49" width="8" height="8" rx="1" fill="#0d1320" stroke="url(#g-iconmetal)" stroke-width="2" opacity="0.85"/>
+      <rect x="49" y="63" width="8" height="8" rx="1" fill="#0d1320" stroke="url(#g-iconmetal)" stroke-width="2"/>
+      <rect x="71" y="63" width="8" height="8" rx="1" fill="#0d1320" stroke="url(#g-iconmetal)" stroke-width="2"/>
+      <circle cx="64" cy="76" r="5.5" fill="#0d1320" stroke="url(#g-iconmetal)" stroke-width="2"/>
+    </g></symbol>
+<symbol id="bi-data" viewBox="0 0 128 128"><g transform="translate(0,2)">
+      <rect x="48" y="62" width="8" height="24" rx="1.6" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.0" stroke-opacity="0.45"/>
+      <rect x="61" y="50" width="8" height="36" rx="1.6" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.0" stroke-opacity="0.45"/>
+      <rect x="74" y="56" width="8" height="30" rx="1.6" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.0" stroke-opacity="0.45"/>
+      <rect x="87" y="42" width="8" height="44" rx="1.6" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.0" stroke-opacity="0.45"/>
+    </g></symbol>
+<symbol id="bi-fuel" viewBox="0 0 128 128"><polygon points="68.00,44.00 80.00,44.00 68.00,64.00 80.00,64.00 60.00,89.00 66.00,68.00 52.00,68.00" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/></symbol>
 </defs></svg>
 <div id="tabbar">
 <button class="on" data-v="arm" onclick="go('arm')"><span class="ico"><span class="rad" data-v="arm"><svg class="rad-svg" viewBox="0 0 36 36"><circle class="rad-trk" cx="18" cy="18" r="14"/><circle class="rad-prg" cx="18" cy="18" r="14"/></svg><span class="rad-ico"><svg viewBox="0 0 24 24"><use href="#bi-arm"/></svg></span></span></span><span class="lb">ARM</span></button>
@@ -8491,7 +8522,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v44').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v44').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v45').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v45').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -8802,6 +8833,7 @@ function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(
  document.getElementById('view-data').classList.toggle('on',v==='data');
  document.getElementById('view-today').classList.toggle('on',v==='today');
  document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ var _g=document.getElementById('host-gear'); if(_g)_g.classList.toggle('on',v==='data');
  if(armish){try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:((v==='drills'||v==='body')?v:'arm')},'*');}catch(e){}}
  if(v==='game'){buildGameDay();buildOutlook();batPoll();}if(v==='data'){renderDataView();}if(v==='today'){renderToday();batPoll();}}
 /* Glanceable progress: the iframes report their day state; light a gold dot on the
@@ -9000,6 +9032,7 @@ function checkBackupHealth(){
   const btn=document.querySelector('#tabbar button[data-v="data"]'); if(!btn)return;
   const stale=getPeople().length>0 && backupStaleDays()>7;
   btn.classList.toggle('warn',stale);
+  var g=document.getElementById('host-gear'); if(g)g.classList.toggle('warn',stale);
   return stale;
 }
 window.checkBackupHealth=checkBackupHealth; window.backupStaleDays=backupStaleDays;
