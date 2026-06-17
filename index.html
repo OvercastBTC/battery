@@ -112,6 +112,18 @@ body.youth #youth-banner{display:block}
 #tabbar button.on::before{content:'';position:absolute;top:0;left:24%;right:24%;height:2px;border-radius:0 0 3px 3px;background:var(--gold);box-shadow:0 0 7px var(--gold)}
 #tabbar.allcharged::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:5;background:linear-gradient(105deg,transparent 35%,rgba(240,184,50,.45) 50%,transparent 65%);transform:translateX(-110%);animation:tbsweep 2.3s ease-in-out}
 @keyframes tbsweep{to{transform:translateX(110%)}}
+/* TODAY 'fully charged' celebration (host surprise) — one-time/day burst when the
+   readiness ring hits 100: the ring flares gold, a radiating glow pulses out, and
+   a ⚡ FULLY CHARGED banner rises. Pure CSS, removed after it plays. */
+#today-ring.celebrate{animation:ringflare 1.1s ease-out}
+@keyframes ringflare{0%{transform:scale(1)}30%{transform:scale(1.08)}60%{transform:scale(.97)}100%{transform:scale(1)}}
+#today-ring.celebrate::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:3px solid var(--goldb);opacity:.9;animation:chargeburst 1.1s ease-out forwards;pointer-events:none}
+@keyframes chargeburst{0%{transform:scale(.7);opacity:.9;box-shadow:0 0 0 0 rgba(240,184,50,.55)}100%{transform:scale(1.5);opacity:0;box-shadow:0 0 30px 14px rgba(240,184,50,0)}}
+#charge-banner{position:fixed;left:50%;top:38%;transform:translate(-50%,0);z-index:60;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0}
+#charge-banner.on{animation:chargebanner 2.4s ease-out forwards}
+#charge-banner .cb-bolt{font-size:54px;filter:drop-shadow(0 0 14px var(--goldb))}
+#charge-banner .cb-txt{font-family:"SF Mono",monospace;font-weight:800;letter-spacing:3px;font-size:15px;color:var(--goldb);text-shadow:0 0 12px rgba(240,184,50,.6)}
+@keyframes chargebanner{0%{opacity:0;transform:translate(-50%,18px) scale(.8)}18%{opacity:1;transform:translate(-50%,0) scale(1.04)}30%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px) scale(1)}}
 @media(max-width:390px){#tabbar button .lb{font-size:8px;letter-spacing:.4px}.rad,.rad-svg{width:30px;height:30px}}
 #tabbar button.on{color:var(--gold)}
 #tabbar button{position:relative}
@@ -136,7 +148,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.43</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.16.44</span></div>
 <div id="prof-switch"></div></div>
 <div id="stage">
 <iframe id="f-arm" class="on" title="Arm Care" srcdoc="<!DOCTYPE html>
@@ -8470,7 +8482,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v43').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v43').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v44').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v44').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -9704,6 +9716,28 @@ window.toggleReadyWhy=function(){
   }
   box.innerHTML=html; box.style.display='';
 };
+/* TODAY 'fully charged' celebration (host surprise, VISION 3.4) — fires once per
+   day the readiness ring first reaches 100. Guarded by battery-charged-today-<date>
+   (per-profile would need the id; the date key is fine — it's a delight, not data).
+   Respects prefers-reduced-motion. */
+function celebrateCharged(){
+  try{
+    if(!profile)return;
+    var key='battery-today-charged-'+profile+'-'+new Date().toISOString().slice(0,10);
+    if(localStorage.getItem(key))return;
+    localStorage.setItem(key,'1');
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    var ring=document.getElementById('today-ring');
+    if(ring){ring.classList.remove('celebrate');void ring.offsetWidth;ring.classList.add('celebrate');setTimeout(function(){ring.classList.remove('celebrate');},1200);}
+    var youth=profileTier(profile)==='youth';
+    var b=document.getElementById('charge-banner');
+    if(!b){b=document.createElement('div');b.id='charge-banner';document.body.appendChild(b);}
+    b.innerHTML='<div class="cb-bolt">\u26a1</div><div class="cb-txt">'+(youth?'ALL CHARGED UP!':'FULLY CHARGED')+'</div>';
+    b.classList.remove('on');void b.offsetWidth;b.classList.add('on');
+    setTimeout(function(){b.classList.remove('on');},2500);
+  }catch(e){}
+}
+window.celebrateCharged=celebrateCharged;
 function renderToday(){
   var score=readinessScore();
   var youth=profileTier(profile)==='youth';
@@ -9717,6 +9751,7 @@ function renderToday(){
     ring.title='Tap for why';
     var sc=document.getElementById('today-score'); if(sc)sc.textContent=profile?score:'–';
   }
+  if(profile&&score>=100){try{celebrateCharged();}catch(e){}}
   // collapse the explainer on each re-render so stale numbers never linger
   var whyBox=document.getElementById('today-why'); if(whyBox){whyBox.style.display='none';whyBox.innerHTML='';}
   var greet=document.getElementById('today-greet');
