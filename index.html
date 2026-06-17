@@ -1360,7 +1360,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;j12&quot;>
+    <li class=&quot;step opt&quot; data-ex=&quot;j12&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -2217,9 +2217,9 @@ body.youth #youth-banner{display:block}
 </div>
 
 <!-- ============== DAILY EXTRAS (PLACEHOLDER) ============== -->
-<div class=&quot;page&quot; id=&quot;page-extras&quot;>
+<div class=&quot;page&quot; id=&quot;page-extras&quot; data-optional=&quot;1&quot;>
   <h2>Daily Extras</h2>
-  <p class=&quot;lede&quot;>Non-arm-care recommended additions. Bauer's international training principles, Brady's TB12 resistance-band methodology, and dedicated flexibility protocols. Layered on top of arm care, not in place of it.</p>
+  <p class=&quot;lede&quot;>Non-arm-care recommended additions. Bauer's international training principles, Brady's TB12 resistance-band methodology, and dedicated flexibility protocols. Layered on top of arm care, not in place of it. <b>These are optional</b> — tracked and counted (you'll see a <b>+N</b> on your daily count) if you do them, but they don't block your core arm-care completion.</p>
 
   <div class=&quot;card blue&quot;>
     <div class=&quot;card-head&quot;>
@@ -2955,10 +2955,17 @@ body.youth #youth-banner{display:block}
     const id = pg ? pg.id.replace('page-','') : '';
     return tabGroup(id);
   }
+  // 2.0: a step is OPTIONAL (excluded from the required daily ratio, still tracked) if it
+  // carries .opt or lives in a page flagged data-optional (e.g. Daily Extras, bonus drills).
+  function stepOptional(s){ const pg=s.closest('.page'); return s.classList.contains('opt') || !!(pg && pg.dataset.optional); }
   function groupCount(g){
-    let done=0,total=0;
-    document.querySelectorAll('.step').forEach(s=>{ if(stepGroup(s)===g){ total++; if(s.classList.contains('done'))done++; } });
-    return {done:done,total:total};
+    let done=0,total=0,optDone=0,optTotal=0;
+    document.querySelectorAll('.step').forEach(s=>{
+      if(stepGroup(s)!==g) return;
+      if(stepOptional(s)){ optTotal++; if(s.classList.contains('done')) optDone++; }
+      else { total++; if(s.classList.contains('done')) done++; }
+    });
+    return {done:done,total:total,optDone:optDone,optTotal:optTotal};
   }
   function postCounts(){ try{ parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills'),body:groupCount('body')},'*'); }catch(e){} }
   function applyGroup(group){
@@ -3131,9 +3138,11 @@ body.youth #youth-banner{display:block}
 
   function updateCounter() {
     const c = groupCount(activeGroup);
-    document.getElementById('counter-today').textContent = `${c.done} / ${c.total}`;
+    // optional/bonus exercises are tracked but don't gate the core ratio (2.0)
+    const bonus = c.optDone > 0 ? ` +${c.optDone}` : '';
+    document.getElementById('counter-today').textContent = `${c.done} / ${c.total}${bonus}`;
     const sumToday = document.getElementById('summary-today');
-    if (sumToday) sumToday.textContent = `${c.done}/${c.total}`;
+    if (sumToday) sumToday.textContent = `${c.done}/${c.total}${bonus}`;
     postCounts();
   }
 
