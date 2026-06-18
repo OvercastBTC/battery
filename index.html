@@ -151,7 +151,7 @@ body.youth #youth-banner{display:block}
 </style></head><body>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.17.48</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.17.49</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -8629,6 +8629,7 @@ body.youth #youth-banner{display:block}
 <div id="scoreboard"></div>
 <div id="outlook-3d"></div>
 <div id="arm-guardian"></div>
+<div id="season-card" style="display:none"></div>
 <div class="gd-card gold"><h3>⚡ Game Day Fusion</h3><p>Pick a game from events (FUEL → Events) or set first pitch. BATTERY back-builds the prep — <span style="color:#ff6b68">arm (red)</span> + <span style="color:var(--goldb)">fuel (gold)</span>, one schedule.</p></div>
 <div class="evpick"><label>Game</label><select id="gd-event"><option value="">— manual —</option></select></div>
 <div class="evpick"><label>First Pitch</label><input type="time" id="gd-time" value="09:00"></div>
@@ -8719,7 +8720,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v48').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v48').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v49').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v49').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -9605,6 +9606,7 @@ function buildOutlook(){
   host.innerHTML='<div class="gd-card" style="border-color:#58a6ff"><h3 style="color:#58a6ff">🔭 Next 3 Days</h3>'+
     '<p style="margin-bottom:10px">Forward plan from your games, training days, and taper.</p>'+cards+'</div>';
   renderArmGuardian();
+  try{renderSeasonArc();}catch(e){}
   renderScoreboard();
   try{refreshGameDot();}catch(e){}
 }
@@ -9841,6 +9843,79 @@ function renderArmGuardian(){
     '</div>';
 }
 window.renderArmGuardian=renderArmGuardian;
+
+/* ===== SEASON ARC (GAME tab) — VISION 3.7 =====
+   Rolls every logged outing (arm-care-pitchlog) into a season view: a workload
+   curve (pitches per outing), season totals, and rest-compliance (did each gap
+   honor the Pitch Smart required rest). Pure READ of the same log the Guardian
+   uses, so it rides the per-profile mirror + backups for free. ADULT sees the
+   load curve + totals + rest-honored %; YOUTH sees only games-played + stars —
+   no pitch-count totals, no load math (§4.3 / VISION 3.7). Hidden until at least
+   one outing is logged (the Guardian already covers the empty state). */
+function renderSeasonArc(){
+  const host=document.getElementById('season-card'); if(!host)return;
+  function dk(s){var p=(s||'').split('-'); if(p.length<3)return null; var d=new Date(+p[0],+p[1]-1,+p[2]); d.setHours(0,0,0,0); return d;}
+  const log=readPitchLog().slice().sort(function(a,b){var da=dk(a.date),db=dk(b.date); return (da?da.getTime():0)-(db?db.getTime():0);}); // oldest first — parse dates so unpadded keys (2026-6-4) sort correctly
+  if(!profile || !log.length){host.style.display='none'; host.innerHTML=''; return;}
+  host.style.display='';
+  const outings=log.length;
+  const youth=(typeof profileTier==='function' && profileTier(profile)==='youth');
+  if(youth){
+    // VISION 3.7 youth note: games-played + stars only — no pitch totals / curve.
+    const stars='\u2b50'.repeat(Math.min(outings,12));
+    host.innerHTML='<div class="gd-card gold">'+
+      '<h3>\u26be Season</h3>'+
+      '<p style="margin-bottom:8px">You\u2019ve played <b style="color:var(--goldb)">'+outings+'</b> time'+(outings===1?'':'s')+' this season!</p>'+
+      '<div style="font-size:22px;line-height:1.3;letter-spacing:2px">'+(stars||'\u2b50')+'</div>'+
+      '<p style="margin-top:8px;color:var(--dim)">Keep playing ball! \u26a1</p></div>';
+    return;
+  }
+  // ADULT: workload curve + season totals + rest compliance.
+  const age=(typeof profileAge==='function'?profileAge(profile):null);
+  const band=age?pitchBand(age):null;
+  const daily=band?band.daily:null;
+  let total=0, peak=null;
+  log.forEach(function(e){var p=+e.p||0; total+=p; if(!peak||p>peak.p)peak={date:e.date,p:p};});
+  const avg=Math.round(total/outings);
+  const scaleMax=Math.max(peak?peak.p:1, daily||1);
+  let pairs=0, ok=0;
+  if(age){
+    for(let i=0;i<log.length-1;i++){
+      const d0=dk(log[i].date), d1=dk(log[i+1].date); if(!d0||!d1)continue;
+      const gap=Math.round((d1-d0)/864e5);
+      const need=pitchRestDays(age,+log[i].p||0);
+      pairs++; if(gap>=need+1)ok++;
+    }
+  }
+  const restPct=pairs?Math.round(ok/pairs*100):null;
+  function statTile(v,lab){return '<div style="flex:1 1 64px;background:#161b22;border:1px solid var(--line);border-radius:9px;padding:7px 9px"><div style="font-family:\'SF Mono\',monospace;font-size:16px;color:var(--goldb)">'+v+'</div><div style="font-size:10px;color:var(--dim)">'+lab+'</div></div>';}
+  const show=log.slice(-18); // most recent 18, oldest->newest
+  let bars='';
+  show.forEach(function(e){
+    var p=+e.p||0;
+    var h=Math.max(4,Math.round(p/scaleMax*100));
+    var over=daily&&p>daily;
+    var col=over?'#ff6b68':'var(--goldb)';
+    bars+='<div title="'+e.date+' \u00b7 '+p+' pitches'+(over?' (over max)':'')+'" style="flex:1 1 0;height:'+h+'%;min-height:4px;background:'+col+';border-radius:2px 2px 0 0;opacity:.92"></div>';
+  });
+  const dailyLine=daily?'<div style="position:absolute;left:0;right:0;bottom:'+Math.round(daily/scaleMax*100)+'%;border-top:1px dashed var(--faint);opacity:.6"></div>':'';
+  host.innerHTML='<div class="gd-card">'+
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><h3 style="margin:0">\ud83d\udcc8 Season Arc</h3>'+
+    '<span style="font-size:9px;letter-spacing:1px;color:var(--faint)">WORKLOAD</span>'+
+    '<span style="margin-left:auto;font-family:\'SF Mono\',monospace;font-size:12px;color:var(--dim)">'+outings+' outing'+(outings===1?'':'s')+'</span></div>'+
+    '<div style="position:relative;display:flex;align-items:flex-end;gap:3px;height:58px;padding:2px 0;margin-bottom:4px">'+bars+dailyLine+'</div>'+
+    (daily?'<div style="font-size:9px;color:var(--faint);margin-bottom:8px">dashed line = age '+(age>=23?'23+':age)+' daily max ('+daily+'). <span style="color:#ff6b68">Red</span> = over.</div>'
+      :'<div style="font-size:9px;color:var(--faint);margin-bottom:8px">Set the athlete age in the Guardian to mark the daily-max line.</div>')+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+      statTile(total,'total pitches')+
+      statTile(avg,'avg / outing')+
+      (peak?statTile(peak.p,'peak \u00b7 '+peak.date.slice(5)):'')+
+      (restPct!=null?statTile(restPct+'%','rest honored'):'')+
+    '</div>'+
+    (restPct!=null&&restPct<100?'<div style="font-size:11px;color:var(--dim);line-height:1.5;margin-top:8px">Rest honored = share of back-to-back outings that waited the Pitch Smart required rest. The misses are where arm risk creeps in.</div>':'')+
+  '</div>';
+}
+window.renderSeasonArc=renderSeasonArc;
 
 /* ===== TODAY SCOREBOARD (GAME tab) — one glance across all four streams =====
    Live snapshots arrive by postMessage: 'bat-counts' from the arm iframe
