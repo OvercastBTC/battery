@@ -952,6 +952,32 @@ body.youth #youth-banner{display:block}
   }
   #clip-modal.no-clip video { display: none; }
   #clip-modal.no-clip .clip-soon { display: block; }
+
+  /* ===== 5.0 SURPRISE: YOUTH STICKER SHELF (youth-only) ===== */
+  #sticker-shelf { display: none; }
+  body.youth #sticker-shelf { display: block; margin: 4px 0 18px; }
+  .sticker-shelf-card { background: linear-gradient(160deg,#161b22,#0f2233); border: 1px solid #2d6cb0; border-radius: 16px; padding: 16px; }
+  .sticker-shelf-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .sticker-shelf-title { font-size: 15px; font-weight: 800; color: #79c0ff; letter-spacing: .5px; }
+  .sticker-shelf-count { font-size: 12px; color: #8b949e; font-family: 'SF Mono', monospace; }
+  .sticker-shelf-sub { font-size: 12px; color: #8b949e; margin: 0 0 12px; line-height: 1.5; }
+  .sticker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .sticker-slot { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 4px; border-radius: 12px; background: #0d1117; border: 1px solid #21262d; position: relative; opacity: .4; filter: grayscale(1); transition: .25s; }
+  .sticker-slot.earned { opacity: 1; filter: none; border-color: #2d6cb0; background: #0d1b2a; }
+  .sticker-slot svg { width: 42px; height: 42px; }
+  .sticker-name { font-size: 9px; color: #8b949e; text-transform: uppercase; letter-spacing: .5px; }
+  .sticker-slot.earned .sticker-name { color: #79c0ff; }
+  .sticker-x { position: absolute; top: 4px; right: 7px; font-size: 10px; color: #f0b832; font-weight: 800; }
+  #sticker-pop { display: none; position: fixed; inset: 0; z-index: 10000; align-items: center; justify-content: center; background: #000b; }
+  #sticker-pop.on { display: flex; }
+  .sticker-pop-card { text-align: center; position: relative; animation: stpop .55s cubic-bezier(.2,1.5,.4,1); }
+  .sticker-pop-burst { position: absolute; top: -10px; left: 50%; width: 200px; height: 200px; margin-left: -100px; border-radius: 50%; background: radial-gradient(circle, #2d6cb077, transparent 70%); animation: stburst .8s ease-out; }
+  .sticker-pop-svg { width: 150px; height: 150px; position: relative; z-index: 2; filter: drop-shadow(0 0 26px #2d6cb0); }
+  .sticker-pop-title { font-size: 25px; font-weight: 900; color: #79c0ff; margin-top: 10px; position: relative; z-index: 2; }
+  .sticker-pop-sub { font-size: 14px; color: #e6edf3; margin-top: 4px; position: relative; z-index: 2; }
+  @keyframes stpop { 0% { transform: scale(.2) rotate(-14deg); opacity: 0 } 100% { transform: scale(1) rotate(0); opacity: 1 } }
+  @keyframes stburst { 0% { transform: scale(.3); opacity: .9 } 100% { transform: scale(1.7); opacity: 0 } }
+  @media (prefers-reduced-motion: reduce) { .sticker-pop-card, .sticker-pop-burst { animation: none } }
 </style>
 </head>
 <body>
@@ -1061,6 +1087,28 @@ body.youth #youth-banner{display:block}
 <div class=&quot;page active&quot; id=&quot;page-overview&quot;>
   <h2>The System</h2>
   <p class=&quot;lede&quot;>Bauer's arm care isn't a workout — it's a stack. Five components done in order, every throw day, since age 12. The reason he never had a major arm injury through 2,000+ MLB innings.</p>
+
+  <!-- 5.0 SURPRISE: youth sticker shelf — SVG defs (hidden) + the shelf (youth-only) -->
+  <svg width=&quot;0&quot; height=&quot;0&quot; style=&quot;position:absolute&quot; aria-hidden=&quot;true&quot;>
+    <symbol id=&quot;st-ball&quot; viewBox=&quot;0 0 48 48&quot;><circle cx=&quot;24&quot; cy=&quot;24&quot; r=&quot;19&quot; fill=&quot;#f5f5f5&quot; stroke=&quot;#c9d1d9&quot; stroke-width=&quot;1.5&quot;/><path d=&quot;M13 11 Q19 24 13 37&quot; fill=&quot;none&quot; stroke=&quot;#da3633&quot; stroke-width=&quot;2&quot;/><path d=&quot;M35 11 Q29 24 35 37&quot; fill=&quot;none&quot; stroke=&quot;#da3633&quot; stroke-width=&quot;2&quot;/></symbol>
+    <symbol id=&quot;st-star&quot; viewBox=&quot;0 0 48 48&quot;><path d=&quot;M24 4 L29.5 17.5 L44 18.5 L33 28 L36.5 42 L24 34 L11.5 42 L15 28 L4 18.5 L18.5 17.5 Z&quot; fill=&quot;#f0b832&quot;/></symbol>
+    <symbol id=&quot;st-bolt&quot; viewBox=&quot;0 0 48 48&quot;><path d=&quot;M28 4 L11 27 L21 27 L18 44 L37 19 L26 19 Z&quot; fill=&quot;#f0b832&quot; stroke=&quot;#c98a16&quot; stroke-width=&quot;1&quot;/></symbol>
+    <symbol id=&quot;st-glove&quot; viewBox=&quot;0 0 48 48&quot;><path d=&quot;M9 30 Q6 15 21 13 Q25 5 31 12 Q45 13 41 31 Q40 43 24 43 Q11 43 9 30 Z&quot; fill=&quot;#a85d2b&quot; stroke=&quot;#7a4019&quot; stroke-width=&quot;1.5&quot;/><circle cx=&quot;25&quot; cy=&quot;27&quot; r=&quot;6&quot; fill=&quot;#f5f5f5&quot;/></symbol>
+    <symbol id=&quot;st-bat&quot; viewBox=&quot;0 0 48 48&quot;><path d=&quot;M39 7 L43 11 L19 35 L13 41 L9 41 L9 37 L15 31 Z&quot; fill=&quot;#d2a679&quot; stroke=&quot;#8b5a2b&quot; stroke-width=&quot;1.5&quot;/><circle cx=&quot;14&quot; cy=&quot;12&quot; r=&quot;6&quot; fill=&quot;#f5f5f5&quot; stroke=&quot;#c9d1d9&quot; stroke-width=&quot;1&quot;/></symbol>
+    <symbol id=&quot;st-plate&quot; viewBox=&quot;0 0 48 48&quot;><path d=&quot;M11 9 L37 9 L37 27 L24 40 L11 27 Z&quot; fill=&quot;#f5f5f5&quot; stroke=&quot;#c9d1d9&quot; stroke-width=&quot;1.5&quot;/></symbol>
+    <symbol id=&quot;st-trophy&quot; viewBox=&quot;0 0 48 48&quot;><path d=&quot;M15 8 L33 8 L33 17 Q33 26 24 26 Q15 26 15 17 Z&quot; fill=&quot;#f0b832&quot;/><path d=&quot;M15 10 Q7 10 7 16 Q7 21 14 21&quot; fill=&quot;none&quot; stroke=&quot;#f0b832&quot; stroke-width=&quot;2.5&quot;/><path d=&quot;M33 10 Q41 10 41 16 Q41 21 34 21&quot; fill=&quot;none&quot; stroke=&quot;#f0b832&quot; stroke-width=&quot;2.5&quot;/><rect x=&quot;21&quot; y=&quot;26&quot; width=&quot;6&quot; height=&quot;8&quot; fill=&quot;#f0b832&quot;/><rect x=&quot;15&quot; y=&quot;34&quot; width=&quot;18&quot; height=&quot;5&quot; rx=&quot;2&quot; fill=&quot;#c98a16&quot;/></symbol>
+    <symbol id=&quot;st-medal&quot; viewBox=&quot;0 0 48 48&quot;><path d=&quot;M17 5 L24 21 L20 24 L13 9 Z&quot; fill=&quot;#da3633&quot;/><path d=&quot;M31 5 L35 9 L28 24 L24 21 Z&quot; fill=&quot;#2d6cb0&quot;/><circle cx=&quot;24&quot; cy=&quot;33&quot; r=&quot;12&quot; fill=&quot;#f0b832&quot; stroke=&quot;#c98a16&quot; stroke-width=&quot;2&quot;/><path d=&quot;M24 27 L25.8 31.5 L30.5 31.5 L26.8 34.3 L28 39 L24 36 L20 39 L21.2 34.3 L17.5 31.5 L22.2 31.5 Z&quot; fill=&quot;#fff&quot;/></symbol>
+  </svg>
+  <div id=&quot;sticker-shelf&quot;>
+    <div class=&quot;sticker-shelf-card&quot;>
+      <div class=&quot;sticker-shelf-head&quot;>
+        <span class=&quot;sticker-shelf-title&quot;>⭐ My Sticker Shelf</span>
+        <span class=&quot;sticker-shelf-count&quot;><span id=&quot;sticker-count&quot;>0</span> / 8 earned</span>
+      </div>
+      <p class=&quot;sticker-shelf-sub&quot;>Finish your arm care to earn a sticker. Collect all 8!</p>
+      <div class=&quot;sticker-grid&quot; id=&quot;sticker-grid&quot;></div>
+    </div>
+  </div>
 
   <div class=&quot;card gold&quot;>
     <div class=&quot;card-head&quot;>
@@ -3332,6 +3380,7 @@ body.youth #youth-banner{display:block}
     if (!wasDone &amp;&amp; step.classList.contains('done')) {
       bumpTotal();
       updateStreakOnCheck();
+      if (typeof maybeAwardSticker === 'function') maybeAwardSticker();
     }
   }
 
@@ -3666,6 +3715,63 @@ body.youth #youth-banner{display:block}
   }
   if(document.readyState!=='loading') gatePlyoYouth();
   else document.addEventListener('DOMContentLoaded', gatePlyoYouth);
+
+  /* ===== 5.0 SURPRISE: youth sticker shelf ===== */
+  (function(){
+    var NAMES = ['ball','star','bolt','glove','bat','plate','trophy','medal'];
+    var LABELS = { ball:'Fastball', star:'All-Star', bolt:'Power', glove:'Web Gem', bat:'Big Hit', plate:'Home', trophy:'Champ', medal:'MVP' };
+    function isYouth(){ return document.body.classList.contains('youth'); }
+    function load(){ try{ return JSON.parse(localStorage.getItem('arm-care-stickers')||'[]') || []; }catch(e){ return []; } }
+    function save(a){ try{ localStorage.setItem('arm-care-stickers', JSON.stringify(a)); }catch(e){} }
+    function dayStr(){ return new Date().toISOString().slice(0,10); }
+    function renderShelf(){
+      var grid = document.getElementById('sticker-grid'); if(!grid) return;
+      var earned = load();
+      var counts = {};
+      earned.forEach(function(s){ counts[s.i] = (counts[s.i]||0) + 1; });
+      var html = '';
+      for(var i=0;i<NAMES.length;i++){
+        var n = NAMES[i]; var c = counts[i]||0; var on = c>0;
+        html += '<div class=&quot;sticker-slot'+(on?' earned':'')+'&quot;>'+
+          (c>1?'<span class=&quot;sticker-x&quot;>x'+c+'</span>':'')+
+          '<svg viewBox=&quot;0 0 48 48&quot;><use href=&quot;#st-'+n+'&quot;></use></svg>'+
+          '<span class=&quot;sticker-name&quot;>'+(on?LABELS[n]:'?')+'</span></div>';
+      }
+      grid.innerHTML = html;
+      var cntEl = document.getElementById('sticker-count'); if(cntEl) cntEl.textContent = earned.length;
+    }
+    function celebrate(idx){
+      var n = NAMES[idx];
+      var pop = document.getElementById('sticker-pop');
+      if(!pop){ pop = document.createElement('div'); pop.id = 'sticker-pop'; pop.addEventListener('click', function(){ pop.classList.remove('on'); }); document.body.appendChild(pop); }
+      pop.innerHTML = '<div class=&quot;sticker-pop-card&quot;><div class=&quot;sticker-pop-burst&quot;></div>'+
+        '<svg viewBox=&quot;0 0 48 48&quot; class=&quot;sticker-pop-svg&quot;><use href=&quot;#st-'+n+'&quot;></use></svg>'+
+        '<div class=&quot;sticker-pop-title&quot;>Sticker earned!</div>'+
+        '<div class=&quot;sticker-pop-sub&quot;>'+LABELS[n]+' — great arm care! Tap to close.</div></div>';
+      pop.classList.add('on');
+      setTimeout(function(){ pop.classList.remove('on'); }, 3200);
+    }
+    window.maybeAwardSticker = function(){
+      if(!isYouth()) return;
+      if(typeof groupCount !== 'function') return;
+      var g = (typeof activeGroup !== 'undefined') ? activeGroup : 'arm';
+      var c = groupCount(g);
+      if(!c.total) return;
+      if(c.done < c.total) return;
+      var key = 'arm-care-sticker-' + dayStr() + '-' + g;
+      if(localStorage.getItem(key)) return;
+      localStorage.setItem(key, '1');
+      var earned = load();
+      var idx = earned.length % NAMES.length;
+      earned.push({ d: dayStr(), g: g, i: idx });
+      save(earned);
+      renderShelf();
+      celebrate(idx);
+    };
+    window.batteryRenderShelf = renderShelf;
+    if(document.readyState!=='loading') setTimeout(renderShelf, 320);
+    else document.addEventListener('DOMContentLoaded', function(){ setTimeout(renderShelf, 320); });
+  })();
 </script>
 
 </body>
