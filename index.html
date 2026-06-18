@@ -149,9 +149,12 @@ body.youth #youth-banner{display:block}
 #bmodal .bm-btns button.pri{background:var(--gold);border-color:var(--gold);color:var(--ink)}
 #bmodal .bm-btns button.dgr{background:var(--blood);border-color:var(--blood);color:#fff}
 </style></head><body>
+<script>/* §4.3 FAIL-SAFE BOOT: set the youth surface BEFORE the iframes below parse, so a youth never flashes adult content during the boot race. Defaults SAFE (youth) on any uncertainty; only an explicit tier:'adult' profile is treated as adult. */
+(function(){try{var id=localStorage.getItem('battery-profile');var ppl=JSON.parse(localStorage.getItem('battery-people')||'[]');var me=(id&&Array.isArray(ppl))?ppl.find(function(p){return p&&p.id===id;}):null;document.body.classList.toggle('youth',!(me&&me.tier==='adult'));}catch(e){try{document.body.classList.add('youth');}catch(_){}}})();
+</script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.17.50</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.18.51</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -8826,7 +8829,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v50').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v50').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v51').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v51').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -8990,7 +8993,11 @@ function getPeople(){try{const a=JSON.parse(localStorage.getItem('battery-people
 function setPeople(a){localStorage.setItem('battery-people',JSON.stringify(a));}
 function getPerson(id){return getPeople().find(x=>x.id===id)||null;}
 function profileName(id){const p=getPerson(id);return p?String(p.name).toUpperCase():(id?String(id).toUpperCase():'');}
-function profileTier(id){const p=getPerson(id);return (p&&p.tier==='youth')?'youth':'adult';}
+/* §4.3 FAIL-SAFE: a profile is ADULT only when its tier is EXPLICITLY 'adult'. Anything uncertain
+   (missing record, absent/garbage tier, corrupt registry) resolves to 'youth' — the safe surface —
+   so bad data can never expose a youth to supplements/stimulants/macros/load-ratios. Every adult
+   creation path sets tier:'adult' explicitly, so real adults are unaffected. */
+function profileTier(id){const p=getPerson(id);return (p&&p.tier==='adult')?'adult':'youth';}
 function profileAge(id){const p=getPerson(id);const a=p?parseInt(p.age,10):0;return (a&&a>0)?a:null;}
 function setProfileAge(id,age){const a=parseInt(age,10)||null;setPeople(getPeople().map(function(x){return x.id===id?Object.assign({},x,{age:a}):x;}));}
 function escHtml(s){return String(s).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);});}
@@ -9128,7 +9135,13 @@ window.addEventListener('visibilitychange', ()=>{ if(document.hidden) persistLiv
 function reloadFrames(){const tier=profileTier(profile);
  FRAMES.arm.onload=()=>{try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:((_curTab==='drills'||_curTab==='body')?_curTab:'arm')},'*');}catch(e){}};
  FRAMES.fuel.onload=()=>{try{FRAMES.fuel.contentWindow.BATTERY_TIER=tier;const w=FRAMES.fuel.contentWindow;if(w.recomputeDayTargets)w.recomputeDayTargets();if(w.refreshAll)w.refreshAll();if(w.batteryRelayout)setTimeout(w.batteryRelayout,200);}catch(e){}};
- FRAMES.arm.srcdoc=FRAMES.arm.getAttribute('srcdoc');FRAMES.fuel.srcdoc=FRAMES.fuel.getAttribute('srcdoc');}
+ /* §4.3 FAIL-SAFE: bake the tier into the fuel srcdoc so window.BATTERY_TIER is set BEFORE the
+    iframe's own gating scripts run (the onload handler above fires too late — after the iframe has
+    already rendered once with the fail-open '||adult' default). Cache the pristine srcdoc so we
+    always inject from a clean copy (the .srcdoc property reflects to the attribute). */
+ if(!reloadFrames._fuelDoc)reloadFrames._fuelDoc=FRAMES.fuel.getAttribute('srcdoc');
+ FRAMES.arm.srcdoc=FRAMES.arm.getAttribute('srcdoc');
+ FRAMES.fuel.srcdoc=reloadFrames._fuelDoc.replace('<head>',"<head><script>window.BATTERY_TIER='"+tier+"';<\/script>");}
 function setProfile(p){if(p===profile)return;snapshotCurrent();profile=p;localStorage.setItem('battery-profile',p);
  renderSwitch();
  document.body.classList.toggle('youth',profileTier(p)==='youth');restoreProfile();reloadFrames();buildGameDay();buildOutlook();}
