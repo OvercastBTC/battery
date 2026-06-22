@@ -6612,7 +6612,7 @@ body.youth #youth-banner{display:block}
   function switchTab(tabName) {
     // Youth safety (§4.3): adult-content tabs (supplements/stimulant/dosing) are
     // off-limits to youth profiles — covers direct nav AND the boot tab-restore.
-    if ((window.BATTERY_TIER||'adult')==='youth' &amp;&amp; ['overview','protein','hydration','products'].indexOf(tabName) >= 0) tabName = 'tracker';
+    if ((window.BATTERY_TIER||'youth')==='youth' &amp;&amp; ['overview','protein','hydration','products'].indexOf(tabName) >= 0) tabName = 'tracker';
     tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
     pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + tabName));
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -7278,7 +7278,7 @@ body.youth #youth-banner{display:block}
   // recomputeDayTargets toggles. Either is authoritative.
   function _favYouth() {
     try {
-      if ((window.BATTERY_TIER || 'adult') === 'youth') return true;
+      if ((window.BATTERY_TIER || 'youth') === 'youth') return true;
       if (document.body.classList.contains('fuel-youth')) return true;
     } catch (e) {}
     return false;
@@ -7614,6 +7614,8 @@ body.youth #youth-banner{display:block}
     return Math.round((target - today) / (1000 * 60 * 60 * 24));
   }
 
+  // footgun-safe HTML escaper (DOM-based — no literal angle brackets in source, can't truncate the srcdoc)
+  function fEscHtml(s){ var d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; }
   function refreshEventsDisplay() {
     const list = document.getElementById('events-list');
     if (!list) return;
@@ -7648,7 +7650,7 @@ body.youth #youth-banner{display:block}
         <div class=&quot;event-info&quot;>
           <div class=&quot;event-when&quot;>${when} · ${niceDate}</div>
           <div class=&quot;event-type&quot;>${et.label}</div>
-          ${e.notes ? `<div class=&quot;event-notes&quot;>&quot;${e.notes.replace(/&quot;/g, '&amp;quot;')}&quot;</div>` : ''}
+          ${e.notes ? `<div class=&quot;event-notes&quot;>&quot;${fEscHtml(e.notes)}&quot;</div>` : ''}
         </div>
         <button class=&quot;event-delete&quot; onclick=&quot;removeEvent(${e.id})&quot;>✕</button>
       </div>`;
@@ -7967,7 +7969,7 @@ body.youth #youth-banner{display:block}
           ['Age', p.age || '—'],
           ['Frame', (p.frame || '—').toString()]
         ];
-        if (window.BATTERY_TIER !== 'youth') {
+        if (window.BATTERY_TIER === 'adult') {
           _rows.push(['Goal', p.goal || '—']);
           _rows.push(['Stimulant', p.stim ? 'yes' : 'no']);
         }
@@ -8475,8 +8477,8 @@ body.youth #youth-banner{display:block}
     window.recomputeDayTargets = recomputeDayTargets = function(){
       // Youth safety gate (§4.3): hide supplement/stimulant quick-add (.qa-adult)
       // for youth profiles. Runs on every recompute incl. tier change + onload.
-      try{ document.body.classList.toggle('fuel-youth', (window.BATTERY_TIER||'adult')==='youth'); }catch(e){}
-      if ((window.BATTERY_TIER||'adult') !== 'youth') return _orig();
+      try{ document.body.classList.toggle('fuel-youth', (window.BATTERY_TIER||'youth')==='youth'); }catch(e){}
+      if ((window.BATTERY_TIER||'youth') !== 'youth') return _orig();
       const p = loadProfile() || {weightLb:80, age:6};
       const kg = p.weightLb / 2.20462;
       let prot = Math.round(kg * 1.1 / 5) * 5;        // active kid, food-based
