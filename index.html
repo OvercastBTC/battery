@@ -5293,6 +5293,26 @@ body.youth #youth-banner{display:block}
     50% { box-shadow: 0 0 0 4px rgba(63,185,80,0.25); }
   }
   .bar.celebrate { animation: goalPulse 1.2s ease-in-out 2; }
+
+  /* ===== HEAT SAFETY ===== */
+  .heat-youth { display: none; }
+  body.fuel-youth .heat-youth { display: block; }
+  body.fuel-youth .heat-adult { display: none; }
+  .heat-risk { border-radius: 14px; padding: 15px; margin: 12px 0; border: 1px solid; }
+  .heat-risk-low { background: #0d1f17; border-color: #2ea04366; }
+  .heat-risk-elevated { background: #211d0d; border-color: #d4a01766; }
+  .heat-risk-high { background: #24160a; border-color: #f0883e88; }
+  .heat-risk-extreme { background: #2a0f0f; border-color: #ff6b6b; }
+  .heat-risk-level { font-size: 21px; font-weight: 800; letter-spacing: .5px; }
+  .heat-risk-low .heat-risk-level { color: #3fb950; }
+  .heat-risk-elevated .heat-risk-level { color: #f0b832; }
+  .heat-risk-high .heat-risk-level { color: #f0883e; }
+  .heat-risk-extreme .heat-risk-level { color: #ff6b6b; }
+  .heat-factor { font-size: 12.5px; color: var(--bone); padding: 2px 0; line-height: 1.5; }
+  .heat-factor .hf-dim { color: var(--dim); }
+  .heat-stack-item { border-left: 2px solid #d4a017; padding: 5px 0 5px 11px; margin: 8px 0; font-size: 13px; color: var(--bone); line-height: 1.5; }
+  .heat-emergency { background: #2a0f0f; border: 1px solid #da3633; border-radius: 12px; padding: 14px; margin: 10px 0; }
+  .heat-emergency .he-call { color: #ff6b6b; font-weight: 800; font-size: 15px; }
 </style>
 </head>
 <body>
@@ -5359,6 +5379,7 @@ body.youth #youth-banner{display:block}
   <button class=&quot;tab&quot; data-tab=&quot;profile&quot;>Profile</button>
   <button class=&quot;tab&quot; data-tab=&quot;weekly&quot;>Weekly</button>
   <button class=&quot;tab&quot; data-tab=&quot;events&quot;>Events</button>
+  <button class=&quot;tab&quot; data-tab=&quot;heat&quot;>Heat</button>
   <button class=&quot;tab qa-adult&quot; data-tab=&quot;overview&quot;>Overview</button>
   <button class=&quot;tab qa-adult&quot; data-tab=&quot;protein&quot;>Protein</button>
   <button class=&quot;tab qa-adult&quot; data-tab=&quot;hydration&quot;>Hydration</button>
@@ -6405,6 +6426,82 @@ body.youth #youth-banner{display:block}
   <p style=&quot;font-size:12px;color:var(--dim);margin-top:-4px&quot;>Liquid IV's &quot;cellular transport technology&quot; is essentially the WHO oral rehydration salts ratio (glucose-sodium-water). It works — the sugar drives sodium and water absorption — but the ratio is no secret.</p>
 </div>
 
+<!-- ============== HEAT SAFETY ============== -->
+<div class=&quot;page&quot; id=&quot;page-heat&quot;>
+  <h2>Heat Safety</h2>
+  <p class=&quot;lede&quot;>Exertional heat illness is what this app's numbers quietly add up to — but never say out loud. Recognition + prevention, tuned to who's playing. <b>Informational only, not medical advice. In an emergency, call 911.</b></p>
+
+  <div class=&quot;card&quot;>
+    <div class=&quot;card-head&quot;><div class=&quot;card-title&quot;>Today's conditions</div></div>
+    <label style=&quot;display:block;font-size:13px;color:var(--bone);margin-bottom:8px&quot;>How hot is it where you'll be?</label>
+    <div class=&quot;seg-control&quot; id=&quot;heat-temp-seg&quot; style=&quot;flex-wrap:wrap&quot;>
+      <button class=&quot;seg-btn&quot; data-val=&quot;mild&quot; onclick=&quot;window.setHeatTemp('mild')&quot;>under 85°</button>
+      <button class=&quot;seg-btn&quot; data-val=&quot;warm&quot; onclick=&quot;window.setHeatTemp('warm')&quot;>85–94°</button>
+      <button class=&quot;seg-btn&quot; data-val=&quot;hot&quot; onclick=&quot;window.setHeatTemp('hot')&quot;>95–103°</button>
+      <button class=&quot;seg-btn&quot; data-val=&quot;extreme&quot; onclick=&quot;window.setHeatTemp('extreme')&quot;>104°+</button>
+    </div>
+  </div>
+
+  <div id=&quot;heat-risk-readout&quot;></div>
+
+  <div class=&quot;heat-adult&quot;>
+    <div class=&quot;card&quot;>
+      <div class=&quot;card-head&quot;><div class=&quot;card-title&quot;>Your risk stack</div><span class=&quot;badge&quot;>why you</span></div>
+      <p style=&quot;font-size:12.5px;color:var(--dim);margin:0 0 6px;line-height:1.5&quot;>Heat illness is a Swiss-cheese failure — several layers lining up at once. The app already knows yours:</p>
+      <div id=&quot;heat-stack-list&quot;></div>
+    </div>
+  </div>
+
+  <div class=&quot;heat-adult&quot;>
+    <h3>Recognize it — before it's an emergency</h3>
+    <div class=&quot;card&quot;>
+      <div class=&quot;card-head&quot;><div class=&quot;card-title&quot;>Heat exhaustion</div><span class=&quot;badge&quot;>treat on site</span></div>
+      <p style=&quot;font-size:13px;line-height:1.6&quot;><b>Signs:</b> heavy sweating; cool, pale, clammy skin; fast weak pulse; nausea; muscle cramps; headache; dizziness; feeling wiped out.</p>
+      <div class=&quot;cue&quot;><b>Do:</b> STOP. Get to shade / AC. Loosen clothing. Cool the skin — wet cloths, cool water, fan. Sip water with some salt / electrolyte. Most people turn around in ~30 min. If it gets worse, you vomit, or it lasts past an hour → get medical help.</div>
+    </div>
+    <div class=&quot;heat-emergency&quot;>
+      <div style=&quot;font-size:15px;font-weight:800;color:#ff6b6b;margin-bottom:6px&quot;>⚠ Heat stroke — 911 emergency</div>
+      <p style=&quot;font-size:13px;line-height:1.6;color:#e6edf3&quot;>The line is the <b>brain</b>. Heat exhaustion + <b>confusion, slurred speech, stumbling, acting &quot;off,&quot; or passing out</b> = heat stroke. Skin is hot (in hard exertion it may still be sweaty). Core temp around <b>104°F</b> and climbing. It kills or disables fast.</p>
+      <p style=&quot;font-size:13px;line-height:1.6;color:#e6edf3;margin-top:8px&quot;><span class=&quot;he-call&quot;>① CALL 911 NOW.</span> <b>② COOL IMMEDIATELY</b> — cold water / ice over the whole body; do not wait for the ambulance. The pros call it <b>&quot;cool first, transport second&quot;</b>: dropping core temp in the first <b>~30 minutes</b> (the &quot;golden half-hour&quot;) is what saves the brain. Cold-water immersion cools fastest.</p>
+    </div>
+  </div>
+
+  <div class=&quot;heat-adult&quot;>
+    <h3>Prevent it today</h3>
+    <div class=&quot;card&quot;>
+      <ul style=&quot;font-size:13px;line-height:1.7&quot;>
+        <li><b>Acclimatize.</b> Build heat exposure over 1–2 weeks — the first hot days, and the first hot day after a cool stretch, are the most dangerous.</li>
+        <li><b>Drink to thirst — don't force it.</b> Chugging plain water past thirst can drop your blood sodium dangerously (hyponatremia). &quot;You can't drink too much&quot; is wrong.</li>
+        <li><b>Replace salt, not just water.</b> Heavy sweat = sodium out. That's what your LMNT / Liquid IV logging is for — lean on it on hot, high-sweat days.</li>
+        <li><b>Work : rest.</b> In real heat, roughly 15–20 min on / 5–10 min in shade with fluid — and more rest as it climbs. Don't grind straight through.</li>
+        <li><b>Cool actively.</b> Shade, airflow, an ice towel on the neck, a cold drink. You pack the cooler for the kids — use it on yourself too.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class=&quot;heat-youth&quot;>
+    <h3>Staying safe in the heat</h3>
+    <div class=&quot;card blue&quot;>
+      <p style=&quot;font-size:14px;line-height:1.7&quot;>Kids heat up <b>faster</b> than grown-ups, so this is for you! 🌞</p>
+      <p style=&quot;font-size:14px;line-height:1.7;margin-top:8px&quot;><b>Tell a grown-up RIGHT AWAY</b> if you feel dizzy, sick to your stomach, a bad headache, super tired, or fuzzy / confused — or if you stop sweating. Don't tough it out. Getting too hot is serious, and grown-ups can cool you down fast.</p>
+    </div>
+    <div class=&quot;card&quot;>
+      <div class=&quot;card-title&quot; style=&quot;margin-bottom:8px&quot;>Beat the heat</div>
+      <ul style=&quot;font-size:14px;line-height:1.8&quot;>
+        <li>💧 Drink water on a <b>schedule</b> — before you feel thirsty. (Thirsty means you're already behind!)</li>
+        <li>🌳 Take shade + water breaks, even when you feel fine.</li>
+        <li>🧢 Take your helmet and heavy gear off during breaks to let the heat out.</li>
+        <li>🗣️ On really hot days, check in with a grown-up — they're looking out for you.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class=&quot;info&quot; style=&quot;margin-top:16px;font-size:11px;color:var(--dim);line-height:1.6&quot;>
+    <strong>Informational only — not medical advice.</strong> BATTERY is not a medical device; this is recognition + general heat-safety information. In any emergency, call 911. Decisions about your medications (TRT, stimulants, GLP-1) and competing in heat belong with your physician.<br>
+    <b>Sources:</b> CDC (Heat-Related Illnesses / Extreme Heat), OSHA-NIOSH (heat first aid, work/rest), Korey Stringer Institute (exertional heat stroke), NATA (fluid-replacement / heat-illness consensus), AAP &amp;amp; HealthyChildren.org (youth heat). Risk multipliers from peer-reviewed sports-medicine + endocrinology literature.
+  </div>
+</div>
+
 <!-- ============== SCHEDULE ============== -->
 <div class=&quot;page&quot; id=&quot;page-schedule&quot;>
   <h2>Schedule patterns</h2>
@@ -6625,6 +6722,9 @@ body.youth #youth-banner{display:block}
     }
     if (tabName === 'profile') {
       refreshProfileSummary();
+    }
+    if (tabName === 'heat') {
+      try { if (window.renderHeatRisk) window.renderHeatRisk(); } catch (e) {}
     }
   }
   tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
@@ -8733,6 +8833,88 @@ body.youth #youth-banner{display:block}
       el.textContent = v ? 'build '+v : 'v3'; }
     if(document.readyState!=='loading') setTimeout(setBuild,440);
     else document.addEventListener('DOMContentLoaded',function(){ setTimeout(setBuild,440); });
+  })();
+
+  /* ===== HEAT SAFETY: transparent risk model + readout ===== */
+  (function(){
+    function aid(){ try{ return localStorage.getItem('battery-profile')||''; }catch(e){ return ''; } }
+    function getTrt(){ try{ var o=JSON.parse(localStorage.getItem('battery::'+aid()+'::trt')||'{}'); return {on:!!o.on, hct:(o.hct||'').toString()}; }catch(e){ return {on:false, hct:''}; } }
+    function getHeatTemp(){ try{ return storeGet('fuel-heat-'+todayKey(), ''); }catch(e){ return ''; } }
+    function youth(){ return (window.BATTERY_TIER==='youth') || document.body.classList.contains('fuel-youth'); }
+    window.setHeatTemp=function(v){ try{ storeSet('fuel-heat-'+todayKey(), v); }catch(e){} renderHeatRisk(); };
+
+    function compute(){
+      var temp=getHeatTemp();
+      var envMap={mild:0,warm:1,hot:2,extreme:3};
+      var p=(typeof loadProfile==='function'?loadProfile():null)||{};
+      var env=(envMap[temp]!=null)?envMap[temp]:(p.hot?1:0);
+      var exertion=0;
+      try{ if(activeDays.has('heavy')) exertion=2; else if(activeDays.has('train')) exertion=1; }catch(e){}
+      var amps=[]; var trt=getTrt();
+      if(p.stim) amps.push('stim');
+      if(trt.on) amps.push('trt');
+      if((+p.weightLb||0)>=250) amps.push('big');
+      if(p.glp &amp;&amp; p.glp!=='none') amps.push('glp');
+      var hyd=0;
+      try{ var tot=getTotals(); var tg=computedTarget(); if(tg.water>0 &amp;&amp; tot.water < tg.water*0.5) hyd=1; }catch(e){}
+      var level, score;
+      if(env===0){ level='low'; score=0; }
+      else { score=env*2+exertion+amps.length+hyd; level=score<=4?'low':score<=7?'elevated':score<=10?'high':'extreme'; }
+      return {level:level, env:env, temp:temp, exertion:exertion, amps:amps, hyd:hyd, trt:trt, p:p};
+    }
+
+    var LVL={low:'LOW', elevated:'ELEVATED', high:'HIGH', extreme:'EXTREME'};
+    var ENV={'':'(set the temperature above)', mild:'under 85°', warm:'85–94°', hot:'95–103°', extreme:'104°+'};
+
+    function renderHeatRisk(){
+      var host=document.getElementById('heat-risk-readout'); if(!host) return;
+      var r=compute();
+      try{ var seg=document.getElementById('heat-temp-seg'); if(seg) seg.querySelectorAll('.seg-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.val===r.temp); }); }catch(e){}
+
+      if(youth()){
+        var kid=r.env>=3?'It is REALLY hot. Take it easy, drink lots, and take shade breaks!'
+          :r.env===2?'It is hot out. Drink on a schedule and take shade breaks.'
+          :r.env===1?'It is warm. Keep sipping water and listen to your body.'
+          :'Set how hot it is up top, and remember to drink water.';
+        host.innerHTML='<div class=&quot;heat-risk heat-risk-'+(r.env>=2?'elevated':'low')+'&quot;>'+
+          '<div class=&quot;heat-risk-level&quot;>'+(r.env>=3?'🔥 Very hot':r.env>=2?'☀️ Hot':r.env>=1?'Warm out':'Heat')+'</div>'+
+          '<div style=&quot;font-size:13px;color:#e6edf3;margin-top:6px;line-height:1.5&quot;>'+kid+'</div></div>';
+        return;
+      }
+
+      var f=[];
+      f.push('<div class=&quot;heat-factor&quot;>🌡 Heat: <b>'+ENV[r.temp||'']+'</b></div>');
+      if(r.exertion) f.push('<div class=&quot;heat-factor&quot;>🏋 Output: <b>'+(r.exertion>=2?'heavy / hot day':'training')+'</b> — more internal heat</div>');
+      if(r.amps.indexOf('stim')>=0) f.push('<div class=&quot;heat-factor&quot;>⚡ Stimulant — raises heat production + blunts your thirst warning</div>');
+      if(r.amps.indexOf('trt')>=0) f.push('<div class=&quot;heat-factor&quot;>🩸 TRT'+(r.trt.hct?(' (hct '+r.trt.hct+')'):'')+' — thicker blood; dehydration concentrates it further</div>');
+      if(r.amps.indexOf('big')>=0) f.push('<div class=&quot;heat-factor&quot;>💪 Large frame — more heat to make, slower to shed</div>');
+      if(r.amps.indexOf('glp')>=0) f.push('<div class=&quot;heat-factor&quot;>💊 GLP-1 — easy to show up under-hydrated / under-fueled</div>');
+      if(r.hyd) f.push('<div class=&quot;heat-factor&quot;>💧 <span style=&quot;color:#f0883e&quot;>Behind on water today</span> — fix this first</div>');
+      var blurb=r.level==='extreme'?'Stack is loaded. Pre-cool, pre-hydrate with salt, short work:rest, and watch each other for the brain signs below.'
+        :r.level==='high'?'Real risk today. Front-load fluids + salt, take shade breaks, and know the heat-stroke signs below.'
+        :r.level==='elevated'?'Some risk. Stay ahead on fluids + salt and take breaks.'
+        :(r.env===0?'Not hot enough to be a heat concern today.':'Low risk — keep doing the basics.');
+      host.innerHTML='<div class=&quot;heat-risk heat-risk-'+r.level+'&quot;>'+
+        '<div style=&quot;display:flex;align-items:baseline;justify-content:space-between&quot;>'+
+          '<span class=&quot;heat-risk-level&quot;>'+LVL[r.level]+' heat risk</span>'+
+          '<span style=&quot;font-size:11px;color:var(--dim);font-family:monospace&quot;>today</span></div>'+
+        '<div style=&quot;font-size:13px;color:#e6edf3;margin:6px 0 4px;line-height:1.5&quot;>'+blurb+'</div>'+
+        '<div style=&quot;margin-top:8px&quot;>'+f.join('')+'</div></div>';
+
+      var sl=document.getElementById('heat-stack-list');
+      if(sl){
+        var it=[];
+        if(r.amps.indexOf('stim')>=0) it.push('<b>Stimulant (ADHD med):</b> raises metabolic heat + impairs heat dissipation, and blunts thirst — so &quot;I feel fine&quot; is not a safe signal.');
+        if(r.amps.indexOf('trt')>=0) it.push('<b>TRT'+(r.trt.hct?(' — hematocrit '+r.trt.hct+'%'):'')+':</b> testosterone raises hematocrit (thicker blood); dehydration concentrates it further, adding cardiac + clot strain in heat. Guidelines flag hct &gt; 54%.'+(r.trt.hct?'':' Worth knowing your number.'));
+        if(r.amps.indexOf('big')>=0) it.push('<b>Large frame ('+((+r.p.weightLb)||'?')+' lb):</b> more muscle = more heat generated, and a bigger body sheds heat more slowly.');
+        if(r.amps.indexOf('glp')>=0) it.push('<b>GLP-1:</b> appetite + intake are down, so it is easy to start the day already under-hydrated and under-fueled for heat.');
+        it.push('<b>Heat + the day\'s output + any water deficit</b> stack on top of all of the above — that alignment is what to avoid.');
+        sl.innerHTML=it.map(function(t){ return '<div class=&quot;heat-stack-item&quot;>'+t+'</div>'; }).join('');
+      }
+    }
+    window.renderHeatRisk=renderHeatRisk;
+    if(document.readyState!=='loading') setTimeout(renderHeatRisk,360);
+    else document.addEventListener('DOMContentLoaded', function(){ setTimeout(renderHeatRisk,360); });
   })();
 
 </script>
