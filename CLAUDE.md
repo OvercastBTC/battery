@@ -99,8 +99,21 @@ Run order: `node --check` first (fast), then `~/battery-tests/run.sh` (definitiv
 
 | File | Purpose |
 |------|---------|
-| `~/battery-comms.md` | **Direct comms pipe** (Lane A ⇄ Lane B) — shared non-git file, instant cross-worktree. Read on start/finish of a unit; self-documents its protocol + a watcher. |
-| `LANE.md` | Live board — current lane status, READY signals, blockers |
-| `HANDOFF.md` | Durable release log (§10 entries); **gitignored** — internal only |
-| `.claude/agents/` | Sub-agent definitions for this project |
-| `.claude/commands/` | Custom slash commands |
+**Lane roster** (4 lanes as of 2026-06-22):
+- **Lane A** — local MacBook, FUEL + ARM iframe content (`~/battery-laneA`).
+- **Lane B** — local MacBook, host shell + **sole release engineer** (`~/battery-laneB`): merges to `master`, stamp + SW-cache bump, Playwright gate, deploy.
+- **Lane C** — local MacBook, host `#tabbar` glyph / icon QA (`~/battery`).
+- **Lane D** — **cloud** Claude Code session (isolated container; works on `claude/*` branches + GitHub PRs; cannot see local files).
+
+**Comms topology** — choose the channel by who must hear it:
+
+| Channel | Reaches | Use |
+|---------|---------|-----|
+| `~/battery-comms.md` | Local lanes A/B/C only (shared FS; **non-git — never reaches the cloud**) | Fast local coordination, READY signals, watcher |
+| **GitHub Issue #2** | **All lanes incl. cloud Lane D** (the repo is the only cross-machine medium) | Cross-machine handoffs. One comment per message; header `**[date] FROM <lane> → TO <lane> — <subj>** · STATUS: OPEN/ACK/DONE` |
+| **PR comments** | Cloud Lane D **fast** (it subscribes to its own PR) | Wake Lane D immediately during an active handoff |
+| `LANE.md` | All lanes via git (committed board) | Durable lane status / READY |
+| `HANDOFF.md` | Local only (gitignored) | Release log (§10) |
+| `.claude/agents/` · `.claude/commands/` | All lanes via git | Sub-agent defs · slash commands |
+
+**Cross-machine rule:** Lane D shares ONLY the GitHub repo — `~/battery-comms.md` is invisible to it. Anything the cloud must see goes in **Issue #2** (or a PR comment) and the committed `CLAUDE.md`/`LANE.md`. Local lanes mirror cross-machine-relevant items between `~/battery-comms.md` ⇄ Issue #2.
