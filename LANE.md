@@ -120,11 +120,11 @@ Full goals, acceptance checks, models, and risks are in `HANDOFF.md §12.2`.
 
 Both lanes bump these every release. To avoid fighting:
 
-- **Next NN to claim:** **`.56`** → stamp `26.06.22.56`, cache `battery-v56`.  (`.55` = Lane A week-card fuel hit rates, on `claude/epic-einstein-p2nhow`/PR #1, pending Lane B gate+release. Earlier `.21`–`.54` consumed; see `HANDOFF.md §10`.)
+- **Next NN to claim:** **`.57`** → stamp `26.06.22.57`, cache `battery-v57`.  (`.56` = combined release SHIPPED `8579a09` — PR #1 week-card + Lane A fuel-security + comms-setup + Heat Guardian — by Lane A acting as release engineer while Lane B was offline. Earlier `.21`–`.55` consumed; see `HANDOFF.md §10`.)
 - **Rule:** when you take an NN, immediately set this line to the next free NN and push (the §10 log entry is the source of truth). If both grab `.21`, the second pusher's `git pull` conflicts on these two lines → take the higher and bump to `.22`.
 - Both live in the HOST region (Lane B's region): `#ver-stamp` text + the `battery-vNN` template literal in the PWA/SW block. **Lane A:** when you ship an iframe-only change, you still must bump them — edit just those two lines in the host region (that is the one allowed cross-region touch) and note it; or hand the stamp bump to Lane B if you're shipping back-to-back. Coordinate here.
 
-**Claimed NNs:** `.21` → Lane B E6 (`053b779`, merged). `.22` → combined E1–E6 release (`8c72794`+`5e9f832`). `.23`–`.54` → consumed across later releases (see `HANDOFF.md §10`). `.55` → **Lane A week-card fuel hit rates** (`b06bb76`, on `claude/epic-einstein-p2nhow`/PR #1, **pending Lane B gate+release**). **Next free = `.56`.**
+**Claimed NNs:** `.21` → Lane B E6 (`053b779`, merged). `.22` → combined E1–E6 release (`8c72794`+`5e9f832`). `.23`–`.54` → consumed across later releases (see `HANDOFF.md §10`). `.55`/`.56` → combined release SHIPPED `8579a09` (PR #1 week-card + fuel-security + comms-setup + Heat Guardian; 20/20 gate; Lane A acted as release engineer, Lane B offline). **Next free = `.57`.**
 
 ---
 
