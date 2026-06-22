@@ -39,6 +39,7 @@ padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolli
 #today-ring .inner{width:138px;height:138px;border-radius:50%;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center}
 #today-ring .score{font-size:44px;font-weight:800;font-family:&quot;SF Mono&quot;,monospace;line-height:1;color:var(--bone)}
 #today-ring .lbl{font-size:10px;letter-spacing:3px;color:var(--dim);margin-top:4px}
+#view-data{position:absolute;inset:0;display:none;overflow-y:auto;
 padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolling:touch}
 #view-data.on{display:block}
 #view-data h3{margin:0 0 10px;font-size:15px;letter-spacing:1px}
@@ -154,7 +155,7 @@ body.youth #youth-banner{display:block}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.18.52</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.22.53</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -8766,7 +8767,7 @@ body.youth #youth-banner{display:block}
 <div id="data-profiles" class="dmeta"></div>
 </div>
 <div class="gd-card" id="demo-card" style="display:none">
-<h3 style="margin-bottom:6px">Athlete Details</h3>
+<h3 style="margin-bottom:6px;display:flex;align-items:center;gap:8px">Athlete Details<span id="demo-saved" style="opacity:0;transition:opacity .2s;font-size:11px;letter-spacing:1px;color:var(--green);font-weight:700">✓ SAVED</span></h3>
 <div id="demo-body"></div>
 </div>
 <div class="gd-card" id="consist-card" style="display:none">
@@ -8829,7 +8830,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v52').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v52').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v53').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v53').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -9489,8 +9490,20 @@ window.renderTrtCard=renderTrtCard;
    a save we tell the fuel iframe to recompute its targets so DATA + FUEL stay in sync.
    Youth: height/weight/age/sex shown (age-appropriate), but NO macro 'goal' or stimulant
    fields (those are adult-only, §4.3). */
-function getDemo(id){try{return JSON.parse(localStorage.getItem('battery::'+id+'::fuel-profile')||'{}')||{};}catch(e){return {};}}
-function setDemo(id,o){try{o.savedAt=Date.now();localStorage.setItem('battery::'+id+'::fuel-profile',JSON.stringify(o));}catch(e){}}
+/* The ACTIVE profile's demographics live in the un-namespaced 'fuel-profile' key —
+   that is what the FUEL iframe actually reads, and what persistLive mirrors to the
+   namespace every 4s. Writing only the namespace (the old bug) meant the live mirror
+   clobbered edits seconds later, so demographics never "stuck" until a switch/reopen.
+   Read/write live for the active profile (and keep the namespace copy in lock-step);
+   fall back to the namespace for any non-active id. */
+function getDemo(id){try{
+    if(id===profile){const live=localStorage.getItem('fuel-profile');if(live!=null)return JSON.parse(live)||{};}
+    return JSON.parse(localStorage.getItem('battery::'+id+'::fuel-profile')||'{}')||{};
+  }catch(e){return {};}}
+function setDemo(id,o){try{o.savedAt=Date.now();const s=JSON.stringify(o);
+    if(id===profile)localStorage.setItem('fuel-profile',s);
+    localStorage.setItem('battery::'+id+'::fuel-profile',s);
+  }catch(e){}}
 window.demoSave=function(field,val){
   if(!profile)return;
   var p=getDemo(profile);
@@ -9500,7 +9513,15 @@ window.demoSave=function(field,val){
   // keep the live fuel iframe in sync (recompute targets) without a full reload.
   try{var w=FRAMES.fuel.contentWindow;if(w){if(w.recomputeDayTargets)w.recomputeDayTargets();if(w.refreshAll)w.refreshAll();}}catch(e){}
   renderDemoCard();
+  flashDemoSaved();
 };
+/* Autosave confirmation — the change the user asked for: no clunky Save button,
+   but a clear "✓ SAVED" pulse so edits are visibly committed (not silent). */
+function flashDemoSaved(){
+  var el=document.getElementById('demo-saved'); if(!el)return;
+  el.style.opacity='1'; clearTimeout(el._h);
+  el._h=setTimeout(function(){el.style.opacity='0';},1400);
+}
 function renderDemoCard(){
   var card=document.getElementById('demo-card'), body=document.getElementById('demo-body');
   if(!card||!body)return;
