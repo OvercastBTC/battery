@@ -127,6 +127,11 @@ body.youth #youth-banner{display:block}
 #charge-banner.on{animation:chargebanner 2.4s ease-out forwards}
 #charge-banner .cb-bolt{font-size:54px;filter:drop-shadow(0 0 14px var(--goldb))}
 #charge-banner .cb-txt{font-family:"SF Mono",monospace;font-weight:800;letter-spacing:3px;font-size:15px;color:var(--goldb);text-shadow:0 0 12px rgba(240,184,50,.6)}
+#storage-warn{position:fixed;left:0;right:0;top:0;z-index:70;display:none;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;padding:9px 14px;background:#3a1416;border-bottom:1px solid #ff6b68;color:#ffd7d7;font-size:12.5px;line-height:1.4;box-shadow:0 2px 12px rgba(0,0,0,.5)}
+#storage-warn.on{display:flex}
+#storage-warn .sw-act{display:flex;gap:8px;flex-shrink:0}
+#storage-warn button{background:#ff6b68;border:0;color:#3a0d0d;font-weight:700;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer}
+#storage-warn button.sw-x{background:transparent;border:1px solid #ff6b6855;color:#ffb3b3;font-weight:600}
 @keyframes chargebanner{0%{opacity:0;transform:translate(-50%,18px) scale(.8)}18%{opacity:1;transform:translate(-50%,0) scale(1.04)}30%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px) scale(1)}}
 @media(max-width:390px){#tabbar button .lb{font-size:8px;letter-spacing:.4px}.rad,.rad-svg{width:30px;height:30px}}
 #tabbar button.on{color:var(--gold)}
@@ -155,7 +160,7 @@ body.youth #youth-banner{display:block}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.22.56</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.06.23.57</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -9027,7 +9032,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v56').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v56').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v57').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v57').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -9318,8 +9323,47 @@ function firstRunCreate(){
 window.maybeFirstRun=maybeFirstRun; window.firstRunCreate=firstRunCreate;
 const PREFIXES=['fuel-','arm-care-'];
 function liveKeys(){return Object.keys(localStorage).filter(k=>PREFIXES.some(p=>k.startsWith(p)));}
-function snapshotCurrent(){if(!profile)return;liveKeys().forEach(k=>localStorage.setItem('battery::'+profile+'::'+k,localStorage.getItem(k)));
-  localStorage.setItem('battery-live-owner',profile);}
+/* ===== STORAGE-FULL GUARDIAN (loss-prevention) =====
+   localStorage is capped (~5MB). When it fills, setItem throws — and the silent
+   try/catches in the persistence layer would quietly DROP the write, so the
+   continuous mirror + the in-app restore point would stop saving without a word:
+   the exact "I thought I was backed up" failure. safeSet() catches the quota
+   error and surfaces it LOUDLY (top banner + gear dot); a proactive size estimate
+   warns BEFORE the wall is hit. */
+var _storageFull=false, _storageWarnDismissed=false;
+function isQuotaErr(e){return !!(e&&(e.name==='QuotaExceededError'||e.name==='NS_ERROR_DOM_QUOTA_REACHED'||e.code===22||e.code===1014));}
+function safeSet(k,v){
+  try{ localStorage.setItem(k,v);
+    if(_storageFull){_storageFull=false;_storageWarnDismissed=false;try{showStorageWarn();}catch(e){}}   // a write went through → recovered
+    return true;
+  }catch(e){
+    if(isQuotaErr(e)){ _storageFull=true; try{showStorageWarn();}catch(_){} }
+    return false;
+  }
+}
+function storageBytes(){var n=0;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);n+=((k?k.length:0)+((localStorage.getItem(k)||'').length));}}catch(e){}return n*2;}   // UTF-16
+function storagePct(){return Math.min(100,Math.round(storageBytes()/5242880*100));}   // vs a conservative 5MB cap
+function storageRisk(){return getPeople().length>0 && (_storageFull || storageBytes()>4500000);}   // ~86% full → warn early
+function showStorageWarn(){
+  var risk=false; try{risk=storageRisk();}catch(e){risk=_storageFull;}
+  var g=document.getElementById('host-gear');
+  if(g){var stale=false;try{stale=getPeople().length>0&&backupStaleDays()>7;}catch(e){}g.classList.toggle('warn',risk||stale);}
+  var b=document.getElementById('storage-warn');
+  if(_storageFull && !_storageWarnDismissed){   // acute banner only when writes are actually FAILING
+    if(!b){
+      b=document.createElement('div'); b.id='storage-warn';
+      b.innerHTML='<span class="sw-msg">\u26a0 Storage is full \u2014 your latest changes may not be saving. Back up now and free space.</span>'+
+        '<span class="sw-act"><button onclick="batteryShareBackup()">Back up now</button>'+
+        '<button class="sw-x" onclick="window.dismissStorageWarn()">Dismiss</button></span>';
+      document.body.appendChild(b);
+    }
+    b.classList.add('on');
+  } else if(b){ b.classList.remove('on'); }
+}
+function dismissStorageWarn(){_storageWarnDismissed=true;var b=document.getElementById('storage-warn');if(b)b.classList.remove('on');}
+window.safeSet=safeSet; window.storagePct=storagePct; window.storageBytes=storageBytes; window.showStorageWarn=showStorageWarn; window.dismissStorageWarn=dismissStorageWarn;
+function snapshotCurrent(){if(!profile)return;liveKeys().forEach(k=>safeSet('battery::'+profile+'::'+k,localStorage.getItem(k)));
+  safeSet('battery-live-owner',profile);}
 function restoreProfile(){liveKeys().forEach(k=>localStorage.removeItem(k));if(!profile)return;const pre='battery::'+profile+'::';Object.keys(localStorage).filter(k=>k.startsWith(pre)).forEach(k=>localStorage.setItem(k.slice(pre.length),localStorage.getItem(k)));
   localStorage.setItem('battery-live-owner',profile);}
 /* CONTINUOUS PERSISTENCE — the live fuel and arm-care keys are mirrored to the active
@@ -9510,7 +9554,7 @@ function batteryAutoSnapshot(){
     if(!getPeople().length)return;           // nothing worth snapshotting yet
     const data=batteryCollectAll();
     const payload={app:'battery',kind:'full-backup',schema:1,exportedAt:new Date().toISOString(),activeProfile:profile,profiles:getPeople().map(p=>p.id),data:data};
-    localStorage.setItem('battery-auto-snapshot',JSON.stringify({at:new Date().toISOString(),payload:payload}));
+    safeSet('battery-auto-snapshot',JSON.stringify({at:new Date().toISOString(),payload:payload}));
   }catch(e){}
 }
 setInterval(batteryAutoSnapshot,120000);
@@ -9544,8 +9588,9 @@ function backupStaleDays(){
 }
 function checkBackupHealth(){
   const stale=getPeople().length>0 && backupStaleDays()>7;
-  var g=document.getElementById('host-gear'); if(g)g.classList.toggle('warn',stale);
-  return stale;
+  var risk=false; try{risk=storageRisk();}catch(e){}
+  var g=document.getElementById('host-gear'); if(g)g.classList.toggle('warn',stale||risk);
+  return stale||risk;
 }
 window.checkBackupHealth=checkBackupHealth; window.backupStaleDays=backupStaleDays;
 function batteryImportAll(file){
@@ -9623,11 +9668,15 @@ function renderDataView(){
     else{as.innerHTML='In-app restore point: none yet (auto-saves a couple minutes after use).';as.style.color='var(--faint)';}}
   const nudge=document.getElementById('data-nudge');
   if(nudge){const days=backupStaleDays();
+    var msgs=[];
+    try{ if(storageRisk()){ msgs.push('\u26a0 <b>Storage is '+storagePct()+'% full</b>'+(_storageFull?' \u2014 writes are failing NOW':' (almost out)')+'. Recent changes may stop saving \u2014 <b>Save / Share a file backup</b>, then remove an old profile or clear old data to free space.'); } }catch(e){}
     if(getPeople().length>0 && days>7){
       const txt=days===Infinity?'You have never saved a file backup on this device.':'Your last file backup is '+Math.floor(days)+' days old.';
-      nudge.style.display='block';
-      nudge.innerHTML='⚠ '+txt+' The in-app restore point is wiped if you delete the app — <b>Save / Share a file backup</b> to be truly safe.';
-    }else{nudge.style.display='none';}}
+      msgs.push('\u26a0 '+txt+' The in-app restore point is wiped if you delete the app \u2014 <b>Save / Share a file backup</b> to be truly safe.');
+    }
+    if(msgs.length){ nudge.style.display='block'; nudge.innerHTML=msgs.join('<hr style="border:0;border-top:1px solid var(--line);margin:8px 0">'); }
+    else nudge.style.display='none';
+  }
   try{checkBackupHealth();}catch(e){}
   const dv=document.getElementById('data-device');
   if(dv){
