@@ -8950,6 +8950,7 @@ body.youth #youth-banner{display:block}
 <div id="season-card" style="display:none"></div>
 <div class="gd-card gold"><h3>⚡ Game Day Fusion</h3><p>Pick a game from events (FUEL → Events) or set first pitch. BATTERY back-builds the prep — <span style="color:#ff6b68">arm (red)</span> + <span style="color:var(--goldb)">fuel (gold)</span>, one schedule.</p></div>
 <div class="evpick"><label>Game</label><select id="gd-event"><option value="">— manual —</option></select></div>
+<div class="evpick"><label>Date</label><input type="date" id="gd-date"></div>
 <div class="evpick"><label>First Pitch</label><input type="time" id="gd-time" value="09:00"></div>
 <button onclick="exportGameICS()" style="width:100%;background:#161b22;border:1px solid #3fb950;color:#3fb950;font-family:'SF Mono',monospace;font-size:13px;letter-spacing:1px;padding:13px;border-radius:11px;cursor:pointer;margin-bottom:14px">📅 ADD PREP TO CALENDAR</button>
 <div id="gd-out"></div>
@@ -9090,21 +9091,26 @@ function batteryModal(opts){
     var html='<div class="bm-card'+(o.danger?' danger':'')+'" role="dialog" aria-modal="true">';
     if(o.title)html+='<h3>'+o.title+'</h3>';
     if(o.body)html+='<div class="bm-body">'+o.body+'</div>';
-    if(o.input)html+='<input id="bm-input" type="'+(o.input.type||'text')+'"'+(o.input.type==='number'?' inputmode="numeric" min="0"':' autocapitalize="words"')+' placeholder="'+escHtml(o.input.placeholder||'')+'" value="'+escHtml(o.input.value==null?'':o.input.value)+'" autocomplete="off">';
+    function bmField(cfg,id){if(!cfg)return '';
+      var lab=cfg.label?'<div style="font-size:11px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;margin:6px 0 2px">'+escHtml(cfg.label)+'</div>':'';
+      var extra=cfg.type==='number'?' inputmode="numeric" min="0"':(cfg.type==='date'?'':' autocapitalize="words"');
+      return lab+'<input id="'+id+'" type="'+(cfg.type||'text')+'"'+extra+' placeholder="'+escHtml(cfg.placeholder||'')+'" value="'+escHtml(cfg.value==null?'':cfg.value)+'" autocomplete="off">';}
+    if(o.input)html+=bmField(o.input,'bm-input');
+    if(o.input2)html+=bmField(o.input2,'bm-input2');
     if(o.check)html+='<label class="bm-check"><input type="checkbox" id="bm-check"'+(o.check.checked?' checked':'')+'> '+o.check.label+'</label>';
     html+='<div class="bm-btns">';
     if(o.cancel!==false)html+='<button id="bm-cancel">'+(o.cancelLabel||'Cancel')+'</button>';
     html+='<button id="bm-ok" class="'+(o.danger?'dgr':'pri')+'">'+(o.okLabel||'OK')+'</button></div></div>';
     host.innerHTML=html; host.classList.add('on');
-    var inp=document.getElementById('bm-input'), chk=document.getElementById('bm-check');
+    var inp=document.getElementById('bm-input'), inp2=document.getElementById('bm-input2'), chk=document.getElementById('bm-check');
     function close(val){host.classList.remove('on');host.innerHTML='';document.removeEventListener('keydown',onKey);resolve(val);}
-    function ok(){close(inp?{value:inp.value,check:!!(chk&&chk.checked)}:true);}
-    function onKey(e){if(e.key==='Escape')close(null);else if(e.key==='Enter'&&(!inp||document.activeElement===inp))ok();}
+    function ok(){close((inp||inp2)?{value:inp?inp.value:'',value2:inp2?inp2.value:'',check:!!(chk&&chk.checked)}:true);}
+    function onKey(e){if(e.key==='Escape')close(null);else if(e.key==='Enter'&&(!inp||document.activeElement===inp||document.activeElement===inp2))ok();}
     document.getElementById('bm-ok').onclick=ok;
     var c=document.getElementById('bm-cancel'); if(c)c.onclick=function(){close(null);};
     host.onclick=function(e){if(e.target===host)close(null);};
     document.addEventListener('keydown',onKey);
-    if(inp){try{inp.focus();if(o.input.select)inp.select();}catch(e){}}
+    if(inp){try{inp.focus();if(o.input.select)inp.select();}catch(e){}}else if(inp2){try{inp2.focus();}catch(e){}}
   });
 }
 function modalConfirm(title,body,opts){opts=opts||{};return batteryModal({title:title,body:body,okLabel:opts.okLabel,danger:!!opts.danger}).then(function(r){return r===true;});}
@@ -10070,23 +10076,28 @@ function buildGameDay(){
  const cur=sel.value;sel.innerHTML='<option value="">— manual time —</option>'+games.map(e=>{const lbl=(e.notes||e.type),when=(e.d===0?'today':e.d+'d');return '<option value="'+e.date+'">'+lbl+' · '+e.date+' ('+when+')</option>';}).join('');
  if([...sel.options].some(o=>o.value===cur))sel.value=cur;
  const fp=(document.getElementById('gd-time').value||'09:00').split(':').map(Number);
- const base=new Date();base.setHours(fp[0],fp[1],0,0);const now=new Date();
+ const dateEl=document.getElementById('gd-date'),now=new Date();
+ const todayStr=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
+ if(dateEl&&!dateEl.value)dateEl.value=todayStr;                 // default the picker to today
+ const dStr=(dateEl&&dateEl.value)||todayStr, isToday=(dStr===todayStr);
+ const base=new Date(dStr+'T00:00:00');base.setHours(fp[0],fp[1],0,0);
  const dayof=youth?DAYOF_YOUTH:DAYOF,pre=youth?PRELOAD_YOUTH:PRELOAD;let out='';
  pre.slice().sort((a,b)=>b.d-a.d).forEach((p,i,arr)=>{if(i===0||arr[i-1].d!==p.d)out+='<h4 class="day">T-'+p.d+' · '+(p.d===2?'two days out':'day before')+'</h4>';out+='<div class="tl"><div class="ev '+p.tag+'"><span class="tag '+p.tag+'">'+p.tag.toUpperCase()+'</span><div class="what">'+p.what+'</div></div></div>';});
- out+='<h4 class="day">Game Day · first pitch '+fmt(base)+'</h4><div class="tl">';
+ out+='<h4 class="day">Game Day'+(isToday?'':' · '+base.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}))+' · first pitch '+fmt(base)+'</h4><div class="tl">';
  const times=dayof.map(p=>new Date(base.getTime()-p.off*60000));let ni=-1;for(let i=0;i<times.length;i++){if(times[i]>=now){ni=i;break}}
- dayof.forEach((p,i)=>{const t=times[i],diff=Math.round((t-now)/60000);let cd=diff>0?(diff>=60?'in '+Math.floor(diff/60)+'h '+diff%60+'m':'in '+diff+'m'):(diff>-6?'NOW':'done');out+='<div class="ev '+p.tag+(i===ni?' now':'')+'"><span class="time">'+fmt(t)+'</span><span class="tag '+p.tag+'">'+p.tag.toUpperCase()+'</span><div class="what">'+p.what+'</div><div class="cd">'+cd+'</div></div>';});
+ dayof.forEach((p,i)=>{const t=times[i],diff=Math.round((t-now)/60000);let cd=!isToday?'':(diff>0?(diff>=60?'in '+Math.floor(diff/60)+'h '+diff%60+'m':'in '+diff+'m'):(diff>-6?'NOW':'done'));out+='<div class="ev '+p.tag+(isToday&&i===ni?' now':'')+'"><span class="time">'+fmt(t)+'</span><span class="tag '+p.tag+'">'+p.tag.toUpperCase()+'</span><div class="what">'+p.what+'</div><div class="cd">'+cd+'</div></div>';});
  out+='</div>';if(games.length===0)out+='<div class="gd-empty" style="margin-top:16px"><b>Tip:</b> add games in FUEL → Events; they appear here with auto pre-load.</div>';
  document.getElementById('gd-out').innerHTML=out;}
 document.getElementById('gd-time').addEventListener('input',buildGameDay);
-document.getElementById('gd-event').addEventListener('change',buildGameDay);
+document.getElementById('gd-event').addEventListener('change',function(){var d=document.getElementById('gd-date'),s=document.getElementById('gd-event');if(d&&s.value)d.value=s.value;buildGameDay();});
+document.getElementById('gd-date').addEventListener('input',function(){var s=document.getElementById('gd-event');if(s)s.value='';buildGameDay();});
 
 /* ===== ICS CALENDAR EXPORT (the real iOS bridge — tap to Add) ===== */
 function exportGameICS(){
   const youth=(profileTier(profile)==='youth');
-  const sel=document.getElementById('gd-event');
-  const dateStr=sel.value; // YYYY-MM-DD or '' for manual -> use today
-  const base=new Date((dateStr||new Date().toISOString().slice(0,10))+'T00:00:00');
+  const dateEl=document.getElementById('gd-date');
+  const dateStr=(dateEl&&dateEl.value)||new Date().toISOString().slice(0,10); // the chosen date (defaults to today)
+  const base=new Date(dateStr+'T00:00:00');
   const fp=(document.getElementById('gd-time').value||'09:00').split(':').map(Number);
   base.setHours(fp[0],fp[1],0,0);
   const dayof=youth?DAYOF_YOUTH:DAYOF;
@@ -10154,16 +10165,23 @@ function pitchRestInfo(){
   return {last:last,rest:rest,cleared:cleared};
 }
 window.armGuardSetAge=function(v){if(!profile)return;setProfileAge(profile,v);buildOutlook();};
-window.armGuardLog=async function(){
+window.armGuardLog=async function(prefill){
   if(!profile)return;
+  prefill=prefill||{};
+  const editing=!!prefill.date;
   const age=profileAge(profile), b=pitchBand(age);
-  const r=await batteryModal({title:'Log outing — today',
-    body:'Total pitches thrown in today&rsquo;s outing.'+(b?' Pitch Smart daily max for age '+age+': <b>'+b.daily+'</b>.':''),
-    input:{type:'number',placeholder:'Pitches'},okLabel:'Log'});
+  const t=new Date(), todayKey=t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate());
+  const r=await batteryModal({title:editing?'Edit outing':'Log outing',
+    body:'Total pitches thrown'+(editing?' on this date.':' — set the date if it wasn’t today.')+(b?' Pitch Smart daily max for age '+age+': <b>'+b.daily+'</b>.':''),
+    input:{type:'number',placeholder:'Pitches',label:'Pitches',value:prefill.p!=null?prefill.p:''},
+    input2:{type:'date',label:'Date',value:prefill.date||todayKey},
+    okLabel:editing?'Save':'Log'});
   if(!r)return;
   const p=parseInt(r.value,10); if(!p||p<1)return;
-  const t=new Date(), key=t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate());
-  const log=readPitchLog().filter(function(e){return e.date!==key;});
+  var key=(r.value2||todayKey).trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(key))key=todayKey;       // guard a blank/invalid date
+  const origDate=prefill.date;                             // when editing, also drop the original row if the date was changed
+  const log=readPitchLog().filter(function(e){return e.date!==key && e.date!==origDate;});
   log.unshift({date:key,p:p}); writePitchLog(log);
   buildOutlook();
   if(b&&p>b.daily)await modalAlert('Over the daily max','That is '+(p-b.daily)+' pitches over the Pitch Smart daily max (<b>'+b.daily+'</b>) for age '+age+'. Extra rest — and a word with the coach — are in order.');
@@ -10255,7 +10273,7 @@ function renderArmGuardian(){
   }
   let recent='';
   log.slice(0,3).forEach(function(e){
-    recent+='<div style="display:flex;justify-content:space-between;font-family:\'SF Mono\',monospace;font-size:11px;color:var(--dim);padding:4px 0;border-top:1px solid var(--line)"><span>'+e.date+'</span><span>'+e.p+' pitches <span style="color:#ff6b68;cursor:pointer;padding:0 4px" onclick="armGuardRemove(\''+e.date+'\')">✕</span></span></div>';
+    recent+='<div style="display:flex;justify-content:space-between;font-family:\'SF Mono\',monospace;font-size:11px;color:var(--dim);padding:4px 0;border-top:1px solid var(--line)"><span>'+e.date+'</span><span><span style="cursor:pointer;border-bottom:1px dotted var(--faint)" onclick="armGuardLog({date:\''+e.date+'\',p:'+(+e.p||0)+'})" title="Tap to edit">'+e.p+' pitches</span> <span style="color:#ff6b68;cursor:pointer;padding:0 4px" onclick="armGuardRemove(\''+e.date+'\')" title="Remove">✕</span></span></div>';
   });
   host.innerHTML='<div class="gd-card" style="border-color:var(--blood)">'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><h3 style="margin:0">🛡 Arm Guardian</h3>'+
