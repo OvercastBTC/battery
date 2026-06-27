@@ -699,6 +699,12 @@ body.youth #youth-banner{display:block}
     letter-spacing: 0.05em;
     text-transform: uppercase;
     flex-shrink: 0;
+    /* 1.0 (Lane D): cap + wrap the badge so a long string (e.g. 10R+10L 2000g/4lb RPE 3)
+       can't grow the auto column and starve the 1fr text column, one-word-per-line target wrap. */
+    white-space: normal;
+    max-width: 100px;
+    text-align: center;
+    line-height: 1.3;
   }
   .step-detail {
     max-height: 0;
@@ -892,6 +898,7 @@ body.youth #youth-banner{display:block}
     .step-row { grid-template-columns: 38px 1fr auto; padding: 10px; }
     .check { width: 22px; height: 22px; }
     .step.done .check::after { font-size: 14px; }
+    .step-reps { max-width: 82px; padding: 4px 6px; }   /* 1.0: tighter badge cap on phones */
   }
 
   /* PLYO demo-clip button (lives inside .step-detail body) */
@@ -1206,22 +1213,164 @@ body.youth #youth-banner{display:block}
 
   <div class=&quot;card blue&quot; style=&quot;margin-top:8px&quot;>
     <div class=&quot;card-head&quot;>
-      <div class=&quot;card-title&quot;>▶ Band-Work Demos</div>
-      <span class=&quot;badge blue&quot;>10 clips</span>
+      <div class=&quot;card-title&quot;>Band-Work Extras</div>
+      <span class=&quot;badge blue&quot;>Optional · 10</span>
     </div>
-    <p style=&quot;font-size:12px;color:var(--dim);margin:6px 0 10px&quot;>A demonstrated band routine to watch and follow — complementary band exercises alongside the Jaeger series below. Tap the play buttons for each demo.</p>
-    <div style=&quot;display:flex;flex-wrap:wrap;gap:6px&quot;>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-rows.mp4')&quot;>▶ Rows</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-facepulls.mp4')&quot;>▶ Face Pulls</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-shouldercircles.mp4')&quot;>▶ Shoulder Circles</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-fwdback.mp4')&quot;>▶ Forward and Back</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-9090er.mp4')&quot;>▶ 90/90 External Rotation</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ir.mp4')&quot;>▶ Internal Rotation</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-triceps.mp4')&quot;>▶ Triceps Extension</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-as.mp4')&quot;>▶ A's</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ts.mp4')&quot;>▶ T's</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ys.mp4')&quot;>▶ Y's</button>
-    </div>
+    <p style=&quot;font-size:12px;color:var(--dim);margin:6px 0 10px&quot;>Complementary band exercises alongside the official Jaeger series below — <b>optional</b>, but now checkable and tracked like the rest. Tap the box to check one off (it counts as a <b>+bonus</b>, never gates the required daily ratio); tap the name for the cue and demo.</p>
+
+    <ul class=&quot;steplist&quot;>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-rows&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Rows <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Rhomboids · Mid-Back</div>
+          </div>
+          <div class=&quot;step-reps&quot;>25 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Band anchored in front at chest height. Pull the elbows straight back, squeeze the shoulder blades, slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-rows.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-facepull&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Face Pulls <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Rear Delt · Rotator Cuff</div>
+          </div>
+          <div class=&quot;step-reps&quot;>25 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Anchor at face height. Pull the band toward your face, elbows high, rotating the hands back at the end. Slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-facepulls.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-circles&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Shoulder Circles <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Cuff Activation</div>
+          </div>
+          <div class=&quot;step-reps&quot;>10 ea way</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Light band, arms out to the sides. Small, controlled circles — forward, then back. Activation, not strength.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-shouldercircles.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-fwdback&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Forward and Back <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Scapular Control</div>
+          </div>
+          <div class=&quot;step-reps&quot;>15 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Arms extended at shoulder height. Glide the shoulder blades forward (protract), then pull them back (retract). Controlled.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-fwdback.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-9090er&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>90/90 External Rotation <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Infraspinatus @ 90/90</div>
+          </div>
+          <div class=&quot;step-reps&quot;>25 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Elbow raised to shoulder height, bent 90°. Rotate the forearm up and back, then slow return. Keep the elbow up.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-9090er.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-ir&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Internal Rotation <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Subscapularis</div>
+          </div>
+          <div class=&quot;step-reps&quot;>25 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Elbow tucked to the side at 90°. Rotate the forearm in across the belly against the band, slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ir.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-triceps&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Triceps Extension <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Triceps</div>
+          </div>
+          <div class=&quot;step-reps&quot;>25 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Anchor high. Keep the elbow fixed at your side and extend the forearm down against the band. Slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-triceps.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-a&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>A's <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Lower Trap</div>
+          </div>
+          <div class=&quot;step-reps&quot;>15 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Hinge slightly forward, arms down. Raise the arms back and down into an A shape, thumbs out, squeezing low on the shoulder blades.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-as.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-t&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>T's <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Mid Trap</div>
+          </div>
+          <div class=&quot;step-reps&quot;>15 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Arms straight out to the sides into a T, thumbs up. Squeeze the shoulder blades together, slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ts.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-y&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Y's <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Lower Trap</div>
+          </div>
+          <div class=&quot;step-reps&quot;>15 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Raise the arms overhead into a Y, thumbs up. Drive it from the lower traps, not the neck. Slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ys.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+    </ul>
   </div>
 
   <div class=&quot;card gold&quot;>
@@ -5327,7 +5476,7 @@ body.youth #youth-banner{display:block}
     <div class=&quot;title-row&quot;>
       <div class=&quot;title-left&quot;>
         <h1 class=&quot;stencil&quot;>Fuel <span>// Stack</span></h1>
-        <div class=&quot;sub&quot;>Protein + Hydration · v1.0</div>
+        <div class=&quot;sub&quot;>Protein + Hydration</div>
       </div>
       <button class=&quot;collapse-toggle&quot; id=&quot;collapse-btn&quot; onclick=&quot;toggleControls()&quot; aria-label=&quot;Toggle controls&quot;>
         <span class=&quot;toggle-icon&quot;>▾</span>
@@ -7158,13 +7307,25 @@ body.youth #youth-banner{display:block}
     const t=computedTarget();
     try{ localStorage.setItem(sk, JSON.stringify({protein:t.protein, water:t.water})); }catch(e){}
   }
+  // Reconstruct a day's goal from its OWN stored day-type (never today's live selection).
+  // Only used as the no-snapshot fallback for past days.
+  function _targetForDayTypes(dayStr){
+    let types = dayStr ? String(dayStr).split(',').filter(d => DAY_TARGETS[d]) : [];
+    if(types.length === 0) types = ['train'];   // fixed baseline — NOT today's activeDays
+    let p = 0, w = 0;
+    types.forEach(d => { const T = DAY_TARGETS[d]; p = Math.max(p, T.protein); w = Math.max(w, T.water); });
+    return {protein:p, water:w};
+  }
   function _goalForDate(dateKey, isToday){
     // Snapshot wins for ANY day that has one (incl. today) — a later profile/goal
     // change must not retroactively move the bar on a day you already logged.
     try{ const raw=localStorage.getItem('fuel-goalsnap-'+dateKey);
       if(raw) return JSON.parse(raw); }catch(e){}
-    // No snapshot yet (e.g. today before first log): use the live target.
-    const t=computedTarget(); return {protein:t.protein, water:t.water};
+    // No snapshot. Today before its first log → the live target is correct.
+    if(isToday){ const t=computedTarget(); return {protein:t.protein, water:t.water}; }
+    // A PAST day with no snapshot (backfilled / pre-feature / never-logged): reconstruct
+    // from that day's OWN stored day-type, NOT today's live target (Lane D fix part 2).
+    return _targetForDayTypes(storeGet('fuel-day-'+dateKey, null));
   }
 
   function getTotals() {
@@ -7517,23 +7678,19 @@ body.youth #youth-banner{display:block}
   function classifyDay(daysAgo) {
     const key = dateKeyForOffset(daysAgo);
     const tot = getTotalsForDate(key);
-    // Reconstruct the target for that day from its stored day-types (or today's active)
+    // BATTERY (Lane D fix part 1): judge each day against the goal that was active THAT day —
+    // the frozen per-day snapshot via _goalForDate, the SAME source calcStreak uses — not the
+    // live DAY_TARGETS table, which floats with today's profile + day-type chip and made every
+    // past day's checkmark move when you changed today. dayTypes is kept below for the
+    // tooltip/label only; it no longer drives the threshold.
+    const target = _goalForDate(key, daysAgo === 0);
     let dayTypes = [];
-    if (tot.day) {
-      dayTypes = tot.day.split(',').filter(d => DAY_TARGETS[d]);
-    } else if (daysAgo === 0) {
-      dayTypes = Array.from(activeDays);
-    }
+    if (tot.day) dayTypes = tot.day.split(',').filter(d => DAY_TARGETS[d]);
+    else if (daysAgo === 0) dayTypes = Array.from(activeDays);
     if (dayTypes.length === 0) dayTypes = ['train'];
-    let p = 0, w = 0;
-    dayTypes.forEach(d => {
-      const T = DAY_TARGETS[d];
-      p = Math.max(p, T.protein); w = Math.max(w, T.water);
-    });
-    const target = { protein: p, water: w };
     if (tot.protein === 0 &amp;&amp; tot.water === 0) return { tier: 'empty', pPct: 0, wPct: 0, target, tot, dayTypes };
-    const pPct = tot.protein / target.protein;
-    const wPct = tot.water / target.water;
+    const pPct = target.protein > 0 ? tot.protein / target.protein : 0;
+    const wPct = target.water > 0 ? tot.water / target.water : 0;
     const both = (pPct >= 1) &amp;&amp; (wPct >= 1);
     const partial = (pPct >= 0.8) &amp;&amp; (wPct >= 0.8);
     return {
