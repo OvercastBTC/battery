@@ -5634,9 +5634,9 @@ body.youth #youth-banner{display:block}
         <span class=&quot;qa-amt&quot;>+26<span class=&quot;u&quot;>oz</span></span>
         <span class=&quot;qa-name&quot;>Ocean Bottle 26oz</span>
       </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(24, 'Yeti shaker')&quot;>
-        <span class=&quot;qa-amt&quot;>+24<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Yeti shaker 24oz</span>
+      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(27, 'Yeti shaker')&quot;>
+        <span class=&quot;qa-amt&quot;>+27<span class=&quot;u&quot;>oz</span></span>
+        <span class=&quot;qa-name&quot;>Yeti shaker 27oz</span>
       </button>
       <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(33.8, 'Smart Water 1L')&quot;>
         <span class=&quot;qa-amt&quot;>+33.8<span class=&quot;u&quot;>oz</span></span>
@@ -7988,7 +7988,7 @@ body.youth #youth-banner{display:block}
     } else {
       const opts = [];
       const yeti26 = Math.ceil(wGap / 26);
-      const yeti22 = Math.ceil(wGap / 22);
+      const yeti27 = Math.ceil(wGap / 27);
       const smart34 = Math.ceil(wGap / 33.8);
       if (wGap >= 80) {
         opts.push(`${yeti26} × 26oz Yeti`);
@@ -7996,11 +7996,11 @@ body.youth #youth-banner{display:block}
         opts.push(`${smart34} × 1L Smart Water (road)`);
       } else if (wGap >= 40) {
         opts.push(`${yeti26} × 26oz Yeti`);
-        opts.push(`${yeti22} × 22oz shaker`);
+        opts.push(`${yeti27} × 27oz shaker`);
         opts.push(`${smart34} × 1L Smart Water`);
       } else {
         opts.push(`1 × 26oz Yeti`);
-        opts.push(`${yeti22} × 22oz shaker`);
+        opts.push(`${yeti27} × 27oz shaker`);
       }
       // Recommend electrolytes if behind and none today
       if (tot.electrolytes < 1 &amp;&amp; wGap > 40) {
