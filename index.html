@@ -4784,6 +4784,9 @@ body.youth #youth-banner{display:block}
   .qa-btn.water .qa-amt { color: var(--blue); }
   .qa-btn.protein .qa-amt { color: var(--gold); }
   .qa-btn.electrolyte .qa-amt { color: var(--green); }
+  /* fuel-button category icons (steel glyph, inherits the category color) */
+  .qa-btn .qa-ico { display: inline-block; vertical-align: -2px; margin-right: 5px; opacity: 0.92; }
+  .qa-btn .qa-ico svg { width: 13px; height: 13px; display: block; }
   /* Youth safety gate (§4.3): supplement/stimulant quick-add hidden for youth */
   body.fuel-youth .qa-adult { display: none !important; }
 
@@ -9527,6 +9530,28 @@ body.youth #youth-banner{display:block}
     document.addEventListener('touchend', function(e){ cancel(); if(longFired){ e.preventDefault(); } }, {passive:false});
     document.addEventListener('contextmenu', function(e){ var chip=chipFrom(e); if(!chip) return; e.preventDefault(); openMenu(chip); });
     document.addEventListener('click', function(e){ if(longFired){ e.stopPropagation(); e.preventDefault(); longFired=false; return; } if(menu &amp;&amp; !menu.contains(e.target)) closeMenu(); }, true);
+  })();
+
+  /* ===== fuel-button category icons (steel glyph, currentColor by category) ===== */
+  (function(){
+    var ICO={
+      water:'<svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M12 3 C12 3 5 11 5 15 a7 7 0 0 0 14 0 C19 11 12 3 12 3 Z&quot;/></svg>',
+      elec:'<svg viewBox=&quot;0 0 24 24&quot; fill=&quot;currentColor&quot;><path d=&quot;M13 2 L4 14 h6 l-1 8 9-12 h-6 z&quot;/></svg>',
+      protein:'<svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.9&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M8 3 h8 l-1 4 1 13 a3 3 0 0 1-3 3 h-2 a3 3 0 0 1-3-3 l1-13 z&quot;/><path d=&quot;M7.5 9 h9&quot;/></svg>'
+    };
+    function paint(){
+      var btns=document.querySelectorAll('.qa-btn'); if(!btns.length) return;
+      btns.forEach(function(btn){
+        var amt=btn.querySelector('.qa-amt'); if(!amt || amt.querySelector('.qa-ico')) return;
+        var t=btn.classList.contains('water')?'water':(btn.classList.contains('electrolyte')?'elec':(btn.classList.contains('protein')?'protein':''));
+        if(!t || !ICO[t]) return;
+        var s=document.createElement('span'); s.className='qa-ico'; s.innerHTML=ICO[t];
+        amt.insertBefore(s, amt.firstChild);
+      });
+    }
+    window.batteryPaintQaIcons=paint;
+    if(document.readyState!=='loading') setTimeout(paint,300);
+    else document.addEventListener('DOMContentLoaded', function(){ setTimeout(paint,300); });
   })();
 
 </script>
