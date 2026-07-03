@@ -7183,6 +7183,20 @@ body.youth #youth-banner{display:block}
     raw.split(',').forEach(d => { if (DAY_TARGETS[d]) activeDays.add(d); });
     if (activeDays.size === 0) activeDays.add('train');
   })();
+  // DA A-FLAW 3: if ANOTHER same-origin window (installed PWA + a browser tab) changes the
+  // day-type, re-read + repaint here — otherwise this window's stale in-memory chips keep
+  // re-freezing today's goal snapshot with the old target (last-writer-wins flap).
+  window.addEventListener('storage', function(ev){
+    if (!ev || ev.key !== 'fuel-day') return;
+    try{
+      activeDays = new Set();
+      String(ev.newValue || 'train').split(',').forEach(d => { if (DAY_TARGETS[d]) activeDays.add(d); });
+      if (activeDays.size === 0) activeDays.add('train');
+      document.querySelectorAll('.day-chip').forEach(c => c.classList.toggle('active', activeDays.has(c.dataset.day)));
+      refreshTargets();
+      refreshProgress();
+    }catch(e){}
+  });
 
   // Computed combined target — max across all selected day-types
   function computedTarget() {
@@ -7510,7 +7524,21 @@ body.youth #youth-banner{display:block}
     // snapshot on every read, so at day rollover the frozen value = the user's LAST setting.
     if(isToday){
       const t=computedTarget();
-      try{ localStorage.setItem('fuel-goalsnap-'+dateKey, JSON.stringify({protein:t.protein, water:t.water})); }catch(e){}
+      try{
+        const sk='fuel-goalsnap-'+dateKey;
+        const hasEntries=(storeGet('fuel-entries-'+dateKey,'[]')||'[]').length>2;
+        if(hasEntries){
+          // compare-before-write: skip identical writes (iOS setItem is a sync flush,
+          // and this also narrows the multi-window last-writer race)
+          const next=JSON.stringify({protein:t.protein, water:t.water});
+          if(localStorage.getItem(sk)!==next) localStorage.setItem(sk, next);
+        } else {
+          // a day with NOTHING logged must never carry a frozen goal — otherwise a later
+          // backfill judges it against whatever chip happened to be lit when the app was
+          // merely OPENED that day (DA A-FLAW 1)
+          localStorage.removeItem(sk);
+        }
+      }catch(e){}
       return {protein:t.protein, water:t.water};
     }
     // PAST days: the frozen snapshot wins — a later profile/goal change must not
@@ -8254,7 +8282,7 @@ body.youth #youth-banner{display:block}
 
     // === ELECTROLYTE GUIDANCE ===
     const elec = tot.electrolytes;
-    if (elec === 0 &amp;&amp; (tot.water > 80 || activeDays.has('heavy'))) {
+    if (elec === 0 &amp;&amp; (tot.water > 80 || activeDays.has('heavy') || activeDays.has('game'))) {
       lines.push(`<div class=&quot;suggest-line&quot;><span class=&quot;gap water&quot;>⚡ Add electrolytes.</span> 0 sticks logged so far. Plain water at this volume risks dilution. 1 LIV or ½ LMNT covers it.</div>`);
     } else if (elec >= t.elecMax &amp;&amp; elec < t.elecWarn) {
       lines.push(`<div class=&quot;suggest-line&quot;><span class=&quot;gap&quot;>⚡ At ceiling.</span> ${elec} sticks; stay on plain water + food sodium the rest of the day.</div>`);
@@ -8987,6 +9015,9 @@ body.youth #youth-banner{display:block}
       if (water < 32) water = 32;
       const one = { protein: prot, water: water, label: 'Youth', elecMax: 0, elecWarn: 1 };
       DAY_TARGETS = { rest:{...one}, light:{...one}, train:{...one}, heavy:{...one}, game:{...one}, travel:{...one} };
+      // DA B-GAP: a youth GAME day in Central-Valley heat needs more WATER (water numbers are
+      // already youth-visible, so no 4.3 issue) — +25%, elec stays 0, protein stays flat.
+      DAY_TARGETS.game.water = Math.round(one.water * 1.25 / 5) * 5;
       return { baseWater:water, baseProtein:prot, gkg:1.1, kg:Math.round(kg*10)/10,
                stimAdj:0,hotAdj:0,sexAdj:0,ageAdj:0,frameMult:1, youth:true };
     };
@@ -9252,7 +9283,7 @@ body.youth #youth-banner{display:block}
       var p=(typeof loadProfile==='function'?loadProfile():null)||{};
       var env=(envMap[temp]!=null)?envMap[temp]:(p.hot?1:0);
       var exertion=0;
-      try{ if(activeDays.has('heavy')) exertion=2; else if(activeDays.has('train')) exertion=1; }catch(e){}
+      try{ if(activeDays.has('heavy') || activeDays.has('game')) exertion=2; else if(activeDays.has('train')) exertion=1; }catch(e){}
       var amps=[]; var trt=getTrt();
       if(p.stim) amps.push('stim');
       if(trt.on) amps.push('trt');
