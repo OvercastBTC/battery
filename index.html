@@ -4224,6 +4224,36 @@ body.youth #youth-banner{display:block}
     border-color: var(--dim);
     color: var(--dim);
   }
+  /* 6.2: time-of-day pace line */
+  .pace-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0 2px;
+    padding: 7px 10px;
+    border: 1px solid rgba(110,118,129,0.35);
+    background: rgba(110,118,129,0.07);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--dim);
+  }
+  .pace-line b { color: var(--bone); }
+  .pace-line .ahead  { color: var(--green); font-weight: 700; }
+  .pace-line .behind { color: var(--blood); font-weight: 700; }
+  .pace-line .onpace { color: var(--gold);  font-weight: 700; }
+  .pace-wake { display: inline-flex; align-items: center; white-space: nowrap; }
+  .pace-wake input[type=time] {
+    background: #0d1117;
+    border: 1px solid rgba(110,118,129,0.4);
+    color: var(--bone);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    margin-left: 4px;
+  }
   .day-help {
     font-size: 10px;
     color: var(--dim);
@@ -5687,6 +5717,11 @@ body.youth #youth-banner{display:block}
         </span>
       </div>
       <div class=&quot;bar&quot;><div class=&quot;bar-fill water&quot; id=&quot;water-bar&quot; style=&quot;width:0%&quot;></div></div>
+    </div>
+    <!-- 6.2: time-of-day pace — where you'd typically be right now, given your wake time -->
+    <div class=&quot;pace-line&quot; id=&quot;pace-line&quot; style=&quot;display:none&quot;>
+      <span id=&quot;pace-txt&quot;></span>
+      <span class=&quot;pace-wake&quot;>day starts&nbsp;<input type=&quot;time&quot; id=&quot;wake-time&quot; value=&quot;07:00&quot; onchange=&quot;saveWakeTime()&quot;></span>
     </div>
     <div class=&quot;status-row&quot; id=&quot;status-row&quot;>
       <!-- dynamic flags injected here -->
@@ -7533,6 +7568,9 @@ body.youth #youth-banner{display:block}
     // Status flags
     renderStatusFlags(tot, t);
 
+    // 6.2: time-of-day pace line
+    renderPaceLine(t, tot);
+
     // Mirror today's totals to the host shell (same pattern as arm-care's bat-counts)
     try { parent.postMessage({ type:'bat-fuel', water:Math.round(tot.water), protein:Math.round(tot.protein), tWater:t.water, tProtein:t.protein, day:t.label }, '*'); } catch (e) {}
 
@@ -7541,6 +7579,45 @@ body.youth #youth-banner{display:block}
     refreshMiniStats();
     refreshWeekly();
     refreshSuggestions();
+  }
+
+  /* ===== 6.2: TIME-OF-DAY PACE (owner) =====
+     Where you'd typically be right now, pacing the day's target linearly across the
+     active window: wake time (fuel-wake, default 07:00, per-profile via storeSet
+     mirroring) -> 10pm. Same window the Fueling Runway uses, so verdicts agree. */
+  function wakeHours(){
+    const m = /^(\d{1,2}):(\d{2})$/.exec(storeGet('fuel-wake','07:00') || '');
+    return m ? Math.min(12, Math.max(3, (+m[1]) + (+m[2])/60)) : 7;
+  }
+  function saveWakeTime(){
+    const el = document.getElementById('wake-time');
+    if (el &amp;&amp; /^\d{1,2}:\d{2}$/.test(el.value)) storeSet('fuel-wake', el.value);
+    refreshProgress();
+  }
+  function initWakeTime(){
+    const el = document.getElementById('wake-time');
+    if (el) el.value = storeGet('fuel-wake','07:00');
+  }
+  function _paceChip(delta, unit){
+    if (Math.abs(delta) <= (unit === 'g' ? 8 : 6)) return `<span class=&quot;onpace&quot;>on pace</span>`;
+    return delta > 0
+      ? `<span class=&quot;ahead&quot;>+${Math.round(delta)}${unit} ahead</span>`
+      : `<span class=&quot;behind&quot;>${Math.round(Math.abs(delta))}${unit} behind</span>`;
+  }
+  function renderPaceLine(t, tot){
+    const el = document.getElementById('pace-line'), tx = document.getElementById('pace-txt');
+    if (!el || !tx) return;
+    const END = 22, wk = wakeHours();
+    const now = new Date(), hr = now.getHours() + now.getMinutes()/60;
+    const frac = (hr - wk) / Math.max(1, END - wk);
+    // hide before the day starts or once it's over (the bars + streak carry the story then)
+    if (frac <= 0 || frac >= 1){ el.style.display = 'none'; return; }
+    const expP = t.protein * frac, expW = t.water * frac;
+    const pDone = tot.protein >= t.protein, wDone = tot.water >= t.water;
+    const pBit = pDone ? `<span class=&quot;ahead&quot;>✓ done</span>` : _paceChip(tot.protein - expP, 'g');
+    const wBit = wDone ? `<span class=&quot;ahead&quot;>✓ done</span>` : _paceChip(tot.water - expW, 'oz');
+    tx.innerHTML = `⏱ by now ≈ <span class=&quot;qa-adult&quot;><b>${Math.round(expP)}g</b> · </span><b>${Math.round(expW)}oz</b> → <span class=&quot;qa-adult&quot;>protein ${pBit} · </span>water ${wBit}`;
+    el.style.display = 'flex';
   }
 
   function renderStatusFlags(tot, t) {
@@ -8492,6 +8569,7 @@ body.youth #youth-banner{display:block}
     }
     applyCollapsed();
     initProfileUI();
+    initWakeTime();
     refreshProfilePrompt();
     refreshTargets();
     refreshFavorites();
@@ -9050,9 +9128,11 @@ body.youth #youth-banner{display:block}
       if(wLeft>0) bits.push('<b style=&quot;color:#58a6ff&quot;>'+wLeft+'oz</b> water');
       const remain = bits.length? bits.join(' · ')+' to go' : '<span style=&quot;color:#3fb950&quot;>goals hit ✓</span>';
 
-      // time-of-day pace (eating window 7a–10p) — so we never call someone &quot;behind&quot; when they're on pace mid-day
+      // time-of-day pace (eating window wake–10p; wake = the 6.2 fuel-wake setting) —
+      // so we never call someone &quot;behind&quot; when they're on pace mid-day
       var _now=new Date(), _hr=_now.getHours()+_now.getMinutes()/60;
-      var _frac=Math.min(1,Math.max(0,(_hr-7)/15));
+      var _wk=(typeof wakeHours==='function')?wakeHours():7;
+      var _frac=Math.min(1,Math.max(0,(_hr-_wk)/Math.max(1,22-_wk)));
       function paceState(consumed,target){ if(target<=0||consumed>=target) return 'done'; var exp=target*_frac; if(exp<=0.01) return 'early'; var r=consumed/exp; return r>=1.05?'ahead':r>=0.85?'onpace':'behind'; }
 
       if(isYouth){
