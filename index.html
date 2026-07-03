@@ -4278,6 +4278,35 @@ body.youth #youth-banner{display:block}
     border-radius: 4px;
     margin-left: 4px;
   }
+  /* 1.2: relational water estimator */
+  .est-sel {
+    flex: 1;
+    min-width: 0;
+    background: #0d1117;
+    border: 1px solid rgba(88,166,255,0.35);
+    color: var(--bone);
+    font-size: 12px;
+    padding: 8px 6px;
+    border-radius: 8px;
+  }
+  .est-row { margin-top: 4px; }
+  .est-preview {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--blue);
+    min-height: 15px;
+    margin: 4px 2px 0;
+  }
+  .est-cal { display: inline-flex; align-items: center; gap: 4px; margin: 4px 0; }
+  .est-cal input {
+    width: 54px;
+    background: #0d1117;
+    border: 1px solid rgba(88,166,255,0.35);
+    color: var(--bone);
+    font-size: 12px;
+    padding: 3px 5px;
+    border-radius: 6px;
+  }
   .day-help {
     font-size: 10px;
     color: var(--dim);
@@ -5804,6 +5833,29 @@ body.youth #youth-banner{display:block}
         <span class=&quot;qa-name&quot;>Glass / cup</span>
       </button>
     </div>
+
+    <!-- 1.2: relational measures — no bottle, no problem. Estimates, clearly labeled. -->
+    <div class=&quot;qa-subgroup-label&quot; style=&quot;margin-top:14px&quot;>
+      ≈ No bottle? Estimate it
+      <span class=&quot;qa-info-toggle&quot; onclick=&quot;toggleEstInfo()&quot; title=&quot;What's this?&quot;>(?)</span>
+    </div>
+    <div class=&quot;qa-mixin-info&quot; id=&quot;est-info&quot; style=&quot;display:none&quot;>
+      These are <b>estimates, not measurements</b> — swallow size varies person to person (published studies: roughly ½–1oz per adult swallow, about ½oz for kids; cooler cone cups ≈4oz; flat cooler cups ≈7oz). Count your swallows or cups and log the estimate. <b>Calibrate yours:</b> drink a cup you KNOW the size of, count the swallows it takes, and set your gulp size here:
+      <span class=&quot;est-cal&quot;>my gulp ≈ <input type=&quot;number&quot; id=&quot;gulp-oz&quot; min=&quot;0.25&quot; max=&quot;3&quot; step=&quot;0.25&quot; onchange=&quot;saveGulpSize()&quot;> oz</span>
+      <br>Estimates help you keep score — they don't replace drinking when you're thirsty, especially in the heat.
+    </div>
+    <div class=&quot;caf-row est-row&quot;>
+      <select id=&quot;est-vessel&quot; class=&quot;est-sel&quot; onchange=&quot;updateEstPreview()&quot;>
+        <option value=&quot;gulp&quot;>Fountain / bottle gulps</option>
+        <option value=&quot;bigGulp&quot;>Big thirsty gulps (≈2oz)</option>
+        <option value=&quot;cone&quot;>Cooler cone cups (≈4oz)</option>
+        <option value=&quot;cooler&quot;>Cooler flat cups (≈7oz)</option>
+        <option value=&quot;small&quot;>Small paper cups (≈3oz)</option>
+      </select>
+      <input type=&quot;number&quot; id=&quot;est-count&quot; class=&quot;caf-amt&quot; placeholder=&quot;how many&quot; min=&quot;1&quot; max=&quot;99&quot; oninput=&quot;updateEstPreview()&quot;>
+      <button class=&quot;caf-add-btn&quot; onclick=&quot;addEstWater()&quot;>Add ≈</button>
+    </div>
+    <div class=&quot;est-preview&quot; id=&quot;est-preview&quot;></div>
 
     <div class=&quot;qa-subgroup-label qa-adult&quot; style=&quot;margin-top:14px&quot;>
       Mix-ins · electrolytes only (no water added)
@@ -7448,6 +7500,60 @@ body.youth #youth-banner{display:block}
     if (p > 0)                       { addProtein(p, label); return; }
     if (w > 0)                       { addWater(w, label, el); return; }
     if (el > 0)                      { addMixIn(label, el); return; }
+  }
+  /* ===== 1.2: RELATIONAL WATER — estimate presets (sourced; see est-info copy) =====
+     Adult single swallow ~20-30mL (~1oz) [Nilsson 1996, n=292]; controlled sip ~0.5oz
+     [Halpern 1994 / Watson 1983]; kids 8-14 ~0.5oz [Watson 1983]; cone cup 4oz,
+     flat cooler cup 7oz, small paper cup 3oz [manufacturer specs]. Gulp size is
+     user-calibratable (fuel-gulp-oz, per-profile) per Adv Physiol Educ 2021. */
+  const EST_VESSELS = {
+    gulp:    { oz: 0, label: 'gulps' },      // 0 = per-user calibrated gulp
+    bigGulp: { oz: 2, label: 'big gulps' },
+    cone:    { oz: 4, label: 'cone cups' },
+    cooler:  { oz: 7, label: 'cooler cups' },
+    small:   { oz: 3, label: 'small cups' }
+  };
+  function gulpOz(){
+    const v = parseFloat(storeGet('fuel-gulp-oz',''));
+    if (v > 0) return Math.min(3, Math.max(0.25, v));
+    return document.body.classList.contains('fuel-youth') ? 0.5 : 1;
+  }
+  function saveGulpSize(){
+    const el = document.getElementById('gulp-oz');
+    const v = parseFloat(el ? el.value : '');
+    if (v > 0) storeSet('fuel-gulp-oz', String(Math.min(3, Math.max(0.25, v))));
+    updateEstPreview();
+  }
+  function toggleEstInfo(){
+    const el = document.getElementById('est-info');
+    if (!el) return;
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    const g = document.getElementById('gulp-oz');
+    if (g &amp;&amp; !g.value) g.value = gulpOz();
+  }
+  function estOzFor(vessel, n){
+    const s = EST_VESSELS[vessel]; if (!s) return 0;
+    const per = s.oz > 0 ? s.oz : gulpOz();
+    return Math.round(per * n * 10) / 10;
+  }
+  function updateEstPreview(){
+    const el = document.getElementById('est-preview'); if (!el) return;
+    const v = document.getElementById('est-vessel').value;
+    const n = parseInt(document.getElementById('est-count').value, 10);
+    if (!(n > 0)) { el.textContent = ''; return; }
+    const per = EST_VESSELS[v].oz > 0 ? EST_VESSELS[v].oz : gulpOz();
+    el.textContent = '≈ ' + estOzFor(v, n) + 'oz (' + n + ' × ' + per + 'oz)';
+  }
+  function addEstWater(){
+    const v = document.getElementById('est-vessel').value;
+    const nEl = document.getElementById('est-count');
+    const n = parseInt(nEl.value, 10);
+    if (!(n > 0)) { nEl.focus(); return; }
+    const oz = estOzFor(v, n);
+    if (!(oz > 0)) return;
+    addWater(oz, '≈ ' + n + ' ' + EST_VESSELS[v].label);
+    nEl.value = '';
+    updateEstPreview();
   }
   function addCustomWater() {
     const amt = parseFloat(document.getElementById('custom-water-amt').value);
