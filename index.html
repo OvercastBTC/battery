@@ -966,6 +966,10 @@ body.youth #youth-banner{display:block}
   .plyo-youth-only { display: none; }
   body.youth .plyo-youth-only { display: block; }
   body.youth .plyo-heavy { display: none; }
+  /* generic youth gates (4.3) — same mechanism, page-agnostic */
+  .youth-only { display: none; }
+  body.youth .youth-only { display: block; }
+  body.youth .youth-hide { display: none; }
 
   /* Shared in-iframe demo-clip modal (dark overlay, matches host #bmodal) */
   #clip-modal {
@@ -2437,6 +2441,7 @@ body.youth #youth-banner{display:block}
   <h2>Recovery</h2>
   <p class=&quot;lede&quot;>Bauer's recovery is as systematic as his warmup. Marc Pro is his signature tool, but the principles work without it.</p>
 
+  <div class=&quot;youth-hide&quot;>
   <div class=&quot;card gold&quot;>
     <div class=&quot;card-head&quot;>
       <div class=&quot;card-title&quot;>Post-Throwing Stack</div>
@@ -2461,6 +2466,25 @@ body.youth #youth-banner{display:block}
 
   <div class=&quot;warn&quot;>
     <strong>Skip recovery once, no problem. Skip three sessions in a row,</strong> and that's where adult arms break down mid-season.
+  </div>
+  </div>
+
+  <!-- 4.3: youth recovery — no quantified macros, no devices, no plunge/sauna protocols -->
+  <div class=&quot;youth-only&quot;>
+    <div class=&quot;card gold&quot;>
+      <div class=&quot;card-head&quot;>
+        <div class=&quot;card-title&quot;>Recovery for Kids</div>
+        <span class=&quot;badge gold&quot;>The Free Stuff Works Best</span>
+      </div>
+      <ul>
+        <li><b>1. Sleep</b> — the #1 recovery tool at every age. Growing athletes need 9–11 hours.</li>
+        <li><b>2. Water</b> — drink when you're thirsty, extra on hot days.</li>
+        <li><b>3. Real food</b> — a normal meal or snack after you play. That's it.</li>
+        <li><b>4. Rest days</b> — your arm gets stronger on the days you DON'T throw.</li>
+        <li><b>5. Tell a grown-up</b> — if your arm HURTS (not just feels tired), say so. Never throw through pain.</li>
+      </ul>
+      <div class=&quot;cue&quot;>&quot;The single biggest recovery tool I have is sleep. Everything else is supplementary.&quot; — Bauer. True in the big leagues, true in Little League.</div>
+    </div>
   </div>
 </div>
 
