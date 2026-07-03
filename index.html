@@ -4021,6 +4021,7 @@ body.youth #youth-banner{display:block}
     --d-light:  #3fb950;
     --d-train:  #d4a017;
     --d-heavy:  #f85149;
+    --d-game:   #ff9d3f;
     --d-travel: #bc8cff;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -4190,7 +4191,39 @@ body.youth #youth-banner{display:block}
   .day-chip[data-day=&quot;light&quot;].active  { background: var(--d-light);  border-color: var(--d-light);  }
   .day-chip[data-day=&quot;train&quot;].active  { background: var(--d-train);  border-color: var(--d-train);  }
   .day-chip[data-day=&quot;heavy&quot;].active  { background: var(--d-heavy);  border-color: var(--d-heavy);  }
+  .day-chip[data-day=&quot;game&quot;].active   { background: var(--d-game);   border-color: var(--d-game);   }
   .day-chip[data-day=&quot;travel&quot;].active { background: var(--d-travel); border-color: var(--d-travel); }
+  /* 1.1 surprise: game-on-the-calendar nudge */
+  .game-nudge {
+    margin: 8px 0 0;
+    padding: 9px 12px;
+    border: 1px solid var(--d-game);
+    background: rgba(255,157,63,0.08);
+    font-size: 12px;
+    color: var(--bone);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .game-nudge button {
+    background: var(--d-game);
+    border: 1px solid var(--d-game);
+    color: #0d1117;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .game-nudge button.gn-dismiss {
+    background: transparent;
+    border-color: var(--dim);
+    color: var(--dim);
+  }
   .day-help {
     font-size: 10px;
     color: var(--dim);
@@ -5562,9 +5595,15 @@ body.youth #youth-banner{display:block}
           <div class=&quot;day-chip&quot; data-day=&quot;light&quot; onclick=&quot;toggleDay('light')&quot;>Light</div>
           <div class=&quot;day-chip active&quot; data-day=&quot;train&quot; onclick=&quot;toggleDay('train')&quot;>Train</div>
           <div class=&quot;day-chip&quot; data-day=&quot;heavy&quot; onclick=&quot;toggleDay('heavy')&quot;>Heavy</div>
+          <div class=&quot;day-chip&quot; data-day=&quot;game&quot; onclick=&quot;toggleDay('game')&quot;>Game</div>
           <div class=&quot;day-chip&quot; data-day=&quot;travel&quot; onclick=&quot;toggleDay('travel')&quot;>Travel</div>
         </div>
-        <div class=&quot;day-help&quot;>Tap to combine (e.g. Travel + Train). Targets take the highest demand; ceilings adjust accordingly. <b>Heavy</b> = a hard-throwing or field day; your Hot Climate profile setting adds the extra hot-weather water on top automatically.</div>
+        <div class=&quot;day-help&quot;>Tap to combine (e.g. Travel + Train). Targets take the highest demand; ceilings adjust accordingly. <b>Heavy</b> = a hard-throwing or field day; <b>Game</b> = a game day (long hours at the field — the biggest hydration day); your Hot Climate profile setting adds the extra hot-weather water on top automatically.</div>
+        <div class=&quot;game-nudge&quot; id=&quot;game-nudge&quot; style=&quot;display:none&quot;>
+          <span>🎯 <b>Game on the calendar today.</b> Switch to GAME targets?</span>
+          <button onclick=&quot;applyGameNudge()&quot;>Set Game</button>
+          <button class=&quot;gn-dismiss&quot; onclick=&quot;dismissGameNudge()&quot;>Not today</button>
+        </div>
       </div>
 
       <div class=&quot;goal-row&quot;>
@@ -6063,6 +6102,10 @@ body.youth #youth-banner{display:block}
       <div class=&quot;ptg-cell&quot;>
         <div class=&quot;ptg-label&quot;>Heavy</div>
         <div class=&quot;ptg-row&quot;><span class=&quot;ptg-p&quot; id=&quot;pt-heavy-p&quot;>—</span><span class=&quot;ptg-w&quot; id=&quot;pt-heavy-w&quot;>—</span></div>
+      </div>
+      <div class=&quot;ptg-cell&quot;>
+        <div class=&quot;ptg-label&quot;>Game</div>
+        <div class=&quot;ptg-row&quot;><span class=&quot;ptg-p&quot; id=&quot;pt-game-p&quot;>—</span><span class=&quot;ptg-w&quot; id=&quot;pt-game-w&quot;>—</span></div>
       </div>
       <div class=&quot;ptg-cell&quot;>
         <div class=&quot;ptg-label&quot;>Travel</div>
@@ -6978,6 +7021,7 @@ body.youth #youth-banner{display:block}
     light:  { protein: 170, water: 170, label: 'Light',  elecMax: 3, elecWarn: 4 },
     train:  { protein: 180, water: 200, label: 'Train',  elecMax: 4, elecWarn: 5 },
     heavy:  { protein: 200, water: 230, label: 'Heavy',  elecMax: 6, elecWarn: 7 },
+    game:   { protein: 190, water: 240, label: 'Game',   elecMax: 6, elecWarn: 7 },
     travel: { protein: 190, water: 175, label: 'Travel', elecMax: 4, elecWarn: 5 }
   };
   // Mutable working copy
@@ -7047,6 +7091,10 @@ body.youth #youth-banner{display:block}
       light:  { protein: baseProtein - 10, water: baseWater + 20,    label: 'Light',  elecMax: p.hot ? 4 : 3, elecWarn: p.hot ? 5 : 4 },
       train:  { protein: baseProtein,      water: baseWater + 50,    label: 'Train',  elecMax: p.hot ? 5 : 4, elecWarn: p.hot ? 6 : 5 },
       heavy:  { protein: baseProtein + 15, water: baseWater + (p.hot ? 110 : 80), label: 'Heavy',  elecMax: p.hot ? 7 : 5, elecWarn: p.hot ? 8 : 6 },
+      // Game day (owner 1.1): long hours AT the field (warmups + game + between-inning sun) =
+      // the biggest hydration day, slightly above Heavy; protein modestly above baseline
+      // (recovery matters, but a game isn't a max-effort lift day — Heavy keeps the protein crown).
+      game:   { protein: baseProtein + 10, water: baseWater + (p.hot ? 120 : 90), label: 'Game',   elecMax: p.hot ? 7 : 5, elecWarn: p.hot ? 8 : 6 },
       travel: { protein: baseProtein + 10, water: baseWater + 25,    label: 'Travel', elecMax: p.hot ? 5 : 4, elecWarn: p.hot ? 6 : 5 }
     };
     // Floor protein values
@@ -7118,6 +7166,30 @@ body.youth #youth-banner{display:block}
     refreshProgress();
     refreshSuggestions();
     refreshWeekly();
+    maybeGameNudge();
+  }
+
+  /* 1.1 surprise: if the calendar has a game TODAY and the GAME day-type isn't set,
+     offer a one-tap switch. Dismiss is remembered per day (fuel-gamenudge-<date>). */
+  function maybeGameNudge(){
+    const el = document.getElementById('game-nudge'); if(!el) return;
+    const key = todayKey();
+    let show = false;
+    try{
+      const hasGame = loadEvents().some(e => e.type==='game' &amp;&amp; e.date===key);
+      const dismissed = storeGet('fuel-gamenudge-'+key,'') === '1';
+      show = hasGame &amp;&amp; !activeDays.has('game') &amp;&amp; !dismissed;
+    }catch(e){}
+    el.style.display = show ? 'flex' : 'none';
+  }
+  function applyGameNudge(){
+    if(!activeDays.has('game')) toggleDay('game');
+    storeSet('fuel-gamenudge-'+todayKey(),'1');
+    maybeGameNudge();
+  }
+  function dismissGameNudge(){
+    storeSet('fuel-gamenudge-'+todayKey(),'1');
+    maybeGameNudge();
   }
   // Legacy single-select alias retained for any older code paths
   function setDay(d) {
@@ -7924,6 +7996,7 @@ body.youth #youth-banner{display:block}
     document.getElementById('event-notes').value = '';
     refreshEventsDisplay();
     refreshSuggestions();
+    maybeGameNudge();
   }
 
   async function removeEvent(id) {
@@ -8326,7 +8399,7 @@ body.youth #youth-banner{display:block}
     }
 
     // Always show computed targets in the grid (whether from saved profile or defaults)
-    ['rest','light','train','heavy','travel'].forEach(k => {
+    ['rest','light','train','heavy','game','travel'].forEach(k => {
       const T = DAY_TARGETS[k];
       const elP = document.getElementById(`pt-${k}-p`);
       const elW = document.getElementById(`pt-${k}-w`);
@@ -8352,9 +8425,9 @@ body.youth #youth-banner{display:block}
       document.getElementById('pd-protein').innerHTML =
         `<b>Protein baseline:</b> ${details.kg}kg × ${details.gkg} g/kg (${p ? p.goal : 'preserve'}) × ${details.frameMult} frame${details.kg > 100 ? ' · >100kg attenuated' : ''} = <b>${details.baseProtein}g</b>`;
       document.getElementById('pd-adjust').innerHTML =
-        `<b>Day scaling:</b> Rest −20g/±0oz · Light −10g/+20oz · Train baseline/+50oz · Heavy +15g/+${src.hot ? '110' : '80'}oz · Travel +10g/+25oz`;
+        `<b>Day scaling:</b> Rest −20g/±0oz · Light −10g/+20oz · Train baseline/+50oz · Heavy +15g/+${src.hot ? '110' : '80'}oz · Game +10g/+${src.hot ? '120' : '90'}oz · Travel +10g/+25oz`;
       document.getElementById('pd-final').innerHTML =
-        `<b>Elec ceilings:</b> Rest ${DAY_TARGETS.rest.elecMax} · Light ${DAY_TARGETS.light.elecMax} · Train ${DAY_TARGETS.train.elecMax} · Heavy ${DAY_TARGETS.heavy.elecMax} · Travel ${DAY_TARGETS.travel.elecMax}${src.hot ? ' (raised for heat)' : ''}`;
+        `<b>Elec ceilings:</b> Rest ${DAY_TARGETS.rest.elecMax} · Light ${DAY_TARGETS.light.elecMax} · Train ${DAY_TARGETS.train.elecMax} · Heavy ${DAY_TARGETS.heavy.elecMax} · Game ${DAY_TARGETS.game.elecMax} · Travel ${DAY_TARGETS.travel.elecMax}${src.hot ? ' (raised for heat)' : ''}`;
     } else {
       document.getElementById('pd-baseline').textContent = 'Built-in defaults · 300lb male · stimulant + CV heat.';
       document.getElementById('pd-protein').textContent = 'Save a profile to recalculate from your numbers.';
@@ -8426,6 +8499,7 @@ body.youth #youth-banner{display:block}
     refreshLog();
     refreshSuggestions();
     refreshEventsDisplay();
+    maybeGameNudge();
   });
 
   /* ===== EXPORT / IMPORT (BATTERY data backup) ===== */
@@ -8810,7 +8884,7 @@ body.youth #youth-banner{display:block}
       let water = Math.round(p.weightLb * 0.5 / 5) * 5;
       if (water < 32) water = 32;
       const one = { protein: prot, water: water, label: 'Youth', elecMax: 0, elecWarn: 1 };
-      DAY_TARGETS = { rest:{...one}, light:{...one}, train:{...one}, heavy:{...one}, travel:{...one} };
+      DAY_TARGETS = { rest:{...one}, light:{...one}, train:{...one}, heavy:{...one}, game:{...one}, travel:{...one} };
       return { baseWater:water, baseProtein:prot, gkg:1.1, kg:Math.round(kg*10)/10,
                stimAdj:0,hotAdj:0,sexAdj:0,ageAdj:0,frameMult:1, youth:true };
     };
