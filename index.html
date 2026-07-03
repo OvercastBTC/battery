@@ -1003,7 +1003,7 @@ body.youth #youth-banner{display:block}
     <div class=&quot;title-row&quot;>
       <div class=&quot;title-left&quot;>
         <h1 class=&quot;stencil&quot;>Bauer <span>// Arm Care</span></h1>
-        <div class=&quot;sub&quot;>Protocol · v3.4</div>
+        <div class=&quot;sub&quot;>Protocol</div>
       </div>
       <button class=&quot;collapse-toggle&quot; id=&quot;collapse-btn&quot; onclick=&quot;toggleControls()&quot; aria-label=&quot;Toggle controls&quot;>
         <span class=&quot;toggle-icon&quot;>▾</span>
@@ -3334,7 +3334,7 @@ body.youth #youth-banner{display:block}
 </div>
 
 <footer>
-  <div>BAUER ARM CARE + WASHINGTON DRILLS · v3.4 · <span class=&quot;v&quot;>PROTOCOL</span></div>
+  <div>BAUER ARM CARE + WASHINGTON DRILLS · <span class=&quot;v&quot;>PROTOCOL</span></div>
   <div style=&quot;margin-top: 6px;&quot;>DAILY · ALL POSITIONS · SAVE TO HOME SCREEN</div>
 </footer>
 
@@ -9000,7 +9000,7 @@ body.youth #youth-banner{display:block}
   (function(){
     function setBuild(){ var el=document.getElementById('fuel-build'); if(!el) return;
       var v=''; try{ v=(parent.document.getElementById('ver-stamp').textContent||'').trim(); }catch(e){}
-      el.textContent = v ? 'build '+v : 'v3'; }
+      el.textContent = v ? 'build '+v : 'live'; }
     if(document.readyState!=='loading') setTimeout(setBuild,440);
     else document.addEventListener('DOMContentLoaded',function(){ setTimeout(setBuild,440); });
   })();
