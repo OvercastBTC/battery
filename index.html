@@ -7317,12 +7317,20 @@ body.youth #youth-banner{display:block}
     return {protein:p, water:w};
   }
   function _goalForDate(dateKey, isToday){
-    // Snapshot wins for ANY day that has one (incl. today) — a later profile/goal
-    // change must not retroactively move the bar on a day you already logged.
+    // TODAY always follows the LIVE target (owner 1.0): the progress row, GOAL-HIT chips,
+    // pips and streak must all agree with the target the user has set RIGHT NOW. A snapshot
+    // frozen at first log broke that — change the day-type after breakfast and the pip/streak
+    // judged you against a stale goal while the bar said 107% hit. We re-sync today's
+    // snapshot on every read, so at day rollover the frozen value = the user's LAST setting.
+    if(isToday){
+      const t=computedTarget();
+      try{ localStorage.setItem('fuel-goalsnap-'+dateKey, JSON.stringify({protein:t.protein, water:t.water})); }catch(e){}
+      return {protein:t.protein, water:t.water};
+    }
+    // PAST days: the frozen snapshot wins — a later profile/goal change must not
+    // retroactively move the bar on a day already logged.
     try{ const raw=localStorage.getItem('fuel-goalsnap-'+dateKey);
       if(raw) return JSON.parse(raw); }catch(e){}
-    // No snapshot. Today before its first log → the live target is correct.
-    if(isToday){ const t=computedTarget(); return {protein:t.protein, water:t.water}; }
     // A PAST day with no snapshot (backfilled / pre-feature / never-logged): reconstruct
     // from that day's OWN stored day-type, NOT today's live target (Lane D fix part 2).
     return _targetForDayTypes(storeGet('fuel-day-'+dateKey, null));
