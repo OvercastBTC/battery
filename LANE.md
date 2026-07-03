@@ -120,7 +120,10 @@ Full goals, acceptance checks, models, and risks are in `HANDOFF.md §12.2`.
 
 Both lanes bump these every release. To avoid fighting:
 
-- **Next NN to claim:** **`.57`** → stamp `26.06.22.57`, cache `battery-v57`.  (`.56` = combined release SHIPPED `8579a09` — PR #1 week-card + Lane A fuel-security + comms-setup + Heat Guardian — by Lane A acting as release engineer while Lane B was offline. Earlier `.21`–`.55` consumed; see `HANDOFF.md §10`.)
+- **Next NN to claim:** **`.61`** (`.57`-`.60` consumed by Lane B releases; `.60` = jband-extras batch; owner hotfix 7fb8720 rode after `.60` unstamped.)
+- **READY (2026-07-03): `laneA/owner-batch-0703` (5a6b170)** — the full July-3 owner batch (15 commits: 1.0 goal-mismatch fix, 2.0 28oz vessels, 3.0 version-word sweep, 1.1 GAME day-type + calendar nudge, 6.1.1 consolidated J-Band list + optionals toggle, 6.2 pace line + wake setting, 1.2 relational water estimator, 4.3 youth Recovery leak fix, DA hardening, re-cut J-Band clips + 3 new demos, press-hold + fuel-icons merges [owner-approved], 1.3 first-run input fix [host, flagged], steel tabbar glyphs [host/Lane-C domain, flagged]). Gate: 186 checks / 20 suites / 0 fail. Lane B: gate + stamp + ship.
+
+- (superseded) former Next-NN note: **`.57`** → stamp `26.06.22.57`, cache `battery-v57`.  (`.56` = combined release SHIPPED `8579a09` — PR #1 week-card + Lane A fuel-security + comms-setup + Heat Guardian — by Lane A acting as release engineer while Lane B was offline. Earlier `.21`–`.55` consumed; see `HANDOFF.md §10`.)
 - **Rule:** when you take an NN, immediately set this line to the next free NN and push (the §10 log entry is the source of truth). If both grab `.21`, the second pusher's `git pull` conflicts on these two lines → take the higher and bump to `.22`.
 - Both live in the HOST region (Lane B's region): `#ver-stamp` text + the `battery-vNN` template literal in the PWA/SW block. **Lane A:** when you ship an iframe-only change, you still must bump them — edit just those two lines in the host region (that is the one allowed cross-region touch) and note it; or hand the stamp bump to Lane B if you're shipping back-to-back. Coordinate here.
 
