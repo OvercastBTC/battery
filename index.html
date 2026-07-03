@@ -706,6 +706,50 @@ body.youth #youth-banner{display:block}
     text-align: center;
     line-height: 1.3;
   }
+  /* 6.1.1: optional-extras divider + enable/disable toggle */
+  .step-divider {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 16px 0 6px;
+    padding: 8px 10px;
+    border: 1px dashed rgba(212,160,23,0.35);
+    background: rgba(212,160,23,0.05);
+    list-style: none;
+  }
+  .step-divider span {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  #jx-toggle {
+    background: var(--gold);
+    border: 1px solid var(--gold);
+    color: #0d1117;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    padding: 4px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  #jx-toggle.off {
+    background: transparent;
+    border-color: var(--dim);
+    color: var(--dim);
+  }
+  /* extras disabled: present but grayed, not expandable/checkable */
+  #page-jbands.jx-off .step.opt {
+    opacity: 0.35;
+    pointer-events: none;
+    filter: grayscale(60%);
+  }
+  #page-jbands.jx-off .step.opt .step-detail { max-height: 0 !important; }
   .step-detail {
     max-height: 0;
     overflow: hidden;
@@ -1190,7 +1234,7 @@ body.youth #youth-banner{display:block}
 
 <!-- ============== J-BANDS ============== -->
 <div class=&quot;page&quot; id=&quot;page-jbands&quot;>
-  <h2>J-Bands · 11 Exercises + Bonus #12</h2>
+  <h2>J-Bands · Official 11 + Optional Extras</h2>
   <p class=&quot;lede&quot;>Created by Alan Jaeger. Bauer's been doing this exact routine since age 12. The bands have light tension by design — these target small rotator cuff muscles, not biceps.</p>
 
   <div class=&quot;card gold&quot; style=&quot;margin-top:8px&quot;>
@@ -1211,168 +1255,6 @@ body.youth #youth-banner{display:block}
     </div>
   </div>
 
-  <div class=&quot;card blue&quot; style=&quot;margin-top:8px&quot;>
-    <div class=&quot;card-head&quot;>
-      <div class=&quot;card-title&quot;>Band-Work Extras</div>
-      <span class=&quot;badge blue&quot;>Optional · 10</span>
-    </div>
-    <p style=&quot;font-size:12px;color:var(--dim);margin:6px 0 10px&quot;>Complementary band exercises alongside the official Jaeger series below — <b>optional</b>, but now checkable and tracked like the rest. Tap the box to check one off (it counts as a <b>+bonus</b>, never gates the required daily ratio); tap the name for the cue and demo.</p>
-
-    <ul class=&quot;steplist&quot;>
-
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-rows&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>Rows <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Rhomboids · Mid-Back</div>
-          </div>
-          <div class=&quot;step-reps&quot;>25 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Band anchored in front at chest height. Pull the elbows straight back, squeeze the shoulder blades, slow return.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-rows.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
-
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-facepull&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>Face Pulls <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Rear Delt · Rotator Cuff</div>
-          </div>
-          <div class=&quot;step-reps&quot;>25 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Anchor at face height. Pull the band toward your face, elbows high, rotating the hands back at the end. Slow return.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-facepulls.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
-
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-circles&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>Shoulder Circles <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Cuff Activation</div>
-          </div>
-          <div class=&quot;step-reps&quot;>10 ea way</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Light band, arms out to the sides. Small, controlled circles — forward, then back. Activation, not strength.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-shouldercircles.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
-
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-fwdback&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>Forward and Back <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Scapular Control</div>
-          </div>
-          <div class=&quot;step-reps&quot;>15 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Arms extended at shoulder height. Glide the shoulder blades forward (protract), then pull them back (retract). Controlled.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-fwdback.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
-
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-9090er&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>90/90 External Rotation <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Infraspinatus @ 90/90</div>
-          </div>
-          <div class=&quot;step-reps&quot;>25 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Elbow raised to shoulder height, bent 90°. Rotate the forearm up and back, then slow return. Keep the elbow up.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-9090er.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
-
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-ir&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>Internal Rotation <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Subscapularis</div>
-          </div>
-          <div class=&quot;step-reps&quot;>25 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Elbow tucked to the side at 90°. Rotate the forearm in across the belly against the band, slow return.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ir.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
-
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-triceps&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>Triceps Extension <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Triceps</div>
-          </div>
-          <div class=&quot;step-reps&quot;>25 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Anchor high. Keep the elbow fixed at your side and extend the forearm down against the band. Slow return.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-triceps.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
-
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-a&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>A's <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Lower Trap</div>
-          </div>
-          <div class=&quot;step-reps&quot;>15 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Hinge slightly forward, arms down. Raise the arms back and down into an A shape, thumbs out, squeezing low on the shoulder blades.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-as.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
-
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-t&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>T's <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Mid Trap</div>
-          </div>
-          <div class=&quot;step-reps&quot;>15 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Arms straight out to the sides into a T, thumbs up. Squeeze the shoulder blades together, slow return.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ts.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
-
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-y&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>Y's <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Lower Trap</div>
-          </div>
-          <div class=&quot;step-reps&quot;>15 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Raise the arms overhead into a Y, thumbs up. Drive it from the lower traps, not the neck. Slow return.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ys.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
-
-    </ul>
-  </div>
-
   <div class=&quot;card gold&quot;>
     <div class=&quot;card-head&quot;>
       <div class=&quot;card-title&quot;>Protocol</div>
@@ -1388,7 +1270,7 @@ body.youth #youth-banner{display:block}
     <div class=&quot;cue&quot;>If 25 reps feels too easy, ADD reps (35, 45). Don't add band tension — bigger muscles will take over and defeat the purpose.</div>
   </div>
 
-  <p style=&quot;font-size:12px;color:var(--dim);margin:14px 0 12px&quot;>Tap the box to check off. Tap the name to expand details. Progress saves to this device.</p>
+  <p style=&quot;font-size:12px;color:var(--dim);margin:14px 0 12px&quot;>Tap the box to check off. Tap the name to expand details. Progress saves to this device. One list, top to bottom: the official Jaeger 11, the bonus wrist series, then the optional extras — optionals count as <b>+bonus</b> and never gate the daily ratio. The toggle below the bonus row grays the extras out if you want the short routine.</p>
 
   <ul class=&quot;steplist&quot;>
 
@@ -1580,6 +1462,161 @@ body.youth #youth-banner{display:block}
         <em>Not in original Jaeger 11, but critical for release point control. Especially important for 1B (pick scoops) and catchers (snap throws).</em>
       </div>
     </li>
+
+    <li class=&quot;step-divider&quot; id=&quot;jx-divider&quot;>
+      <span>Optional extras · complementary band work · +bonus</span>
+      <button id=&quot;jx-toggle&quot; onclick=&quot;toggleJxExtras()&quot;>ON</button>
+    </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-rows&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Rows <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Rhomboids · Mid-Back</div>
+          </div>
+          <div class=&quot;step-reps&quot;>25 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Band anchored in front at chest height. Pull the elbows straight back, squeeze the shoulder blades, slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-rows.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-facepull&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Face Pulls <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Rear Delt · Rotator Cuff</div>
+          </div>
+          <div class=&quot;step-reps&quot;>25 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Anchor at face height. Pull the band toward your face, elbows high, rotating the hands back at the end. Slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-facepulls.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-circles&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Shoulder Circles <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Cuff Activation</div>
+          </div>
+          <div class=&quot;step-reps&quot;>10 ea way</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Light band, arms out to the sides. Small, controlled circles — forward, then back. Activation, not strength.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-shouldercircles.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-fwdback&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Forward and Back <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Scapular Control</div>
+          </div>
+          <div class=&quot;step-reps&quot;>15 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Arms extended at shoulder height. Glide the shoulder blades forward (protract), then pull them back (retract). Controlled.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-fwdback.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-9090er&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>90/90 External Rotation <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Infraspinatus @ 90/90</div>
+          </div>
+          <div class=&quot;step-reps&quot;>25 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Elbow raised to shoulder height, bent 90°. Rotate the forearm up and back, then slow return. Keep the elbow up.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-9090er.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-ir&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Internal Rotation <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Subscapularis</div>
+          </div>
+          <div class=&quot;step-reps&quot;>25 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Elbow tucked to the side at 90°. Rotate the forearm in across the belly against the band, slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ir.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-triceps&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Triceps Extension <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Triceps</div>
+          </div>
+          <div class=&quot;step-reps&quot;>25 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Anchor high. Keep the elbow fixed at your side and extend the forearm down against the band. Slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-triceps.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-a&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>A's <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Lower Trap</div>
+          </div>
+          <div class=&quot;step-reps&quot;>15 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Hinge slightly forward, arms down. Raise the arms back and down into an A shape, thumbs out, squeezing low on the shoulder blades.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-as.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-t&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>T's <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Mid Trap</div>
+          </div>
+          <div class=&quot;step-reps&quot;>15 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Arms straight out to the sides into a T, thumbs up. Squeeze the shoulder blades together, slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ts.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
+
+      <li class=&quot;step opt&quot; data-ex=&quot;jx-y&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>Y's <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
+            <div class=&quot;step-target&quot;>Lower Trap</div>
+          </div>
+          <div class=&quot;step-reps&quot;>15 reps</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Raise the arms overhead into a Y, thumbs up. Drive it from the lower traps, not the neck. Slow return.</p>
+          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ys.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
+        </div>
+      </li>
 
   </ul>
 </div>
@@ -3374,14 +3411,31 @@ body.youth #youth-banner{display:block}
   // 2.0: a step is OPTIONAL (excluded from the required daily ratio, still tracked) if it
   // carries .opt or lives in a page flagged data-optional (e.g. Daily Extras, bonus drills).
   function stepOptional(s){ const pg=s.closest('.page'); return s.classList.contains('opt') || !!(pg && pg.dataset.optional); }
+  /* 6.1.1: J-Band optional extras can be switched OFF — grayed out, not checkable,
+     and excluded from the +bonus count entirely (checked history is kept, just hidden). */
+  function jxEnabled(){ return storeGet('arm-care-jx-enabled','1') !== '0'; }
+  function jxDisabledStep(s){ return !jxEnabled() && s.classList.contains('opt') && !!s.closest('#page-jbands'); }
   function groupCount(g){
     let done=0,total=0,optDone=0,optTotal=0;
     document.querySelectorAll('.step').forEach(s=>{
       if(stepGroup(s)!==g) return;
+      if(jxDisabledStep(s)) return;
       if(stepOptional(s)){ optTotal++; if(s.classList.contains('done')) optDone++; }
       else { total++; if(s.classList.contains('done')) done++; }
     });
     return {done:done,total:total,optDone:optDone,optTotal:optTotal};
+  }
+  function applyJxExtras(){
+    const pg = document.getElementById('page-jbands');
+    const btn = document.getElementById('jx-toggle');
+    const on = jxEnabled();
+    if(pg) pg.classList.toggle('jx-off', !on);
+    if(btn){ btn.textContent = on ? 'ON' : 'OFF'; btn.classList.toggle('off', !on); }
+  }
+  function toggleJxExtras(){
+    storeSet('arm-care-jx-enabled', jxEnabled() ? '0' : '1');
+    applyJxExtras();
+    updateCounter();
   }
   function postCounts(){ try{ parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills'),body:groupCount('body')},'*'); }catch(e){} }
   function applyGroup(group){
@@ -3678,6 +3732,7 @@ body.youth #youth-banner{display:block}
   loadPositions();
   setBonus(parseInt(storeGet('arm-care-bonus', '0'), 10));
   loadDone();
+  applyJxExtras();   // 6.1.1: restore the optional-extras ON/OFF state
   // Restore collapse state
   if (storeGet('arm-care-collapsed', '0') === '1') {
     document.body.classList.add('controls-collapsed');
