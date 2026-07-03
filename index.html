@@ -5626,17 +5626,17 @@ body.youth #youth-banner{display:block}
 
     <div class=&quot;qa-subgroup-label&quot;>Containers · water only</div>
     <div class=&quot;qa-grid&quot;>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(26, 'Yeti 26oz')&quot;>
-        <span class=&quot;qa-amt&quot;>+26<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Yeti Rambler 26oz</span>
+      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(28, 'Yeti 28oz')&quot;>
+        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz</span></span>
+        <span class=&quot;qa-name&quot;>Yeti Rambler 28oz</span>
       </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(26, 'Ocean Bottle')&quot;>
-        <span class=&quot;qa-amt&quot;>+26<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Ocean Bottle 26oz</span>
+      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(28, 'Ocean Bottle')&quot;>
+        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz</span></span>
+        <span class=&quot;qa-name&quot;>Ocean Bottle 28oz</span>
       </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(27, 'Yeti shaker')&quot;>
-        <span class=&quot;qa-amt&quot;>+27<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Yeti shaker 27oz</span>
+      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(28, 'Yeti shaker')&quot;>
+        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz</span></span>
+        <span class=&quot;qa-name&quot;>Yeti shaker 28oz</span>
       </button>
       <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(33.8, 'Smart Water 1L')&quot;>
         <span class=&quot;qa-amt&quot;>+33.8<span class=&quot;u&quot;>oz</span></span>
@@ -5700,13 +5700,13 @@ body.youth #youth-banner{display:block}
 
     <div class=&quot;qa-subgroup-label qa-adult&quot; style=&quot;margin-top:14px&quot;>Shaker + Liquid IV · water + ⚡ in one tap</div>
     <div class=&quot;qa-grid qa-adult&quot;>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addItem({water:24,elec:1,label:'24oz shaker + Liquid IV'})&quot;>
-        <span class=&quot;qa-amt&quot;>+24<span class=&quot;u&quot;>oz ⚡</span></span>
-        <span class=&quot;qa-name&quot;>24oz shaker + Liquid IV</span>
+      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addItem({water:28,elec:1,label:'28oz shaker + Liquid IV'})&quot;>
+        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz ⚡</span></span>
+        <span class=&quot;qa-name&quot;>28oz shaker + Liquid IV</span>
       </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addItem({water:24,elec:1,label:'24oz shaker + Liquid IV Energy'})&quot;>
-        <span class=&quot;qa-amt&quot;>+24<span class=&quot;u&quot;>oz ⚡</span></span>
-        <span class=&quot;qa-name&quot;>24oz shaker + Liquid IV Energy</span>
+      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addItem({water:28,elec:1,label:'28oz shaker + Liquid IV Energy'})&quot;>
+        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz ⚡</span></span>
+        <span class=&quot;qa-name&quot;>28oz shaker + Liquid IV Energy</span>
       </button>
     </div>
 
@@ -7995,20 +7995,20 @@ body.youth #youth-banner{display:block}
       lines.push(`<div class=&quot;suggest-line&quot;><span class=&quot;gap water met&quot;>✓ Water hit.</span> ${Math.round(tot.water - t.water)}oz over — keep sipping, watch electrolytes.</div>`);
     } else {
       const opts = [];
-      const yeti26 = Math.ceil(wGap / 26);
-      const yeti27 = Math.ceil(wGap / 27);
+      // 2.0: every named vessel is the single 28oz size (= Powerade/Gatorade bottle)
+      const yeti28 = Math.ceil(wGap / 28);
       const smart34 = Math.ceil(wGap / 33.8);
       if (wGap >= 80) {
-        opts.push(`${yeti26} × 26oz Yeti`);
+        opts.push(`${yeti28} × 28oz Yeti`);
         opts.push('Front-load 2 right now');
         opts.push(`${smart34} × 1L Smart Water (road)`);
       } else if (wGap >= 40) {
-        opts.push(`${yeti26} × 26oz Yeti`);
-        opts.push(`${yeti27} × 27oz shaker`);
+        opts.push(`${yeti28} × 28oz Yeti`);
+        opts.push(`${yeti28} × 28oz shaker`);
         opts.push(`${smart34} × 1L Smart Water`);
       } else {
-        opts.push(`1 × 26oz Yeti`);
-        opts.push(`${yeti27} × 27oz shaker`);
+        opts.push(`1 × 28oz Yeti`);
+        opts.push(`${yeti28} × 28oz shaker`);
       }
       // Recommend electrolytes if behind and none today
       if (tot.electrolytes < 1 &amp;&amp; wGap > 40) {
