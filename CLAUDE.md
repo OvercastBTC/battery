@@ -54,12 +54,23 @@ A youth-tier profile must **never** see: supplement / stimulant / dosing / quant
 ## 5. How to Test
 
 Test harness (authoritative): `~/battery-tests/run.sh`
-Runs **11 Playwright tests** against the current `index.html`:
-`iframe-render`, `arm-history`, `persistence`, `export-scope`, `unified-export`, `import-roundtrip`, `profile-mgmt`, `youth-fuel-gate`, `today-view`, `e7-host`, `fuel-dual-credit`.
+Runs the **full Playwright gate (21 tests as of .63)** against the current `index.html` — `run.sh` is the authoritative list. Originals: `iframe-render`, `arm-history`, `persistence`, `export-scope`, `unified-export`, `import-roundtrip`, `profile-mgmt`, `youth-fuel-gate`, `today-view`, `e7-host`, `fuel-dual-credit`; added since: `icon-gauge`, `flow-mode`, `clip-playback`, `iframe-modal`, `demo-data`, `arm-guardian`, `consistency`, `week-report`, `icon-nudge`, `storage-warn`.
 
 `node --check` on the host `<script>` block is a useful quick check, but **it does not catch srcdoc breakage** (HTML encoding masks truncation from the parser). The Playwright gate is authoritative for all iframe edits.
 
 Run order: `node --check` first (fast), then `~/battery-tests/run.sh` (definitive).
+
+### Multi-lane gating — run from an ISOLATED copy
+`~/battery-tests/` is SHARED across local lanes (A/B/C) and `run.sh` stages the build to `app-fixed.html` **in its own dir**, so two lanes gating at once clobber each other's staged file (and browser). Gate from a private copy:
+
+```bash
+rm -rf /tmp/bt-laneX && mkdir /tmp/bt-laneX
+cp ~/battery-tests/*.mjs ~/battery-tests/run.sh ~/battery-tests/package.json /tmp/bt-laneX/
+ln -sfn ~/battery-tests/node_modules /tmp/bt-laneX/node_modules
+cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
+```
+
+`run.sh` derives its dir from `$0`, so staging into that private copy can't be clobbered (`app-buggy` still builds via `git -C $BATTERY_REPO show df9b1b7`). Verify the staged stamp before/after to detect a clobber. **Never** `pkill -9 chrome-headless-shell` globally — it kills every lane's browser; scope any cleanup to your own run. And **never push a shared-`~/battery-tests` test edit that references an unshipped feature** — it reds clean `master` for all lanes; keep it in your isolated copy until the impl is on `master` (or land test + impl together), and flag ahead-of-master test edits in comms.
 
 ## 6. Two-Lane / Release Protocol
 
@@ -73,7 +84,8 @@ Run order: `node --check` first (fast), then `~/battery-tests/run.sh` (definitiv
 ### Lane B — VS Code session (host shell + sole release engineer)
 - Worktree: `/Users/bacona/battery-laneB` (shares the same `.git`).
 - Scope: host shell changes AND the full release pipeline for both lanes.
-- Release steps: merge `laneA/*` into `master` → run final DA + full checklist → run full Playwright gate → bump `#ver-stamp` (YY.MM.DD.NN) + SW cache name → commit → `git push origin master` (deploys) → append `HANDOFF.md §10` entry.
+- Release steps: merge `laneA/*` into `master` → run final DA + full checklist → run full Playwright gate → bump `#ver-stamp` (YY.MM.DD.NN) + SW cache name → commit → push to `master` (deploys) → append `HANDOFF.md §10` entry.
+- **Deploy remote:** `origin` = SSH (`git@github.com`). If `:22` is flaky (seen 6/26–7/3, intermittent — not a key issue), SSH is routed over GitHub's `ssh.github.com:443` in `~/.ssh/config` (host keys fingerprint-verified). Fallback: the `ghhttps` HTTPS remote (`https://github.com/OvercastBTC/battery.git`; large clip pushes need `git config http.postBuffer 524288000`). Both reach the same `master` — always FF-verify (`git merge-base --is-ancestor <remote>/master HEAD`) before pushing.
 - **Single writer of `master`.** Single gate before deploy.
 
 `laneA/*` branches are visible in Lane B's worktree without pushing (shared `.git`).
