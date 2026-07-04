@@ -4029,9 +4029,57 @@ body.youth #youth-banner{display:block}
       renderShelf();
       celebrate(idx);
     };
+    /* 4.0 (owner): cross-store sticker triggers — water-goal days + sleep streaks.
+       Read-only same-origin reads: FUEL keys (fuel-entries-/fuel-goalsnap-, padded
+       YYYY-MM-DD = same as dayStr()) and the host sleep store
+       (battery::<id>::sleep-<Y-M-D>, NON-padded to match the host's key builder).
+       Awards land on the same shelf with one-per-day guards; no seam changes. */
+    function sleepKeyFor(offset){ var d=new Date(); d.setDate(d.getDate()-offset); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+    function awardCross(kind){
+      var key = 'arm-care-sticker-' + dayStr() + '-' + kind;
+      if(localStorage.getItem(key)) return;
+      localStorage.setItem(key, '1');
+      var earned = load();
+      var idx = earned.length % NAMES.length;
+      earned.push({ d: dayStr(), g: kind, i: idx });
+      save(earned);
+      renderShelf();
+      celebrate(idx);
+    }
+    window.maybeAwardCrossStickers = function(){
+      if(!isYouth()) return;
+      try{ // water-goal day: today's logged water vs today's goal snapshot
+        var k = dayStr();
+        var raw = localStorage.getItem('fuel-entries-' + k);
+        var snap = localStorage.getItem('fuel-goalsnap-' + k);
+        if(raw && snap){
+          var w = 0;
+          (JSON.parse(raw) || []).forEach(function(e){ if(e && e.type === 'water') w += (+e.amount || 0); });
+          var g = JSON.parse(snap) || {};
+          if(g.water > 0 && w >= g.water) awardCross('water');
+        }
+      }catch(e){}
+      try{ // sleep streak: every 3rd consecutive logged night (3, 6, 9, ...)
+        var id = localStorage.getItem('battery-profile');
+        if(id){
+          var streak = 0;
+          for(var i=0; i<30; i++){
+            if(localStorage.getItem('battery::' + id + '::sleep-' + sleepKeyFor(i))) streak++;
+            else break;
+          }
+          if(streak >= 3 && streak % 3 === 0) awardCross('sleep');
+        }
+      }catch(e){}
+    };
+    // Re-check whenever the host surfaces this iframe (tab switch / poll) — the kid
+    // hits the water goal in FUEL, the sticker pops when they come back to ARM.
+    window.addEventListener('message', function(e){
+      var d = e && e.data;
+      if(d && (d.type === 'bat-group' || d.type === 'bat-poll')) setTimeout(window.maybeAwardCrossStickers, 250);
+    });
     window.batteryRenderShelf = renderShelf;
-    if(document.readyState!=='loading') setTimeout(renderShelf, 320);
-    else document.addEventListener('DOMContentLoaded', function(){ setTimeout(renderShelf, 320); });
+    if(document.readyState!=='loading') setTimeout(function(){ renderShelf(); window.maybeAwardCrossStickers(); }, 320);
+    else document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ renderShelf(); window.maybeAwardCrossStickers(); }, 320); });
   })();
 </script>
 
@@ -4291,6 +4339,12 @@ body.youth #youth-banner{display:block}
   .pace-line .ahead  { color: var(--green); font-weight: 700; }
   .pace-line .behind { color: var(--blood); font-weight: 700; }
   .pace-line .onpace { color: var(--gold);  font-weight: 700; }
+  /* 3.0 (owner): tracked-areas opt-out — untracked area's surfaces disappear;
+     judgment functions substitute 'met' so streak/pips run on tracked areas only. */
+  body.fuel-noprot .trk-prot, body.fuel-noprot .quickadd-section.protein { display: none !important; }
+  body.fuel-nowater .trk-water, body.fuel-nowater .quickadd-section.water { display: none !important; }
+  .trk-chip { display:inline-block; padding:7px 14px; margin:4px 6px 0 0; border:1px solid var(--line-bright); border-radius:999px; font-size:12px; color:var(--dim); cursor:pointer; user-select:none; }
+  .trk-chip.on { border-color: var(--green); color: var(--green); background: var(--green-dim); }
   .pace-wake { display: inline-flex; align-items: center; white-space: nowrap; }
   .pace-wake input[type=time] {
     background: #0d1117;
@@ -5691,11 +5745,11 @@ body.youth #youth-banner{display:block}
         <span class=&quot;summary-label&quot;>Day</span>
         <span class=&quot;summary-val&quot; id=&quot;summary-day&quot;>Train</span>
       </div>
-      <div class=&quot;summary-pill&quot;>
+      <div class=&quot;summary-pill trk-prot&quot;>
         <span class=&quot;summary-label&quot;>P</span>
         <span class=&quot;summary-val protein&quot; id=&quot;summary-protein&quot;>0/180g</span>
       </div>
-      <div class=&quot;summary-pill&quot;>
+      <div class=&quot;summary-pill trk-water&quot;>
         <span class=&quot;summary-label&quot;>H₂O</span>
         <span class=&quot;summary-val water&quot; id=&quot;summary-water&quot;>0/150oz</span>
       </div>
@@ -5782,7 +5836,7 @@ body.youth #youth-banner{display:block}
       </div>
     </div>
 
-    <div class=&quot;progress-row&quot;>
+    <div class=&quot;progress-row trk-prot&quot;>
       <div class=&quot;progress-label&quot;>
         <span class=&quot;name&quot;><b>Protein</b> · today</span>
         <span class=&quot;vals&quot; id=&quot;protein-vals&quot;>
@@ -5792,7 +5846,7 @@ body.youth #youth-banner{display:block}
       </div>
       <div class=&quot;bar&quot;><div class=&quot;bar-fill protein&quot; id=&quot;protein-bar&quot; style=&quot;width:0%&quot;></div></div>
     </div>
-    <div class=&quot;progress-row&quot;>
+    <div class=&quot;progress-row trk-water&quot;>
       <div class=&quot;progress-label&quot;>
         <span class=&quot;name&quot;><b>Water</b> · today</span>
         <span class=&quot;vals&quot; id=&quot;water-vals&quot;>
@@ -6222,6 +6276,17 @@ body.youth #youth-banner{display:block}
 <div class=&quot;page&quot; id=&quot;page-profile&quot;>
   <h2>Profile</h2>
   <p class=&quot;lede&quot;>Tell the tracker about you and it'll recalculate every target — protein, water, electrolyte ceiling — from your own numbers, not the defaults. Optional; you can use the app without filling this out.</p>
+
+  <!-- 3.0 (owner): tracked areas — opt out of what you don't want to log -->
+  <div class=&quot;card qa-adult&quot;>
+    <div class=&quot;card-head&quot;>
+      <div class=&quot;card-title&quot;>Tracked areas</div>
+      <span class=&quot;badge blue&quot;>Optional</span>
+    </div>
+    <p style=&quot;font-size:12px;color:var(--dim);margin:6px 0 4px&quot;>Only log what you want. An untracked area disappears from the tracker and never counts against your checkmarks or streak — turn it back on anytime. At least one stays on. (Youth profiles are water-only by design.)</p>
+    <span class=&quot;trk-chip&quot; id=&quot;trk-w-chip&quot; onclick=&quot;toggleTracked('water')&quot;>💧 Water</span>
+    <span class=&quot;trk-chip&quot; id=&quot;trk-p-chip&quot; onclick=&quot;toggleTracked('protein')&quot;>🥩 Protein</span>
+  </div>
 
   <div class=&quot;card gold&quot; id=&quot;profile-summary-card&quot;>
     <div class=&quot;card-head&quot;>
@@ -7717,7 +7782,9 @@ body.youth #youth-banner{display:block}
   }
 
   function refreshProgress() {
-    const t = computedTarget();
+    applyTrackedClasses();
+    // effective targets: untracked areas zeroed for display + the host seam
+    const t = effTargets(computedTarget());
     const tot = getTotals();
 
     // Protein
@@ -7793,6 +7860,42 @@ body.youth #youth-banner{display:block}
       ? `<span class=&quot;ahead&quot;>+${Math.round(delta)}${unit} ahead</span>`
       : `<span class=&quot;behind&quot;>${Math.round(Math.abs(delta))}${unit} behind</span>`;
   }
+  /* ===== 3.0 (owner): tracked areas — per-profile opt-in/out of water/protein ===== */
+  function loadTracked(){
+    try{ const t = JSON.parse(storeGet('fuel-tracked','null')) || {}; return { water: t.water !== false, protein: t.protein !== false }; }
+    catch(e){ return { water: true, protein: true }; }
+  }
+  function trackedAreas(){
+    const t = loadTracked();
+    // Youth is water-only by §4.3 (protein UI is tier-hidden) — water can never opt out.
+    if ((window.BATTERY_TIER || 'youth') !== 'adult') t.water = true;
+    return t;
+  }
+  // Effective targets for DISPLAY/seam: untracked target -> 0 (existing t.x>0 guards
+  // everywhere treat 0 as done/absent). computedTarget() itself stays REAL so goal
+  // snapshots keep truthful values if the player re-enables an area later.
+  function effTargets(t){
+    const trk = trackedAreas();
+    return Object.assign({}, t, { protein: trk.protein ? t.protein : 0, water: trk.water ? t.water : 0 });
+  }
+  function applyTrackedClasses(){
+    const trk = trackedAreas();
+    document.body.classList.toggle('fuel-noprot', !trk.protein);
+    document.body.classList.toggle('fuel-nowater', !trk.water);
+    const cw = document.getElementById('trk-w-chip'), cp = document.getElementById('trk-p-chip');
+    if (cw) cw.classList.toggle('on', trk.water);
+    if (cp) cp.classList.toggle('on', trk.protein);
+  }
+  window.toggleTracked = function(area){
+    const t = loadTracked();
+    t[area] = !t[area];
+    if (!t.water &amp;&amp; !t.protein) { t[area] = true; return; }  // at least one area stays on
+    storeSet('fuel-tracked', JSON.stringify(t));
+    applyTrackedClasses();
+    refreshProgress();
+    if (typeof refreshWeekly === 'function') refreshWeekly();
+  };
+
   function renderPaceLine(t, tot){
     const el = document.getElementById('pace-line'), tx = document.getElementById('pace-txt');
     if (!el || !tx) return;
@@ -7801,11 +7904,18 @@ body.youth #youth-banner{display:block}
     const frac = (hr - wk) / Math.max(1, END - wk);
     // hide before the day starts or once it's over (the bars + streak carry the story then)
     if (frac <= 0 || frac >= 1){ el.style.display = 'none'; return; }
+    const trk = trackedAreas();
     const expP = t.protein * frac, expW = t.water * frac;
     const pDone = tot.protein >= t.protein, wDone = tot.water >= t.water;
     const pBit = pDone ? `<span class=&quot;ahead&quot;>✓ done</span>` : _paceChip(tot.protein - expP, 'g');
     const wBit = wDone ? `<span class=&quot;ahead&quot;>✓ done</span>` : _paceChip(tot.water - expW, 'oz');
-    tx.innerHTML = `⏱ by now ≈ <span class=&quot;qa-adult&quot;><b>${Math.round(expP)}g</b> · </span><b>${Math.round(expW)}oz</b> → <span class=&quot;qa-adult&quot;>protein ${pBit} · </span>water ${wBit}`;
+    // separators live INSIDE the protein spans so the youth CSS gate removes them too
+    const pSep = trk.water ? ' · ' : '';
+    const L = [], R = [];
+    if (trk.protein &amp;&amp; t.protein > 0) { L.push(`<span class=&quot;qa-adult&quot;><b>${Math.round(expP)}g</b>${pSep}</span>`); R.push(`<span class=&quot;qa-adult&quot;>protein ${pBit}${pSep}</span>`); }
+    if (trk.water &amp;&amp; t.water > 0) { L.push(`<b>${Math.round(expW)}oz</b>`); R.push(`water ${wBit}`); }
+    if (!L.length) { el.style.display = 'none'; return; }
+    tx.innerHTML = '⏱ by now ≈ ' + L.join('') + ' → ' + R.join('');
     el.style.display = 'flex';
   }
 
@@ -7817,9 +7927,9 @@ body.youth #youth-banner{display:block}
     if (tot.water >= 100 &amp;&amp; tot.electrolytes === 0) {
       flags.push({ cls: 'warn', txt: '⚠ 100+oz water · 0 electrolytes' });
     }
-    // Goal met
-    if (tot.protein >= t.protein) flags.push({ cls: 'ok', txt: '✓ Protein goal hit' });
-    if (tot.water >= t.water) flags.push({ cls: 'ok', txt: '✓ Water goal hit' });
+    // Goal met (target 0 = area untracked, not an instant win)
+    if (t.protein > 0 &amp;&amp; tot.protein >= t.protein) flags.push({ cls: 'ok', txt: '✓ Protein goal hit' });
+    if (t.water > 0 &amp;&amp; tot.water >= t.water) flags.push({ cls: 'ok', txt: '✓ Water goal hit' });
 
     // Electrolyte ceiling — scaled to day-type
     const elec = tot.electrolytes;
@@ -8092,8 +8202,14 @@ body.youth #youth-banner{display:block}
     if (tot.protein === 0 &amp;&amp; tot.water === 0) return { tier: 'empty', pPct: 0, wPct: 0, target, tot, dayTypes };
     const pPct = target.protein > 0 ? tot.protein / target.protein : 0;
     const wPct = target.water > 0 ? tot.water / target.water : 0;
-    const both = (pPct >= 1) &amp;&amp; (wPct >= 1);
-    const partial = (pPct >= 0.8) &amp;&amp; (wPct >= 0.8);
+    // 3.0: an untracked area judges as met — the strip runs on tracked areas only.
+    // (Real pPct/wPct still returned for tooltips. Toggles judge ALL days incl. history:
+    // a player who never tracks protein wants his week judged on water alone.)
+    const trk = trackedAreas();
+    const pJ = trk.protein ? pPct : 1;
+    const wJ = trk.water ? wPct : 1;
+    const both = (pJ >= 1) &amp;&amp; (wJ >= 1);
+    const partial = (pJ >= 0.8) &amp;&amp; (wJ >= 0.8);
     return {
       tier: both ? 'both' : (partial ? 'partial' : 'low'),
       pPct, wPct, target, tot, dayTypes
@@ -8104,12 +8220,13 @@ body.youth #youth-banner{display:block}
     // BATTERY: judge each day against the goal that was active THAT day (snapshot),
     // so changing your profile/goal later never retroactively breaks the streak.
     let streak = 0;
+    const trk = trackedAreas();   // 3.0: streak runs on tracked areas only
     for (let i = 0; i < 400; i++) {
       const key = dateKeyForOffset(i);
       const isToday = (i === 0);
       const tot = getTotalsForDate(key);
       const g = _goalForDate(key, isToday);
-      const both = tot.protein >= g.protein &amp;&amp; tot.water >= g.water;
+      const both = (!trk.protein || tot.protein >= g.protein) &amp;&amp; (!trk.water || tot.water >= g.water);
       if (i === 0 &amp;&amp; !both) {
         // today not yet hit — streak can still stand on yesterday; keep going
         continue;
@@ -8326,7 +8443,7 @@ body.youth #youth-banner{display:block}
     const body = document.getElementById('suggest-body');
     const subEl = document.getElementById('suggest-sub');
     if (!body) return;
-    const t = computedTarget();
+    const t = effTargets(computedTarget());   // untracked area -> gap 0 -> no suggestions for it
     const tot = getTotals();
     const pGap = Math.max(0, t.protein - tot.protein);
     const wGap = Math.max(0, t.water - tot.water);
