@@ -160,7 +160,7 @@ body.youth #youth-banner{display:block}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.07.04.65</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.07.04.66</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -9738,6 +9738,7 @@ body.youth #youth-banner{display:block}
 <div id="outlook-3d"></div>
 <div id="arm-guardian"></div>
 <div id="season-card" style="display:none"></div>
+<div id="parent-corner" style="display:none"></div>
 <div class="gd-card gold"><h3>⚡ Game Day Fusion</h3><p>Pick a game from events (FUEL → Events) or set first pitch. BATTERY back-builds the prep — <span style="color:#ff6b68">arm (red)</span> + <span style="color:var(--goldb)">fuel (gold)</span>, one schedule.</p></div>
 <div class="evpick"><label>Game</label><select id="gd-event"><option value="">— manual —</option></select></div>
 <div class="evpick"><label>Date</label><input type="date" id="gd-date"></div>
@@ -9829,7 +9830,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v65').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v65').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v66').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v66').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -10852,6 +10853,7 @@ function buildOutlook(){
     '<p style="margin-bottom:10px">Forward plan from your games, training days, and taper.</p>'+cards+'</div>';
   renderArmGuardian();
   try{renderSeasonArc();}catch(e){}
+  try{renderParentCorner();}catch(e){}
   renderScoreboard();
   try{refreshGameDot();}catch(e){}
 }
@@ -11100,6 +11102,60 @@ function renderArmGuardian(){
     '</div>';
 }
 window.renderArmGuardian=renderArmGuardian;
+
+/* Parent Corner (GAME tab, YOUTH profiles) — parent-facing arm-safety guidance.
+   Youth-only (profileTier==='youth'). REUSES the verified PITCH_SMART table via
+   pitchBand() for the age-band daily ceiling + required-rest ladder — does NOT
+   duplicate the numbers (.32 accuracy pass). Adds the warning signs a parent
+   should pull the child for + when to see a doctor. Parent-voice, §4.3-positive
+   (protective guidance for the adult, not a kid performance metric — no supps/
+   macros/load-ratio). Sources: MLB/USA Baseball Pitch Smart, STOP Sports
+   Injuries, AAP. Pure read; buildOutlook renders it after the Guardian. */
+function renderParentCorner(){
+  const host=document.getElementById('parent-corner'); if(!host)return;
+  if(!profile || profileTier(profile)!=='youth'){host.style.display='none'; host.innerHTML=''; return;}
+  host.style.display='';
+  const age=(typeof profileAge==='function'?profileAge(profile):null);
+  const b=age?pitchBand(age):null;
+  let restRows='', lo=1;
+  if(b){
+    b.rest.forEach(function(tier){
+      const hi=tier[0], days=tier[1];
+      const range=(hi===Infinity)?(lo+'–'+b.daily):(lo+'–'+hi);
+      const col=days>=3?'#ff6b68':(days>=1?'var(--goldb)':'var(--green)');
+      const lbl=days===0?'no rest needed':(days+' day'+(days===1?'':'s')+' off');
+      restRows+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-top:1px solid var(--line)"><span style="color:var(--dim)">'+range+' pitches</span><span style="font-family:\'SF Mono\',monospace;color:'+col+'">'+lbl+'</span></div>';
+      lo=(hi===Infinity)?lo:hi+1;
+    });
+  }
+  const signs=[
+    'Arm, elbow, or shoulder <b>pain</b> — during or after throwing',
+    'Soreness that <b>lingers into the next day</b> or worsens',
+    'A drop in <b>velocity, accuracy, or arm speed</b>',
+    '“My arm feels tired” — or they start altering their motion to compensate'
+  ];
+  const nm=(typeof profileName==='function'&&profile)?escHtml(profileName(profile)):'your athlete';
+  host.innerHTML='<div class="gd-card" style="border-color:#4f8cff">'+
+    '<h3>👪 Parent Corner</h3>'+
+    '<p style="margin-bottom:10px;color:var(--dim)">You’re '+nm+'’s best guardrail. A few simple things keep that arm healthy for years.</p>'+
+    (b
+      ?'<div style="margin-bottom:10px;padding:9px 11px;background:#0d1117;border:1px solid var(--line);border-radius:9px">'+
+        '<div style="font-size:11px;letter-spacing:1px;color:var(--faint);margin-bottom:5px">PITCH SMART · AGE '+(age>=23?'23+':age)+'</div>'+
+        '<div style="font-size:12px;color:var(--bone);margin-bottom:6px">Daily ceiling <b style="color:var(--goldb)">'+b.daily+' pitches</b> — a hard cap, not a target. Then rest by pitch count:</div>'+
+        restRows+
+        '<div style="font-size:10px;color:var(--faint);margin-top:6px">Count warm-up + between-inning throws too. Leagues vary — the <b>stricter</b> local rule always wins.</div>'+
+      '</div>'
+      :'<div style="margin-bottom:10px;padding:9px 11px;background:#161b22;border:1px solid var(--line);border-radius:9px;font-size:12px;color:var(--gold)">Set '+nm+'’s age on the Arm Guardian above to show their Pitch Smart daily limit + rest schedule.</div>')+
+    '<div style="font-size:12px;color:var(--bone);font-weight:600;margin-bottom:5px">🚩 Stop for the day if you notice:</div>'+
+    '<div style="margin-bottom:10px">'+signs.map(function(s){return '<div style="font-size:12px;color:var(--dim);line-height:1.5;padding-left:14px;text-indent:-14px">• '+s+'</div>';}).join('')+'</div>'+
+    '<div style="padding:9px 11px;background:#1a0d0d;border:1px solid #6f1f1f;border-radius:9px;margin-bottom:8px">'+
+      '<div style="font-size:12px;color:#ff9d9d;font-weight:600;margin-bottom:3px">See a doctor if</div>'+
+      '<div style="font-size:11px;color:var(--dim);line-height:1.5">pain persists after rest, hurts during everyday activities, there’s swelling, the elbow locks or catches, or there’s numbness or tingling. Early care prevents the injuries that end seasons.</div>'+
+    '</div>'+
+    '<div style="font-size:9px;color:var(--faint);line-height:1.4">Sources: MLB/USA Baseball <b>Pitch Smart</b>, STOP Sports Injuries, American Academy of Pediatrics. General education, not medical advice — when in doubt, rest the arm and ask your doctor.</div>'+
+    '</div>';
+}
+window.renderParentCorner=renderParentCorner;
 
 /* ===== SEASON ARC (GAME tab) — VISION 3.7 =====
    Rolls every logged outing (arm-care-pitchlog) into a season view: a workload
