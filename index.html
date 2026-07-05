@@ -10667,7 +10667,14 @@ function weeklyReport(id){
       if(d>=weekStart&&d<=today){wkPitches+=(+e.p||0);wkOutings++;}
     });
   }catch(e){}
-  // fuel hit rates — baseline targets from stored demographics (80% threshold)
+  // fuel hit rates — RECONCILED to the FUEL per-day target (owner-flagged: this card was the
+  // last surface judging days against a FLAT demographics baseline, ignoring day-type, so it
+  // disagreed with the FUEL Weekly strip + streak). Now each day is judged against that day's
+  // OWN target, via the same source FUEL's _goalForDate/calcStreak use:
+  //   1) fuel-goalsnap-<date> (the frozen per-day target — authoritative, exists for logged days)
+  //   2) TODAY (active profile) → the live target the FUEL iframe last reported (_batFuel.tWater/tProtein)
+  //   3) else → flat demographics baseline (best available proxy for an un-snapshotted past day)
+  // A "hit" is now >= 100% of that day's target (per rail), matching the FUEL bar/checkmark.
   var PROT_GKG={maintain:1.2,preserve:1.6,build:2.0,aggressive:2.2},FRAME_M={small:0.92,medium:1.00,large:1.05};
   var demo=getDemo(id),hasDemo=!!(demo&&demo.weightLb>0);
   var baseWater=80,baseProtein=0;
@@ -10678,14 +10685,25 @@ function weeklyReport(id){
     var kg=demo.weightLb/2.20462;
     baseProtein=Math.round(kg*(PROT_GKG[demo.goal]||1.6)*(FRAME_M[demo.frame]||1)/5)*5;
   }
+  var todayKey=canon(today);
+  function dayGoal(dk,isToday){
+    try{
+      var sk=(id===profile)?('fuel-goalsnap-'+dk):('battery::'+id+'::fuel-goalsnap-'+dk);
+      var raw=localStorage.getItem(sk);
+      if(raw){var g=JSON.parse(raw); if(g&&((+g.water>0)||(+g.protein>0)))return{water:+g.water||0,protein:+g.protein||0};}
+    }catch(e){}
+    if(isToday&&id===profile&&_batFuel&&((+_batFuel.tWater>0)||(+_batFuel.tProtein>0)))
+      return{water:+_batFuel.tWater||0,protein:+_batFuel.tProtein||0};
+    return{water:baseWater,protein:baseProtein};
+  }
   var waterHits=0,proteinHits=0,fuelDays=0,armDots=[],waterDots=[],proteinDots=[];
   for(var i=0;i<7;i++){
     var di=new Date(weekStart);di.setDate(weekStart.getDate()+i);
     var dk=canon(di);
     armDots.push((map[dk]||0)>0);
     if(hasDemo){
-      var ft=fuelDayTotals(dk,id);
-      var wHit=ft.water>=baseWater*0.8,pHit=baseProtein>0&&ft.protein>=baseProtein*0.8;
+      var ft=fuelDayTotals(dk,id), g=dayGoal(dk,dk===todayKey);
+      var wHit=(g.water>0)&&(ft.water>=g.water), pHit=(g.protein>0)&&(ft.protein>=g.protein);
       waterDots.push(wHit);proteinDots.push(pHit);
       if(wHit)waterHits++;if(pHit)proteinHits++;
       if(ft.water>0||ft.protein>0)fuelDays++;
