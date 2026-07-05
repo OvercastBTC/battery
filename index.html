@@ -970,6 +970,9 @@ body.youth #youth-banner{display:block}
   .youth-only { display: none; }
   body.youth .youth-only { display: block; }
   body.youth .youth-hide { display: none; }
+  /* kid-voice one-liners inside step details (5.x) — youth sees them, adults don't */
+  .kid-cue { display: none; }
+  body.youth .kid-cue { display: block; margin-top: 6px; padding: 7px 10px; border-left: 3px solid var(--gold); background: rgba(212,160,23,0.08); font-size: 12px; color: var(--bone); border-radius: 0 6px 6px 0; }
 
   /* Shared in-iframe demo-clip modal (dark overlay, matches host #bmodal) */
   #clip-modal {
@@ -1678,6 +1681,7 @@ body.youth #youth-banner{display:block}
       </div>
       <div class=&quot;step-detail&quot;>
         <p>Arm straight out in front, shoulder height. Tube parallel to ground. Shake forward-back fast.</p>
+        <div class=&quot;kid-cue&quot;>💬 Kid cue: shake it like you're flicking water off your hand — fast little buzzes, not big waves.</div>
       </div>
     </li>
     <li class=&quot;step&quot; data-ex=&quot;t2&quot;>
@@ -1691,6 +1695,7 @@ body.youth #youth-banner{display:block}
       </div>
       <div class=&quot;step-detail&quot;>
         <p>Arm out to the side, shoulder height. Tube parallel. Shake side-to-side fast.</p>
+        <div class=&quot;kid-cue&quot;>💬 Kid cue: arm out like an airplane wing — buzz the wing as fast as you can.</div>
       </div>
     </li>
     <li class=&quot;step&quot; data-ex=&quot;t3&quot;>
@@ -1704,6 +1709,7 @@ body.youth #youth-banner{display:block}
       </div>
       <div class=&quot;step-detail&quot;>
         <p>Arm straight up overhead. Tube horizontal across the top. Shake forward-back.</p>
+        <div class=&quot;kid-cue&quot;>💬 Kid cue: hold it up like a superhero antenna and make it hum.</div>
       </div>
     </li>
     <li class=&quot;step&quot; data-ex=&quot;t4&quot;>
@@ -1718,6 +1724,7 @@ body.youth #youth-banner{display:block}
       <div class=&quot;step-detail&quot;>
         <p>Arm in &quot;L&quot; — elbow at shoulder height, forearm vertical (cocking position). Shake.</p>
         <em>This plane is sport-specific — it's the only one not in general rehab protocols</em>
+        <div class=&quot;kid-cue&quot;>💬 Kid cue: make your throwing &quot;L&quot; and shake till it tingles — that's your arm waking up.</div>
       </div>
     </li>
   </ul>
@@ -2240,6 +2247,21 @@ body.youth #youth-banner{display:block}
 <div class=&quot;page&quot; id=&quot;page-washington&quot;>
   <h2 style=&quot;color: var(--wash);&quot;>Washington Drills</h2>
   <p class=&quot;lede&quot; style=&quot;border-left-color: var(--wash);&quot;>The infield system built by Ron Washington that Freeman still runs with the Dodgers, that Schanuel runs with the Angels, that Albies / Swanson / Riley / Semien all use. &quot;Hands first, then feet.&quot; Knee progression to standing. The whole protocol.</p>
+
+  <!-- 5.x youth: catch-play games — play IS the drill (§4.3: pure play, no load content) -->
+  <div class=&quot;card blue youth-only&quot; style=&quot;margin-top:8px&quot;>
+    <div class=&quot;card-head&quot;>
+      <div class=&quot;card-title&quot;>🎮 Make it a game</div>
+      <span class=&quot;badge blue&quot;>Play = practice</span>
+    </div>
+    <p style=&quot;font-size:12px;color:var(--dim);margin:6px 0 10px&quot;>The same drills below, turned into games. Playing them counts — check the drills off like normal when you're done.</p>
+    <ul>
+      <li><b>21</b> — catch-play for points: clean catch = 1, clean catch + quick throw back = 2, drop = back to 0 that round. First to 21 wins. Best with a grown-up or teammate.</li>
+      <li><b>Call the Hop</b> — before each short hop arrives, shout how many bounces (&quot;one!&quot; &quot;two!&quot;). Right call + clean pick = a point. Ten in a row = you win the round (that's drill 06 with a scoreboard).</li>
+      <li><b>Wall-Ball Ladder</b> — 10 clean catches off a wall to climb each rung: rung 1 two hands, rung 2 glove only, rung 3 backhand. Miss = start that rung over. Top of the ladder = champion.</li>
+    </ul>
+    <div class=&quot;cue&quot;>Soft ball or tennis ball is perfect for all three. Fun first — smooth hands come free.</div>
+  </div>
 
   <div class=&quot;card wash&quot;>
     <div class=&quot;card-head&quot;>
