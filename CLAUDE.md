@@ -3,7 +3,7 @@
 ## 1. What BATTERY Is
 
 Single-file installable PWA: `/Users/bacona/battery/index.html` (~9 400 lines, hand-edited, no bundler).
-Deployed via GitHub Pages from branch `master`: **https://overcastbtc.github.io/battery/**
+Deployed via GitHub Pages from branch `master`: **<https://overcastbtc.github.io/battery/>**
 Baseball arm-care + nutrition/hydration tracker (profiles: adult / youth).
 
 ## 2. Architecture
@@ -45,6 +45,7 @@ After each `srcdoc="`, scan forward: the **first literal `"`** in the file shoul
 A youth-tier profile must **never** see: supplement / stimulant / dosing / quantified macro targets / heavy-weighted-ball content.
 
 **Mechanisms in place:**
+
 - Host injects `window.BATTERY_TIER` (`'youth'` | `'adult'`) into iframes; toggles `body.youth` on the host.
 - FUEL iframe: sets `body.fuel-youth`; CSS hides `.qa-adult` elements (Liquid IV, LMNT, Thorne, Core Power quick-adds + Overview/Protein/Hydration/Products tabs). `switchTab()` youth guard blocks nav to those tabs.
 - ARM/PlyoCare: `.plyo-heavy` is gated behind `body.youth` (`display:none`); a light-catch/play-only note is shown instead.
@@ -61,6 +62,7 @@ Runs the **full Playwright gate (21 tests as of .63)** against the current `inde
 Run order: `node --check` first (fast), then `~/battery-tests/run.sh` (definitive).
 
 ### Multi-lane gating — run from an ISOLATED copy
+
 `~/battery-tests/` is SHARED across local lanes (A/B/C) and `run.sh` stages the build to `app-fixed.html` **in its own dir**, so two lanes gating at once clobber each other's staged file (and browser). Gate from a private copy:
 
 ```bash
@@ -75,6 +77,7 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 ## 6. Two-Lane / Release Protocol
 
 ### Lane A — Claude Code session (iframe content developer)
+
 - Worktree: `/Users/bacona/battery`, checked out on `laneA/content` (or another `laneA/*` branch).
 - Scope: FUEL + ARM/PlyoCare iframe content; iframe side of the postMessage seam.
 - Runs `~/battery-tests/run.sh` as a sanity check.
@@ -82,6 +85,7 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 - **Does NOT** commit to `master`, bump the release stamp, push, or deploy.
 
 ### Lane B — VS Code session (host shell + sole release engineer)
+
 - Worktree: `/Users/bacona/battery-laneB` (shares the same `.git`).
 - Scope: host shell changes AND the full release pipeline for both lanes.
 - Release steps: merge `laneA/*` into `master` → run final DA + full checklist → run full Playwright gate → bump `#ver-stamp` (YY.MM.DD.NN) + SW cache name → commit → push to `master` (deploys) → append `HANDOFF.md §10` entry.
@@ -103,6 +107,7 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 | FUEL → host | `{type:'bat-fuel', water, protein, tWater, tProtein, day}` | today totals |
 
 ### Data-model invariants
+
 - localStorage key prefixes: `fuel-` (FUEL) and `arm-care-` (ARM). **Do not rename** — renames orphan existing user data.
 - Keys are also mirrored as `battery::<profileId>::<key>`.
 - Migrations must be one-time idempotent guards.
@@ -112,6 +117,7 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 | File | Purpose |
 |------|---------|
 **Lane roster** (4 lanes as of 2026-06-22):
+
 - **Lane A** — local MacBook, FUEL + ARM iframe content (`~/battery-laneA`).
 - **Lane B** — local MacBook, host shell + **sole release engineer** (`~/battery-laneB`): merges to `master`, stamp + SW-cache bump, Playwright gate, deploy.
 - **Lane C** — local MacBook, host `#tabbar` glyph / icon QA (`~/battery`).
