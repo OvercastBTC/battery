@@ -132,6 +132,14 @@ body.youth #youth-banner{display:block}
 #storage-warn .sw-act{display:flex;gap:8px;flex-shrink:0}
 #storage-warn button{background:#ff6b68;border:0;color:#3a0d0d;font-weight:700;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer}
 #storage-warn button.sw-x{background:transparent;border:1px solid #ff6b6855;color:#ffb3b3;font-weight:600}
+#toast-wrap{position:fixed;left:0;right:0;bottom:calc(64px + max(env(safe-area-inset-bottom), var(--sab,0px)));z-index:90;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 12px}
+.toast{pointer-events:auto;max-width:440px;display:flex;align-items:center;gap:10px;background:var(--steel);border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--bone);font-size:13px;box-shadow:0 10px 30px #00000075;opacity:0;transform:translateY(12px);transition:opacity .25s ease,transform .25s ease}
+.toast.on{opacity:1;transform:translateY(0)}
+.toast .t-ico{font-size:18px;line-height:1;flex:none}
+.toast .t-msg{line-height:1.4;flex:1}
+.toast .t-act{flex:none;background:var(--gold);color:#0d1117;border:0;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.toast .t-x{flex:none;background:none;border:0;color:var(--faint);font-size:17px;line-height:1;cursor:pointer;padding:0 2px}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
 @keyframes chargebanner{0%{opacity:0;transform:translate(-50%,18px) scale(.8)}18%{opacity:1;transform:translate(-50%,0) scale(1.04)}30%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px) scale(1)}}
 @media(max-width:390px){#tabbar button .lb{font-size:8px;letter-spacing:.4px}.rad,.rad-svg{width:30px;height:30px}}
 #tabbar button.on{color:var(--gold)}
@@ -160,7 +168,7 @@ body.youth #youth-banner{display:block}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.07.04.66</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.07.04.67</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -9786,6 +9794,12 @@ body.youth #youth-banner{display:block}
 <h3 style="margin-bottom:6px">Device &amp; Install</h3>
 <div id="data-device" class="dmeta"></div>
 </div>
+<div class="gd-card">
+<h3 style="margin-bottom:6px">💬 Feedback &amp; Feature Requests</h3>
+<p class="dmeta" style="margin:0 0 12px">Got an idea, or hit a snag? Send it my way — it genuinely shapes what gets built next.</p>
+<button class="dbtn bk" onclick="openFeedback('feedback')">💡 REQUEST A FEATURE</button>
+<button class="dbtn rs" onclick="openFeedback('bug')">🐛 REPORT A BUG</button>
+</div>
 </section></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="g-steel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#454f5c"/><stop offset="1" stop-color="#1c2128"/></linearGradient>
@@ -9830,7 +9844,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v66').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v66').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v67').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v67').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -10187,9 +10201,10 @@ function reloadFrames(){const tier=profileTier(profile);
  if(!reloadFrames._fuelDoc)reloadFrames._fuelDoc=FRAMES.fuel.getAttribute('srcdoc');
  FRAMES.arm.srcdoc=FRAMES.arm.getAttribute('srcdoc');
  FRAMES.fuel.srcdoc=reloadFrames._fuelDoc.replace('<head>',"<head><script>window.BATTERY_TIER='"+tier+"';<\/script>");}
-function setProfile(p){if(p===profile)return;snapshotCurrent();profile=p;localStorage.setItem('battery-profile',p);
+function setProfile(p){if(p===profile)return;var _prev=profile;snapshotCurrent();profile=p;localStorage.setItem('battery-profile',p);
  renderSwitch();
- document.body.classList.toggle('youth',profileTier(p)==='youth');restoreProfile();reloadFrames();buildGameDay();buildOutlook();}
+ document.body.classList.toggle('youth',profileTier(p)==='youth');restoreProfile();reloadFrames();buildGameDay();buildOutlook();
+ try{if(_prev)showToast('Switched to '+(typeof profileName==='function'?profileName(p):p),{icon:'👤'});}catch(e){}}
 function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(e){}var armish=(v==='arm'||v==='drills'||v==='body');FRAMES.arm.classList.toggle('on',armish);FRAMES.fuel.classList.toggle('on',v==='fuel');
  document.getElementById('view-game').classList.toggle('on',v==='game');
  document.getElementById('view-data').classList.toggle('on',v==='data');
@@ -10319,6 +10334,7 @@ function batteryExportAll(){
   const st=document.getElementById('data-status');
   if(st){st.style.color='var(--gold)';st.textContent='Backed up '+profiles.length+' profiles ('+n+' keys).';}
   try{renderDataView();}catch(e){}
+  try{showToast('Backup saved ✓',{icon:'💾'});}catch(e){}
 }
 /* SAVE / SHARE backup — iOS WebKit has NO showSaveFilePicker, so the real way to
    "choose a backup location" is the native share sheet: it offers Save to Files
@@ -10339,6 +10355,7 @@ async function batteryShareBackup(){
       try{localStorage.setItem('battery-last-backup',new Date().toISOString());}catch(e){}
       if(st){st.style.color='var(--green)';st.textContent='Shared backup — choose “Save to Files” to pick a folder.';}
       try{renderDataView();}catch(e){}
+      try{showToast('Backup shared — pick “Save to Files”',{icon:'💾'});}catch(e){}
       return;
     }
   }catch(e){ if(e&&e.name==='AbortError'){return;} }
@@ -11570,6 +11587,63 @@ restoreProfile();reloadFrames();buildGameDay();buildOutlook();
 /* Open to the LAST view the user was on (per-device UI state, not backed up), so
    reopening the app lands where they left off instead of always defaulting to ARM.
    Skip while the first-run overlay is up; 'arm' is already the default .on tab. */
+/* ===== Toast system (host) — lightweight, non-blocking notices with an optional
+   action button. showToast(msg,{icon,action,actionLabel,dur}); stacks in #toast-wrap
+   above the tabbar; respects prefers-reduced-motion; msg set via textContent (XSS-safe). */
+function showToast(msg,opts){
+  opts=opts||{};
+  var wrap=document.getElementById('toast-wrap');
+  if(!wrap){wrap=document.createElement('div');wrap.id='toast-wrap';document.body.appendChild(wrap);}
+  var t=document.createElement('div');t.className='toast';
+  if(opts.icon){var ic=document.createElement('span');ic.className='t-ico';ic.textContent=opts.icon;t.appendChild(ic);}
+  var m=document.createElement('span');m.className='t-msg';m.textContent=String(msg==null?'':msg);t.appendChild(m);
+  var timer;
+  function close(){clearTimeout(timer);if(!t.parentNode)return;t.classList.remove('on');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},260);}
+  if(opts.action&&opts.actionLabel){
+    var a=document.createElement('button');a.className='t-act';a.textContent=opts.actionLabel;
+    a.onclick=function(){try{opts.action();}catch(e){}close();};t.appendChild(a);
+  }
+  var x=document.createElement('button');x.className='t-x';x.setAttribute('aria-label','Dismiss');x.textContent='×';x.onclick=close;t.appendChild(x);
+  while(wrap.children.length>=3&&wrap.firstChild)wrap.removeChild(wrap.firstChild);   // cap the stack
+  wrap.appendChild(t);
+  requestAnimationFrame(function(){t.classList.add('on');});
+  timer=setTimeout(close,opts.dur||4200);
+  return t;
+}
+window.showToast=showToast;
+/* Feedback / feature request — opens the repo's GitHub issue composer prefilled with
+   the build stamp (reaches the owner as repo owner). Set FEEDBACK_EMAIL to route via
+   mailto instead (1-line swap). A throttled toast nudges ~weekly; DATA has a permanent
+   entry too. */
+var FEEDBACK_REPO='OvercastBTC/battery';
+var FEEDBACK_EMAIL='';
+function appVersion(){try{return (document.getElementById('ver-stamp')||{}).textContent||'';}catch(e){return '';}}
+function openFeedback(kind){
+  kind=(kind==='bug')?'bug':'feedback';
+  var ver=appVersion();
+  if(FEEDBACK_EMAIL){
+    window.open('mailto:'+FEEDBACK_EMAIL+'?subject='+encodeURIComponent('BATTERY '+kind+' — v'+ver)+'&body='+encodeURIComponent('\n\n— from BATTERY '+ver),'_blank');
+    return;
+  }
+  var title=encodeURIComponent(kind==='bug'?'Bug: ':'Feature request: ');
+  var tmpl=kind==='bug'?'What happened?\n\nWhat did you expect?\n\nSteps to reproduce:\n':'What would you like BATTERY to do?\n\nWhy would it help?\n';
+  var body=encodeURIComponent(tmpl+'\n\n---\napp: BATTERY '+ver+((navigator&&navigator.userAgent)?'\ndevice: '+navigator.userAgent:''));
+  window.open('https://github.com/'+FEEDBACK_REPO+'/issues/new?labels='+kind+'&title='+title+'&body='+body,'_blank');
+}
+window.openFeedback=openFeedback;
+/* Throttled feedback nudge — a friendly toast at most ~weekly (armed on the first
+   eligible run so a brand-new user isn't nagged; never during first-run). */
+function maybeFeedbackToast(){
+  try{
+    if(!profile)return;
+    var k='battery-feedback-nudge', last=+(localStorage.getItem(k)||0), now=Date.now();
+    if(!last){localStorage.setItem(k,String(now));return;}
+    if(now-last < 7*864e5)return;
+    localStorage.setItem(k,String(now));
+    showToast('Ideas or a bug? I read every one.',{icon:'💬',action:function(){openFeedback('feedback');},actionLabel:'Send',dur:8000});
+  }catch(e){}
+}
+window.maybeFeedbackToast=maybeFeedbackToast;
 (function restoreLastView(){
   try{
     var fr=document.getElementById('first-run');
@@ -11580,5 +11654,6 @@ restoreProfile();reloadFrames();buildGameDay();buildOutlook();
     else { go('today'); }   // brand-new / no stored view → TODAY home landing
   }catch(e){}
   setTimeout(function(){try{window.maybeIconNudge&&window.maybeIconNudge();}catch(e){}},2200);
+  setTimeout(function(){try{window.maybeFeedbackToast&&window.maybeFeedbackToast();}catch(e){}},5200);
 })();
 </script></body></html>
