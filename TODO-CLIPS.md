@@ -58,3 +58,16 @@ wires the buttons.
 - [ ] `jbj-wrist.mp4` — 12 Wrist / Forearm Series (bonus)
 
 *Not needed:* ramp-light (reuses reverse/spiral demos), hot-tub (not demonstrable).
+
+---
+
+## Existing videos found (Lane B research, 2026-07-05 — every URL oEmbed/HTTP-verified)
+
+**Usage posture: LINK/EMBED only — do not re-host YouTube/MLB content. Owner decides link-vs-record per group.**
+
+- **Shoulder Tube:** Replay Baseball Institute "Shoulder Tube Series" <https://youtu.be/wdzV-oXLcR0> · Oates Specialties (official maker, Short) <https://youtu.be/C4Q3U8Qd5fg> — ⚠ neither labeled "4-plane"
+- **Washington drills:** MLB.com OFFICIAL "Washington & Moncada fielding drills" <https://www.mlb.com/video/washington-and-moncada-work-on-fielding-drills> (link-only) · Northern Baseball Training <https://youtu.be/D8UMUqw5B7I> (unofficial)
+- **TB12 bands:** official TB12 Sports "2-Band Home Workout" <https://youtu.be/xY7gEwk6Fz8> (⚠ full-body, not shoulder-specific) · channel <https://www.youtube.com/@TB12Sports>
+- **Dynamic warmup:** BYoung PT <https://youtu.be/N-kfCjoz7Hg> · Jaime Baseball Academy <https://youtu.be/4JIle7nXlPQ>
+- **Thrower stretches:** Select Medical "Throwers Ten" <https://youtu.be/TOQH95Tm8Yo> (canonical; ⚠ strengthening-leaning) · Cody Baker <https://youtu.be/7DN3GtOX5i0>
+- **Jaeger #9/#12:** official <https://jaegersports.com/j-bands-exercises-baseball-workout> + @jaegersports socials (wrist-cuff clip → #12) · third-party <https://youtu.be/2sudrYkjVK8> · <https://youtu.be/cvs2Q3pm1QM> (label unofficial)
