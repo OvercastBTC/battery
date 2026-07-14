@@ -4057,6 +4057,7 @@ body.youth #youth-banner{display:block}
     </div>
     <video id=&quot;clip-video&quot; controls playsinline preload=&quot;none&quot; onerror=&quot;clipFailed()&quot;></video>
     <div class=&quot;clip-soon&quot;>Clip coming soon — this demo hasn't been added to the <b>clips/</b> folder yet.</div>
+    <a id=&quot;clip-official&quot; class=&quot;clip-btn&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot; style=&quot;display:none;margin:10px auto 4px;text-align:center&quot;>▶ Watch official demo ↗</a>
   </div>
 </div>
 
@@ -4064,11 +4065,31 @@ body.youth #youth-banner{display:block}
   /* PLYO demo-clip modal. SRCDOC base-url gotcha: an srcdoc iframe's base URL is
      about:srcdoc, so a relative 'clips/x.mp4' will not resolve. Build the src from
      the parent document's URL at open time. <video> onerror degrades gracefully. */
+  /* Clip-fallback (Lane B plan-review Q1(b)): when the LOCAL mp4 is absent, offer the
+     oEmbed-verified OFFICIAL demo as a LINK (new tab, never re-hosted). Keyed by the
+     future filename prefix from TODO-CLIPS.md — the day a recorded clip lands with
+     that name, the same button plays it locally and the link stops showing. */
+  var OFFICIAL_DEMOS=[
+    ['tube-','https://youtu.be/wdzV-oXLcR0'],
+    ['wash-','https://www.mlb.com/video/washington-and-moncada-work-on-fielding-drills'],
+    ['tb-','https://youtu.be/xY7gEwk6Fz8'],
+    ['fd-','https://youtu.be/N-kfCjoz7Hg'],
+    ['fs-','https://youtu.be/TOQH95Tm8Yo'],
+    ['jbj-','https://jaegersports.com/j-bands-exercises-baseball-workout'],
+    ['jband-','https://jaegersports.com/j-bands-exercises-baseball-workout']
+  ];
+  var _curClip='';
+  function officialFor(name){
+    for(var i=0;i<OFFICIAL_DEMOS.length;i++){ if(name.indexOf(OFFICIAL_DEMOS[i][0])===0) return OFFICIAL_DEMOS[i][1]; }
+    return null;
+  }
   function openClip(name){
     var m=document.getElementById('clip-modal');
     var v=document.getElementById('clip-video');
     if(!m||!v)return;
+    _curClip=name||'';
     m.classList.remove('no-clip');
+    var a=document.getElementById('clip-official'); if(a) a.style.display='none';
     var src;
     try{ src = parent.location.href.replace(/[^/]*$/,'') + 'clips/' + name; }
     catch(e){ src = 'clips/' + name; }
@@ -4079,14 +4100,54 @@ body.youth #youth-banner{display:block}
   function clipFailed(){
     var m=document.getElementById('clip-modal');
     if(m) m.classList.add('no-clip');
+    var a=document.getElementById('clip-official');
+    if(a){
+      var u=officialFor(_curClip);
+      if(u){ a.href=u; a.style.display='inline-block'; }
+      else { a.style.display='none'; }
+    }
   }
   function closeClip(){
     var m=document.getElementById('clip-modal');
     var v=document.getElementById('clip-video');
     if(v){ try{ v.pause(); }catch(e){} v.removeAttribute('src'); try{ v.load(); }catch(e){} }
     if(m){ m.classList.remove('on'); m.classList.remove('no-clip'); }
+    var a=document.getElementById('clip-official'); if(a) a.style.display='none';
   }
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeClip(); });
+
+  /* Inject ▶ Demo buttons for every exercise whose clip is on the TODO-CLIPS wish-list.
+     createElement-based (footgun-immune). Today: modal opens -> local file absent ->
+     'coming soon' + official link. When the owner records clips/<name>.mp4, the SAME
+     button plays it locally — zero further edits. Skips steps that already have a button. */
+  (function(){
+    var WANTED={
+      t1:'tube-forward', t2:'tube-lateral', t3:'tube-overhead', t4:'tube-throwing',
+      w1:'wash-knee-center', w2:'wash-knee-forehand', w3:'wash-knee-backhand',
+      w4:'wash-stand-barehand', w5:'wash-stand-glove', w6:'wash-number-hops',
+      bi1:'bi-toe-touch', bi2:'bi-squat-series', bi3:'bi-step-overs', bi4:'bi-lunge-twist', bi5:'bi-catch-footwork',
+      tb1:'tb-row', tb2:'tb-pushup', tb3:'tb-oblique', tb4:'tb-deadlift', tb5:'tb-curl',
+      tb6:'tb-tricep', tb7:'tb-decel-lunge', tb8:'tb-shoulder-press', tb9:'tb-xband-squat',
+      fd1:'fd-leg-swings', fd2:'fd-arm-circles', fd3:'fd-lunge-twist', fd4:'fd-high-knees', fd5:'fd-hip-circles', fd6:'fd-tspine',
+      fs1:'fs-sleeper', fs2:'fs-couch', fs3:'fs-9090-hip', fs4:'fs-crossbody', fs5:'fs-wrist-flexor', fs6:'fs-calf-ankle',
+      j9:'jbj-ir-alt', j12:'jbj-wrist'
+    };
+    function injectClipButtons(){
+      Object.keys(WANTED).forEach(function(ex){
+        var step=document.querySelector('.step[data-ex='+ex+']');
+        var det=step && step.querySelector('.step-detail');
+        if(!det || det.querySelector('.clip-btn')) return;
+        var b=document.createElement('button');
+        b.className='clip-btn';
+        b.style.marginTop='7px';
+        b.textContent='▶ Demo';
+        b.addEventListener('click', function(){ openClip(WANTED[ex]+'.mp4'); });
+        det.appendChild(b);
+      });
+    }
+    if(document.readyState!=='loading') injectClipButtons();
+    else document.addEventListener('DOMContentLoaded', injectClipButtons);
+  })();
 
   /* PLYO youth gate (§4.3): plyo is heavy training load. Read the host tier
      same-origin (host toggles body.youth on the HOST body per profile tier) and
@@ -4514,6 +4575,18 @@ body.youth #youth-banner{display:block}
     margin-top: 6px;
     font-style: italic;
   }
+  /* US-2.6: real recovery status under the day-type seg */
+  .rest-status {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-left: 3px solid var(--blood);
+    background: rgba(218,54,51,0.08);
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+    color: var(--bone);
+    line-height: 1.45;
+  }
+  .rest-status.ok { border-left-color: var(--green); background: rgba(63,185,80,0.08); }
 
   /* GOAL DISPLAY */
   .goal-row {
@@ -5890,6 +5963,9 @@ body.youth #youth-banner{display:block}
           <div class=&quot;day-chip&quot; data-day=&quot;travel&quot; onclick=&quot;toggleDay('travel')&quot;>Travel</div>
         </div>
         <div class=&quot;day-help&quot;>Tap to combine (e.g. Travel + Train). Targets take the highest demand; ceilings adjust accordingly. <b>Heavy</b> = a hard-throwing or field day; <b>Game</b> = a game day (long hours at the field — the biggest hydration day); your Hot Climate profile setting adds the extra hot-weather water on top automatically.</div>
+        <!-- US-2.6: the REAL recovery status (Arm Guardian / Pitch Smart) so the Rest
+             chip and the actual required-rest countdown can never silently disagree -->
+        <div class=&quot;rest-status&quot; id=&quot;rest-status&quot; style=&quot;display:none&quot;></div>
         <div class=&quot;game-nudge&quot; id=&quot;game-nudge&quot; style=&quot;display:none&quot;>
           <span>🎯 <b>Game on the calendar today.</b> Switch to GAME targets?</span>
           <button onclick=&quot;applyGameNudge()&quot;>Set Game</button>
@@ -7900,8 +7976,44 @@ body.youth #youth-banner{display:block}
     return { water, protein, electrolytes, day };
   }
 
+  /* ===== US-2.6: surface the REAL recovery status (Arm Guardian / Pitch Smart)
+     next to the Rest day-type, so the two 'rest' concepts can never silently
+     disagree. Read-only cross-frame call (same-origin); additive — never touches
+     targets. Shows for youth too: Pitch Smart bands are youth-native, protective,
+     and no macro numbers are involved (§4.3-clean). ===== */
+  function renderRestStatus(){
+    const el = document.getElementById('rest-status');
+    if (!el) return;
+    let info = null, reachable = false;
+    try{
+      if (parent &amp;&amp; typeof parent.pitchRestInfo === 'function'){ info = parent.pitchRestInfo(); reachable = true; }
+    }catch(e){ reachable = false; }
+    if (!reachable){ el.style.display = 'none'; return; }
+    const restActive = activeDays.has('rest');
+    const today = new Date(); today.setHours(0,0,0,0);
+    el.classList.remove('ok');
+    if (info &amp;&amp; info.cleared &amp;&amp; (info.cleared - today) > 0){
+      // still inside the required-rest window — show regardless of chip (the divergence-stopper)
+      const days = Math.ceil((info.cleared - today) / 864e5);
+      el.innerHTML = '🛑 Arm Guardian: <b>' + days + ' required rest day' + (days > 1 ? 's' : '') + ' left</b> after the '
+        + info.last.p + '-pitch outing (' + info.last.date + ') — cleared to pitch '
+        + (info.cleared.getMonth() + 1) + '/' + info.cleared.getDate() + '. The Rest chip sets nutrition only; the countdown is the real gate.';
+      el.style.display = 'block';
+    } else if (restActive){
+      // only speak up on a Rest day otherwise — no noise on normal days
+      el.classList.add('ok');
+      el.innerHTML = info
+        ? '✓ Arm Guardian: <b>cleared to pitch</b> — this Rest chip only sets today\'s nutrition targets.'
+        : 'Arm Guardian: <b>no outings logged yet</b> — this Rest chip only sets nutrition targets. Log outings on the GAME tab to track real required rest.';
+      el.style.display = 'block';
+    } else {
+      el.style.display = 'none';
+    }
+  }
+
   function refreshProgress() {
     applyTrackedClasses();
+    renderRestStatus();   // US-2.6: keep the real recovery status in sync
     // effective targets: untracked areas zeroed for display + the host seam
     const t = effTargets(computedTarget());
     const tot = getTotals();
