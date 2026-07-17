@@ -1155,6 +1155,7 @@ body.youth #youth-banner{display:block}
   <button class=&quot;tab&quot; data-tab=&quot;schedule&quot;>Schedule</button>
   <button class=&quot;tab&quot; data-tab=&quot;sources&quot;>Sources</button>
   <button class=&quot;tab&quot; data-tab=&quot;extras&quot;>Daily Extras</button>
+  <button class=&quot;tab&quot; data-tab=&quot;lifting&quot;>Lifting</button>
   <button class=&quot;tab&quot; data-tab=&quot;history&quot;>History</button>
 </nav>
 
@@ -3519,6 +3520,186 @@ body.youth #youth-banner{display:block}
 </div>
 
 <!-- ============== HISTORY (read-only) ============== -->
+<!-- ============== LIFTING (US-2.8, owner routine + programming notes) ============== -->
+<div class=&quot;page&quot; id=&quot;page-lifting&quot;>
+  <h2>Lifting</h2>
+
+  <!-- §4.3: the weight room is adult training — youth sees the kid note only -->
+  <div class=&quot;card blue youth-only&quot;>
+    <div class=&quot;card-head&quot;>
+      <div class=&quot;card-title&quot;>🏋️ The weight room is grown-up training</div>
+      <span class=&quot;badge blue&quot;>For later</span>
+    </div>
+    <p style=&quot;font-size:12px;color:var(--dim)&quot;>Your strength work right now is the best kind: catch play, the drill games, bodyweight moves, and growing. The barbell stuff can wait — your checkmarks live on the other tabs.</p>
+  </div>
+
+  <div class=&quot;youth-hide&quot;>
+  <p class=&quot;lede&quot;>Strength work in service of the four goals: pitching first, general conditioning, first-base/position defense, and a hard focus on hitting. Everything here is <b>optional</b> — it counts as +bonus and never gates the daily arm-care ratio.</p>
+
+  <div class=&quot;card gold&quot;>
+    <div class=&quot;card-head&quot;>
+      <div class=&quot;card-title&quot;>How to read this page</div>
+      <span class=&quot;badge gold&quot;>Coach notes</span>
+    </div>
+    <ul>
+      <li><b>Pull ≥ push.</b> Throwers should row at least as much as they press — throwing is already an anterior-dominant stress; the back side is what protects the shoulder.</li>
+      <li><b>Know which effect you're training.</b> Same lift, different rep range = different adaptation. The quarter squat below is listed twice on purpose.</li>
+      <li><b>Rotation is where the money is.</b> Pitching velocity and bat speed come from hip/trunk rotation speed — not trunk flexion. The rotational block is the highest-transfer addition for both stated goals.</li>
+    </ul>
+    <div class=&quot;cue&quot;>Coaching guidance, not medical advice. Numbers are starting points — form and controlled fatigue are always the real limits.</div>
+  </div>
+
+  <ul class=&quot;steplist&quot;>
+
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-row&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Standing Row · plate machine</div>
+          <div class=&quot;step-target&quot;>Lats · Rhomboids · Rear Delt</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 25</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Chest tall, pull the handles to the ribs, squeeze the blades, slow return. Current working load ~45+35/side.</p>
+        <em>The pull side of the pull-≥-push rule — never let press volume outgrow this.</em>
+      </div>
+    </li>
+
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-press&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Standing Press · plate machine</div>
+          <div class=&quot;step-target&quot;>Chest · Front Delt · Triceps</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 25</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Same machine, press away smooth — no bounce at the turnaround. Keep total press volume at or below row volume.</p>
+      </div>
+    </li>
+
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-arms&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Curls + Triceps · Olympic curl bar</div>
+          <div class=&quot;step-target&quot;>Biceps · Triceps · Grip</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 sets each</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Curl strict (no hip swing); triceps extensions controlled through the full range. Grip work rides along free — useful at 1B and at the plate.</p>
+      </div>
+    </li>
+
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-qsq-power&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Quarter Squat · POWER day</div>
+          <div class=&quot;step-target&quot;>Drive-leg power @ pitching depth</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 4–6 heavy</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>The reason to squat PARTIAL is to load the exact joint angle of the drive leg — heavy, low reps, move the bar with intent. That's the power adaptation partials are programmed for.</p>
+        <em>If you're doing sets of 25, you're on the endurance card below — both are valid, know which one today is.</em>
+      </div>
+    </li>
+
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-qsq-endur&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Quarter Squat · ENDURANCE day</div>
+          <div class=&quot;step-target&quot;>Leg endurance · current scheme</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 25</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Your current scheme (~2×45/side). High-rep partials train muscular endurance — fine for long field days, just a different effect than the power card above.</p>
+      </div>
+    </li>
+
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-deadlift&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Deadlift <span style=&quot;color:var(--blood);font-size:11px&quot;>(READ THE NOTE)</span></div>
+          <div class=&quot;step-target&quot;>Posterior Chain · Hinge</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 3–8</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p><b>Safety note — hinge lifts live at LOW reps.</b> Form degrades with fatigue exactly where spinal loading is least forgiving, which is why deadlifts are almost universally programmed at 3–8 reps. If a high-rep set (like 25) is a deliberate conditioning choice, <b>drop the weight substantially</b> and let form — not the number — end the set. The set is over the moment the lower back rounds.</p>
+        <em>Loss-prevention applied to your own spine: control the exposure, not just the outcome.</em>
+      </div>
+    </li>
+
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-goblet&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Goblet / KB Squat</div>
+          <div class=&quot;step-target&quot;>Full-ROM legs · Trunk brace</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Full range, bell at the chest. 3×10 or run the 12-10-8 pyramid. Back in the rotation — you flagged these as paused; this card is the resume button.</p>
+      </div>
+    </li>
+
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-lunge&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Walking Lunges</div>
+          <div class=&quot;step-target&quot;>Single-leg strength · Balance</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10 / leg</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Long controlled steps, torso tall. Single-leg work is the defense-and-baserunning carryover the bilateral lifts don't give you.</p>
+      </div>
+    </li>
+
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-abs&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Ab Progression · flexion block</div>
+          <div class=&quot;step-target&quot;>Anterior Core</div>
+        </div>
+        <div class=&quot;step-reps&quot;>1–2 × 25 each</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Your ladder: crunches → regular/decline sit-ups → side crunches (elbow, bench or floor) → toe-touch-to-pushup walkouts.</p>
+        <em>Good base — but pair it with the rotational block below; flexion alone doesn't throw or swing.</em>
+      </div>
+    </li>
+
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-rotcore&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>🔥 Rotational Core <span style=&quot;color:var(--gold);font-size:11px&quot;>(NEW — highest transfer)</span></div>
+          <div class=&quot;step-target&quot;>Hip/Trunk Rotation Speed</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 8–10 / side</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Pick one per session: <b>med-ball rotational throws</b> (into a wall, hips lead), <b>wood-choppers</b> (band or cable, high-to-low and low-to-high), or <b>standing rotational twists</b>. Explosive out, controlled back.</p>
+        <em>Pitching velocity and bat speed are rotation — this is the one thing the routine was missing for BOTH of your top goals.</em>
+      </div>
+    </li>
+
+  </ul>
+  </div>
+</div>
+
 <div class=&quot;page&quot; id=&quot;page-history&quot;>
   <h2>History</h2>
   <p class=&quot;lede&quot;>Your completed arm-care days, most recent first. Read-only &mdash; tap any day to see which exercises you logged.</p>
@@ -3559,7 +3740,7 @@ body.youth #youth-banner{display:block}
      COMPLETION IS ONE SHARED STORE keyed by data-ex (arm-care-done-*): an exercise is
      recorded once no matter which group surfaces it. If a drill ever needs to live in
      both contexts, give it the SAME data-ex and it stays in sync automatically. */
-  const TAB_GROUPS = { washington:'drills', recovery:'body', extras:'body' };
+  const TAB_GROUPS = { washington:'drills', recovery:'body', extras:'body', lifting:'body' };
   function tabGroup(id){ return TAB_GROUPS[id] || 'arm'; }
   let activeGroup = 'arm';
   function stepGroup(step){
