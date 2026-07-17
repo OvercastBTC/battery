@@ -10463,7 +10463,9 @@ function refreshFuelDot(){
 function refreshGameDot(){
   // GAME moved off the tabbar onto the TODAY quick-links (owner nav restructure)
   // -- it's now a <div data-v="game"> inside #today-rows, not a tabbar button.
-  var b=document.querySelector('[data-v="game"]'); if(!b)return;
+  // Scoped to #today-rows (not just [data-v="game"] unscoped) since that was
+  // only safe by accident -- nothing stops data-v="game" reappearing elsewhere.
+  var b=document.querySelector('#today-rows [data-v="game"]'); if(!b)return;
   var resting=false;
   try{var ri=pitchRestInfo(); if(ri&&ri.rest>0){var t=new Date();t.setHours(0,0,0,0);resting=t<ri.cleared;}}catch(e){}
   b.classList.toggle('warn',resting);
@@ -10512,14 +10514,15 @@ function maybeAllCharged(){
   }catch(e){}
 }
 function refreshTabIcons(){
-  if(_batCounts){['arm','drills','body'].forEach(function(k){var c=_batCounts[k];setRadial(k,(c&&c.total>0)?(c.done/c.total*100):0);});}
+  // arm/drills/body/game radials removed (Lane A cleanup, PR #7) -- those tabs
+  // no longer have a .rad element anywhere post-nav-restructure, so setRadial()
+  // for them was a permanent no-op. FUEL is the only remaining live radial.
   if(_batFuel){
     var youth=profileTier(profile)==='youth';
     var wPct=_batFuel.tWater>0?Math.min(100,_batFuel.water/_batFuel.tWater*100):0;
     var pPct=(!youth&&_batFuel.tProtein>0)?Math.min(100,_batFuel.protein/_batFuel.tProtein*100):null;
     setFuelRadial(wPct,pPct);
   }
-  try{setRadial('game',(typeof readinessScore==='function')?readinessScore():0);}catch(e){}
   maybeAllCharged();
 }
 window.refreshTabIcons=refreshTabIcons; window.setRadial=setRadial; window.setFuelRadial=setFuelRadial;
@@ -11557,20 +11560,20 @@ const PLAN_PRESETS={
 };
 function todayPlanKey(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function getActivePlan(){
+  // Per-date only, deliberately no global-default fallback (Lane A/PO ruling,
+  // PR #7): FUEL's day-type chips don't carry over day to day either, and a
+  // global fallback would let e.g. Sunday's "Rest" silently make Monday's 100
+  // artificially easy until noticed. Every new day starts at 'full' unless
+  // THAT day has its own snapshot.
   try{
     var snap=localStorage.getItem('battery-plan-'+todayPlanKey());
     if(snap&&PLAN_PRESETS[snap])return snap;
-    var def=localStorage.getItem('battery-plan');
-    if(def&&PLAN_PRESETS[def])return def;
   }catch(e){}
   return 'full';
 }
 function setActivePlan(p){
   if(!PLAN_PRESETS[p])return;
-  try{
-    localStorage.setItem('battery-plan',p);
-    localStorage.setItem('battery-plan-'+todayPlanKey(),p);
-  }catch(e){}
+  try{localStorage.setItem('battery-plan-'+todayPlanKey(),p);}catch(e){}
   try{renderToday();}catch(e){}
 }
 window.setActivePlan=setActivePlan; window.PLAN_PRESETS=PLAN_PRESETS;
@@ -11722,6 +11725,11 @@ function renderToday(){
     rowsEl.innerHTML=rows||'<p class="dmeta" style="text-align:center">Open a tab to start logging today.</p>';
   }
   try{refreshFlowBtn();}catch(e){}
+  // #today-rows above just got rebuilt via innerHTML, which wipes any .warn
+  // class the GAME row had -- re-apply it every render, not just from
+  // buildOutlook()'s one call site, or the resting indicator vanishes the
+  // next time _batFuel updates (Lane A review, PR #7).
+  try{refreshGameDot();}catch(e){}
   try{renderSleepCard();}catch(e){}
   var note=document.getElementById('today-note');
   if(note){
