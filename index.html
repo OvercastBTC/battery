@@ -116,6 +116,13 @@ body.youth #youth-banner{display:block}
 #tabbar button.on::before{content:'';position:absolute;top:0;left:24%;right:24%;height:2px;border-radius:0 0 3px 3px;background:var(--gold);box-shadow:0 0 7px var(--gold)}
 #tabbar.allcharged::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:5;background:linear-gradient(105deg,transparent 35%,rgba(240,184,50,.45) 50%,transparent 65%);transform:translateX(-110%);animation:tbsweep 2.3s ease-in-out}
 @keyframes tbsweep{to{transform:translateX(110%)}}
+/* Today's-plan chips (owner request) — mirrors FUEL's day-type chip look, but
+   this is a separate host-scoped style since FUEL's .day-chip CSS lives inside
+   its own iframe document and isn't reachable from host markup. */
+.plan-chip{padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:#161b22;color:var(--dim);font-family:"SF Mono",monospace;font-size:11px;letter-spacing:.5px;cursor:pointer}
+.plan-chip.active{background:var(--gold);border-color:var(--gold);color:#0d1117;font-weight:700}
+/* GAME's "resting" warn dot moved off the tabbar onto its TODAY quick-link row */
+#today-rows [data-v="game"].warn span:first-child::after{content:'';display:inline-block;margin-left:6px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold);vertical-align:middle}
 /* TODAY 'fully charged' celebration (host surprise) — one-time/day burst when the
    readiness ring hits 100: the ring flares gold, a radiating glow pulses out, and
    a ⚡ FULLY CHARGED banner rises. Pure CSS, removed after it plays. */
@@ -10110,6 +10117,7 @@ body.youth #youth-banner{display:block}
 <div class="gd-card"><h3 id="today-greet">Today</h3><p id="today-sub">Your daily readiness — arm, drills, body and fuel in one number.</p>
 <div id="today-ring" style="--p:0;--rc:var(--green)"><div class="inner"><span class="score" id="today-score">–</span><span class="lbl">READY</span></div></div>
 <div id="today-why" style="display:none;margin:0 auto 10px;max-width:320px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#0d1117"></div>
+<div id="today-plan" style="margin:10px 0 4px"><div style="font-size:10px;letter-spacing:1px;color:var(--faint);text-transform:uppercase;margin-bottom:6px">Today's plan</div><div id="today-plan-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
 <div id="today-rows"></div>
 <button id="flow-btn" onclick="startFlow()" style="display:none;width:100%;margin-top:6px;background:#161b22;border:1px solid var(--gold);color:var(--goldb);font-family:'SF Mono',monospace;font-size:13px;letter-spacing:1px;padding:12px;border-radius:11px;cursor:pointer">▶ START TODAY'S FLOW</button>
 <div id="today-note" class="dmeta" style="margin-top:8px"></div>
@@ -10205,11 +10213,8 @@ body.youth #youth-banner{display:block}
 <symbol id="bi-fuel" viewBox="0 0 128 128"><polygon points="68.00,44.00 80.00,44.00 68.00,64.00 80.00,64.00 60.00,89.00 66.00,68.00 52.00,68.00" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/></symbol>
 </defs></svg>
 <div id="tabbar">
-<button class="on" data-v="arm" onclick="go('arm')"><span class="ico"><span class="rad" data-v="arm"><svg class="rad-svg" viewBox="0 0 36 36"><circle class="rad-trk" cx="18" cy="18" r="14"/><circle class="rad-prg" cx="18" cy="18" r="14"/></svg><span class="rad-ico">🦾</span></span></span><span class="lb">ARM</span></button>
-<button data-v="drills" onclick="go('drills')"><span class="ico"><span class="rad" data-v="drills"><svg class="rad-svg" viewBox="0 0 36 36"><circle class="rad-trk" cx="18" cy="18" r="14"/><circle class="rad-prg" cx="18" cy="18" r="14"/></svg><span class="rad-ico">🧤</span></span></span><span class="lb">DRILLS</span></button>
-<button data-v="body" onclick="go('body')"><span class="ico"><span class="rad" data-v="body"><svg class="rad-svg" viewBox="0 0 36 36"><circle class="rad-trk" cx="18" cy="18" r="14"/><circle class="rad-prg" cx="18" cy="18" r="14"/></svg><span class="rad-ico">🧘</span></span></span><span class="lb">BODY</span></button>
+<button class="on" data-v="today" onclick="go('today')"><span class="ico"><svg viewBox="0 0 100 100" style="width:26px;height:26px;display:block"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg></span><span class="lb">HOME</span></button>
 <button data-v="fuel" onclick="go('fuel')"><span class="ico"><span class="rad" data-v="fuel"><svg class="rad-svg" viewBox="0 0 36 36"><circle class="rad-trk" cx="18" cy="18" r="14"/><circle class="rad-trk" cx="18" cy="18" r="10"/><circle class="rad-prg" cx="18" cy="18" r="14"/><circle class="rad-prg2" cx="18" cy="18" r="10"/></svg><span class="rad-ico"><svg viewBox="0 0 24 24"><use href="#bi-fuel"/></svg></span></span></span><span class="lb">FUEL</span></button>
-<button data-v="game" onclick="go('game')"><span class="ico"><span class="rad" data-v="game"><svg class="rad-svg" viewBox="0 0 36 36"><circle class="rad-trk" cx="18" cy="18" r="14"/><circle class="rad-prg" cx="18" cy="18" r="14"/></svg><span class="rad-ico">⚾</span></span></span><span class="lb">GAME</span></button>
 </div>
 <div id="bmodal"></div>
 <div id="install"><span class="x" onclick="document.getElementById('install').style.display='none'">✕</span>
@@ -10530,7 +10535,7 @@ function firstRunCreate(){
   location.reload();
 }
 window.maybeFirstRun=maybeFirstRun; window.firstRunCreate=firstRunCreate;
-const PREFIXES=['fuel-','arm-care-'];
+const PREFIXES=['fuel-','arm-care-','battery-plan'];
 function liveKeys(){return Object.keys(localStorage).filter(k=>PREFIXES.some(p=>k.startsWith(p)));}
 /* ===== STORAGE-FULL GUARDIAN (loss-prevention) =====
    localStorage is capped (~5MB). When it fills, setItem throws — and the silent
@@ -10637,7 +10642,11 @@ function refreshFuelDot(){
 }
 /* GAME tab dot: warn (gold) when Arm Guardian says the athlete is RESTING. */
 function refreshGameDot(){
-  var b=document.querySelector('#tabbar button[data-v="game"]'); if(!b)return;
+  // GAME moved off the tabbar onto the TODAY quick-links (owner nav restructure)
+  // -- it's now a <div data-v="game"> inside #today-rows, not a tabbar button.
+  // Scoped to #today-rows (not just [data-v="game"] unscoped) since that was
+  // only safe by accident -- nothing stops data-v="game" reappearing elsewhere.
+  var b=document.querySelector('#today-rows [data-v="game"]'); if(!b)return;
   var resting=false;
   try{var ri=pitchRestInfo(); if(ri&&ri.rest>0){var t=new Date();t.setHours(0,0,0,0);resting=t<ri.cleared;}}catch(e){}
   b.classList.toggle('warn',resting);
@@ -10672,22 +10681,29 @@ function setFuelRadial(waterPct,proteinPct){
   r.classList.toggle('charged',full);
 }
 function maybeAllCharged(){
+  // Was: check .charged on each of the 4 tabbar radials directly. arm/drills/
+  // body no longer have a tabbar radial to check (nav restructure moved them
+  // to TODAY quick-links) -- checking readinessScore() itself is equivalent
+  // when the default plan is active AND correctly becomes plan-aware for free
+  // (a Rest-plan day no longer needs drills "charged" to celebrate).
   var bar=document.getElementById('tabbar'); if(!bar)return;
-  var all=['arm','drills','body','fuel'].every(function(v){var r=_rad(v);return r&&r.classList.contains('charged');});
-  if(!all)return;
+  var full=false;
+  try{full=(typeof readinessScore==='function')&&readinessScore()>=100;}catch(e){}
+  if(!full)return;
   try{var key='battery-charged-'+new Date().toISOString().slice(0,10);
     if(!localStorage.getItem(key)){localStorage.setItem(key,'1');bar.classList.add('allcharged');setTimeout(function(){bar.classList.remove('allcharged');},2400);}
   }catch(e){}
 }
 function refreshTabIcons(){
-  if(_batCounts){['arm','drills','body'].forEach(function(k){var c=_batCounts[k];setRadial(k,(c&&c.total>0)?(c.done/c.total*100):0);});}
+  // arm/drills/body/game radials removed (Lane A cleanup, PR #7) -- those tabs
+  // no longer have a .rad element anywhere post-nav-restructure, so setRadial()
+  // for them was a permanent no-op. FUEL is the only remaining live radial.
   if(_batFuel){
     var youth=profileTier(profile)==='youth';
     var wPct=_batFuel.tWater>0?Math.min(100,_batFuel.water/_batFuel.tWater*100):0;
     var pPct=(!youth&&_batFuel.tProtein>0)?Math.min(100,_batFuel.protein/_batFuel.tProtein*100):null;
     setFuelRadial(wPct,pPct);
   }
-  try{setRadial('game',(typeof readinessScore==='function')?readinessScore():0);}catch(e){}
   maybeAllCharged();
 }
 window.refreshTabIcons=refreshTabIcons; window.setRadial=setRadial; window.setFuelRadial=setFuelRadial;
@@ -11709,15 +11725,50 @@ window.renderScoreboard=renderScoreboard;
    YOUTH excludes the protein/macro component (same safety gate as the fuel app,
    HANDOFF §4.3). renderToday() RETURNS the integer score (the test reads it) and
    renders the ring + tappable rows + a Pitch-Smart/day-type note. */
+/* ===== TODAY'S PLAN (owner request) — not every day includes every stream: a
+   "warmup + hitting" day has no drills, a "throwing" day has no body work, a
+   rest day has neither. Without this, readinessScore() demanded ALL FIVE
+   streams every day to hit 100 — mirrors FUEL's day-type-chip pattern (single
+   preset table + a persisted, per-date-snapshotted selection) so a day's plan
+   choice never silently drifts if picked later, and doesn't get overwritten by
+   navigating to a past date. DEFAULT ('full') reproduces the exact prior
+   behavior — an athlete who never opens the picker sees zero change. */
+const PLAN_PRESETS={
+  full:     {label:'Full',            arm:true,  drills:true,  body:true,  water:true, protein:true},
+  throwing: {label:'Warmup + Throw',  arm:true,  drills:false, body:false, water:true, protein:true},
+  hitting:  {label:'Warmup + Hit',    arm:true,  drills:true,  body:false, water:true, protein:true},
+  rest:     {label:'Rest / Recovery', arm:false, drills:false, body:true,  water:true, protein:true}
+};
+function todayPlanKey(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function getActivePlan(){
+  // Per-date only, deliberately no global-default fallback (Lane A/PO ruling,
+  // PR #7): FUEL's day-type chips don't carry over day to day either, and a
+  // global fallback would let e.g. Sunday's "Rest" silently make Monday's 100
+  // artificially easy until noticed. Every new day starts at 'full' unless
+  // THAT day has its own snapshot.
+  try{
+    var snap=localStorage.getItem('battery-plan-'+todayPlanKey());
+    if(snap&&PLAN_PRESETS[snap])return snap;
+  }catch(e){}
+  return 'full';
+}
+function setActivePlan(p){
+  if(!PLAN_PRESETS[p])return;
+  try{localStorage.setItem('battery-plan-'+todayPlanKey(),p);}catch(e){}
+  try{renderToday();}catch(e){}
+}
+window.setActivePlan=setActivePlan; window.PLAN_PRESETS=PLAN_PRESETS;
+
 function readinessScore(){
   var youth=profileTier(profile)==='youth';
+  var plan=PLAN_PRESETS[getActivePlan()]||PLAN_PRESETS.full;
   var parts=[];
   if(_batCounts){
-    ['arm','drills','body'].forEach(function(k){var c=_batCounts[k];if(c&&c.total>0)parts.push(Math.min(1,c.done/c.total));});
+    ['arm','drills','body'].forEach(function(k){if(!plan[k])return;var c=_batCounts[k];if(c&&c.total>0)parts.push(Math.min(1,c.done/c.total));});
   }
   if(_batFuel){
-    if(_batFuel.tWater>0)parts.push(Math.min(1,_batFuel.water/_batFuel.tWater));
-    if(!youth&&_batFuel.tProtein>0)parts.push(Math.min(1,_batFuel.protein/_batFuel.tProtein));
+    if(plan.water&&_batFuel.tWater>0)parts.push(Math.min(1,_batFuel.water/_batFuel.tWater));
+    if(plan.protein&&!youth&&_batFuel.tProtein>0)parts.push(Math.min(1,_batFuel.protein/_batFuel.tProtein));
   }
   if(!parts.length)return 0;
   var avg=parts.reduce(function(a,b){return a+b;},0)/parts.length;
@@ -11728,15 +11779,17 @@ function readinessScore(){
    excludes protein exactly like the score does (§4.3). Pure read of live data. */
 function readinessBreakdown(){
   var youth=profileTier(profile)==='youth', items=[];
+  var plan=PLAN_PRESETS[getActivePlan()]||PLAN_PRESETS.full;
   function pct(n,d){return d>0?Math.min(100,Math.round(n/d*100)):null;}
   if(_batCounts){
     [['arm','Arm care'],['drills','Drills'],['body','Body']].forEach(function(r){
+      if(!plan[r[0]])return;
       var c=_batCounts[r[0]]; if(c&&c.total>0)items.push({label:r[1],pct:pct(c.done,c.total),detail:c.done+'/'+c.total});
     });
   }
   if(_batFuel){
-    if(_batFuel.tWater>0)items.push({label:'Water',pct:pct(_batFuel.water,_batFuel.tWater),detail:_batFuel.water+'/'+_batFuel.tWater+' oz'});
-    if(!youth&&_batFuel.tProtein>0)items.push({label:'Protein',pct:pct(_batFuel.protein,_batFuel.tProtein),detail:_batFuel.protein+'/'+_batFuel.tProtein+' g'});
+    if(plan.water&&_batFuel.tWater>0)items.push({label:'Water',pct:pct(_batFuel.water,_batFuel.tWater),detail:_batFuel.water+'/'+_batFuel.tWater+' oz'});
+    if(plan.protein&&!youth&&_batFuel.tProtein>0)items.push({label:'Protein',pct:pct(_batFuel.protein,_batFuel.tProtein),detail:_batFuel.protein+'/'+_batFuel.tProtein+' g'});
   }
   return items;
 }
@@ -11805,6 +11858,13 @@ function renderToday(){
   if(profile&&score>=100){try{celebrateCharged();}catch(e){}}
   // collapse the explainer on each re-render so stale numbers never linger
   var whyBox=document.getElementById('today-why'); if(whyBox){whyBox.style.display='none';whyBox.innerHTML='';}
+  var planChipsEl=document.getElementById('today-plan-chips');
+  if(planChipsEl){
+    var activePlan=getActivePlan();
+    planChipsEl.innerHTML=Object.keys(PLAN_PRESETS).map(function(k){
+      return '<button class="plan-chip'+(k===activePlan?' active':'')+'" onclick="setActivePlan(\''+k+'\')">'+escHtml(PLAN_PRESETS[k].label)+'</button>';
+    }).join('');
+  }
   var greet=document.getElementById('today-greet');
   if(greet){
     var h=new Date().getHours();
@@ -11817,26 +11877,40 @@ function renderToday(){
     function bar(label,ico,done,total,color,tab){
       var pct=total>0?Math.min(100,Math.round(done/total*100)):0;
       var full=total>0&&done>=total;
+      // owner request: every row here IS a link to that section — now that arm/
+      // drills/body/game no longer live in the tabbar, this chevron is the
+      // primary way in, so it needs to read as tappable, not just be tappable.
       return '<div onclick="go(\''+tab+'\')" style="cursor:pointer;margin:10px 0">'+
-        '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:3px">'+
         '<span style="color:var(--dim);letter-spacing:1px;display:inline-flex;align-items:center">'+batIcon(pct,color)+label+'</span>'+
-        '<span style="font-family:\'SF Mono\',monospace;color:'+(full?'var(--green)':'var(--bone)')+'">'+done+'/'+total+'</span></div>'+
+        '<span style="display:flex;align-items:center;gap:6px"><span style="font-family:\'SF Mono\',monospace;color:'+(full?'var(--green)':'var(--bone)')+'">'+done+'/'+total+'</span><span style="color:var(--faint)">›</span></span></div>'+
         '<div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden"><div style="width:'+pct+'%;height:100%;border-radius:3px;background:'+(full?'var(--green)':color)+'"></div></div></div>';
     }
     var rows='';
+    var plan=PLAN_PRESETS[getActivePlan()]||PLAN_PRESETS.full;
     if(_batCounts){
-      rows+=bar('ARM CARE','🦾',_batCounts.arm.done,_batCounts.arm.total,'var(--blood)','arm');
-      rows+=bar('DRILLS','🧤',_batCounts.drills.done,_batCounts.drills.total,'var(--blue)','drills');
-      var bd=_batCounts.body||{done:0,total:0};
-      rows+=bar('BODY','🧘',bd.done,bd.total,'#bc8cff','body');
+      if(plan.arm)rows+=bar('ARM CARE','🦾',_batCounts.arm.done,_batCounts.arm.total,'var(--blood)','arm');
+      if(plan.drills)rows+=bar('DRILLS','🧤',_batCounts.drills.done,_batCounts.drills.total,'var(--blue)','drills');
+      if(plan.body){var bd=_batCounts.body||{done:0,total:0};rows+=bar('BODY','🧘',bd.done,bd.total,'#bc8cff','body');}
     }
     if(_batFuel){
-      if(_batFuel.tWater>0)rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'#39bdf0','fuel');
-      if(!youth&&_batFuel.tProtein>0)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'#f0a23c','fuel');
+      if(plan.water&&_batFuel.tWater>0)rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'#39bdf0','fuel');
+      if(plan.protein&&!youth&&_batFuel.tProtein>0)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'#f0a23c','fuel');
     }
+    // GAME has no done/total of its own (not part of readinessScore) — always
+    // shown as a plain link since it no longer has a tabbar button either.
+    // Gated on profile so the empty-state message below still shows pre-profile.
+    if(profile)rows+='<div data-v="game" onclick="go(\'game\')" style="cursor:pointer;margin:10px 0;display:flex;justify-content:space-between;align-items:center;font-size:11px">'+
+      '<span style="color:var(--dim);letter-spacing:1px;display:inline-flex;align-items:center">⚾&nbsp; GAME DAY</span>'+
+      '<span style="color:var(--faint)">›</span></div>';
     rowsEl.innerHTML=rows||'<p class="dmeta" style="text-align:center">Open a tab to start logging today.</p>';
   }
   try{refreshFlowBtn();}catch(e){}
+  // #today-rows above just got rebuilt via innerHTML, which wipes any .warn
+  // class the GAME row had -- re-apply it every render, not just from
+  // buildOutlook()'s one call site, or the resting indicator vanishes the
+  // next time _batFuel updates (Lane A review, PR #7).
+  try{refreshGameDot();}catch(e){}
   try{renderSleepCard();}catch(e){}
   var note=document.getElementById('today-note');
   if(note){
