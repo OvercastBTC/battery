@@ -6408,6 +6408,14 @@ body.youth #youth-banner{display:block}
     </div>
 
     <div class=&quot;custom-add-form&quot; id=&quot;custom-water-form&quot;>
+      <!-- US-2.9B: one-tap quantity control (1–48oz; ceiling sanity-checked vs
+           hyponatremia guidance — do not raise). Saved values live in a recents
+           store, never competing with the 4-slot favorites shelf (US-2.9A). -->
+      <div class=&quot;caf-row&quot;>
+        <select id=&quot;qc-water-sel&quot; class=&quot;caf-amt qc-sel&quot;></select>
+        <button class=&quot;caf-add-btn&quot; onclick=&quot;qcAdd('water')&quot;>Add</button>
+        <label class=&quot;caf-fav-label&quot;><input type=&quot;checkbox&quot; id=&quot;qc-water-save&quot; class=&quot;caf-checkbox&quot; /><span>Save</span></label>
+      </div>
       <div class=&quot;caf-row&quot;>
         <input type=&quot;number&quot; id=&quot;custom-water-amt&quot; placeholder=&quot;oz&quot; min=&quot;1&quot; class=&quot;caf-amt&quot; />
         <input type=&quot;text&quot;   id=&quot;custom-water-name&quot; placeholder=&quot;name (e.g. Hydroflask 32oz)&quot; maxlength=&quot;40&quot; class=&quot;caf-name&quot; />
@@ -6652,6 +6660,14 @@ body.youth #youth-banner{display:block}
       </button>
     </div>
     <div class=&quot;custom-add-form&quot; id=&quot;custom-protein-form&quot;>
+      <!-- US-2.9B: scoops × g/scoop quantity control (0.5–4 in halves); the g/scoop
+           field persists per profile (fuel-gscoop). Save → recents, not favorites. -->
+      <div class=&quot;caf-row&quot;>
+        <select id=&quot;qc-prot-sel&quot; class=&quot;caf-amt qc-sel&quot;></select>
+        <input type=&quot;number&quot; id=&quot;qc-gscoop&quot; class=&quot;caf-amt&quot; style=&quot;max-width:80px&quot; min=&quot;5&quot; max=&quot;60&quot; title=&quot;grams per scoop&quot; onchange=&quot;qcGscoopChanged()&quot; />
+        <button class=&quot;caf-add-btn&quot; onclick=&quot;qcAdd('protein')&quot;>Add</button>
+        <label class=&quot;caf-fav-label&quot;><input type=&quot;checkbox&quot; id=&quot;qc-prot-save&quot; class=&quot;caf-checkbox&quot; /><span>Save</span></label>
+      </div>
       <div class=&quot;caf-row&quot;>
         <input type=&quot;number&quot; id=&quot;custom-protein-amt&quot; placeholder=&quot;g&quot; min=&quot;1&quot; class=&quot;caf-amt&quot; />
         <input type=&quot;text&quot;   id=&quot;custom-protein-name&quot; placeholder=&quot;name (e.g. Quest bar, salmon)&quot; maxlength=&quot;40&quot; class=&quot;caf-name&quot; />
@@ -8136,6 +8152,72 @@ body.youth #youth-banner{display:block}
     document.getElementById('custom-protein-name').value = '';
     document.getElementById('custom-protein-save').checked = false;
   }
+
+  /* ===== US-2.9: reusable quantity × per-unit control + recents store =====
+     One engine, many instances: water = qty × 1oz (range 1–48, ceiling
+     sanity-checked vs hyponatremia guidance — do not raise); protein =
+     scoops × g/scoop (0.5–4 in halves, g/scoop persisted per profile).
+     'Save' writes an MRU recents list (fuel-recent-*) shown as a ★ Saved
+     optgroup — it NEVER touches the 4-slot favorites shelf. Extensible for
+     US-2.5 (oz-of-food × g/oz) by adding a QC entry. */
+  const QC = {
+    water:   { sel:'qc-water-sel', save:'qc-water-save', min:1, max:48, step:1,
+               recentsKey:'fuel-recent-water', fmt:(v)=>v+' oz' },
+    protein: { sel:'qc-prot-sel', save:'qc-prot-save', min:0.5, max:4, step:0.5,
+               recentsKey:'fuel-recent-protein', fmt:(v)=>v+(v===1?' scoop':' scoops') }
+  };
+  function qcGscoop(){ const v=parseFloat(storeGet('fuel-gscoop','25')); return (v>0 &amp;&amp; v<=60) ? v : 25; }
+  function qcGscoopChanged(){
+    const i=document.getElementById('qc-gscoop');
+    const v=parseFloat(i ? i.value : '');
+    if(v>0 &amp;&amp; v<=60) storeSet('fuel-gscoop', String(v));
+    qcRender('protein');
+  }
+  function qcRecents(k){ try{ const a=JSON.parse(storeGet(k,'[]'))||[]; return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+  function qcSaveRecent(k,v){
+    let a=qcRecents(k).filter(x=>x!==v);
+    a.unshift(v); a=a.slice(0,12);
+    storeSet(k, JSON.stringify(a));
+  }
+  function qcRender(kind){
+    const c=QC[kind]; const sel=c ? document.getElementById(c.sel) : null; if(!sel) return;
+    const cur=sel.value;
+    let html='';
+    const rec=qcRecents(c.recentsKey);
+    if(rec.length){
+      html+='<optgroup label=&quot;★ Saved&quot;>';
+      rec.forEach(v=>{ html+='<option value=&quot;'+v+'&quot;>'+c.fmt(v)+'</option>'; });
+      html+='</optgroup>';
+    }
+    html+='<optgroup label=&quot;Pick&quot;>';
+    for(let v=c.min; v<=c.max+1e-9; v+=c.step){
+      const vv=Math.round(v*2)/2;
+      html+='<option value=&quot;'+vv+'&quot;>'+c.fmt(vv)+'</option>';
+    }
+    html+='</optgroup>';
+    sel.innerHTML=html;
+    if(cur &amp;&amp; sel.querySelector('option[value=&quot;'+cur+'&quot;]')) sel.value=cur;
+    else if(rec.length) sel.value=String(rec[0]);
+    else sel.value = (kind==='water') ? '16' : '1';
+  }
+  function qcAdd(kind){
+    const c=QC[kind]; const sel=c ? document.getElementById(c.sel) : null; if(!sel) return;
+    const qty=parseFloat(sel.value); if(!qty || qty<=0) return;
+    if(kind==='water'){
+      addWater(qty, qty+'oz');
+    } else {
+      const per=qcGscoop();
+      addEntry('protein', Math.round(qty*per), qty+(qty===1?' scoop':' scoops')+' · '+per+'g ea');
+    }
+    const sv=document.getElementById(c.save);
+    if(sv &amp;&amp; sv.checked){ qcSaveRecent(c.recentsKey, qty); sv.checked=false; qcRender(kind); }
+  }
+  function qcBoot(){
+    qcRender('water'); qcRender('protein');
+    const gi=document.getElementById('qc-gscoop'); if(gi) gi.value=qcGscoop();
+  }
+  if(document.readyState!=='loading') qcBoot();
+  else document.addEventListener('DOMContentLoaded', qcBoot);
 
   async function resetDay() {
     if (!(await uiConfirm('Reset Day', 'Reset all of today\'s entries?', true))) return;
