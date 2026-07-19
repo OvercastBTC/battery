@@ -3558,7 +3558,7 @@ body.youth #youth-banner{display:block}
 
   <ul class=&quot;steplist&quot;>
 
-    <li class=&quot;step opt&quot; data-ex=&quot;lift-row&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-row&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3573,7 +3573,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step opt&quot; data-ex=&quot;lift-press&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-press&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3587,7 +3587,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step opt&quot; data-ex=&quot;lift-arms&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-arms&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3601,7 +3601,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step opt&quot; data-ex=&quot;lift-qsq-power&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-qsq-power&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3616,7 +3616,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step opt&quot; data-ex=&quot;lift-qsq-endur&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-qsq-endur&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3630,7 +3630,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step opt&quot; data-ex=&quot;lift-deadlift&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-deadlift&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3645,7 +3645,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step opt&quot; data-ex=&quot;lift-goblet&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-goblet&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3659,7 +3659,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step opt&quot; data-ex=&quot;lift-lunge&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-lunge&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3673,7 +3673,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step opt&quot; data-ex=&quot;lift-abs&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-abs&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3688,7 +3688,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step opt&quot; data-ex=&quot;lift-rotcore&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-rotcore&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3762,10 +3762,18 @@ body.youth #youth-banner{display:block}
      and excluded from the +bonus count entirely (checked history is kept, just hidden). */
   function jxEnabled(){ return storeGet('arm-care-jx-enabled','1') !== '0'; }
   function jxDisabledStep(s){ return !jxEnabled() && s.classList.contains('opt') && !!s.closest('#page-jbands'); }
+  /* plan-v2: the Lifting page counts as its OWN stream ('lift'), not body —
+     the host's plan multi-select decides whether it gates the day. Tab
+     VISIBILITY/reset still ride the body group (stepGroup unchanged). */
+  function stepCountGroup(s){
+    const pg = s.closest('.page');
+    if (pg && pg.id === 'page-lifting') return 'lift';
+    return stepGroup(s);
+  }
   function groupCount(g){
     let done=0,total=0,optDone=0,optTotal=0;
     document.querySelectorAll('.step').forEach(s=>{
-      if(stepGroup(s)!==g) return;
+      if(stepCountGroup(s)!==g) return;
       if(jxDisabledStep(s)) return;
       if(stepOptional(s)){ optTotal++; if(s.classList.contains('done')) optDone++; }
       else { total++; if(s.classList.contains('done')) done++; }
@@ -3784,7 +3792,17 @@ body.youth #youth-banner{display:block}
     applyJxExtras();
     updateCounter();
   }
-  function postCounts(){ try{ parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills'),body:groupCount('body')},'*'); }catch(e){} }
+  function postCounts(){
+    try{
+      // plan-v2: 'lift' rides along ADDITIVELY (old hosts ignore unknown keys).
+      // Youth reports zeros — the Lifting page is §4.3 adult-only (steps are
+      // youth-hidden in the DOM but groupCount would still count them).
+      const lift = document.body.classList.contains('youth')
+        ? {done:0,total:0,optDone:0,optTotal:0}
+        : groupCount('lift');
+      parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills'),body:groupCount('body'),lift:lift},'*');
+    }catch(e){}
+  }
   function applyGroup(group){
     activeGroup = (group==='drills'||group==='body') ? group : 'arm';
     document.querySelectorAll('.tab').forEach(t=>{
@@ -6159,6 +6177,12 @@ body.youth #youth-banner{display:block}
           <button onclick=&quot;applyGameNudge()&quot;>Set Game</button>
           <button class=&quot;gn-dismiss&quot; onclick=&quot;dismissGameNudge()&quot;>Not today</button>
         </div>
+        <!-- plan-v2: HOME plan → day-type sync suggestion (host emits bat-plan) -->
+        <div class=&quot;game-nudge&quot; id=&quot;plan-nudge&quot; style=&quot;display:none&quot;>
+          <span>🗓 <b>Your plan says <span id=&quot;plan-nudge-day&quot;>—</span> today.</b> Match the Fuel targets?</span>
+          <button onclick=&quot;applyPlanNudge()&quot;>Match it</button>
+          <button class=&quot;gn-dismiss&quot; onclick=&quot;dismissPlanNudge()&quot;>Keep mine</button>
+        </div>
       </div>
 
       <div class=&quot;goal-row&quot;>
@@ -7578,6 +7602,7 @@ body.youth #youth-banner{display:block}
     const d = e &amp;&amp; e.data; if(!d) return;
     if(d.type==='bat-nav' &amp;&amp; d.tab){ switchTab(d.tab); }
     else if(d.type==='bat-poll'){ if(typeof refreshProgress==='function') refreshProgress(); }
+    else if(d.type==='bat-plan'){ if(typeof handlePlanSync==='function') handlePlanSync(d); }
   });
 
   /* ===== COLLAPSE TOGGLE ===== */
@@ -7794,6 +7819,42 @@ body.youth #youth-banner{display:block}
   function dismissGameNudge(){
     storeSet('fuel-gamenudge-'+todayKey(),'1');
     maybeGameNudge();
+  }
+
+  /* ===== plan-v2: HOME-plan → day-type sync receiver (host emits bat-plan).
+     Owner's manual chip choice is never clobbered: REST auto-applies ONLY when
+     today's day-type is still untouched; everything else is a dismissible
+     suggestion (per-day dismissal, same pattern as the game nudge). ===== */
+  let _planSuggestDay = null;
+  function handlePlanSync(d){
+    const day = d &amp;&amp; d.day;
+    if (!day || !DAY_TARGETS[day]) return;
+    if (activeDays.has(day)) { hidePlanNudge(); return; }   // already matching
+    const untouched = !storeGet('fuel-day-' + todayKey(), '');
+    if (day === 'rest' &amp;&amp; untouched) {
+      setDay('rest');                                        // safe auto-apply
+      hidePlanNudge();
+      return;
+    }
+    if (storeGet('fuel-plannudge-' + todayKey(), '') === '1') return;  // dismissed today
+    _planSuggestDay = day;
+    const lbl = document.getElementById('plan-nudge-day');
+    if (lbl) lbl.textContent = (DAY_TARGETS[day].label || day).toUpperCase();
+    const el = document.getElementById('plan-nudge');
+    if (el) el.style.display = 'flex';
+  }
+  function hidePlanNudge(){
+    const el = document.getElementById('plan-nudge');
+    if (el) el.style.display = 'none';
+  }
+  function applyPlanNudge(){
+    if (_planSuggestDay &amp;&amp; DAY_TARGETS[_planSuggestDay]) setDay(_planSuggestDay);
+    storeSet('fuel-plannudge-' + todayKey(), '1');
+    hidePlanNudge();
+  }
+  function dismissPlanNudge(){
+    storeSet('fuel-plannudge-' + todayKey(), '1');
+    hidePlanNudge();
   }
   // Legacy single-select alias retained for any older code paths
   function setDay(d) {
