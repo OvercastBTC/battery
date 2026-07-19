@@ -121,6 +121,15 @@ body.youth #youth-banner{display:block}
    its own iframe document and isn't reachable from host markup. */
 .plan-chip{padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:#161b22;color:var(--dim);font-family:"SF Mono",monospace;font-size:11px;letter-spacing:.5px;cursor:pointer}
 .plan-chip.active{background:var(--gold);border-color:var(--gold);color:#0d1117;font-weight:700}
+/* TODAY section-menu (.76, owner mock shots/home-v2-mock.png) — a compact
+   always-visible row of icon+label pills so ARM/DRILLS/BODY/LIFT/GAME stay
+   reachable without scrolling, now that they're off the persistent tabbar
+   (PR #7). Pure nav, no live data — the #today-rows bars below still carry
+   the actual progress. */
+#today-section-menu{display:flex;gap:6px;margin:12px 0}
+.sec-pill{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px;border-radius:12px;background:#161b22;border:1px solid var(--line);color:var(--dim);cursor:pointer}
+.sec-pill .ico{font-size:19px;line-height:1}
+.sec-pill .lb{font-size:9px;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 /* GAME's "resting" warn dot moved off the tabbar onto its TODAY quick-link row */
 #today-rows [data-v="game"].warn span:first-child::after{content:'';display:inline-block;margin-left:6px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold);vertical-align:middle}
 /* TODAY 'fully charged' celebration (host surprise) — one-time/day burst when the
@@ -10115,6 +10124,13 @@ body.youth #youth-banner{display:block}
 "></iframe>
 <section id="view-today">
 <div class="gd-card"><h3 id="today-greet">Today</h3><p id="today-sub">Your daily readiness — arm, drills, body and fuel in one number.</p>
+<div id="today-section-menu">
+<div class="sec-pill" onclick="go('arm')"><span class="ico">🦾</span><span class="lb">ARM</span></div>
+<div class="sec-pill" onclick="go('drills')"><span class="ico">🧤</span><span class="lb">DRILLS</span></div>
+<div class="sec-pill" onclick="go('body')"><span class="ico">🧘</span><span class="lb">BODY</span></div>
+<div class="sec-pill" onclick="goTab('body','lifting')"><span class="ico">🏋️</span><span class="lb">LIFT</span></div>
+<div class="sec-pill" onclick="go('game')"><span class="ico">⚾</span><span class="lb">GAME</span></div>
+</div>
 <div id="today-ring" style="--p:0;--rc:var(--green)"><div class="inner"><span class="score" id="today-score">–</span><span class="lbl">READY</span></div></div>
 <div id="today-why" style="display:none;margin:0 auto 10px;max-width:320px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#0d1117"></div>
 <div id="today-plan" style="margin:10px 0 4px"><div style="font-size:10px;letter-spacing:1px;color:var(--faint);text-transform:uppercase;margin-bottom:6px">Today's plan</div><div id="today-plan-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
@@ -10123,10 +10139,14 @@ body.youth #youth-banner{display:block}
 <div id="today-note" class="dmeta" style="margin-top:8px"></div>
 <div id="today-sleep-adv" style="display:none;margin-top:8px;font-size:12px;line-height:1.45;border-radius:10px;padding:8px 11px"></div>
 </div>
-<div class="gd-card" id="sleep-card" style="display:none">
-<h3 id="sleep-title">😴 How’d you sleep?</h3>
-<p id="sleep-sub" class="dmeta" style="margin-bottom:10px"></p>
-<div id="sleep-btns" style="display:flex;gap:8px"></div>
+<div class="gd-card" id="sleep-card" style="display:none;padding:11px 15px">
+<!-- .76 compact layout (owner): title + 3 buttons share one row, ~half the
+     tile's prior vertical footprint. sleep-sub kept but shrunk, not removed. -->
+<div style="display:flex;align-items:center;gap:8px">
+<h3 id="sleep-title" style="margin:0;font-size:12px;white-space:nowrap;flex-shrink:0"></h3>
+<div id="sleep-btns" style="display:flex;gap:6px;flex:1"></div>
+</div>
+<p id="sleep-sub" class="dmeta" style="margin:5px 0 0;font-size:10px"></p>
 <div id="sleep-trend" style="font-size:12px;color:var(--dim);line-height:1.5"></div>
 </div>
 </section>
@@ -11960,11 +11980,11 @@ function renderSleepCard(){
   var youth=profileTier(profile)==='youth';
   var today=sleepDateKey(new Date()), cur=getSleep(profile,today);
   var OPTS=[{v:'rough',e:'😫',l:'Rough'},{v:'ok',e:'😐',l:'Okay'},{v:'good',e:'😌',l:youth?'Great':'Good'}];
-  var t=document.getElementById('sleep-title'); if(t)t.textContent=youth?'😴 How did you sleep?':'😴 How’d you sleep?';
+  var t=document.getElementById('sleep-title'); if(t)t.textContent='😴 Sleep'; // short label: title+buttons now share one row (.76 compact layout)
   var sub=document.getElementById('sleep-sub');
   if(sub)sub.innerHTML=cur?'Logged — tap to change.':(youth?'Tell us how you slept last night!':'Bauer’s #1 recovery tool — log last night.');
   var btns=document.getElementById('sleep-btns');
-  if(btns)btns.innerHTML=OPTS.map(function(o){var on=cur===o.v;return '<button onclick="logSleep(\''+o.v+'\')" style="flex:1;background:'+(on?'var(--goldb)':'#161b22')+';border:1px solid '+(on?'var(--goldb)':'var(--line)')+';color:'+(on?'#0d1117':'var(--bone)')+';border-radius:11px;padding:9px 4px;cursor:pointer;font-weight:'+(on?'700':'400')+'"><div style="font-size:22px;line-height:1.25">'+o.e+'</div><span style="font-size:11px;letter-spacing:.5px">'+o.l+'</span></button>';}).join('');
+  if(btns)btns.innerHTML=OPTS.map(function(o){var on=cur===o.v;return '<button onclick="logSleep(\''+o.v+'\')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;height:32px;box-sizing:border-box;background:'+(on?'var(--goldb)':'#161b22')+';border:1px solid '+(on?'var(--goldb)':'var(--line)')+';color:'+(on?'#0d1117':'var(--bone)')+';border-radius:9px;padding:0 4px;cursor:pointer;font-weight:'+(on?'700':'400')+'"><span style="font-size:15px;line-height:1">'+o.e+'</span><span style="font-size:10px;letter-spacing:.3px">'+o.l+'</span></button>';}).join('');
   var EMO={rough:'😫',ok:'😐',good:'😌'};
   var cells='',logged=0,good=0;
   for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var v=getSleep(profile,sleepDateKey(d));if(v){logged++;if(v==='good')good++;}cells+='<span style="font-size:15px;opacity:'+(v?'1':'.22')+'">'+(v?(EMO[v]||'·'):'·')+'</span>';}
@@ -12011,13 +12031,19 @@ window.sleepAdvisory=sleepAdvisory;
    truth; the TODAY 'Start flow' button shows only when there is something to do. */
 function flowSteps(){
   var youth=profileTier(profile)==='youth', steps=[];
+  // Plan-gated exactly like renderToday()'s rows (owner-hit bug, .76): the Flow
+  // button used to walk ALL streams regardless of today's active plan, so a
+  // Rest-plan day with fuel done still said "2 left" for arm/drills untouched
+  // on purpose. refreshFlowBtn() inherits the fix for free (it just reads
+  // flowSteps().length).
+  var plan=PLAN_PRESETS[getActivePlan()]||PLAN_PRESETS.full;
   if(_batCounts){
     var C=[['arm','🦾','Arm care','arm',null],['drills','🧤','Position drills','drills',null],['body','🧘','Body care','body',null]];
-    C.forEach(function(r){var c=_batCounts[r[0]];if(c&&c.total>0&&c.done<c.total)steps.push({ico:r[1],label:r[2],view:r[3],sub:r[4],left:(c.total-c.done)+' left'});});
+    C.forEach(function(r){if(!plan[r[0]])return;var c=_batCounts[r[0]];if(c&&c.total>0&&c.done<c.total)steps.push({ico:r[1],label:r[2],view:r[3],sub:r[4],left:(c.total-c.done)+' left'});});
   }
   if(_batFuel){
-    if(_batFuel.tWater>0&&_batFuel.water<_batFuel.tWater)steps.push({ico:'💧',label:'Water',view:'fuel',sub:'hydration',left:(_batFuel.tWater-_batFuel.water)+' oz to go'});
-    if(!youth&&_batFuel.tProtein>0&&_batFuel.protein<_batFuel.tProtein)steps.push({ico:'🥩',label:'Protein',view:'fuel',sub:'protein',left:(_batFuel.tProtein-_batFuel.protein)+' g to go'});
+    if(plan.water&&_batFuel.tWater>0&&_batFuel.water<_batFuel.tWater)steps.push({ico:'💧',label:'Water',view:'fuel',sub:'hydration',left:(_batFuel.tWater-_batFuel.water)+' oz to go'});
+    if(plan.protein&&!youth&&_batFuel.tProtein>0&&_batFuel.protein<_batFuel.tProtein)steps.push({ico:'🥩',label:'Protein',view:'fuel',sub:'protein',left:(_batFuel.tProtein-_batFuel.protein)+' g to go'});
   }
   return steps;
 }
