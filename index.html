@@ -3579,6 +3579,7 @@ body.youth #youth-banner{display:block}
       <div class=&quot;step-detail&quot;>
         <p>Chest tall, pull the handles to the ribs, squeeze the blades, slow return. Current working load ~45+35/side.</p>
         <em>The pull side of the pull-≥-push rule — never let press volume outgrow this.</em>
+        <em>Short rest: 30–60 sec between sets (endurance/high-rep work).</em>
       </div>
     </li>
 
@@ -3593,20 +3594,37 @@ body.youth #youth-banner{display:block}
       </div>
       <div class=&quot;step-detail&quot;>
         <p>Same machine, press away smooth — no bounce at the turnaround. Keep total press volume at or below row volume.</p>
+        <em>Short rest: 30–60 sec between sets (endurance/high-rep work).</em>
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-arms&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-curls&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-          <div class=&quot;step-name&quot;>Curls + Triceps · Olympic curl bar</div>
-          <div class=&quot;step-target&quot;>Biceps · Triceps · Grip</div>
+          <div class=&quot;step-name&quot;>Biceps Curls · Olympic curl bar</div>
+          <div class=&quot;step-target&quot;>Biceps · Grip</div>
         </div>
-        <div class=&quot;step-reps&quot;>3 sets each</div>
+        <div class=&quot;step-reps&quot;>3 × ?</div>
       </div>
       <div class=&quot;step-detail&quot;>
-        <p>Curl strict (no hip swing); triceps extensions controlled through the full range. Grip work rides along free — useful at 1B and at the plate.</p>
+        <p>Curl strict — no hip swing, controlled eccentric. The curl bar angle eases wrist strain while loading the biceps and building grip strength (useful at 1B and at the plate).</p>
+        <em>Short rest: 30–60 sec between sets (hypertrophy range).</em>
+      </div>
+    </li>
+
+    <li class=&quot;step&quot; data-ex=&quot;lift-triceps&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Triceps Extensions · Olympic curl bar</div>
+          <div class=&quot;step-target&quot;>Triceps</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × ?</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Controlled through the full range — lock the elbows at the top, stretch at the bottom. Smooth tempo, no bounce.</p>
+        <em>Short rest: 30–60 sec between sets (hypertrophy range).</em>
       </div>
     </li>
 
@@ -3621,7 +3639,9 @@ body.youth #youth-banner{display:block}
       </div>
       <div class=&quot;step-detail&quot;>
         <p>The reason to squat PARTIAL is to load the exact joint angle of the drive leg — heavy, low reps, move the bar with intent. That's the power adaptation partials are programmed for.</p>
+        <p><b>Warm-up ramp:</b> 2–5 progressive sets working from ~40% up to 70–80% of your working weight before the actual working sets. Primes the nervous system for full force output and measurably improves both strength and reps-at-load (NSCA).</p>
         <em>If you're doing sets of 25, you're on the endurance card below — both are valid, know which one today is.</em>
+        <em>Long rest: 2–5 min between working sets (power work).</em>
       </div>
     </li>
 
@@ -3636,6 +3656,7 @@ body.youth #youth-banner{display:block}
       </div>
       <div class=&quot;step-detail&quot;>
         <p>Your current scheme (~2×45/side). High-rep partials train muscular endurance — fine for long field days, just a different effect than the power card above.</p>
+        <em>Short rest: 30–60 sec between sets (endurance work).</em>
       </div>
     </li>
 
@@ -3650,7 +3671,9 @@ body.youth #youth-banner{display:block}
       </div>
       <div class=&quot;step-detail&quot;>
         <p><b>Safety note — hinge lifts live at LOW reps.</b> Form degrades with fatigue exactly where spinal loading is least forgiving, which is why deadlifts are almost universally programmed at 3–8 reps. If a high-rep set (like 25) is a deliberate conditioning choice, <b>drop the weight substantially</b> and let form — not the number — end the set. The set is over the moment the lower back rounds.</p>
+        <p><b>Warm-up ramp:</b> 2–5 progressive sets from ~40% up to 70–80% of working weight. Prepares the nervous system for maximal force production and improves strength output (NSCA).</p>
         <em>Loss-prevention applied to your own spine: control the exposure, not just the outcome.</em>
+        <em>Long rest: 2–5 min between working sets (strength work).</em>
       </div>
     </li>
 
@@ -8399,7 +8422,34 @@ body.youth #youth-banner{display:block}
     renderPaceLine(t, tot);
 
     // Mirror today's totals to the host shell (same pattern as arm-care's bat-counts)
-    try { parent.postMessage({ type:'bat-fuel', water:Math.round(tot.water), protein:Math.round(tot.protein), tWater:t.water, tProtein:t.protein, day:t.label }, '*'); } catch (e) {}
+    // Include runway status for TODAY display
+    // Self-contained on purpose: getTrain()/parseHM()/fmt() live inside the
+    // runway feature's own closure (only batteryRunwayPrompt/batterySetTrain
+    // are exposed from it), which this function's enclosing scope can't see --
+    // typeof-guarding those names here always resolved to 'undefined' and
+    // silently fell through to {state:'none'} regardless of the real value.
+    // Reading localStorage directly (same key shape as the runway's own
+    // trainKey()) and doing the HH:MM parse/format inline avoids the cross-
+    // scope dependency entirely.
+    function getRunwayStatus(){
+      try{
+        const d=new Date();
+        const dk=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+        const trainRaw=localStorage.getItem('fuel-train-'+dk)||'';
+        if(!trainRaw) return {state:'none'};
+        const parts=trainRaw.split(':').map(Number);
+        if(parts.length<2||isNaN(parts[0])||isNaN(parts[1])) return {state:'none'};
+        const train=new Date(); train.setHours(parts[0],parts[1],0,0);
+        const now=new Date();
+        const mins=Math.round((train-now)/60000);
+        let h=train.getHours(),m=train.getMinutes();const ap=h>=12?'p':'a';h=h%12||12;
+        const fmtTime=h+(m?':'+String(m).padStart(2,'0'):'')+ap;
+        if(mins<=0) return {state:'now', time:fmtTime};
+        return {state:'active', time:fmtTime};
+      }catch(e){ return {state:'none'}; }
+    }
+    const runway=getRunwayStatus();
+    try { parent.postMessage({ type:'bat-fuel', water:Math.round(tot.water), protein:Math.round(tot.protein), tWater:t.water, tProtein:t.protein, day:t.label, runway:runway }, '*'); } catch (e) {}
 
     // Also refresh mini stats / strip / weekly / suggestions each time
     refreshMiniStrip();
@@ -9887,7 +9937,7 @@ body.youth #youth-banner{display:block}
       const isYouth=youth();
       let windows=[];
       if(mins<=0){
-        windows=[{t:'NOW', tag:'go', what:isYouth?'Game/practice time. Water bottle, light snack only if hungry.':'Training now. Water only — you\'re set, don\'t add food.'}];
+        windows=[{t:'NOW', tag:'go', what:isYouth?'Game/practice time. Water bottle, light snack only if hungry.':'Training now. Water only — you\'re set, don\'t add food.', done:true}];
       } else {
         const solidEnd=new Date(train.getTime()-90*60000);
         const liquidEnd=new Date(train.getTime()-45*60000);
@@ -9921,7 +9971,7 @@ body.youth #youth-banner{display:block}
         '<div style=&quot;display:flex;gap:10px;padding:10px 12px;background:#161b22;border:1px solid #2d333b;border-radius:10px;margin-bottom:6px&quot;>'+
         '<div style=&quot;min-width:90px&quot;><div style=&quot;font-family:\'SF Mono\',monospace;font-size:11px;color:#8b949e&quot;>'+w.t+'</div>'+
         '<span style=&quot;font-size:8px;letter-spacing:1px;color:'+tagColor[w.tag]+';font-family:\'SF Mono\',monospace&quot;>'+tagLabel[w.tag]+'</span></div>'+
-        '<div style=&quot;flex:1;font-size:12.5px;color:#e6edf3;line-height:1.45&quot;>'+w.what+'</div></div>').join('');
+        '<div style=&quot;flex:1;font-size:12.5px;color:#e6edf3;line-height:1.45&quot;>'+w.what+(w.done?'<div style=&quot;margin-top:8px&quot;><button onclick=&quot;batterySetTrain(\'\')&quot; style=&quot;background:#3fb950;border:none;color:#0d1117;font-weight:700;border-radius:8px;padding:9px 14px;cursor:pointer;font-family:\'SF Mono\',monospace;font-size:12px&quot;>✓ Done</button></div>':'')+'</div></div>').join('');
       const hLeft=mins>0?(mins>=60?Math.floor(mins/60)+'h '+(mins%60)+'m':mins+'m'):'now';
       host.innerHTML='<div style=&quot;background:#11151c;border:1px solid #3fb950;border-radius:13px;padding:14px&quot;>'+
         '<div style=&quot;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px&quot;>'+
@@ -11897,10 +11947,13 @@ window.renderScoreboard=renderScoreboard;
    navigating to a past date. DEFAULT ('full') reproduces the exact prior
    behavior — an athlete who never opens the picker sees zero change. */
 const PLAN_PRESETS={
-  full:     {label:'Full',            arm:true,  drills:true,  body:true,  water:true, protein:true},
-  throwing: {label:'Warmup + Throw',  arm:true,  drills:false, body:false, water:true, protein:true},
-  hitting:  {label:'Warmup + Hit',    arm:true,  drills:true,  body:false, water:true, protein:true},
-  rest:     {label:'Rest / Recovery', arm:false, drills:false, body:true,  water:true, protein:true}
+  full:     {label:'Full',            arm:true,  drills:true,  body:true,  lift:true,  water:true, protein:true},
+  throwing: {label:'Warmup + Throw',  arm:true,  drills:false, body:false, lift:false, water:true, protein:true},
+  // owner fix: hitting has no fielding drills in it -- was wrongly true.
+  hitting:  {label:'Warmup + Hit',    arm:true,  drills:false, body:false, lift:false, water:true, protein:true},
+  // owner: warmup (jbands) always happens alongside a lift day too.
+  lift:     {label:'Warmup + Lift',   arm:true,  drills:false, body:false, lift:true,  water:true, protein:true},
+  rest:     {label:'Rest / Recovery', arm:false, drills:false, body:true,  lift:false, water:true, protein:true}
 };
 function todayPlanKey(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function getActivePlan(){
@@ -11927,7 +11980,7 @@ function readinessScore(){
   var plan=PLAN_PRESETS[getActivePlan()]||PLAN_PRESETS.full;
   var parts=[];
   if(_batCounts){
-    ['arm','drills','body'].forEach(function(k){if(!plan[k])return;var c=_batCounts[k];if(c&&c.total>0)parts.push(Math.min(1,c.done/c.total));});
+    ['arm','drills','body','lift'].forEach(function(k){if(!plan[k])return;var c=_batCounts[k];if(c&&c.total>0)parts.push(Math.min(1,c.done/c.total));});
   }
   if(_batFuel){
     if(plan.water&&_batFuel.tWater>0)parts.push(Math.min(1,_batFuel.water/_batFuel.tWater));
@@ -11945,7 +11998,7 @@ function readinessBreakdown(){
   var plan=PLAN_PRESETS[getActivePlan()]||PLAN_PRESETS.full;
   function pct(n,d){return d>0?Math.min(100,Math.round(n/d*100)):null;}
   if(_batCounts){
-    [['arm','Arm care'],['drills','Drills'],['body','Body']].forEach(function(r){
+    [['arm','Arm care'],['drills','Drills'],['body','Body'],['lift','Lift']].forEach(function(r){
       if(!plan[r[0]])return;
       var c=_batCounts[r[0]]; if(c&&c.total>0)items.push({label:r[1],pct:pct(c.done,c.total),detail:c.done+'/'+c.total});
     });
@@ -12055,6 +12108,19 @@ function renderToday(){
       if(plan.arm)rows+=bar('ARM CARE','🦾',_batCounts.arm.done,_batCounts.arm.total,'var(--blood)','arm');
       if(plan.drills)rows+=bar('DRILLS','🧤',_batCounts.drills.done,_batCounts.drills.total,'var(--blue)','drills');
       if(plan.body){var bd=_batCounts.body||{done:0,total:0};rows+=bar('BODY','🧘',bd.done,bd.total,'#bc8cff','body');}
+      // LIFT rides the 'lift' field on bat-counts (plan-v2, adult-only per §4.3 --
+      // the ARM iframe already reports zeros for youth, so this row naturally
+      // never shows meaningfully for a youth profile). Deep-links via goTab like
+      // the existing LIFT quick-icon, not a plain go() value (lifting is a
+      // sub-tab of the ARM iframe's 'body' group, not its own top-level view).
+      if(plan.lift&&!youth){var lf=_batCounts.lift||{done:0,total:0};if(lf.total>0){
+        var lpct=Math.min(100,Math.round(lf.done/lf.total*100)),lfull=lf.done>=lf.total;
+        rows+='<div onclick="goTab(\'body\',\'lifting\')" style="cursor:pointer;margin:10px 0">'+
+          '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:3px">'+
+          '<span style="color:var(--dim);letter-spacing:1px;display:inline-flex;align-items:center">'+batIcon(lpct,'#e0a339')+'LIFT</span>'+
+          '<span style="display:flex;align-items:center;gap:6px"><span style="font-family:\'SF Mono\',monospace;color:'+(lfull?'var(--green)':'var(--bone)')+'">'+lf.done+'/'+lf.total+'</span><span style="color:var(--faint)">›</span></span></div>'+
+          '<div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden"><div style="width:'+lpct+'%;height:100%;border-radius:3px;background:'+(lfull?'var(--green)':'#e0a339')+'"></div></div></div>';
+      }}
     }
     if(_batFuel){
       if(plan.water&&_batFuel.tWater>0)rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'#39bdf0','fuel');
@@ -12089,6 +12155,14 @@ function renderToday(){
       }
     }catch(e){}
     if(_batFuel&&_batFuel.day)msg=(msg?msg+'  ·  ':'')+String(_batFuel.day).toUpperCase()+' DAY';
+    // owner: the FUEL runway (pre-training eat/drink windows) had no visible
+    // status on HOME -- surface it here read-only; the actual "done" action
+    // (clears it) already lives in FUEL where the windows/button are shown.
+    try{
+      var rw=_batFuel&&_batFuel.runway;
+      if(rw&&rw.state==='active')msg=(msg?msg+'  ·  ':'')+'🏋 Training '+escHtml(rw.time);
+      else if(rw&&rw.state==='now')msg=(msg?msg+'  ·  ':'')+'🏋 Training now — mark done in FUEL';
+    }catch(e){}
     note.textContent=msg;
   }
   var adv=document.getElementById('today-sleep-adv');
