@@ -11145,7 +11145,7 @@ window.demoSave=function(field,val){
   if(!profile)return;
   var p=getDemo(profile);
   if(field==='weightLb'||field==='heightIn'||field==='age'){val=val===''?'':Math.max(0,parseFloat(val)||0);}
-  if(field==='stim')val=!!val;
+  if(field==='stim'||field==='hot')val=!!val;
   p[field]=val; setDemo(profile,p);
   // keep the live fuel iframe in sync (recompute targets) without a full reload.
   try{var w=FRAMES.fuel.contentWindow;if(w){if(w.recomputeDayTargets)w.recomputeDayTargets();if(w.refreshAll)w.refreshAll();}}catch(e){}
@@ -11159,6 +11159,40 @@ function flashDemoSaved(){
   el.style.opacity='1'; clearTimeout(el._h);
   el._h=setTimeout(function(){el.style.opacity='0';},1400);
 }
+/* ===== US-3.0 (owner) — the rest of FUEL's Profile-tab settings move here too:
+   GLP-1 tracking, last-hard-throw, tracked-areas opt-out. hot-climate already
+   flows through demoSave() above (same fuel-profile object FUEL's own
+   saveProfile() writes 'hot' into). GLP-1/lastThrow are a separate FUEL-side
+   monkeypatch that also writes into the SAME fuel-profile object (see FUEL's
+   saveProfile wrapper) -- so demoSave()'s generic p[field]=val already covers
+   them correctly, no new plumbing needed beyond adding the fields to the form.
+   Tracked-areas is the one exception -- it lives in its own 'fuel-tracked' key,
+   not fuel-profile, so it needs its own save path mirroring setDemo()'s
+   live+namespaced dual-write (the documented fix for the persistLive-clobber
+   bug applies here too, not just to fuel-profile). */
+function getTracked(id){
+  try{
+    var live=(id===profile)?localStorage.getItem('fuel-tracked'):null;
+    var raw=live!=null?live:localStorage.getItem('battery::'+id+'::fuel-tracked');
+    var t=JSON.parse(raw||'{}')||{};
+    return {water:t.water!==false, protein:t.protein!==false};
+  }catch(e){return {water:true,protein:true};}
+}
+window.trackedSave=function(type){
+  if(!profile)return;
+  var t=getTracked(profile);
+  t[type]=!t[type];
+  // at least one area stays on (mirrors FUEL's own trackedAreas() invariant)
+  if(!t.water&&!t.protein)t[type]=true;
+  try{
+    var s=JSON.stringify(t);
+    localStorage.setItem('fuel-tracked',s);
+    localStorage.setItem('battery::'+profile+'::fuel-tracked',s);
+  }catch(e){}
+  try{var w=FRAMES.fuel.contentWindow;if(w){if(w.recomputeDayTargets)w.recomputeDayTargets();if(w.refreshAll)w.refreshAll();}}catch(e){}
+  renderDemoCard();
+  flashDemoSaved();
+};
 function renderDemoCard(){
   var card=document.getElementById('demo-card'), body=document.getElementById('demo-body');
   if(!card||!body)return;
@@ -11172,11 +11206,33 @@ function renderDemoCard(){
   html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+num('heightIn','Height','in')+num('weightLb','Weight','lb')+'</div>';
   html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+num('age','Age','yrs')+
     '<label style="'+lab+'">Sex<br><select onchange="demoSave(\'sex\',this.value)" style="'+ins+'"><option value=""'+(!p.sex?' selected':'')+'>—</option><option value="male"'+(p.sex==='male'?' selected':'')+'>Male</option><option value="female"'+(p.sex==='female'?' selected':'')+'>Female</option></select></label></div>';
+  // hot-climate affects the water target for BOTH tiers (youth water is never
+  // exempt, only protein/macros are §4.3-hidden) -- not youth-gated below.
+  html+='<label class="fr-check" style="margin:2px 0 10px"><input type="checkbox" '+(p.hot?'checked':'')+' onchange="demoSave(\'hot\',this.checked)"> Hot-climate / outdoor — adds extra water on top</label>';
   if(!youth){
     html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+
       '<label style="'+lab+'">Frame<br><select onchange="demoSave(\'frame\',this.value)" style="'+ins+'"><option value="medium"'+(!p.frame||p.frame==='medium'?' selected':'')+'>Medium</option><option value="small"'+(p.frame==='small'?' selected':'')+'>Small</option><option value="large"'+(p.frame==='large'?' selected':'')+'>Large</option></select></label>'+
       '<label style="'+lab+'">Goal<br><select onchange="demoSave(\'goal\',this.value)" style="'+ins+'"><option value="preserve"'+(!p.goal||p.goal==='preserve'?' selected':'')+'>Preserve</option><option value="build"'+(p.goal==='build'?' selected':'')+'>Build</option><option value="cut"'+(p.goal==='cut'?' selected':'')+'>Cut</option></select></label></div>';
-    html+='<label class="fr-check" style="margin:2px 0 0"><input type="checkbox" '+(p.stim?'checked':'')+' onchange="demoSave(\'stim\',this.checked)"> On a stimulant (ADHD med / pre-workout) — adjusts hydration</label>';
+    html+='<label class="fr-check" style="margin:2px 0 10px"><input type="checkbox" '+(p.stim?'checked':'')+' onchange="demoSave(\'stim\',this.checked)"> On a stimulant (ADHD med / pre-workout) — adjusts hydration</label>';
+    // US-3.0 (owner): GLP-1, last-hard-throw, tracked-areas -- migrated out of
+    // FUEL's Profile tab, same fields/keys, so FUEL's own reads stay correct.
+    html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px">'+
+      '<label style="'+lab+'">GLP-1 / appetite med<br><select onchange="demoSave(\'glp\',this.value)" style="'+ins+'">'+
+        ['none','zepbound','reta','other'].map(function(v){return '<option value="'+v+'"'+((p.glp||'none')===v?' selected':'')+'>'+(v==='none'?'None':v==='zepbound'?'Zepbound':v==='reta'?'Reta':'Other')+'</option>';}).join('')+
+      '</select></label></div>';
+    if(p.glp&&p.glp!=='none'){
+      html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+
+        '<label style="'+lab+'">Dose (optional)<br><input type="text" maxlength="20" value="'+escHtml(p.glpDose||'')+'" placeholder="e.g. 5mg / wk" onchange="demoSave(\'glpDose\',this.value)" style="'+ins+'"></label>'+
+        '<label style="'+lab+'">Shot day <span style="color:var(--faint)">(flags nausea window)</span><br><select onchange="demoSave(\'glpDay\',this.value)" style="'+ins+'"><option value=""'+(!p.glpDay?' selected':'')+'>—</option>'+
+          ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(function(d){return '<option'+(p.glpDay===d?' selected':'')+'>'+d+'</option>';}).join('')+
+        '</select></label></div>';
+    }
+    html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+
+      '<label style="'+lab+'">Last hard throw <span style="color:var(--faint)">(bullpen/long-toss/game — ties recovery to fueling)</span><br><select onchange="demoSave(\'lastThrow\',this.value)" style="'+ins+'"><option value="none"'+((p.lastThrow||'none')==='none'?' selected':'')+'>N/A</option><option value="today"'+(p.lastThrow==='today'?' selected':'')+'>Today</option><option value="yesterday"'+(p.lastThrow==='yesterday'?' selected':'')+'>Yesterday</option><option value="2plus"'+(p.lastThrow==='2plus'?' selected':'')+'>2+ days</option></select></label></div>';
+    var trk=getTracked(profile);
+    html+='<div style="margin-bottom:2px"><span style="'+lab+'">Tracked areas <span style="color:var(--faint)">(untrack what you don’t log — never counts against streak)</span></span></div>'+
+      '<label class="fr-check" style="margin:2px 12px 4px 0;display:inline-flex"><input type="checkbox" '+(trk.water?'checked':'')+' onchange="trackedSave(\'water\')"> 💧 Water</label>'+
+      '<label class="fr-check" style="margin:2px 0 4px;display:inline-flex"><input type="checkbox" '+(trk.protein?'checked':'')+' onchange="trackedSave(\'protein\')"> 🥩 Protein</label>';
   }
   body.innerHTML=html;
 }
