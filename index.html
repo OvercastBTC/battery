@@ -12028,53 +12028,96 @@ window.renderScoreboard=renderScoreboard;
    YOUTH excludes the protein/macro component (same safety gate as the fuel app,
    HANDOFF §4.3). renderToday() RETURNS the integer score (the test reads it) and
    renders the ring + tappable rows + a Pitch-Smart/day-type note. */
-/* ===== TODAY'S PLAN (owner request) — not every day includes every stream: a
-   "warmup + hitting" day has no drills, a "throwing" day has no body work, a
-   rest day has neither. Without this, readinessScore() demanded ALL FIVE
-   streams every day to hit 100 — mirrors FUEL's day-type-chip pattern (single
-   preset table + a persisted, per-date-snapshotted selection) so a day's plan
-   choice never silently drifts if picked later, and doesn't get overwritten by
-   navigating to a past date. DEFAULT ('full') reproduces the exact prior
-   behavior — an athlete who never opens the picker sees zero change. */
-const PLAN_PRESETS={
-  full:     {label:'Full',            arm:true,  drills:true,  body:true,  lift:true,  water:true, protein:true},
-  throwing: {label:'Warmup + Throw',  arm:true,  drills:false, body:false, lift:false, water:true, protein:true},
-  // owner fix: hitting has no fielding drills in it -- was wrongly true.
-  hitting:  {label:'Warmup + Hit',    arm:true,  drills:false, body:false, lift:false, water:true, protein:true},
-  // owner: warmup (jbands) always happens alongside a lift day too.
-  lift:     {label:'Warmup + Lift',   arm:true,  drills:false, body:false, lift:true,  water:true, protein:true},
-  rest:     {label:'Rest / Recovery', arm:false, drills:false, body:true,  lift:false, water:true, protein:true}
+/* ===== PLAN v2 (Lane A spec, Issue #2 #5014766477) — multi-select per-stream
+   toggles, replacing the old single-preset radio. Water/protein are NOT plan
+   toggles anymore: they're governed by FUEL's own tracked-areas opt-out (.64),
+   which already zeroes tWater/tProtein when untracked -- so the tWater>0/
+   tProtein>0 guards below are the only gate needed; a second plan-side opt-out
+   would just be a competing one. Storage stays per-date only, no carryover
+   (Lane A/PO ruling, PR #7) and defaults all-on daily. Old single-string preset
+   values (full/throwing/hitting/lift/rest) are migrated to flag sets the first
+   time that date's key is read, then rewritten as JSON so it only runs once. */
+const PLAN_STREAMS=['arm','drills','body','lift'];
+const PLAN_ALL_ON={arm:true,drills:true,body:true,lift:true};
+// Rest chip: literally all off, per spec. (Migrating an old *stored* 'rest'
+// snapshot is different -- see PLAN_LEGACY_MAP below -- that keeps body:true
+// to preserve what an athlete actually picked under the old semantics.)
+const PLAN_REST={arm:false,drills:false,body:false,lift:false};
+const PLAN_LEGACY_MAP={
+  full:PLAN_ALL_ON,
+  throwing:{arm:true,drills:false,body:false,lift:false},
+  hitting:{arm:true,drills:false,body:false,lift:false},
+  lift:{arm:true,drills:false,body:false,lift:true},
+  rest:{arm:false,drills:false,body:true,lift:false}
 };
 function todayPlanKey(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function flagsEqual(a,b){return PLAN_STREAMS.every(function(k){return !!a[k]===!!b[k];});}
 function getActivePlan(){
-  // Per-date only, deliberately no global-default fallback (Lane A/PO ruling,
-  // PR #7): FUEL's day-type chips don't carry over day to day either, and a
-  // global fallback would let e.g. Sunday's "Rest" silently make Monday's 100
-  // artificially easy until noticed. Every new day starts at 'full' unless
-  // THAT day has its own snapshot.
+  var youth=profileTier(profile)==='youth';
+  var flags=null;
   try{
-    var snap=localStorage.getItem('battery-plan-'+todayPlanKey());
-    if(snap&&PLAN_PRESETS[snap])return snap;
+    var raw=localStorage.getItem('battery-plan-'+todayPlanKey());
+    if(raw){
+      try{ flags=JSON.parse(raw); }
+      catch(e){
+        if(PLAN_LEGACY_MAP[raw]){
+          flags=Object.assign({},PLAN_LEGACY_MAP[raw]);
+          try{localStorage.setItem('battery-plan-'+todayPlanKey(),JSON.stringify(flags));}catch(e2){}
+        }
+      }
+    }
   }catch(e){}
-  return 'full';
+  if(!flags||typeof flags!=='object')flags=Object.assign({},PLAN_ALL_ON);
+  var out={};
+  PLAN_STREAMS.forEach(function(k){out[k]=!!flags[k];});
+  // §4.3 belt-and-suspenders: youth never scores/sees LIFT even off a stale
+  // flag object (the ARM iframe already zeroes youth lift counts on its side).
+  if(youth)out.lift=false;
+  return out;
 }
-function setActivePlan(p){
-  if(!PLAN_PRESETS[p])return;
-  try{localStorage.setItem('battery-plan-'+todayPlanKey(),p);}catch(e){}
+/* Fires on every plan change (Lane A spec): tells FUEL's already-live
+   handlePlanSync() receiver what today's plan implies for day-type. FUEL never
+   has its manual chip choice clobbered -- 'rest' auto-applies only on an
+   untouched day, everything else is a dismissible nudge (FUEL-side, .76). */
+function syncFuelDayFromPlan(flags){
+  var day=null;
+  if(PLAN_STREAMS.every(function(k){return !flags[k];}))day='rest';
+  else if(flags.lift)day='train';
+  else if(flags.arm&&flags.drills&&flags.body)day='train';
+  if(!day)return;
+  try{
+    var f=document.getElementById('f-fuel');
+    if(f&&f.contentWindow)f.contentWindow.postMessage({type:'bat-plan',day:day},'*');
+  }catch(e){}
+}
+function setActivePlan(flags){
+  var out={}; PLAN_STREAMS.forEach(function(k){out[k]=!!flags[k];});
+  try{localStorage.setItem('battery-plan-'+todayPlanKey(),JSON.stringify(out));}catch(e){}
+  try{syncFuelDayFromPlan(out);}catch(e){}
   try{renderToday();}catch(e){}
 }
-window.setActivePlan=setActivePlan; window.PLAN_PRESETS=PLAN_PRESETS;
+function togglePlanStream(k){
+  if(PLAN_STREAMS.indexOf(k)<0)return;
+  var cur=getActivePlan();
+  cur[k]=!cur[k];
+  setActivePlan(cur);
+}
+function setPlanAll(on){
+  setActivePlan(on?PLAN_ALL_ON:PLAN_REST);
+}
+window.setActivePlan=setActivePlan; window.togglePlanStream=togglePlanStream;
+window.setPlanAll=setPlanAll; window.PLAN_STREAMS=PLAN_STREAMS; window.getActivePlan=getActivePlan;
 
 function readinessScore(){
   var youth=profileTier(profile)==='youth';
-  var plan=PLAN_PRESETS[getActivePlan()]||PLAN_PRESETS.full;
+  var plan=getActivePlan();
   var parts=[];
   if(_batCounts){
-    ['arm','drills','body','lift'].forEach(function(k){if(!plan[k])return;var c=_batCounts[k];if(c&&c.total>0)parts.push(Math.min(1,c.done/c.total));});
+    PLAN_STREAMS.forEach(function(k){if(!plan[k])return;var c=_batCounts[k];if(c&&c.total>0)parts.push(Math.min(1,c.done/c.total));});
   }
   if(_batFuel){
-    if(plan.water&&_batFuel.tWater>0)parts.push(Math.min(1,_batFuel.water/_batFuel.tWater));
-    if(plan.protein&&!youth&&_batFuel.tProtein>0)parts.push(Math.min(1,_batFuel.protein/_batFuel.tProtein));
+    if(_batFuel.tWater>0)parts.push(Math.min(1,_batFuel.water/_batFuel.tWater));
+    if(!youth&&_batFuel.tProtein>0)parts.push(Math.min(1,_batFuel.protein/_batFuel.tProtein));
   }
   if(!parts.length)return 0;
   var avg=parts.reduce(function(a,b){return a+b;},0)/parts.length;
@@ -12085,7 +12128,7 @@ function readinessScore(){
    excludes protein exactly like the score does (§4.3). Pure read of live data. */
 function readinessBreakdown(){
   var youth=profileTier(profile)==='youth', items=[];
-  var plan=PLAN_PRESETS[getActivePlan()]||PLAN_PRESETS.full;
+  var plan=getActivePlan();
   function pct(n,d){return d>0?Math.min(100,Math.round(n/d*100)):null;}
   if(_batCounts){
     [['arm','Arm care'],['drills','Drills'],['body','Body'],['lift','Lift']].forEach(function(r){
@@ -12094,8 +12137,8 @@ function readinessBreakdown(){
     });
   }
   if(_batFuel){
-    if(plan.water&&_batFuel.tWater>0)items.push({label:'Water',pct:pct(_batFuel.water,_batFuel.tWater),detail:_batFuel.water+'/'+_batFuel.tWater+' oz'});
-    if(plan.protein&&!youth&&_batFuel.tProtein>0)items.push({label:'Protein',pct:pct(_batFuel.protein,_batFuel.tProtein),detail:_batFuel.protein+'/'+_batFuel.tProtein+' g'});
+    if(_batFuel.tWater>0)items.push({label:'Water',pct:pct(_batFuel.water,_batFuel.tWater),detail:_batFuel.water+'/'+_batFuel.tWater+' oz'});
+    if(!youth&&_batFuel.tProtein>0)items.push({label:'Protein',pct:pct(_batFuel.protein,_batFuel.tProtein),detail:_batFuel.protein+'/'+_batFuel.tProtein+' g'});
   }
   return items;
 }
@@ -12166,10 +12209,14 @@ function renderToday(){
   var whyBox=document.getElementById('today-why'); if(whyBox){whyBox.style.display='none';whyBox.innerHTML='';}
   var planChipsEl=document.getElementById('today-plan-chips');
   if(planChipsEl){
-    var activePlan=getActivePlan();
-    planChipsEl.innerHTML=Object.keys(PLAN_PRESETS).map(function(k){
-      return '<button class="plan-chip'+(k===activePlan?' active':'')+'" onclick="setActivePlan(\''+k+'\')">'+escHtml(PLAN_PRESETS[k].label)+'</button>';
+    var activePlan=getActivePlan(), STREAM_LABELS={arm:'ARM',drills:'DRILLS',body:'BODY',lift:'LIFT'};
+    var pills=PLAN_STREAMS.filter(function(k){return k!=='lift'||!youth;}).map(function(k){
+      return '<button class="plan-chip'+(activePlan[k]?' active':'')+'" onclick="togglePlanStream(\''+k+'\')">'+STREAM_LABELS[k]+'</button>';
     }).join('');
+    var isFull=flagsEqual(activePlan,PLAN_ALL_ON), isRest=flagsEqual(activePlan,PLAN_REST);
+    var conv='<button class="plan-chip'+(isFull?' active':'')+'" style="opacity:.7" onclick="setPlanAll(true)">Full</button>'+
+      '<button class="plan-chip'+(isRest?' active':'')+'" style="opacity:.7" onclick="setPlanAll(false)">Rest</button>';
+    planChipsEl.innerHTML=pills+'<span style="width:1px;align-self:stretch;background:var(--line);margin:0 2px"></span>'+conv;
   }
   var greet=document.getElementById('today-greet');
   if(greet){
@@ -12193,7 +12240,7 @@ function renderToday(){
         '<div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden"><div style="width:'+pct+'%;height:100%;border-radius:3px;background:'+(full?'var(--green)':color)+'"></div></div></div>';
     }
     var rows='';
-    var plan=PLAN_PRESETS[getActivePlan()]||PLAN_PRESETS.full;
+    var plan=getActivePlan();
     if(_batCounts){
       if(plan.arm)rows+=bar('ARM CARE','🦾',_batCounts.arm.done,_batCounts.arm.total,'var(--blood)','arm');
       if(plan.drills)rows+=bar('DRILLS','🧤',_batCounts.drills.done,_batCounts.drills.total,'var(--blue)','drills');
@@ -12213,8 +12260,10 @@ function renderToday(){
       }}
     }
     if(_batFuel){
-      if(plan.water&&_batFuel.tWater>0)rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'#39bdf0','fuel');
-      if(plan.protein&&!youth&&_batFuel.tProtein>0)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'#f0a23c','fuel');
+      // water/protein are no longer plan toggles -- FUEL's own tracked-areas
+      // opt-out already zeroes tWater/tProtein when untracked (plan-v2).
+      if(_batFuel.tWater>0)rows+=bar('WATER oz','💧',_batFuel.water,_batFuel.tWater,'#39bdf0','fuel');
+      if(!youth&&_batFuel.tProtein>0)rows+=bar('PROTEIN g','🥩',_batFuel.protein,_batFuel.tProtein,'#f0a23c','fuel');
     }
     // GAME has no done/total of its own (not part of readinessScore) — always
     // shown as a plain link since it no longer has a tabbar button either.
@@ -12343,14 +12392,17 @@ function flowSteps(){
   // Rest-plan day with fuel done still said "2 left" for arm/drills untouched
   // on purpose. refreshFlowBtn() inherits the fix for free (it just reads
   // flowSteps().length).
-  var plan=PLAN_PRESETS[getActivePlan()]||PLAN_PRESETS.full;
+  var plan=getActivePlan();
   if(_batCounts){
     var C=[['arm','🦾','Arm care','arm',null],['drills','🧤','Position drills','drills',null],['body','🧘','Body care','body',null]];
     C.forEach(function(r){if(!plan[r[0]])return;var c=_batCounts[r[0]];if(c&&c.total>0&&c.done<c.total)steps.push({ico:r[1],label:r[2],view:r[3],sub:r[4],left:(c.total-c.done)+' left'});});
+    // LIFT (plan-v2): deep-links via goTab('body','lifting') like the LIFT row
+    // on TODAY, not a plain view -- lifting is a sub-tab of ARM's 'body' group.
+    if(plan.lift&&!youth){var lf=_batCounts.lift;if(lf&&lf.total>0&&lf.done<lf.total)steps.push({ico:'🏋',label:'Lift',view:'body',sub:'lifting',left:(lf.total-lf.done)+' left'});}
   }
   if(_batFuel){
-    if(plan.water&&_batFuel.tWater>0&&_batFuel.water<_batFuel.tWater)steps.push({ico:'💧',label:'Water',view:'fuel',sub:'hydration',left:(_batFuel.tWater-_batFuel.water)+' oz to go'});
-    if(plan.protein&&!youth&&_batFuel.tProtein>0&&_batFuel.protein<_batFuel.tProtein)steps.push({ico:'🥩',label:'Protein',view:'fuel',sub:'protein',left:(_batFuel.tProtein-_batFuel.protein)+' g to go'});
+    if(_batFuel.tWater>0&&_batFuel.water<_batFuel.tWater)steps.push({ico:'💧',label:'Water',view:'fuel',sub:'hydration',left:(_batFuel.tWater-_batFuel.water)+' oz to go'});
+    if(!youth&&_batFuel.tProtein>0&&_batFuel.protein<_batFuel.tProtein)steps.push({ico:'🥩',label:'Protein',view:'fuel',sub:'protein',left:(_batFuel.tProtein-_batFuel.protein)+' g to go'});
   }
   return steps;
 }

@@ -101,16 +101,17 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 | Direction | Shape | Purpose |
 |-----------|-------|---------|
 | host → ARM | `{type:'bat-group', group:'arm'|'drills'|'body'}` | show group |
-| ARM → host | `{type:'bat-counts', arm, drills, body}` | activity counts |
+| ARM → host | `{type:'bat-counts', arm, drills, body, lift}` | activity counts. `lift:{done,total,optDone,optTotal}` is additive (plan-v2) — Lifting-tab counts, zeroed for youth on the ARM side (§4.3). Host must tolerate the field being absent (old cached iframe). |
 | host → iframe | `{type:'bat-nav', tab}` | iframe calls `switchTab(tab)` |
 | host → iframe | `{type:'bat-poll'}` | ARM: `postCounts()`; FUEL: `refreshProgress()` |
-| FUEL → host | `{type:'bat-fuel', water, protein, tWater, tProtein, day}` | today totals |
+| FUEL → host | `{type:'bat-fuel', water, protein, tWater, tProtein, day, runway}` | today totals. `runway:{state:'none'|'active'|'now', time?}` is additive — pre-training eat/drink window status, surfaced read-only on TODAY. |
+| host → FUEL | `{type:'bat-plan', day}` | plan-v2: sent whenever TODAY's plan flags change. Mapping (host `syncFuelDayFromPlan()`): all streams off → `'rest'`; `lift` on → `'train'`; arm+drills+body all on → `'train'`; otherwise nothing is sent. FUEL's `handlePlanSync()` auto-applies `'rest'` only on an untouched day; any other value is a dismissible nudge — an athlete's manual day-type choice is never overwritten. |
 
 ### Data-model invariants
 
-- localStorage key prefixes: `fuel-` (FUEL) and `arm-care-` (ARM). **Do not rename** — renames orphan existing user data.
+- localStorage key prefixes: `fuel-` (FUEL), `arm-care-` (ARM), `battery-plan-` (host, plan-v2 — per-date only, no carryover). **Do not rename** — renames orphan existing user data.
 - Keys are also mirrored as `battery::<profileId>::<key>`.
-- Migrations must be one-time idempotent guards.
+- Migrations must be one-time idempotent guards. Plan-v2 example: `battery-plan-<date>` used to store a single preset string (full/throwing/hitting/lift/rest); `getActivePlan()` migrates a legacy string value to the new `{arm,drills,body,lift}` JSON flag object the first time it's read, then rewrites it as JSON so migration only runs once per date key.
 
 ## 8. Coordination Pointers
 
