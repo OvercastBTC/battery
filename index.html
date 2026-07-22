@@ -6235,7 +6235,6 @@ body.youth #youth-banner{display:block}
 
 <nav class=&quot;tabs&quot;>
   <button class=&quot;tab active&quot; data-tab=&quot;tracker&quot;>Tracker</button>
-  <button class=&quot;tab&quot; data-tab=&quot;profile&quot;>Profile</button>
   <button class=&quot;tab&quot; data-tab=&quot;weekly&quot;>Weekly</button>
   <button class=&quot;tab&quot; data-tab=&quot;events&quot;>Events</button>
   <button class=&quot;tab&quot; data-tab=&quot;heat&quot;>Heat</button>
@@ -6250,13 +6249,14 @@ body.youth #youth-banner{display:block}
 <!-- ============== TRACKER ============== -->
 <div class=&quot;page active&quot; id=&quot;page-tracker&quot;>
 
-  <!-- Profile prompt — shown only when no profile is set -->
+  <!-- Profile prompt — shown only when no profile is set. US-3.0b: numbers now
+       live on the host DATA screen (top-right ⚙ gear), so this points there
+       instead of the removed Profile tab; dismiss-only (no dead nav). -->
   <div class=&quot;tracker-prof-prompt&quot; id=&quot;tracker-prof-prompt&quot; style=&quot;display:none&quot;>
     <div class=&quot;tpp-text&quot;>
-      <b>★ Profile pre-filled with defaults</b> — confirm or adjust your numbers on the Profile tab to lock them in.
+      <b>★ Profile pre-filled with defaults</b> — confirm or adjust your numbers on the ⚙ Data screen (top-right gear) to lock them in.
     </div>
-    <button class=&quot;tpp-btn&quot; onclick=&quot;switchTab('profile')&quot;>Review</button>
-    <button class=&quot;tpp-dismiss&quot; onclick=&quot;dismissProfilePrompt()&quot; title=&quot;Dismiss&quot;>✕</button>
+    <button class=&quot;tpp-dismiss&quot; onclick=&quot;dismissProfilePrompt()&quot; title=&quot;Dismiss&quot;>Got it</button>
   </div>
 
   <!-- US-3.0 (owner ruling): computed-targets is a glance-while-tracking number,
@@ -7633,6 +7633,10 @@ body.youth #youth-banner{display:block}
   const pages = document.querySelectorAll('.page');
 
   function switchTab(tabName) {
+    // US-3.0b: the Profile tab was removed (settings live on the host DATA/gear
+    // screen). Redirect any stray call OR a stored fuel-last-tab='profile' from a
+    // prior version to Tracker, so the orphaned page can never surface. No stub.
+    if (tabName === 'profile') tabName = 'tracker';
     // Youth safety (§4.3): adult-content tabs (supplements/stimulant/dosing) are
     // off-limits to youth profiles — covers direct nav AND the boot tab-restore.
     if ((window.BATTERY_TIER||'youth')==='youth' &amp;&amp; ['overview','protein','hydration','products'].indexOf(tabName) >= 0) tabName = 'tracker';
