@@ -6236,6 +6236,18 @@ body.youth #youth-banner{display:block}
     <button class=&quot;tpp-dismiss&quot; onclick=&quot;dismissProfilePrompt()&quot; title=&quot;Dismiss&quot;>✕</button>
   </div>
 
+  <!-- US-3.0 (owner ruling): computed-targets is a glance-while-tracking number,
+       so it stays in FUEL — here in Tracker as a compact collapsible card. The
+       live #profile-summary-card node is RELOCATED into #ct-slot at boot (below),
+       so all its target-grid IDs keep updating with no duplication. -->
+  <div class=&quot;card gold&quot; id=&quot;ct-card&quot; style=&quot;margin-bottom:12px&quot;>
+    <div class=&quot;ct-head&quot; onclick=&quot;toggleCT()&quot; style=&quot;display:flex;justify-content:space-between;align-items:center;cursor:pointer&quot;>
+      <div class=&quot;card-title&quot;>Your computed targets</div>
+      <span id=&quot;ct-caret&quot; style=&quot;color:var(--dim);font-size:13px&quot;>▾</span>
+    </div>
+    <div id=&quot;ct-slot&quot; style=&quot;display:none;margin-top:10px&quot;></div>
+  </div>
+
   <div class=&quot;tracker-header&quot;>
     <!-- Compact stats: streak, 7-day avg -->
     <div class=&quot;mini-stats&quot;>
@@ -8227,6 +8239,28 @@ body.youth #youth-banner{display:block}
   }
   if(document.readyState!=='loading') qcBoot();
   else document.addEventListener('DOMContentLoaded', qcBoot);
+
+  /* US-3.0: relocate the live computed-targets card into Tracker's #ct-slot
+     (moves the node — IDs intact, grid keeps updating, no duplication). Its own
+     card chrome is stripped since #ct-card is the wrapper. Idempotent. */
+  function relocateCT(){
+    const card=document.getElementById('profile-summary-card');
+    const slot=document.getElementById('ct-slot');
+    if(card &amp;&amp; slot &amp;&amp; card.parentNode!==slot){
+      card.style.margin='0'; card.style.border='0'; card.style.background='transparent'; card.style.padding='0';
+      const hd=card.querySelector('.card-head'); if(hd) hd.style.display='none';   // wrapper has its own header
+      slot.appendChild(card);
+    }
+  }
+  window.toggleCT=function(){
+    const s=document.getElementById('ct-slot'), c=document.getElementById('ct-caret');
+    if(!s) return;
+    const open=s.style.display!=='none';
+    s.style.display=open?'none':'block';
+    if(c) c.textContent=open?'▾':'▴';
+  };
+  if(document.readyState!=='loading') relocateCT();
+  else document.addEventListener('DOMContentLoaded', relocateCT);
 
   async function resetDay() {
     if (!(await uiConfirm('Reset Day', 'Reset all of today\'s entries?', true))) return;
