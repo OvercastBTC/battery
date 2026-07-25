@@ -12092,6 +12092,10 @@ function syncFuelDayFromPlan(flags){
 }
 function setActivePlan(flags){
   var out={}; PLAN_STREAMS.forEach(function(k){out[k]=!!flags[k];});
+  // §4.3: force at WRITE time too, not just getActivePlan()'s read-time guard --
+  // otherwise a raw lift:true persists and syncFuelDayFromPlan() sees it before
+  // any read-side correction runs (Copilot review, PR #10).
+  if(profileTier(profile)==='youth')out.lift=false;
   try{localStorage.setItem('battery-plan-'+todayPlanKey(),JSON.stringify(out));}catch(e){}
   try{syncFuelDayFromPlan(out);}catch(e){}
   try{renderToday();}catch(e){}
@@ -12213,7 +12217,11 @@ function renderToday(){
     var pills=PLAN_STREAMS.filter(function(k){return k!=='lift'||!youth;}).map(function(k){
       return '<button class="plan-chip'+(activePlan[k]?' active':'')+'" onclick="togglePlanStream(\''+k+'\')">'+STREAM_LABELS[k]+'</button>';
     }).join('');
-    var isFull=flagsEqual(activePlan,PLAN_ALL_ON), isRest=flagsEqual(activePlan,PLAN_REST);
+    // §4.3: youth's getActivePlan() always forces lift:false, so compare against
+    // a youth-aware "all on" (lift excluded) or Full could never show active for
+    // a youth profile even with arm/drills/body all on (Copilot review, PR #10).
+    var fullRef=youth?Object.assign({},PLAN_ALL_ON,{lift:false}):PLAN_ALL_ON;
+    var isFull=flagsEqual(activePlan,fullRef), isRest=flagsEqual(activePlan,PLAN_REST);
     var conv='<button class="plan-chip'+(isFull?' active':'')+'" style="opacity:.7" onclick="setPlanAll(true)">Full</button>'+
       '<button class="plan-chip'+(isRest?' active':'')+'" style="opacity:.7" onclick="setPlanAll(false)">Rest</button>';
     planChipsEl.innerHTML=pills+'<span style="width:1px;align-self:stretch;background:var(--line);margin:0 2px"></span>'+conv;
