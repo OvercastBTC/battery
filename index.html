@@ -12098,12 +12098,17 @@ function getActivePlan(){
   if(!flags||typeof flags!=='object'||Array.isArray(flags))flags=Object.assign({},PLAN_ALL_ON);
   var out={};
   PLAN_STREAMS.forEach(function(k){out[k]=!!flags[k];});
-  // §4.3: youth never scores/sees LIFT even off a stale flag object. NOTE: this
-  // is the SOLE enforcement point for the host, not a redundant second layer --
-  // ARM's postCounts() runs during srcdoc parse (applyGroup('arm')) BEFORE
-  // gatePlyoYouth() sets body.youth, so the host does receive non-zero youth
-  // lift counts on first boot. Do not remove this or the !youth guards on the
-  // LIFT row / LIFT flow step; they are load-bearing. (Handed to Lane A.)
+  // §4.3: youth never scores/sees LIFT even off a stale flag object. NOTE on the
+  // "ARM already zeroes youth lift counts" claim -- measured, not assumed. On a
+  // youth boot ARM emits THREE bat-counts: loadDone() (:4138) -> updateCounter()
+  // -> postCounts() fires FIRST with the true lift total (11), again before
+  // switchTab (:4150) reaches gatePlyoYouth (:3864), and only the third post --
+  // after applyGroup('arm') (:4153), with body.youth now set -- carries total:0.
+  // So the settled value IS correctly zeroed (ARM's gate works); what is NOT
+  // covered is the boot transient, during which renderToday runs against
+  // total:11. These !youth guards are what keep that transient off a child's
+  // screen, so do not remove them or the ones on the LIFT row / flow step.
+  // The ordering itself is ARM-side and Lane A's to fix if they want it closed.
   if(youth)out.lift=false;
   return out;
 }
