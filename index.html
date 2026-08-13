@@ -184,7 +184,7 @@ body.youth #youth-banner{display:block}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.13.79</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.13.80</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -7890,6 +7890,7 @@ body.youth #youth-banner{display:block}
      today's day-type is still untouched; everything else is a dismissible
      suggestion (per-day dismissal, same pattern as the game nudge). ===== */
   let _planSuggestDay = null;
+  const PLAN_NUDGE_LABELS = {rest:'Rest', light:'Light', train:'Train', heavy:'Heavy', game:'Game', travel:'Travel'};
   function handlePlanSync(d){
     const day = d &amp;&amp; d.day;
     if (!day || !DAY_TARGETS[day]) return;
@@ -7903,7 +7904,13 @@ body.youth #youth-banner{display:block}
     if (storeGet('fuel-plannudge-' + todayKey(), '') === '1') return;  // dismissed today
     _planSuggestDay = day;
     const lbl = document.getElementById('plan-nudge-day');
-    if (lbl) lbl.textContent = (DAY_TARGETS[day].label || day).toUpperCase();
+    // Tier-independent label. DAY_TARGETS is REPLACED wholesale for youth by six
+    // copies of one child-safe object whose label is 'Youth' (§4.3 collapse), so
+    // reading the label off it showed a youth athlete 'Your plan says YOUTH
+    // today.' This receiver was dead code until PR #10 added the host emitter,
+    // so the copy only became reachable now. Targets stay collapsed -- only the
+    // label is de-tiered.
+    if (lbl) lbl.textContent = (PLAN_NUDGE_LABELS[day] || day).toUpperCase();
     const el = document.getElementById('plan-nudge');
     if (el) el.style.display = 'flex';
   }
@@ -7913,7 +7920,13 @@ body.youth #youth-banner{display:block}
   }
   function applyPlanNudge(){
     if (_planSuggestDay &amp;&amp; DAY_TARGETS[_planSuggestDay]) setDay(_planSuggestDay);
-    storeSet('fuel-plannudge-' + todayKey(), '1');
+    // Accepting must NOT set the per-day mute key -- only dismissing does.
+    // Previously both wrote it, so a user who tapped 'Match it' in the morning
+    // silenced the seam for the whole day: a later plan change (rest -> train)
+    // hit the `=== '1'` early-return and was dropped with no nudge and no
+    // indication, leaving them on Rest hydration/protein targets (150oz vs
+    // 200oz) through a training day. Accepting means they WANT the sync.
+    storeSet('fuel-plannudge-' + todayKey(), '');
     hidePlanNudge();
   }
   function dismissPlanNudge(){
@@ -10482,7 +10495,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v79').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v79').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v80').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v80').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -12064,18 +12077,33 @@ function getActivePlan(){
     if(raw){
       try{ flags=JSON.parse(raw); }
       catch(e){
-        if(PLAN_LEGACY_MAP[raw]){
+        // hasOwnProperty, NOT a bare lookup: PLAN_LEGACY_MAP['constructor'] (or
+        // 'toString'/'valueOf') reaches Object.prototype and is truthy, which
+        // copied nothing enumerable -> an all-off plan that then PERSISTED
+        // itself below. Reachable via batteryImportAll's arbitrary backup JSON.
+        if(Object.prototype.hasOwnProperty.call(PLAN_LEGACY_MAP,raw)){
           flags=Object.assign({},PLAN_LEGACY_MAP[raw]);
+          // §4.3: force youth BEFORE persisting. The read-side guard below only
+          // corrects the returned copy, so migrating a legacy 'lift' day used to
+          // write lift:true into storage (and into the battery::<id>:: mirror and
+          // every backup) for a youth profile.
+          if(youth)flags.lift=false;
           try{localStorage.setItem('battery-plan-'+todayPlanKey(),JSON.stringify(flags));}catch(e2){}
         }
       }
     }
   }catch(e){}
-  if(!flags||typeof flags!=='object')flags=Object.assign({},PLAN_ALL_ON);
+  // Array.isArray: typeof [] === 'object', so a stored '[]' slipped through and
+  // yielded a silent all-off plan indistinguishable from a deliberate Rest day.
+  if(!flags||typeof flags!=='object'||Array.isArray(flags))flags=Object.assign({},PLAN_ALL_ON);
   var out={};
   PLAN_STREAMS.forEach(function(k){out[k]=!!flags[k];});
-  // §4.3 belt-and-suspenders: youth never scores/sees LIFT even off a stale
-  // flag object (the ARM iframe already zeroes youth lift counts on its side).
+  // §4.3: youth never scores/sees LIFT even off a stale flag object. NOTE: this
+  // is the SOLE enforcement point for the host, not a redundant second layer --
+  // ARM's postCounts() runs during srcdoc parse (applyGroup('arm')) BEFORE
+  // gatePlyoYouth() sets body.youth, so the host does receive non-zero youth
+  // lift counts on first boot. Do not remove this or the !youth guards on the
+  // LIFT row / LIFT flow step; they are load-bearing. (Handed to Lane A.)
   if(youth)out.lift=false;
   return out;
 }
@@ -12095,6 +12123,16 @@ function syncFuelDayFromPlan(flags){
   }catch(e){}
 }
 function setActivePlan(flags){
+  // Restores the input validation master had (`if(!PLAN_PRESETS[p])return;`),
+  // which the plan-v2 rebuild dropped. plan-v2 takes a flag OBJECT; a string is
+  // still indexable, so setActivePlan('full') evaluated 'full'['arm'] ->
+  // undefined -> !!undefined -> false on every stream and SILENTLY PERSISTED an
+  // all-off plan. Worse, that all-off object went straight to
+  // syncFuelDayFromPlan(), which posts bat-plan:'rest' -- so calling 'full'
+  // auto-applied REST to the athlete's FUEL day on an untouched day, rewriting
+  // their protein/water targets. null/undefined threw uncaught (this line sits
+  // outside every try/catch). Verified in a browser before fixing.
+  if(!flags||typeof flags!=='object'||Array.isArray(flags))return;
   var out={}; PLAN_STREAMS.forEach(function(k){out[k]=!!flags[k];});
   // §4.3: force at WRITE time too, not just getActivePlan()'s read-time guard --
   // otherwise a raw lift:true persists and syncFuelDayFromPlan() sees it before
