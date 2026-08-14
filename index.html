@@ -6739,7 +6739,17 @@ body.youth #youth-banner{display:block}
 
 </div>
 
-<!-- ============== PROFILE ============== -->
+<!-- ============== PROFILE (UNREACHABLE — DO NOT DELETE) ==============
+     US-3.0b (.79) removed the Profile TAB: there is no nav button, and
+     switchTab('profile') redirects to 'tracker', so nothing below is reachable
+     by any path. It is retained on purpose for exactly one reason:
+     relocateCT() harvests #profile-summary-card out of this page at boot and
+     moves it into the Tracker's #ct-slot. Delete this block and the Tracker's
+     &quot;Your computed targets&quot; card silently renders empty -- with no error and
+     no failing test, because the gate asserts the card's CONTENT, not where it
+     was parsed from. Every user-editable setting that used to live here now
+     lives on the host DATA screen (⚙ gear); the markup below is a parse-time
+     donor only. ============================================================ -->
 <div class=&quot;page&quot; id=&quot;page-profile&quot;>
   <h2>Profile</h2>
   <p class=&quot;lede&quot;>Tell the tracker about you and it'll recalculate every target — protein, water, electrolyte ceiling — from your own numbers, not the defaults. Optional; you can use the app without filling this out.</p>
