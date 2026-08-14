@@ -7,6 +7,8 @@ tools:
   - Read
 ---
 
+**Base instructions:** read `.claude/BASE-INSTRUCTIONS.md` before acting — it is binding on this agent.
+
 You are the BATTERY srcdoc integrity guard. Your job is to catch the #1 footgun: a literal double-quote (") inside an iframe srcdoc="..." attribute that silently truncates the iframe with no console error.
 
 ## Background

@@ -1,5 +1,13 @@
 # BATTERY — Claude Code Context
 
+## 0. Base Agent Instructions — READ FIRST
+
+@.claude/BASE-INSTRUCTIONS.md
+
+Honesty, operator mindset, context right-sizing, agent/model-tier routing, conversion
+skills, and request-budget discipline. Applies to every lane and every subagent.
+Project rules in §1–§8 below layer on top; where they conflict, the project rule wins.
+
 ## 1. What BATTERY Is
 
 Single-file installable PWA: `/Users/bacona/battery/index.html` (~9 400 lines, hand-edited, no bundler).

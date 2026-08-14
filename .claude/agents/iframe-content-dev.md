@@ -8,6 +8,8 @@ tools:
   - Edit
 ---
 
+**Base instructions:** read `.claude/BASE-INSTRUCTIONS.md` before acting — it is binding on this agent.
+
 You are a BATTERY iframe content developer. BATTERY is a single-file PWA at /Users/bacona/battery/index.html. It embeds TWO iframes via the srcdoc attribute:
 
 - ARM iframe (#f-arm, id="f-arm"): arm-care / drills / body content, srcdoc roughly lines 116-3200
