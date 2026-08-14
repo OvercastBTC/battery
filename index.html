@@ -7756,9 +7756,14 @@ body.youth #youth-banner{display:block}
         const yKey=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
         outing=log.find(function(o){ return o &amp;&amp; o.date===yKey; }) || null;
       }
-      if(outing &amp;&amp; outing.p){
+      // Lane A review (PR #13): only let the log decide when it CAN decide.
+      // pitchRestDays() also returns 0 when p.age is missing (pitchBand(age)
+      // -> falsy), which looks identical to a genuinely light outing -- that
+      // silently swallowed the manual lastThrow fallback for an athlete with no
+      // age set who logged a big outing AND flagged a hard throw manually.
+      if(outing &amp;&amp; outing.p &amp;&amp; p.age){
         const restDays=parent.pitchRestDays(p.age, outing.p);
-        return restDays>=1 ? {pitches:outing.p, restDays:restDays, source:'log'} : null;
+        if(restDays>=1) return {pitches:outing.p, restDays:restDays, source:'log'};
       }
       if(p.lastThrow==='yesterday') return {pitches:null, restDays:1, source:'manual'};
       return null;
