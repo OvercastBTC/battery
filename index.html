@@ -12184,11 +12184,16 @@ function getActivePlan(){
    has its manual chip choice clobbered -- 'rest' auto-applies only on an
    untouched day, everything else is a dismissible nudge (FUEL-side, .76). */
 function syncFuelDayFromPlan(flags){
-  var day=null;
+  // Lane A ruling (Issue #2, 2026-08-13): the old mapping wasn't total -- 6 of
+  // 16 stream combos fell through to "send nothing," stranding FUEL on Rest
+  // targets with no path back down (Lane E's .80 review). 'light' is the
+  // catch-all for any other non-empty combo, giving every reachable flag set a
+  // mapping and a monotonic way down off Rest.
+  var day;
   if(PLAN_STREAMS.every(function(k){return !flags[k];}))day='rest';
   else if(flags.lift)day='train';
   else if(flags.arm&&flags.drills&&flags.body)day='train';
-  if(!day)return;
+  else day='light';
   try{
     var f=document.getElementById('f-fuel');
     if(f&&f.contentWindow)f.contentWindow.postMessage({type:'bat-plan',day:day},'*');
