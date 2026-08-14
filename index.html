@@ -7738,6 +7738,32 @@ body.youth #youth-banner{display:block}
   };
   const FRAME_MULT = { small: 0.92, medium: 1.00, large: 1.05 };
 
+  /* ===== US-2.7 (Lane A guardrails, Issue #2 2026-07-06): recovery-aware
+     protein floor. Derives &quot;trained hard yesterday&quot; from the actual pitch log
+     (Arm Guardian) instead of relying solely on the manual lastThrow toggle --
+     same-origin parent.readPitchLog()/parent.pitchRestDays() read, same
+     try/catch + reachability-guard convention as US-2.6's parent.pitchRestInfo()
+     call. lastThrow stays as a manual fallback per the AC when no matching log
+     entry exists. &quot;Trained hard&quot; = an outing that itself required >=1 Pitch
+     Smart rest day (pitchRestDays()), so a light bullpen doesn't trigger this. */
+  function recoveryBoost(p){
+    try{
+      if(!parent || typeof parent.readPitchLog!=='function' || typeof parent.pitchRestDays!=='function') return null;
+      const log=parent.readPitchLog();
+      let outing=null;
+      if(log &amp;&amp; log.length){
+        const y=new Date(); y.setDate(y.getDate()-1);
+        const yKey=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+        outing=log.find(function(o){ return o &amp;&amp; o.date===yKey; }) || null;
+      }
+      if(outing &amp;&amp; outing.p){
+        const restDays=parent.pitchRestDays(p.age, outing.p);
+        return restDays>=1 ? {pitches:outing.p, restDays:restDays, source:'log'} : null;
+      }
+      if(p.lastThrow==='yesterday') return {pitches:null, restDays:1, source:'manual'};
+      return null;
+    }catch(e){ return null; }
+  }
   // Recompute DAY_TARGETS from the profile. Returns details for the &quot;how was this calculated&quot; panel.
   function recomputeDayTargets() {
     const p = loadProfile();
@@ -7789,6 +7815,21 @@ body.youth #youth-banner{display:block}
       T[k].protein = Math.max(60, Math.round(T[k].protein / 5) * 5);
       T[k].water = Math.max(60, Math.round(T[k].water / 10) * 10);
     });
+
+    // US-2.7: the day after a genuinely hard outing, Rest/Light protein floors
+    // at Train-level instead of dropping to the table's lowest number -- real
+    // post-exertion recovery nutrition should hold or rise, not fall, the day
+    // after hard work. Quantified change is ADULT-ONLY (§4.3; youth never sees
+    // macro numbers). Water is deliberately left untouched here (guardrail:
+    // Train's water bump reflects today's training load, a signal Rest/Light
+    // genuinely don't have -- bumping it would overstate today's hydration
+    // need from yesterday's work). elecMax/elecWarn intentionally stay at the
+    // chip's own day-type (guardrail: they don't follow a protein/water bump).
+    if (window.BATTERY_TIER === 'adult' &amp;&amp; recoveryBoost(p)) {
+      ['rest', 'light'].forEach(k => {
+        if (T[k] &amp;&amp; T[k].protein < T.train.protein) T[k].protein = T.train.protein;
+      });
+    }
     DAY_TARGETS = T;
 
     return {
