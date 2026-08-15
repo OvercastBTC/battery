@@ -6706,16 +6706,18 @@ body.youth #youth-banner{display:block}
     <div class=&quot;custom-add-form&quot; id=&quot;custom-protein-form&quot;>
       <!-- US-2.9B: scoops × g/scoop quantity control (0.5–4 in halves); the g/scoop
            field persists per profile (fuel-gscoop). Save → recents, not favorites. -->
-      <div class=&quot;caf-row&quot;>
+      <div class=&quot;caf-row qa-adult&quot;>
         <select id=&quot;qc-prot-sel&quot; class=&quot;caf-amt qc-sel&quot;></select>
         <input type=&quot;number&quot; id=&quot;qc-gscoop&quot; class=&quot;caf-amt&quot; style=&quot;max-width:80px&quot; min=&quot;5&quot; max=&quot;60&quot; title=&quot;grams per scoop&quot; onchange=&quot;qcGscoopChanged()&quot; />
         <button class=&quot;caf-add-btn&quot; onclick=&quot;qcAdd('protein')&quot;>Add</button>
         <label class=&quot;caf-fav-label&quot;><input type=&quot;checkbox&quot; id=&quot;qc-prot-save&quot; class=&quot;caf-checkbox&quot; /><span>Save</span></label>
       </div>
       <!-- owner request: one tap credits scoops-of-protein AND its water together
-           (addShake), instead of two separate taps through the controls above. -->
-      <div class=&quot;qa-subgroup-label&quot; style=&quot;margin-top:14px&quot;>Protein Shake · scoops + water in one tap</div>
-      <div class=&quot;caf-row&quot;>
+           (addShake), instead of two separate taps through the controls above.
+           qa-adult (Copilot review, PR #13): dosing/supplement surface, belt-and-
+           suspenders alongside the switchTab() youth-block on this whole tab. -->
+      <div class=&quot;qa-subgroup-label qa-adult&quot; style=&quot;margin-top:14px&quot;>Protein Shake · scoops + water in one tap</div>
+      <div class=&quot;caf-row qa-adult&quot;>
         <select id=&quot;qc-shake-scoops-sel&quot; class=&quot;caf-amt qc-sel&quot;></select>
         <select id=&quot;qc-shake-water-sel&quot; class=&quot;caf-amt qc-sel&quot;></select>
         <button class=&quot;caf-add-btn&quot; onclick=&quot;qcShakeAdd()&quot;>Add</button>
@@ -7761,9 +7763,13 @@ body.youth #youth-banner{display:block}
       // -> falsy), which looks identical to a genuinely light outing -- that
       // silently swallowed the manual lastThrow fallback for an athlete with no
       // age set who logged a big outing AND flagged a hard throw manually.
+      // Copilot review (PR #13): when the log CAN decide (age known + a matching
+      // outing exists), its verdict is authoritative -- return immediately either
+      // way. Falling through to the manual toggle on a confirmed-light outing let
+      // a stale lastThrow flag override a real, better-informed determination.
       if(outing &amp;&amp; outing.p &amp;&amp; p.age){
         const restDays=parent.pitchRestDays(p.age, outing.p);
-        if(restDays>=1) return {pitches:outing.p, restDays:restDays, source:'log'};
+        return restDays>=1 ? {pitches:outing.p, restDays:restDays, source:'log'} : null;
       }
       if(p.lastThrow==='yesterday') return {pitches:null, restDays:1, source:'manual'};
       return null;
@@ -8851,7 +8857,13 @@ body.youth #youth-banner{display:block}
   }
   // Stable key for de-dupe / pin matching: type|label|amount.
   function _favKey(it) {
-    return (it.type || '') + '|' + (it.label || '') + '|' + (+it.amount || 0);
+    // Copilot review (PR #13): include w (paired water oz) when present, else
+    // two shake favorites with the same label/protein grams but different water
+    // (e.g. the new combined control's 2-scoop pick at 28oz vs 20oz) collide --
+    // indistinguishable for pin state, de-dupe, and unpin. Omitted when 0 so
+    // every pre-existing non-shake favorite's key is unchanged.
+    const w = +it.w || 0;
+    return (it.type || '') + '|' + (it.label || '') + '|' + (+it.amount || 0) + (w ? '|w' + w : '');
   }
   // Manual pins live in the existing 'fuel-favorites' key. We PRESERVE its
   // {water,protein} shape and additively read an optional 'elec' array.
@@ -8925,7 +8937,12 @@ body.youth #youth-banner{display:block}
     const bucket = type === 'water' ? 'water' : (type === 'protein' ? 'protein' : 'elec');
     if (!Array.isArray(favs[bucket])) favs[bucket] = [];
     const amt = +amount || 0;
-    const idx = favs[bucket].findIndex(f => (f.label || '') === (label || '') &amp;&amp; (+f.amount || 0) === amt);
+    // Copilot review (PR #13): match on w too, or pinning/unpinning one water
+    // amount can hit a different favorite sharing the same label + protein
+    // grams (a real collision now that the shake control varies water
+    // independent of the scoop-derived label).
+    const w = +pairedOz || 0;
+    const idx = favs[bucket].findIndex(f => (f.label || '') === (label || '') &amp;&amp; (+f.amount || 0) === amt &amp;&amp; (+f.w || 0) === w);
     if (idx !== -1) favs[bucket].splice(idx, 1);   // unpin
     else {
       if (favs[bucket].length >= 6) favs[bucket].shift();
