@@ -3829,7 +3829,23 @@ body.youth #youth-banner{display:block}
       // plan-v2: 'lift' rides along ADDITIVELY (old hosts ignore unknown keys).
       // Youth reports zeros — the Lifting page is §4.3 adult-only (steps are
       // youth-hidden in the DOM but groupCount would still count them).
-      const lift = document.body.classList.contains('youth')
+      /* §4.3 BOOT TRANSIENT: loadDone() -> updateCounter() -> postCounts() runs
+         before gatePlyoYouth() sets body.youth (it is wired to DOMContentLoaded
+         in a later <script> block), so the first emissions used to carry a youth
+         athlete's real lift totals; only a third, later post corrected them to 0.
+         Steady state was always safe, but the host's !youth guards were silently
+         load-bearing during boot. Resolve the tier HERE instead — body.youth if
+         already set, else read the parent directly, and fail SAFE to youth on any
+         error. Deliberately does NOT set body.youth early: doing so applies a
+         transient no-profile 'youth' to global render state and broke ARM History
+         rendering (caught by the arm-history suite). This zeroes only the LIFT
+         payload — never global UI — and self-corrects on the next post. */
+      var _liftYouth = true;
+      try {
+        _liftYouth = document.body.classList.contains('youth')
+          || parent.document.body.classList.contains('youth');
+      } catch (e) { _liftYouth = true; }
+      const lift = _liftYouth
         ? {done:0,total:0,optDone:0,optTotal:0}
         : groupCount('lift');
       parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills'),body:groupCount('body'),lift:lift},'*');
@@ -4392,8 +4408,12 @@ body.youth #youth-banner{display:block}
      mirror it onto THIS iframe's own body so the CSS gate hides the heavy
      prescriptions and shows the light-catch note. Runs at init and on page show. */
   function gatePlyoYouth(){
-    var isYouth=false;
-    try{ isYouth = parent.document.body.classList.contains('youth'); }catch(e){ isYouth=false; }
+    // §4.3 FAIL-SAFE: on exception assume YOUTH, not adult. This previously
+    // defaulted isYouth=false, i.e. a failure to read the parent's tier would
+    // unhide every adult/heavy-load surface -- a safety check that fails OPEN.
+    // Matches FUEL's (BATTERY_TIER||'youth') default.
+    var isYouth=true;
+    try{ isYouth = parent.document.body.classList.contains('youth'); }catch(e){ isYouth=true; }
     document.body.classList.toggle('youth', isYouth);
   }
   if(document.readyState!=='loading') gatePlyoYouth();
@@ -7859,9 +7879,28 @@ body.youth #youth-banner{display:block}
     } else {
       activeDays.add(d);
     }
-    const arr = Array.from(activeDays);
-    storeSet('fuel-day', arr.join(','));
-    storeSet('fuel-day-' + todayKey(), arr.join(','));
+    commitDays(Array.from(activeDays));
+  }
+
+  /* Activity-level day-types are mutually-exclusive INTENT. Anything else --
+     currently just 'travel' -- is a MODIFIER carrying its own hydration bump,
+     and must survive a plan sync: the HOME plan describes training load and
+     knows nothing about travel. {travel,light} + plan->train => {travel,train},
+     never {train} (which silently dropped the travel water). */
+  const DAY_ACTIVITY = ['rest','light','train','heavy','game'];
+
+  /* Single commit path for every day-type write (chip tap, plan auto-apply,
+     nudge accept) so persistence, repaint and the touched-marker can't drift
+     between callers. */
+  function commitDays(arr){
+    activeDays = new Set((arr || []).filter(d => DAY_TARGETS[d]));
+    if (activeDays.size === 0) activeDays.add('train');
+    const out = Array.from(activeDays);
+    storeSet('fuel-day', out.join(','));
+    storeSet('fuel-day-' + todayKey(), out.join(','));
+    // DELIBERATE-choice marker. Distinct from 'fuel-day-<date>', which boot
+    // stamps unconditionally -- see handlePlanSync for why that mattered.
+    storeSet('fuel-daytouched-' + todayKey(), '1');
     document.querySelectorAll('.day-chip').forEach(c => {
       c.classList.toggle('active', activeDays.has(c.dataset.day));
     });
@@ -7886,7 +7925,15 @@ body.youth #youth-banner{display:block}
     el.style.display = show ? 'flex' : 'none';
   }
   function applyGameNudge(){
-    if(!activeDays.has('game')) toggleDay('game');
+    /* Third call site of the same pattern -- I converted the plan auto-apply and
+       nudge-accept but missed this one (caught by Lane E on .82). toggleDay()
+       only adds/removes, it does NOT enforce activity-level exclusivity, so an
+       athlete already on 'heavy' who tapped 'Set Game' ended up with
+       {heavy,game}: two mutually-exclusive activity types coexisting and a
+       target computed off both. Swap the activity type, keep modifiers. */
+    if(!activeDays.has('game')){
+      commitDays(Array.from(activeDays).filter(d => DAY_ACTIVITY.indexOf(d) < 0).concat(['game']));
+    }
     storeSet('fuel-gamenudge-'+todayKey(),'1');
     maybeGameNudge();
   }
@@ -7905,9 +7952,19 @@ body.youth #youth-banner{display:block}
     const day = d &amp;&amp; d.day;
     if (!day || !DAY_TARGETS[day]) return;
     if (activeDays.has(day)) { hidePlanNudge(); return; }   // already matching
-    const untouched = !storeGet('fuel-day-' + todayKey(), '');
+    /* REACHABILITY FIX (Lane E caught this; Lane A confirmed). This used to read
+       'fuel-day-<date>' -- but FUEL's own DOMContentLoaded stamps that key
+       unconditionally at boot, before the athlete can touch anything, so
+       `untouched` was NEVER true and the rest auto-apply was dead code in
+       production. It only ever passed in a test that deleted the key first,
+       which proved the mechanism and not its reachability. We now read a marker
+       written solely by commitDays() -- i.e. by a DELIBERATE choice (chip tap,
+       accepted nudge, or a previous auto-apply) -- which is the condition we
+       actually meant. */
+    const untouched = !storeGet('fuel-daytouched-' + todayKey(), '');
     if (day === 'rest' &amp;&amp; untouched) {
-      setDay('rest');                                        // safe auto-apply
+      // Safe auto-apply, modifiers preserved (e.g. a travel day stays travel).
+      commitDays(Array.from(activeDays).filter(d => DAY_ACTIVITY.indexOf(d) < 0).concat(['rest']));
       hidePlanNudge();
       return;
     }
@@ -7929,7 +7986,13 @@ body.youth #youth-banner{display:block}
     if (el) el.style.display = 'none';
   }
   function applyPlanNudge(){
-    if (_planSuggestDay &amp;&amp; DAY_TARGETS[_planSuggestDay]) setDay(_planSuggestDay);
+    /* MODIFIER PRESERVATION (Lane E residual #2). This used to call setDay(),
+       which does `activeDays = new Set([d])` -- so an athlete on {travel,light}
+       who tapped 'Match it' for a train plan silently lost TRAVEL and its extra
+       hydration, with no indication. Replace the activity-level type only. */
+    if (_planSuggestDay &amp;&amp; DAY_TARGETS[_planSuggestDay]) {
+      commitDays(Array.from(activeDays).filter(d => DAY_ACTIVITY.indexOf(d) < 0).concat([_planSuggestDay]));
+    }
     // Accepting must NOT set the per-day mute key -- only dismissing does.
     // Previously both wrote it, so a user who tapped 'Match it' in the morning
     // silenced the seam for the whole day: a later plan change (rest -> train)
