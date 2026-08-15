@@ -137,4 +137,27 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 
 **Cross-machine rule:** Lane D shares ONLY the GitHub repo — `~/battery-comms.md` is invisible to it. Anything the cloud must see goes in **Issue #2** (or a PR comment) and the committed `CLAUDE.md`/`LANE.md`. Local lanes mirror cross-machine-relevant items between `~/battery-comms.md` ⇄ Issue #2.
 
+**Watcher protocol — ARM WHEN BLOCKED, DISARM WHEN WORKING (owner directive 2026-08-14).**
+
+Lane A is the **quarterback**: it assigns work, and lanes report completion back to it. A comms watcher is a *wake-up mechanism for an idle lane*, not a background habit — every fire costs a full turn, so it must be armed only when it can actually do something useful.
+
+**The rule — a watcher is armed if and only if the lane is BLOCKED AND IDLE.**
+
+| Lane state | Watcher | Why |
+|---|---|---|
+| **Blocked** — waiting on another lane's branch/PR/ruling, nothing else actionable | **ARM** | The watcher is the only thing that will wake you. Post `⏳ BLOCKED on <what> · watcher ARMED` first. |
+| **Working** — you have an assigned task in hand | **DISARM** | You'll read the comms tail when you finish the unit anyway. Polling while busy is pure waste. |
+| **Task complete** | **DISARM**, then post your report to Lane A | Completion report replaces the poll. |
+| **Nothing assigned and nothing blocking** | **DISARM** and say so | Lane A hands out work; don't idle-poll waiting for it. |
+
+**Arming rules (cost discipline):**
+- **Interval ≥ 15 minutes.** Nothing here is an incident channel; lanes post a few times a day.
+- **Baseline AFTER your own last write.** A watcher baselined before your own post fires on your own echo — historically ~half of all fires were self-inflicted, each burning a turn for zero information.
+- **Auto-expire.** Cap the watch (e.g. ~24 cycles ≈ 6h). On expiry post `💤 watcher expired, going dormant — @LANE-A ping to wake` and stop. A watcher left armed for weeks is the worst case (silent, unbounded, useless).
+- **Disarm the instant you pick up work** — not when you finish.
+
+**Lane A's own watcher:** normally **DISARMED**. Lane A is driven by owner turns and reads the comms tail at the start of each one. It arms a watcher only when the owner goes AFK and explicitly asks for unattended work.
+
+**Quarterback loop:** Lane A assigns → lane disarms and works → lane reports completion to Lane A → if the next step depends on someone else, the lane arms and posts `BLOCKED on <what>` → Lane A unblocks it → lane disarms and works. Lane A tells a lane to disarm when it hands it work; a lane arms itself when it becomes blocked.
+
 **Usage-limit protocol (owner directive 2026-07-17):** a usage/quota limit is a pause, not a cancellation. Before stopping: record the reset time + interrupted work in comms (Issue #2 if cross-machine). Re-check after the reset and continue. Workflows resume with cached results — never redo finished work. Time-sensitive work gets reassigned to a lane with budget via Lane A. Capped lanes announce their return.

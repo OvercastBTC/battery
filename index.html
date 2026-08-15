@@ -7925,7 +7925,15 @@ body.youth #youth-banner{display:block}
     el.style.display = show ? 'flex' : 'none';
   }
   function applyGameNudge(){
-    if(!activeDays.has('game')) toggleDay('game');
+    /* Third call site of the same pattern -- I converted the plan auto-apply and
+       nudge-accept but missed this one (caught by Lane E on .82). toggleDay()
+       only adds/removes, it does NOT enforce activity-level exclusivity, so an
+       athlete already on 'heavy' who tapped 'Set Game' ended up with
+       {heavy,game}: two mutually-exclusive activity types coexisting and a
+       target computed off both. Swap the activity type, keep modifiers. */
+    if(!activeDays.has('game')){
+      commitDays(Array.from(activeDays).filter(d => DAY_ACTIVITY.indexOf(d) < 0).concat(['game']));
+    }
     storeSet('fuel-gamenudge-'+todayKey(),'1');
     maybeGameNudge();
   }
