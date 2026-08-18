@@ -10,7 +10,7 @@
 
 - **Live / deployed:** `master` `0580797` = stamp **`26.08.15.82`**, SW cache **`battery-v82`**,
   full gate **22 suites green**.
-- **Next NN to claim:** **`.83`**.
+- **Next NN:** derived by Lane E from `HANDOFF.md §10` at release time. **Deliberately not written here** — a hardcoded NN silently rots (this file advertised `.61` for ~20 releases).
 - **Active lanes:** **A** (`~/battery-laneA`, FUEL+ARM iframe content, spec/coordination, browser
   verification) · **E** (`~/battery-laneE`, host shell + **sole release engineer**) · **D** (cloud,
   `claude/*` branches + PRs). **Lane identity binds to the WORKTREE, not the app/session label.**

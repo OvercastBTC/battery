@@ -20,16 +20,16 @@ One host HTML shell containing **two srcdoc iframes** (NOT `src=`), sharing the 
 
 | iframe | id | title | line range (verify by reading — shift as file grows) |
 |--------|-----|-------|------------------------------------------------------|
-| ARM | `#f-arm` | Arm Care | ~191 – 4530 |
-| FUEL | `#f-fuel` | Fuel Stack | ~4531 – 10441 |
-| Host `<script>` | — | shell logic | ~10569 – EOF |
+| ARM | `#f-arm` | Arm Care | first `srcdoc=` → first `"></iframe>` |
+| FUEL | `#f-fuel` | Fuel Stack | second `srcdoc=` → second `"></iframe>` |
+| Host `<script>` | — | shell logic | after the second `"></iframe>` → EOF |
 
 ARM iframe covers arm-care drills, body, and PlyoCare content.
 FUEL iframe covers nutrition/hydration tracker.
 Host shell owns nav, profiles, scoreboard, postMessage routing, SW registration.
 
-SW cache name: `battery-v<NN>` — currently `battery-v82` (bump on every deploy).
-Version stamp: `#ver-stamp` text format `YY.MM.DD.NN` — currently `26.08.15.82`.
+SW cache name: `battery-v<NN>` (bump on every deploy) — read the live value out of `index.html`, don't trust a number written here.
+Version stamp: `#ver-stamp`, format `YY.MM.DD.NN` — read the live value out of `index.html`.
 
 ## 3. THE srcdoc Footgun — READ THIS FIRST
 
