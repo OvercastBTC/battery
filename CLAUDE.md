@@ -146,6 +146,23 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 
 **Cross-machine rule:** Lane D shares ONLY the GitHub repo — `~/battery-comms.md` is invisible to it. Anything the cloud must see goes in **Issue #2** (or a PR comment) and the committed `CLAUDE.md`/`LANE.md`. Local lanes mirror cross-machine-relevant items between `~/battery-comms.md` ⇄ Issue #2.
 
+**External review inputs (design/audit tools) are NOT lanes.** Tools like Claude Design are
+advisory *inputs*, structurally like Lane D's user stories or a research pass — they produce
+recommendations, not gated deliverables, so they get no worktree, no comms presence, and no
+release slot.
+
+**Hard boundary: an external tool may write `DESIGN-REVIEW.md` (or another doc) and MUST NOT
+write `index.html` or push to `master`.** The reason is specific, not bureaucratic: these tools
+cannot run the Playwright gate, and §3's srcdoc footgun is invisible without it — one literal `"`
+silently blanks an entire iframe with no console error and a clean `node --check`. Single-writer-
+of-master plus a green 22-suite gate is why that has never shipped. Do not add a writer that
+cannot gate.
+
+**Flow:** external findings land in a dated doc → Lane A triages them into `laneA/*` branches and
+the `LANE.md` queue → Lane E gates and ships. Discount anything such a tool says about lanes,
+process, or versions unless the docs it read were current (see the 2026-08-16 staleness incident
+recorded in LANE.md).
+
 **Watcher protocol — ARM WHEN BLOCKED, DISARM WHEN WORKING (owner directive 2026-08-14).**
 
 Lane A is the **quarterback**: it assigns work, and lanes report completion back to it. A comms watcher is a *wake-up mechanism for an idle lane*, not a background habit — every fire costs a full turn, so it must be armed only when it can actually do something useful.
