@@ -4736,6 +4736,21 @@ body.youth #youth-banner{display:block}
     user-select: none;
   }
   .day-chip:hover { border-color: var(--line-bright); color: var(--bone); }
+  /* Design item 1: the activity-level day type is owned by HOME now. These chips
+     REPORT it; they no longer set it. Travel stays tappable -- it is a modifier
+     HOME never emits (it cannot know you are travelling), so locking it would
+     make it unsettable anywhere. Deliberately still legible, not greyed to
+     unreadable: this row is now a readout you check at a glance in sunlight. */
+  .day-chip.locked { cursor: default; opacity: 0.92; }
+  .day-chip.locked:hover { border-color: var(--line); color: var(--dim); }
+  .day-chip.locked.active:hover { color: var(--ink); }
+  .day-home-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: 8px; padding: 7px 11px;
+    background: var(--blue-dim); border: 1px solid var(--blue); border-radius: 8px;
+    color: var(--blue); font-family: 'Courier New', monospace; font-size: 11px;
+    letter-spacing: 0.5px; cursor: pointer; user-select: none;
+  }
   .day-chip.active {
     background: var(--blue);
     border-color: var(--blue);
@@ -6240,13 +6255,14 @@ body.youth #youth-banner{display:block}
       <div class=&quot;day-filter&quot;>
         <div class=&quot;day-filter-label&quot;>◆ Today's day-type · combine if needed:</div>
         <div class=&quot;day-chips&quot;>
-          <div class=&quot;day-chip&quot; data-day=&quot;rest&quot; onclick=&quot;toggleDay('rest')&quot;>Rest</div>
-          <div class=&quot;day-chip&quot; data-day=&quot;light&quot; onclick=&quot;toggleDay('light')&quot;>Light</div>
-          <div class=&quot;day-chip active&quot; data-day=&quot;train&quot; onclick=&quot;toggleDay('train')&quot;>Train</div>
-          <div class=&quot;day-chip&quot; data-day=&quot;heavy&quot; onclick=&quot;toggleDay('heavy')&quot;>Heavy</div>
-          <div class=&quot;day-chip&quot; data-day=&quot;game&quot; onclick=&quot;toggleDay('game')&quot;>Game</div>
+          <div class=&quot;day-chip locked&quot; data-day=&quot;rest&quot; onclick=&quot;goSetDayOnHome()&quot;>Rest</div>
+          <div class=&quot;day-chip locked&quot; data-day=&quot;light&quot; onclick=&quot;goSetDayOnHome()&quot;>Light</div>
+          <div class=&quot;day-chip locked active&quot; data-day=&quot;train&quot; onclick=&quot;goSetDayOnHome()&quot;>Train</div>
+          <div class=&quot;day-chip locked&quot; data-day=&quot;heavy&quot; onclick=&quot;goSetDayOnHome()&quot;>Heavy</div>
+          <div class=&quot;day-chip locked&quot; data-day=&quot;game&quot; onclick=&quot;goSetDayOnHome()&quot;>Game</div>
           <div class=&quot;day-chip&quot; data-day=&quot;travel&quot; onclick=&quot;toggleDay('travel')&quot;>Travel</div>
         </div>
+        <div class=&quot;day-home-link&quot; onclick=&quot;goSetDayOnHome()&quot;>Set today's day-type on HOME &rsaquo;</div>
         <div class=&quot;day-help&quot;>Tap to combine (e.g. Travel + Train). Targets take the highest demand; ceilings adjust accordingly. <b>Heavy</b> = a hard-throwing or field day; <b>Game</b> = a game day (long hours at the field — the biggest hydration day); your Hot Climate profile setting adds the extra hot-weather water on top automatically.</div>
         <!-- Recovery context (owner Option A, 26.08.16). Shown only when Rest is
              active. Records WHAT you are recovering from for the arm-care log and
@@ -7985,8 +8001,18 @@ body.youth #youth-banner{display:block}
     return { protein: p, water: w, label, elecMax: eM, elecWarn: eW };
   }
 
+  /* Design item 1: HOME owns the activity-level day type. Tapping a locked chip
+     (or the affordance) takes you to HOME rather than doing nothing -- so if a
+     derived day (game from the calendar, heavy from yesterday's load) has not
+     reached FUEL yet, you are never stuck without a way to set it. */
+  window.goSetDayOnHome = function(){
+    try { parent.go('today'); } catch(e) {}
+  };
+
   function toggleDay(d) {
     if (!DAY_TARGETS[d]) return;
+    // Activity types are set on HOME now; only modifiers (travel) remain local.
+    if (DAY_ACTIVITY.indexOf(d) >= 0) { goSetDayOnHome(); return; }
     if (activeDays.has(d)) {
       activeDays.delete(d);
       if (activeDays.size === 0) activeDays.add(d); // can't clear all
@@ -8096,39 +8122,26 @@ body.youth #youth-banner{display:block}
      suggestion (per-day dismissal, same pattern as the game nudge). ===== */
   let _planSuggestDay = null;
   const PLAN_NUDGE_LABELS = {rest:'Rest', light:'Light', train:'Train', heavy:'Heavy', game:'Game', travel:'Travel'};
+  /* Design item 1 (external review, 2026-08-18): HOME is now the SINGLE source of
+     truth for the activity-level day type, so this stops negotiating and simply
+     applies what it is told. Deleted with the second control: the untouched-day
+     special case, the dismissible nudge, and the per-day mute key.
+
+     That reconciliation layer was where all three of this month's silent-failure
+     bugs lived -- the dead rest auto-apply (untouched read a key boot always
+     stamped), the dropped TRAVEL modifier on nudge-accept, and setActivePlan
+     ('full') persisting an all-off plan that posted bat-plan:'rest'. The layer
+     existed only because two controls could disagree. One control, no layer.
+
+     Modifiers are still preserved: HOME never emits 'travel' (it cannot know),
+     so a travel day stays a travel day across a day-type change. */
   function handlePlanSync(d){
     const day = d &amp;&amp; d.day;
     if (!day || !DAY_TARGETS[day]) return;
-    if (activeDays.has(day)) { hidePlanNudge(); return; }   // already matching
-    /* REACHABILITY FIX (Lane E caught this; Lane A confirmed). This used to read
-       'fuel-day-<date>' -- but FUEL's own DOMContentLoaded stamps that key
-       unconditionally at boot, before the athlete can touch anything, so
-       `untouched` was NEVER true and the rest auto-apply was dead code in
-       production. It only ever passed in a test that deleted the key first,
-       which proved the mechanism and not its reachability. We now read a marker
-       written solely by commitDays() -- i.e. by a DELIBERATE choice (chip tap,
-       accepted nudge, or a previous auto-apply) -- which is the condition we
-       actually meant. */
-    const untouched = !storeGet('fuel-daytouched-' + todayKey(), '');
-    if (day === 'rest' &amp;&amp; untouched) {
-      // Safe auto-apply, modifiers preserved (e.g. a travel day stays travel).
-      commitDays(Array.from(activeDays).filter(d => DAY_ACTIVITY.indexOf(d) < 0).concat(['rest']));
-      hidePlanNudge();
-      return;
-    }
-    if (storeGet('fuel-plannudge-' + todayKey(), '') === '1') return;  // dismissed today
-    _planSuggestDay = day;
-    const lbl = document.getElementById('plan-nudge-day');
-    // Tier-independent label. DAY_TARGETS is REPLACED wholesale for youth by six
-    // copies of one child-safe object whose label is 'Youth' (§4.3 collapse), so
-    // reading the label off it showed a youth athlete 'Your plan says YOUTH
-    // today.' This receiver was dead code until PR #10 added the host emitter,
-    // so the copy only became reachable now. Targets stay collapsed -- only the
-    // label is de-tiered.
-    if (lbl) lbl.textContent = (PLAN_NUDGE_LABELS[day] || day).toUpperCase();
-    const el = document.getElementById('plan-nudge');
-    if (el) el.style.display = 'flex';
+    if (activeDays.has(day)) return;                       // already matching
+    commitDays(Array.from(activeDays).filter(x => DAY_ACTIVITY.indexOf(x) < 0).concat([day]));
   }
+
   function hidePlanNudge(){
     const el = document.getElementById('plan-nudge');
     if (el) el.style.display = 'none';
