@@ -7,6 +7,16 @@
 
 Scope respected: no rewrite, no rebrand, no framework. Single self-contained HTML file, offline PWA, dark steel/gold aesthetic retained, phone-first. Every recommendation names the region it lands in and whether it crosses the iframe seam.
 
+> **⚠ LANE A EDITORIAL NOTE (2026-08-18) — read before acting on §8.**
+> This document is committed **as received**; the text below is unedited. Two corrections apply:
+> 1. **Every "Lane B" in the work order means LANE E.** Lane B is retired (its VS Code quota is
+>    consumed by the owner's day job); Lane E is the host-shell owner and sole release engineer.
+>    The review read the roster *before* the 2026-08-16 staleness fix it also independently caught.
+> 2. **The staleness listed in §8 is already fixed** (`e2cd78f`, `6e3d38e`) — and its sharper
+>    prescription was adopted: self-invalidating facts (hardcoded NN, line-number ranges) were
+>    **deleted** rather than refreshed, so they cannot rot again.
+> Its §9 devil's-advocate items are **not** hedges — two are MUST-FIX and gate items 1 and 2.
+
 ---
 
 ## 0. The one-line finding

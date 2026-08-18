@@ -10,30 +10,37 @@ shipped a blank tab in 80+ releases.
 
 ## How we exchange work
 
-- **You → us — PREFERRED: open a GitHub Issue.** If your GitHub connector has issue-write
-  scope, **file your findings as an issue** on `OvercastBTC/battery`, labelled **`design`**,
-  titled `DESIGN: <topic>`. This is better than a file for two reasons: it reaches the **cloud
-  lane (D)**, which cannot see the local `~/battery-comms.md`, and it is timestamped and
-  threaded, so we can reply to specific findings. Long reviews: put the summary + the ordered
-  work list in the issue body, and say so if the full text is also being saved as a file.
-- **You → us — fallback:** if you cannot create issues, write one markdown file; the owner
-  saves it to this repo root as `DESIGN-REVIEW-<topic>.md`, and Lane A commits it on a
-  `laneA/*` branch for Lane E to merge — same path as any other change.
+**Corrected 2026-08-18 from `DESIGN-CHANNEL.md` — Design tested its own permissions and the
+earlier model here was wrong in both directions. Believe this version.**
 
-### What you may and may not write
+- **Us → you: nothing to hand over.** You have **direct read access** to `OvercastBTC/battery` —
+  browse the tree, read any file, grep `index.html` (770KB, readable), diff two refs. You read
+  `master` by default. So "read the live value from source" is satisfied **structurally**, not by
+  anyone remembering to paste it. If something you need is on an unmerged branch, we name the
+  branch in comms; otherwise assume `master`.
+- **You → us: one markdown file.** The owner saves it into the repo root; Lane A commits it on a
+  `laneA/*` branch and Lane E merges. This leg has a human step and that is fine — the person
+  pasting is also the person who can run the gate.
+- **For point-by-point replies:** we mirror your findings and our answers into committed repo
+  files (`DESIGN-REVIEW*.md`, and a `DESIGN-THREAD.md` when a real back-and-forth starts). Since
+  you read the repo, a committed file *is* the thread.
 
-| Action | Allowed | Why |
-|---|---|---|
-| **Create/comment on Issues** | ✅ **yes, preferred** | Issues are not code. They cannot break the app, bypass the gate, or blank an iframe. |
-| **A PR containing only `.md` files** | ✅ yes | Docs can't truncate an iframe, and Lane E gates it anyway. |
-| **Any commit or PR touching `index.html`** | ❌ **no** | You cannot run the Playwright gate, and §3's srcdoc footgun is invisible without it — one literal `"` blanks a whole iframe with no error and a clean `node --check`. Propose the change in prose; a lane implements and gates it. |
-| **Pushing to `master`** | ❌ never | Single-writer-of-master (Lane E) is why 80+ releases have shipped clean. |
-- **Us → you:** we leave context for you *in the repo*, since you can read it. Start here:
-  1. **`DESIGN-BRIEF.md`** (this file) — current state + what we want next.
-  2. **`DESIGN-REVIEW-PROMPT.md`** — the standing brief: product, users, constraints.
-  3. **`LANE.md`** — authoritative current state (live stamp, lanes, queue).
-  4. **`CLAUDE.md`** — §3 srcdoc footgun · §4 youth safety gate · §6 lane roles · §7 the
-     postMessage seam. Read §3 and §4 before proposing anything that touches markup.
+### What you can and cannot write — settled, not configurable
+
+You tested both channels and both are **read-only**: the GitHub connector (list/browse/read/grep/
+compare) and any mounted local folder (list/read/grep/copy inward). Your own workspace is
+read-write but no lane can see it; exit is a manual download.
+
+| Action | Possible? |
+|---|---|
+| Create or comment on Issues | ❌ no issue tooling exists in the connector — **and you cannot read Issues either**, so issue threading is not a channel |
+| Any branch / commit / PR | ❌ no capability |
+| Push to `master` | ❌ no capability |
+
+So the gating discipline is safe **by construction, not by configuration** — there is no
+permission to grant that would change it. (An earlier version of this file recommended filing
+Issues; that was wrong and is withdrawn. If issue reach is wanted for cloud Lane D, a lane pastes
+your markdown into an issue body — one step, from someone who can also run the gate.)
 
 ## Ground truth (don't trust numbers written in prose — read them from source)
 
