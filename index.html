@@ -184,7 +184,7 @@ body.youth #youth-banner{display:block}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.18.83</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.18.84</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -10770,7 +10770,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v83').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v83').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v84').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v84').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -12419,18 +12419,61 @@ function getActivePlan(){
   if(youth)out.lift=false;
   return out;
 }
-/* Fires on every plan change (Lane A spec): tells FUEL's already-live
-   handlePlanSync() receiver what today's plan implies for day-type. FUEL never
-   has its manual chip choice clobbered -- 'rest' auto-applies only on an
-   untouched day, everything else is a dismissible nudge (FUEL-side, .76). */
+/* Design review item 1 (host half, 2026-08-18): the mapping now covers all
+   five FUEL activity types, not three. LIGHT/HEAVY/GAME/TRAVEL were
+   unreachable from HOME "by construction" per the review -- this is the
+   widened emit Lane A's FUEL-side (chips read-only, drop the nudge branch)
+   is blocked on. TRAVEL is deliberately absent below: it's a modifier, not
+   an activity type (DAY_ACTIVITY already draws this line FUEL-side), and the
+   host has no travel signal to originate -- FUEL's own commitDays() already
+   preserves an existing travel modifier across an activity-type change
+   (verified .82/.83), so there is nothing for the host to do on that half. */
+function todayGameEvent(){
+  // Same underlying key FUEL's own loadEvents()/maybeGameNudge() read
+  // (fuel-events) -- not exposed to the host, so read+parse it directly here
+  // rather than duplicate FUEL's EVENT_TYPES table for one field.
+  try{
+    var events=JSON.parse(localStorage.getItem('fuel-events')||'[]');
+    var d=new Date(),p=function(n){return String(n).padStart(2,'0');};
+    var todayD=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+    return Array.isArray(events)&&events.some(function(e){return e&&e.type==='game'&&e.date===todayD;});
+  }catch(e){ return false; }
+}
+function trainedHardYesterday(){
+  // Reuses the EXACT signal US-2.7's recoveryBoost() already vetted and
+  // shipped (PR #13): an outing that itself required >=1 Pitch Smart rest
+  // day, with the missing-age guard from that same review (pitchRestDays()
+  // returns 0 both for a genuinely light outing AND for a missing age --
+  // only let the log decide when age is known enough to tell them apart).
+  try{
+    var age=profileAge(profile); if(!age)return false;
+    var log=readPitchLog(); if(!log||!log.length)return false;
+    var y=new Date(); y.setDate(y.getDate()-1);
+    var p=function(n){return String(n).padStart(2,'0');};
+    var yKey=y.getFullYear()+'-'+p(y.getMonth()+1)+'-'+p(y.getDate());
+    var outing=log.find(function(o){return o&&o.date===yKey;});
+    if(!outing||!outing.p)return false;
+    return pitchRestDays(age,outing.p)>=1;
+  }catch(e){ return false; }
+}
 function syncFuelDayFromPlan(flags){
   // Lane A ruling (Issue #2, 2026-08-13): the old mapping wasn't total -- 6 of
   // 16 stream combos fell through to "send nothing," stranding FUEL on Rest
   // targets with no path back down (Lane E's .80 review). 'light' is the
   // catch-all for any other non-empty combo, giving every reachable flag set a
   // mapping and a monotonic way down off Rest.
+  //
+  // Design review §9 "ACCEPTED RISK": five day-types may relocate the
+  // ambiguity the old plan/day-type duality had -- mitigated by pre-selecting
+  // from the calendar + Arm Guardian so the emitted day is usually a
+  // confirmation, not a guess. GAME (calendar) and HEAVY (pitch severity)
+  // are checked BEFORE the stream-flag fallback for exactly that reason --
+  // both are facts about today/yesterday that no stream toggle can express,
+  // and both already exist as vetted signals elsewhere in this file.
   var day;
-  if(PLAN_STREAMS.every(function(k){return !flags[k];}))day='rest';
+  if(todayGameEvent())day='game';
+  else if(trainedHardYesterday())day='heavy';
+  else if(PLAN_STREAMS.every(function(k){return !flags[k];}))day='rest';
   else if(flags.lift)day='train';
   else if(flags.arm&&flags.drills&&flags.body)day='train';
   else day='light';
