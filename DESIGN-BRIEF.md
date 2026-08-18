@@ -10,9 +10,24 @@ shipped a blank tab in 80+ releases.
 
 ## How we exchange work
 
-- **You → us:** write your findings as a single markdown file. The owner saves it into this
-  repo root as `DESIGN-REVIEW.md` (or `DESIGN-REVIEW-<topic>.md`). Lane A commits it on a
-  `laneA/*` branch and Lane E merges it — same path as any other change.
+- **You → us — PREFERRED: open a GitHub Issue.** If your GitHub connector has issue-write
+  scope, **file your findings as an issue** on `OvercastBTC/battery`, labelled **`design`**,
+  titled `DESIGN: <topic>`. This is better than a file for two reasons: it reaches the **cloud
+  lane (D)**, which cannot see the local `~/battery-comms.md`, and it is timestamped and
+  threaded, so we can reply to specific findings. Long reviews: put the summary + the ordered
+  work list in the issue body, and say so if the full text is also being saved as a file.
+- **You → us — fallback:** if you cannot create issues, write one markdown file; the owner
+  saves it to this repo root as `DESIGN-REVIEW-<topic>.md`, and Lane A commits it on a
+  `laneA/*` branch for Lane E to merge — same path as any other change.
+
+### What you may and may not write
+
+| Action | Allowed | Why |
+|---|---|---|
+| **Create/comment on Issues** | ✅ **yes, preferred** | Issues are not code. They cannot break the app, bypass the gate, or blank an iframe. |
+| **A PR containing only `.md` files** | ✅ yes | Docs can't truncate an iframe, and Lane E gates it anyway. |
+| **Any commit or PR touching `index.html`** | ❌ **no** | You cannot run the Playwright gate, and §3's srcdoc footgun is invisible without it — one literal `"` blanks a whole iframe with no error and a clean `node --check`. Propose the change in prose; a lane implements and gates it. |
+| **Pushing to `master`** | ❌ never | Single-writer-of-master (Lane E) is why 80+ releases have shipped clean. |
 - **Us → you:** we leave context for you *in the repo*, since you can read it. Start here:
   1. **`DESIGN-BRIEF.md`** (this file) — current state + what we want next.
   2. **`DESIGN-REVIEW-PROMPT.md`** — the standing brief: product, users, constraints.
