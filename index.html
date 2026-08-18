@@ -4833,6 +4833,16 @@ body.youth #youth-banner{display:block}
     margin-top: 6px;
     font-style: italic;
   }
+  /* Recovery-context chips (Option A) — only visible on a Rest day */
+  .rec-from { margin-top: 10px; padding: 9px 11px; border-left: 3px solid var(--blue);
+    background: rgba(88,166,255,0.07); border-radius: 0 6px 6px 0; }
+  .rec-from-label { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--dim); margin-bottom: 7px; }
+  .rec-from-note { text-transform: none; letter-spacing: 0; font-style: italic; color: var(--faint); }
+  .rec-from-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rec-chip { padding: 6px 11px; border: 1px solid var(--line-bright); border-radius: 999px;
+    font-size: 12px; color: var(--dim); cursor: pointer; user-select: none; }
+  .rec-chip.active { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
   /* US-2.6: real recovery status under the day-type seg */
   .rest-status {
     margin-top: 8px;
@@ -6221,6 +6231,23 @@ body.youth #youth-banner{display:block}
           <div class=&quot;day-chip&quot; data-day=&quot;travel&quot; onclick=&quot;toggleDay('travel')&quot;>Travel</div>
         </div>
         <div class=&quot;day-help&quot;>Tap to combine (e.g. Travel + Train). Targets take the highest demand; ceilings adjust accordingly. <b>Heavy</b> = a hard-throwing or field day; <b>Game</b> = a game day (long hours at the field — the biggest hydration day); your Hot Climate profile setting adds the extra hot-weather water on top automatically.</div>
+        <!-- Recovery context (owner Option A, 26.08.16). Shown only when Rest is
+             active. Records WHAT you are recovering from for the arm-care log and
+             history. It deliberately does NOT change protein/water: the daily
+             requirement is not modality-specific (ACSM/AND/DC 2016 explicitly
+             deprecates strength-vs-endurance daily targets; ISSN 2017 gives one
+             1.4-2.0 g/kg range), and protein on a recovery day should HOLD, not
+             drop, because MPS stays elevated ~24-48h. Saying so in the UI keeps
+             the app honest instead of implying a precision the evidence lacks. -->
+        <div class=&quot;rec-from&quot; id=&quot;rec-from&quot; style=&quot;display:none&quot;>
+          <div class=&quot;rec-from-label&quot;>Recovering from — <span class=&quot;rec-from-note&quot;>logged for arm care; your targets don't change</span></div>
+          <div class=&quot;rec-from-chips&quot;>
+            <div class=&quot;rec-chip&quot; data-rec=&quot;throw&quot; onclick=&quot;toggleRecFrom('throw')&quot;>🤾 Threw</div>
+            <div class=&quot;rec-chip qa-adult&quot; data-rec=&quot;lift&quot; onclick=&quot;toggleRecFrom('lift')&quot;>🏋️ Lifted</div>
+            <div class=&quot;rec-chip&quot; data-rec=&quot;game&quot; onclick=&quot;toggleRecFrom('game')&quot;>⚾ Game</div>
+            <div class=&quot;rec-chip&quot; data-rec=&quot;sore&quot; onclick=&quot;toggleRecFrom('sore')&quot;>😖 Just sore</div>
+          </div>
+        </div>
         <!-- US-2.6: the REAL recovery status (Arm Guardian / Pitch Smart) so the Rest
              chip and the actual required-rest countdown can never silently disagree -->
         <div class=&quot;rest-status&quot; id=&quot;rest-status&quot; style=&quot;display:none&quot;></div>
@@ -7828,8 +7855,18 @@ body.youth #youth-banner{display:block}
   // activeDays: Set<string>. Combining = take max of each target field across selections.
   // Persisted as comma-separated string for backward compatibility.
   let activeDays = new Set();
+  /* Day-type is PER-DATE and does not carry across days (owner ruling 26.08.16,
+     matching the plan-v2 rule that a plan never carries over). It used to seed
+     from the GLOBAL 'fuel-day' key, so the morning after a game an athlete booted
+     into game targets (240oz vs 200oz) on a day they had never touched -- and
+     boot then stamped that inherited type, freezing it as the day's goal snapshot
+     and judging the streak/weekly-✓ against a target they never chose. Measured
+     and confirmed before changing. Now: today's own stamp wins; otherwise start
+     from the 'train' baseline. The global key is still written by commitDays()
+     for the cross-window storage listener below, but is no longer a seed. */
   (function loadActiveDays(){
-    const raw = storeGet('fuel-day', 'train');
+    const todayRaw = storeGet('fuel-day-' + todayKey(), '');
+    const raw = todayRaw || 'train';
     raw.split(',').forEach(d => { if (DAY_TARGETS[d]) activeDays.add(d); });
     if (activeDays.size === 0) activeDays.add('train');
   })();
@@ -7909,7 +7946,41 @@ body.youth #youth-banner{display:block}
     refreshSuggestions();
     refreshWeekly();
     maybeGameNudge();
+    renderRecFrom();
   }
+
+  /* ===== Recovery context (owner Option A) — WHAT you're recovering from.
+     Per-date (`fuel-recovery-<date>`), multi-select, Rest-day only. Records
+     context for the arm-care log/history; deliberately does NOT touch targets:
+     daily protein is not modality-specific (ACSM/AND/DC 2016 explicitly retired
+     strength-vs-endurance daily targets; ISSN 2017 = one 1.4-2.0 g/kg band), and
+     recovery-day protein should HOLD rather than drop (MPS elevated ~24-48h).
+     §4.3: the 'lift' option carries .qa-adult so youth never sees a weight-room
+     prompt, and youth is filtered again in code below (belt and suspenders). ===== */
+  function loadRecFrom(){
+    const raw = storeGet('fuel-recovery-' + todayKey(), '');
+    return new Set(raw ? raw.split(',').filter(Boolean) : []);
+  }
+  function renderRecFrom(){
+    const box = document.getElementById('rec-from');
+    if (!box) return;
+    const onRest = activeDays.has('rest');
+    box.style.display = onRest ? 'block' : 'none';
+    if (!onRest) return;
+    const sel = loadRecFrom();
+    const youth = (window.BATTERY_TIER || 'youth') !== 'adult';
+    box.querySelectorAll('.rec-chip').forEach(c => {
+      if (youth &amp;&amp; c.dataset.rec === 'lift') { c.style.display = 'none'; return; }
+      c.classList.toggle('active', sel.has(c.dataset.rec));
+    });
+  }
+  window.toggleRecFrom = function(what){
+    if ((window.BATTERY_TIER || 'youth') !== 'adult' &amp;&amp; what === 'lift') return;  // §4.3
+    const sel = loadRecFrom();
+    if (sel.has(what)) sel.delete(what); else sel.add(what);
+    storeSet('fuel-recovery-' + todayKey(), Array.from(sel).join(','));
+    renderRecFrom();
+  };
 
   /* 1.1 surprise: if the calendar has a game TODAY and the GAME day-type isn't set,
      offer a one-tap switch. Dismiss is remembered per day (fuel-gamenudge-<date>). */
@@ -9619,6 +9690,7 @@ body.youth #youth-banner{display:block}
       storeSet('fuel-day-' + todayKey(), Array.from(activeDays).join(','));
     }
     applyCollapsed();
+    try { renderRecFrom(); } catch (e) {}   // show recovery chips if today is already a Rest day
     initProfileUI();
     initWakeTime();
     refreshProfilePrompt();
