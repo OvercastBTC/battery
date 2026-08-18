@@ -6753,11 +6753,21 @@ body.youth #youth-banner{display:block}
     <div class=&quot;custom-add-form&quot; id=&quot;custom-protein-form&quot;>
       <!-- US-2.9B: scoops × g/scoop quantity control (0.5–4 in halves); the g/scoop
            field persists per profile (fuel-gscoop). Save → recents, not favorites. -->
-      <div class=&quot;caf-row&quot;>
+      <div class=&quot;caf-row qa-adult&quot;>
         <select id=&quot;qc-prot-sel&quot; class=&quot;caf-amt qc-sel&quot;></select>
         <input type=&quot;number&quot; id=&quot;qc-gscoop&quot; class=&quot;caf-amt&quot; style=&quot;max-width:80px&quot; min=&quot;5&quot; max=&quot;60&quot; title=&quot;grams per scoop&quot; onchange=&quot;qcGscoopChanged()&quot; />
         <button class=&quot;caf-add-btn&quot; onclick=&quot;qcAdd('protein')&quot;>Add</button>
         <label class=&quot;caf-fav-label&quot;><input type=&quot;checkbox&quot; id=&quot;qc-prot-save&quot; class=&quot;caf-checkbox&quot; /><span>Save</span></label>
+      </div>
+      <!-- owner request: one tap credits scoops-of-protein AND its water together
+           (addShake), instead of two separate taps through the controls above.
+           qa-adult (Copilot review, PR #13): dosing/supplement surface, belt-and-
+           suspenders alongside the switchTab() youth-block on this whole tab. -->
+      <div class=&quot;qa-subgroup-label qa-adult&quot; style=&quot;margin-top:14px&quot;>Protein Shake · scoops + water in one tap</div>
+      <div class=&quot;caf-row qa-adult&quot;>
+        <select id=&quot;qc-shake-scoops-sel&quot; class=&quot;caf-amt qc-sel&quot;></select>
+        <select id=&quot;qc-shake-water-sel&quot; class=&quot;caf-amt qc-sel&quot;></select>
+        <button class=&quot;caf-add-btn&quot; onclick=&quot;qcShakeAdd()&quot;>Add</button>
       </div>
       <div class=&quot;caf-row&quot;>
         <input type=&quot;number&quot; id=&quot;custom-protein-amt&quot; placeholder=&quot;g&quot; min=&quot;1&quot; class=&quot;caf-amt&quot; />
@@ -7787,6 +7797,41 @@ body.youth #youth-banner{display:block}
   };
   const FRAME_MULT = { small: 0.92, medium: 1.00, large: 1.05 };
 
+  /* ===== US-2.7 (Lane A guardrails, Issue #2 2026-07-06): recovery-aware
+     protein floor. Derives &quot;trained hard yesterday&quot; from the actual pitch log
+     (Arm Guardian) instead of relying solely on the manual lastThrow toggle --
+     same-origin parent.readPitchLog()/parent.pitchRestDays() read, same
+     try/catch + reachability-guard convention as US-2.6's parent.pitchRestInfo()
+     call. lastThrow stays as a manual fallback per the AC when no matching log
+     entry exists. &quot;Trained hard&quot; = an outing that itself required >=1 Pitch
+     Smart rest day (pitchRestDays()), so a light bullpen doesn't trigger this. */
+  function recoveryBoost(p){
+    try{
+      if(!parent || typeof parent.readPitchLog!=='function' || typeof parent.pitchRestDays!=='function') return null;
+      const log=parent.readPitchLog();
+      let outing=null;
+      if(log &amp;&amp; log.length){
+        const y=new Date(); y.setDate(y.getDate()-1);
+        const yKey=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+        outing=log.find(function(o){ return o &amp;&amp; o.date===yKey; }) || null;
+      }
+      // Lane A review (PR #13): only let the log decide when it CAN decide.
+      // pitchRestDays() also returns 0 when p.age is missing (pitchBand(age)
+      // -> falsy), which looks identical to a genuinely light outing -- that
+      // silently swallowed the manual lastThrow fallback for an athlete with no
+      // age set who logged a big outing AND flagged a hard throw manually.
+      // Copilot review (PR #13): when the log CAN decide (age known + a matching
+      // outing exists), its verdict is authoritative -- return immediately either
+      // way. Falling through to the manual toggle on a confirmed-light outing let
+      // a stale lastThrow flag override a real, better-informed determination.
+      if(outing &amp;&amp; outing.p &amp;&amp; p.age){
+        const restDays=parent.pitchRestDays(p.age, outing.p);
+        return restDays>=1 ? {pitches:outing.p, restDays:restDays, source:'log'} : null;
+      }
+      if(p.lastThrow==='yesterday') return {pitches:null, restDays:1, source:'manual'};
+      return null;
+    }catch(e){ return null; }
+  }
   // Recompute DAY_TARGETS from the profile. Returns details for the &quot;how was this calculated&quot; panel.
   function recomputeDayTargets() {
     const p = loadProfile();
@@ -7838,6 +7883,21 @@ body.youth #youth-banner{display:block}
       T[k].protein = Math.max(60, Math.round(T[k].protein / 5) * 5);
       T[k].water = Math.max(60, Math.round(T[k].water / 10) * 10);
     });
+
+    // US-2.7: the day after a genuinely hard outing, Rest/Light protein floors
+    // at Train-level instead of dropping to the table's lowest number -- real
+    // post-exertion recovery nutrition should hold or rise, not fall, the day
+    // after hard work. Quantified change is ADULT-ONLY (§4.3; youth never sees
+    // macro numbers). Water is deliberately left untouched here (guardrail:
+    // Train's water bump reflects today's training load, a signal Rest/Light
+    // genuinely don't have -- bumping it would overstate today's hydration
+    // need from yesterday's work). elecMax/elecWarn intentionally stay at the
+    // chip's own day-type (guardrail: they don't follow a protein/water bump).
+    if (window.BATTERY_TIER === 'adult' &amp;&amp; recoveryBoost(p)) {
+      ['rest', 'light'].forEach(k => {
+        if (T[k] &amp;&amp; T[k].protein < T.train.protein) T[k].protein = T.train.protein;
+      });
+    }
     DAY_TARGETS = T;
 
     return {
@@ -8417,8 +8477,50 @@ body.youth #youth-banner{display:block}
     const sv=document.getElementById(c.save);
     if(sv &amp;&amp; sv.checked){ qcSaveRecent(c.recentsKey, qty); sv.checked=false; qcRender(kind); }
   }
+  // Combined shake control (owner request): one Add credits scoops-of-protein
+  // AND its paired water in a single tap via addShake(), instead of two
+  // separate taps through the water/protein QC controls above. Sticky to the
+  // athlete's own last pick (owner: 2 scoops @ 25g/scoop = 50g + 28oz water)
+  // rather than a full recents list -- keeps this to one simple pair of
+  // selects instead of a second combo-recents system.
+  function qcShakeDefaults(){
+    let s=parseFloat(storeGet('fuel-shake-scoops','2')); if(!(s>0)) s=2;
+    let w=parseFloat(storeGet('fuel-shake-water','28')); if(!(w>0)) w=28;
+    return {scoops:s, water:w};
+  }
+  function qcShakeRender(){
+    const ss=document.getElementById('qc-shake-scoops-sel');
+    const ws=document.getElementById('qc-shake-water-sel');
+    if(!ss || !ws) return;
+    const d=qcShakeDefaults();
+    let sHtml='';
+    for(let v=0.5; v<=4+1e-9; v+=0.5){
+      const vv=Math.round(v*2)/2;
+      sHtml+='<option value=&quot;'+vv+'&quot;>'+vv+(vv===1?' scoop':' scoops')+'</option>';
+    }
+    ss.innerHTML=sHtml; ss.value=String(d.scoops);
+    // 4-32oz: shake-mixing range (6-8oz/scoop is the common minimum; this
+    // athlete's own 2sc/28oz habit is ~14oz/scoop) -- distinct from the 1-48oz
+    // plain-water QC range above, which covers whole daily bottles.
+    let wHtml='';
+    for(let o=4; o<=32; o+=2) wHtml+='<option value=&quot;'+o+'&quot;>'+o+' oz</option>';
+    ws.innerHTML=wHtml; ws.value=String(d.water);
+  }
+  function qcShakeAdd(){
+    const ss=document.getElementById('qc-shake-scoops-sel');
+    const ws=document.getElementById('qc-shake-water-sel');
+    if(!ss || !ws) return;
+    const scoops=parseFloat(ss.value), water=parseFloat(ws.value);
+    if(!(scoops>0) || !(water>0)) return;
+    const per=qcGscoop();
+    const proteinG=Math.round(scoops*per);
+    const label=(scoops===1?'1 scoop':scoops+' scoops')+' · '+per+'g ea';
+    addShake(proteinG, water, label);
+    storeSet('fuel-shake-scoops', String(scoops));
+    storeSet('fuel-shake-water', String(water));
+  }
   function qcBoot(){
-    qcRender('water'); qcRender('protein');
+    qcRender('water'); qcRender('protein'); qcShakeRender();
     const gi=document.getElementById('qc-gscoop'); if(gi) gi.value=qcGscoop();
   }
   if(document.readyState!=='loading') qcBoot();
@@ -8791,7 +8893,7 @@ body.youth #youth-banner{display:block}
     list.innerHTML = sorted.map(e => {
       const tag = e.type;
       const tagLabel = tag.toUpperCase();
-      let amt, elIcon = '';
+      let amt, elIcon = '', pairedOz = null;
       if (e.type === 'water') {
         amt = `${Math.round(e.amount)}oz`;
       } else if (e.type === 'electrolyte') {
@@ -8799,23 +8901,30 @@ body.youth #youth-banner{display:block}
         amt = `${sticks} stick${e.amount === 1 ? '' : 's'}`;
       } else {
         amt = `${Math.round(e.amount)}g`;
-        const pairedOz = e.shakeId ? shakeWaterMap[e.shakeId] : null;
+        pairedOz = e.shakeId ? shakeWaterMap[e.shakeId] : null;
         if (pairedOz) amt += ` + ${Math.round(pairedOz)}oz`;
       }
       if (e.type === 'water' &amp;&amp; e.e > 0) {
         elIcon = ` · ⚡${e.e % 1 === 0 ? e.e : e.e.toFixed(1)}`;
       }
+      // owner request: a shake-linked protein row also credits water -- make
+      // that visible with a compact badge, not just the '+ Noz' text suffix.
+      const dualIcon = pairedOz ? ` <span class=&quot;tag water&quot; style=&quot;opacity:.75&quot;>💧${Math.round(pairedOz)}oz</span>` : '';
       // E3 4.3: pin-from-log ★. Suppressed for youth-unsafe rows (electrolyte/
       // branded supplements) so youth can never pin them. Marked when already pinned.
-      const pinItem = { type: e.type, amount: e.amount, label: e.label, e: e.e || 0 };
+      // pairedOz rides along so a shake's water half survives into the pinned/
+      // most-used favorite (owner-reported bug: pinning e.g. Core Power Elite
+      // silently dropped its 14oz water credit -- only the protein side used to
+      // be persisted, so replaying the pin never re-added the water).
+      const pinItem = { type: e.type, amount: e.amount, label: e.label, e: e.e || 0, w: pairedOz || 0 };
       const safeLbl = String(e.label || '').replace(/['&quot;\\]/g, '');
       const pinned = _favIsPinned(pinItem);
       const pinBtn = _favIsYouthSafe(pinItem)
-        ? `<button class=&quot;log-pin${pinned ? ' pinned' : ''}&quot; title=&quot;${pinned ? 'Unpin from favorites' : 'Pin to favorites'}&quot; onclick=&quot;togglePinFromLog('${e.type}', ${e.amount}, '${safeLbl}', ${e.e || 0})&quot;>${pinned ? '★' : '☆'}</button>`
+        ? `<button class=&quot;log-pin${pinned ? ' pinned' : ''}&quot; title=&quot;${pinned ? 'Unpin from favorites' : 'Pin to favorites'}&quot; onclick=&quot;togglePinFromLog('${e.type}', ${e.amount}, '${safeLbl}', ${e.e || 0}, ${pairedOz || 0})&quot;>${pinned ? '★' : '☆'}</button>`
         : '';
       return `<li>
         <span class=&quot;log-time&quot;>${e.t}</span>
-        <span class=&quot;log-desc&quot;><span class=&quot;tag ${tag}&quot;>${tagLabel}</span>${e.label} · ${amt}${elIcon}</span>
+        <span class=&quot;log-desc&quot;><span class=&quot;tag ${tag}&quot;>${tagLabel}</span>${e.label} · ${amt}${elIcon}${dualIcon}</span>
         ${pinBtn}
         <button class=&quot;log-undo&quot; onclick=&quot;removeShakeEntry(${e.id}, '${e.shakeId || ''}')&quot;>Undo</button>
       </li>`;
@@ -8892,7 +9001,13 @@ body.youth #youth-banner{display:block}
   }
   // Stable key for de-dupe / pin matching: type|label|amount.
   function _favKey(it) {
-    return (it.type || '') + '|' + (it.label || '') + '|' + (+it.amount || 0);
+    // Copilot review (PR #13): include w (paired water oz) when present, else
+    // two shake favorites with the same label/protein grams but different water
+    // (e.g. the new combined control's 2-scoop pick at 28oz vs 20oz) collide --
+    // indistinguishable for pin state, de-dupe, and unpin. Omitted when 0 so
+    // every pre-existing non-shake favorite's key is unchanged.
+    const w = +it.w || 0;
+    return (it.type || '') + '|' + (it.label || '') + '|' + (+it.amount || 0) + (w ? '|w' + w : '');
   }
   // Manual pins live in the existing 'fuel-favorites' key. We PRESERVE its
   // {water,protein} shape and additively read an optional 'elec' array.
@@ -8901,7 +9016,7 @@ body.youth #youth-banner{display:block}
     const out = [];
     ['water', 'protein', 'elec'].forEach(t => {
       const arr = Array.isArray(favs[t]) ? favs[t] : [];
-      arr.forEach(f => out.push({ type: t === 'elec' ? 'electrolyte' : t, amount: +f.amount || 0, label: f.label || '', e: +f.e || 0, manual: true }));
+      arr.forEach(f => out.push({ type: t === 'elec' ? 'electrolyte' : t, amount: +f.amount || 0, label: f.label || '', e: +f.e || 0, w: +f.w || 0, manual: true }));
     });
     return out;
   }
@@ -8920,10 +9035,16 @@ body.youth #youth-banner{display:block}
         if (!key || key.indexOf('fuel-entries-') !== 0) continue;
         let arr;
         try { arr = JSON.parse(localStorage.getItem(key) || '[]') || []; } catch (e) { continue; }
+        // shakeId -> paired water oz for THIS day, so a most-used shake (e.g.
+        // Core Power Elite) keeps its water credit when re-added from the strip
+        // (owner-reported bug: most-used replay dropped the water half entirely).
+        const dayShakeWater = {};
+        arr.forEach(e => { if (e &amp;&amp; e.shakeWater &amp;&amp; e.shakeId) dayShakeWater[e.shakeId] = +e.amount || 0; });
         arr.forEach(e => {
           if (!e || e.shakeWater) return;                 // skip paired-water helper rows
           if (e.type === 'electrolyte' &amp;&amp; e.bundled) return; // skip bundled elec dupes
-          const it = { type: e.type, amount: +e.amount || 0, label: e.label || (e.type || ''), e: +e.e || 0 };
+          const w = (e.type === 'protein' &amp;&amp; e.shakeId) ? (dayShakeWater[e.shakeId] || 0) : 0;
+          const it = { type: e.type, amount: +e.amount || 0, label: e.label || (e.type || ''), e: +e.e || 0, w: w };
           const k = _favKey(it);
           counts[k] = (counts[k] || 0) + 1;
           if (!meta[k]) meta[k] = it;
@@ -8945,7 +9066,9 @@ body.youth #youth-banner{display:block}
     return manual.concat(auto).slice(0, limit || 8);
   }
   // Re-log a fav via the generic addItem one-tap path (4.2).
-  function useFavStripItem(type, amount, label, elec) {
+  function useFavStripItem(type, amount, label, elec, pairedOz) {
+    const w = +pairedOz || 0;
+    if (type === 'protein' &amp;&amp; w > 0) { addShake(+amount, w, label || 'Item'); return; }
     const o = { label: label || 'Item' };
     if (type === 'water') { o.water = +amount; if (+elec > 0) o.elec = +elec; }
     else if (type === 'protein') o.protein = +amount;
@@ -8953,16 +9076,23 @@ body.youth #youth-banner{display:block}
     addItem(o);
   }
   // Pin/unpin an item from a log row. Routes elec -> favs.elec (additive).
-  function togglePinFromLog(type, amount, label, elec) {
+  function togglePinFromLog(type, amount, label, elec, pairedOz) {
     const favs = loadFavorites();
     const bucket = type === 'water' ? 'water' : (type === 'protein' ? 'protein' : 'elec');
     if (!Array.isArray(favs[bucket])) favs[bucket] = [];
     const amt = +amount || 0;
-    const idx = favs[bucket].findIndex(f => (f.label || '') === (label || '') &amp;&amp; (+f.amount || 0) === amt);
+    // Copilot review (PR #13): match on w too, or pinning/unpinning one water
+    // amount can hit a different favorite sharing the same label + protein
+    // grams (a real collision now that the shake control varies water
+    // independent of the scoop-derived label).
+    const w = +pairedOz || 0;
+    const idx = favs[bucket].findIndex(f => (f.label || '') === (label || '') &amp;&amp; (+f.amount || 0) === amt &amp;&amp; (+f.w || 0) === w);
     if (idx !== -1) favs[bucket].splice(idx, 1);   // unpin
     else {
       if (favs[bucket].length >= 6) favs[bucket].shift();
-      favs[bucket].push({ amount: amt, label: label || '', e: +elec || 0 });
+      // w: paired water oz for a shake-linked protein pin (owner-reported bug --
+      // pinning a combo item like Core Power Elite used to drop its water credit).
+      favs[bucket].push({ amount: amt, label: label || '', e: +elec || 0, w: +pairedOz || 0 });
     }
     saveFavorites(favs);
     refreshFavorites();
@@ -9807,11 +9937,11 @@ body.youth #youth-banner{display:block}
           const mark = f.manual ? '<span style=&quot;color:#d4a017;margin-right:4px&quot;>★</span>'
                                 : '<span style=&quot;color:#6e7681;margin-right:4px;font-size:10px&quot;>↻</span>';
           const rm = (ed &amp;&amp; f.manual) ? '<span onclick=&quot;event.stopPropagation();removeManualFav(\''+f.type+'\','+f.amount+',\''+lbl+'\')&quot; style=&quot;margin-left:7px;color:#f85149;font-weight:700&quot;>×</span>' : '';
-          return '<button class=&quot;fav-chip&quot; data-ft=&quot;'+f.type+'&quot; data-fa=&quot;'+f.amount+'&quot; data-fl=&quot;'+lbl+'&quot; data-fe=&quot;'+(f.e||0)+'&quot; data-fm=&quot;'+(f.manual?1:0)+'&quot; onclick=&quot;'+(ed?'':'useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+')')+'&quot; '+
+          return '<button class=&quot;fav-chip&quot; data-ft=&quot;'+f.type+'&quot; data-fa=&quot;'+f.amount+'&quot; data-fl=&quot;'+lbl+'&quot; data-fe=&quot;'+(f.e||0)+'&quot; data-fw=&quot;'+(f.w||0)+'&quot; data-fm=&quot;'+(f.manual?1:0)+'&quot; onclick=&quot;'+(ed?'':'useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+','+(f.w||0)+')')+'&quot; '+
             'title=&quot;'+(f.manual?'Pinned favorite':'Most-used')+'&quot; '+
             'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:9px;'+
             'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>'+
-            mark+'+'+f.amount+u+' · '+(f.label||'')+rm+'</button>';
+            mark+'+'+f.amount+u+(f.w?' +'+f.w+'oz':'')+' · '+(f.label||'')+rm+'</button>';
       };
       const grp={water:[],electrolyte:[],protein:[]};
       all.forEach(f=>{ (grp[f.type]||grp.water).push(f); });
@@ -12294,11 +12424,16 @@ function getActivePlan(){
    has its manual chip choice clobbered -- 'rest' auto-applies only on an
    untouched day, everything else is a dismissible nudge (FUEL-side, .76). */
 function syncFuelDayFromPlan(flags){
-  var day=null;
+  // Lane A ruling (Issue #2, 2026-08-13): the old mapping wasn't total -- 6 of
+  // 16 stream combos fell through to "send nothing," stranding FUEL on Rest
+  // targets with no path back down (Lane E's .80 review). 'light' is the
+  // catch-all for any other non-empty combo, giving every reachable flag set a
+  // mapping and a monotonic way down off Rest.
+  var day;
   if(PLAN_STREAMS.every(function(k){return !flags[k];}))day='rest';
   else if(flags.lift)day='train';
   else if(flags.arm&&flags.drills&&flags.body)day='train';
-  if(!day)return;
+  else day='light';
   try{
     var f=document.getElementById('f-fuel');
     if(f&&f.contentWindow)f.contentWindow.postMessage({type:'bat-plan',day:day},'*');
