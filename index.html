@@ -16,16 +16,18 @@ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
 background:linear-gradient(180deg,#0d1117 80%,#0d111700);border-bottom:1px solid var(--line);
 backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px}
 #hostbar .bolt{width:22px;height:22px}#hostbar h1{font-size:15px;letter-spacing:3px;font-weight:800}
-#prof-switch{order:1;display:flex;gap:5px;background:var(--steel);border:1px solid var(--line);border-radius:20px;padding:3px;max-width:54%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-#host-gear{order:0;margin-left:auto;position:relative;flex:0 0 auto;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);background:var(--steel);color:var(--dim);cursor:pointer;padding:0;transition:color .15s,border-color .15s}
+/* Owner redesign: flexible middle (name/selector), gear pinned right. A single
+   profile shows as plain static text -- no dropdown -- since there's nothing
+   to choose; 2+ profiles get a native <select> that sizes to its own content
+   instead of the old fixed-width scrolling pill row that truncated longer
+   names offscreen with no visible affordance to scroll. */
+#prof-switch{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0 6px}
+#host-gear{flex:0 0 auto;position:relative;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);background:var(--steel);color:var(--dim);cursor:pointer;padding:0;transition:color .15s,border-color .15s}
 #host-gear:active{transform:scale(.9)}#host-gear svg{width:19px;height:19px;display:block;fill:currentColor}
 #host-gear.warn::after{content:'';position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
-#prof-switch::-webkit-scrollbar{display:none}
-#prof-switch .newbtn{color:var(--gold);border:1px dashed var(--line)!important;white-space:nowrap}
-#prof-switch button{background:none;border:none;color:var(--dim);font-size:11px;font-weight:700;letter-spacing:.5px;white-space:nowrap;
-padding:6px 10px;border-radius:16px;cursor:pointer;transition:.15s}
-#prof-switch button.on{background:var(--gold);color:var(--ink)}
-#prof-switch button.youth.on{background:var(--green)}
+#prof-name-static{font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--dim);padding:6px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#prof-name-static.youth{color:var(--green)}
+#prof-select{background:var(--steel);border:1px solid var(--line);color:var(--bone);font:inherit;font-size:12px;font-weight:700;letter-spacing:.5px;padding:6px 10px;border-radius:16px;max-width:100%;text-align:center}
 #stage{position:absolute;top:0;left:0;right:0;bottom:50px;}
 iframe{position:absolute;top:calc(env(safe-area-inset-top) + 52px);left:0;right:0;bottom:0;width:100%;height:calc(100% - env(safe-area-inset-top) - 52px);border:0;display:none;background:var(--ink)}
 iframe.on{display:block}
@@ -60,6 +62,7 @@ padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolli
 #view-data .prow-btns{display:flex;gap:7px;flex-wrap:wrap}
 #view-data .prow-btns button{flex:1;min-width:84px;font-size:11px;font-weight:700;padding:8px;border-radius:8px;background:#202836;border:1px solid #3a4456;color:var(--bone);cursor:pointer}
 #view-data .prow-btns button.del{background:#241619;border-color:#ff6b6877;color:#ff6b68}
+#view-data .add-athlete-btn{display:block;width:100%;margin-top:2px;font-size:12px;font-weight:700;padding:10px;border-radius:10px;background:none;border:1px dashed var(--line);color:var(--gold);cursor:pointer}
 .gd-card{background:var(--steel);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px}
 .gd-card.gold{border-color:var(--gold)}.gd-card h3{font-size:15px;margin-bottom:7px}.gd-card p{font-size:13px;color:var(--dim);line-height:1.5}
 .evpick{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
@@ -10661,9 +10664,9 @@ body.youth #youth-banner{display:block}
 <div class="gd-card" id="sleep-card" style="display:none;padding:11px 15px">
 <!-- .76 compact layout (owner): title + 3 buttons share one row, ~half the
      tile's prior vertical footprint. sleep-sub kept but shrunk, not removed. -->
-<div style="display:flex;align-items:center;gap:8px">
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
 <h3 id="sleep-title" style="margin:0;font-size:12px;white-space:nowrap;flex-shrink:0"></h3>
-<div id="sleep-btns" style="display:flex;gap:6px;flex:1"></div>
+<div id="sleep-btns" style="display:flex;gap:6px;flex:1;min-width:190px"></div>
 </div>
 <p id="sleep-sub" class="dmeta" style="margin:5px 0 0;font-size:10px"></p>
 <div id="sleep-trend" style="font-size:12px;color:var(--dim);line-height:1.5"></div>
@@ -10996,13 +10999,22 @@ let profile=localStorage.getItem('battery-profile')||'';
 
 function renderSwitch(){
   const wrap=document.getElementById('prof-switch'); if(!wrap)return;
-  let html='';
-  getPeople().forEach(function(p){
-    const cls=((p.tier==='youth'?'youth ':'')+(profile===p.id?'on':'')).trim();
-    html+='<button class="'+cls+'" data-prof="'+p.id+'" onclick="setProfile(\''+p.id+'\')">'+escHtml(p.name).toUpperCase()+'</button>';
-  });
-  html+='<button class="newbtn" onclick="newPerson()">+ NEW</button>';
-  wrap.innerHTML=html;
+  const people=getPeople();
+  // Owner redesign: 1 profile -> plain static name, no control (nothing to
+  // choose). 2+ -> a native <select>, which sizes to its own content instead
+  // of the old fixed-width pill row that truncated longer names offscreen.
+  // Adding another athlete moved to the DATA/profiles card (renderDataView) --
+  // the header no longer carries a "+ NEW" affordance.
+  if(people.length<=1){
+    const p=people[0];
+    wrap.innerHTML=p?('<span id="prof-name-static" class="'+(p.tier==='youth'?'youth':'')+'">'+escHtml(p.name).toUpperCase()+'</span>'):'';
+  }else{
+    wrap.innerHTML='<select id="prof-select" onchange="setProfile(this.value)" aria-label="Switch athlete">'+
+      people.map(function(p){
+        return '<option value="'+p.id+'"'+(profile===p.id?' selected':'')+'>'+escHtml(p.name).toUpperCase()+(p.tier==='youth'?' (Youth)':'')+'</option>';
+      }).join('')+
+      '</select>';
+  }
   updateYouthBanner();
 }
 function updateYouthBanner(){
@@ -11435,24 +11447,27 @@ function renderDataView(){
   const el=document.getElementById('data-profiles'); if(!el)return;
   const fmtCount=(id)=>{const pre='battery::'+id+'::';return Object.keys(localStorage).filter(k=>k.startsWith(pre)).length;};
   const people=getPeople();
-  if(!people.length){
-    el.innerHTML='<div class="dmeta">No athletes yet. Add one from the profile bar (+ NEW) or restore a backup.</div>';
-  }else{
-    el.innerHTML=people.map(function(p){
-      const youth=p.tier==='youth';
-      const active=profile===p.id;
-      return '<div class="prow"'+(active?' data-active="1"':'')+'>'+
-        '<div class="prow-h"><span class="prow-name">'+escHtml(p.name)+'</span>'+
-        (youth?'<span class="prow-tag youth">YOUTH</span>':'<span class="prow-tag">ADULT</span>')+
-        (active?'<span class="prow-tag active">ACTIVE</span>':'')+'</div>'+
-        '<div class="prow-meta">'+fmtCount(p.id)+' stored keys</div>'+
-        '<div class="prow-btns">'+
-          '<button onclick="renameProfile(\''+p.id+'\')">Rename</button>'+
-          '<button onclick="setProfileTier(\''+p.id+'\',\''+(youth?'adult':'youth')+'\')">'+(youth?'Make Adult':'Make Youth')+'</button>'+
-          '<button class="del" onclick="removePerson(\''+p.id+'\')">Delete</button>'+
-        '</div></div>';
-    }).join('');
-  }
+  // Owner redesign: adding an athlete moved here from the header's old
+  // "+ NEW" pill (removed to declutter the header bar) -- this is now the
+  // one place profiles are managed (rename/tier/delete already lived here).
+  let html=!people.length
+    ? '<div class="dmeta">No athletes yet. Add one below or restore a backup.</div>'
+    : people.map(function(p){
+        const youth=p.tier==='youth';
+        const active=profile===p.id;
+        return '<div class="prow"'+(active?' data-active="1"':'')+'>'+
+          '<div class="prow-h"><span class="prow-name">'+escHtml(p.name)+'</span>'+
+          (youth?'<span class="prow-tag youth">YOUTH</span>':'<span class="prow-tag">ADULT</span>')+
+          (active?'<span class="prow-tag active">ACTIVE</span>':'')+'</div>'+
+          '<div class="prow-meta">'+fmtCount(p.id)+' stored keys</div>'+
+          '<div class="prow-btns">'+
+            '<button onclick="renameProfile(\''+p.id+'\')">Rename</button>'+
+            '<button onclick="setProfileTier(\''+p.id+'\',\''+(youth?'adult':'youth')+'\')">'+(youth?'Make Adult':'Make Youth')+'</button>'+
+            '<button class="del" onclick="removePerson(\''+p.id+'\')">Delete</button>'+
+          '</div></div>';
+      }).join('');
+  html+='<button class="add-athlete-btn" onclick="newPerson()">+ Add Athlete</button>';
+  el.innerHTML=html;
   const lb=document.getElementById('data-lastbackup');
   if(lb){const ts=localStorage.getItem('battery-last-backup');
     if(ts){const d=new Date(ts);lb.innerHTML='Last backup: <b>'+d.toLocaleString()+'</b>';lb.style.color='';}
