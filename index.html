@@ -35,10 +35,15 @@ padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolli
 #view-today{position:absolute;inset:0;display:none;overflow-y:auto;
 padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolling:touch}
 #view-today.on{display:block}
-#today-ring{width:172px;height:172px;border-radius:50%;margin:10px auto 8px;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--rc,var(--green)) calc(var(--p,0)*1%), var(--line) 0)}
-#today-ring .inner{width:138px;height:138px;border-radius:50%;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center}
-#today-ring .score{font-size:44px;font-weight:800;font-family:&quot;SF Mono&quot;,monospace;line-height:1;color:var(--bone)}
-#today-ring .lbl{font-size:10px;letter-spacing:3px;color:var(--dim);margin-top:4px}
+/* Design review item 2 (2026-08-18): 172px -> 64px. "The ring is a score, not
+   an action" -- shrunk and moved beside the plan-chip row (the closest thing
+   this build has to the review's "day strip") to return ~150px of vertical
+   space to the resume action + rows. Celebrate animation is unchanged --
+   ringflare/chargeburst read off the element's own box, not a hardcoded size. */
+#today-ring{width:64px;height:64px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--rc,var(--green)) calc(var(--p,0)*1%), var(--line) 0)}
+#today-ring .inner{width:50px;height:50px;border-radius:50%;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center}
+#today-ring .score{font-size:16px;font-weight:800;font-family:&quot;SF Mono&quot;,monospace;line-height:1;color:var(--bone)}
+#today-ring .lbl{font-size:6px;letter-spacing:1.5px;color:var(--dim);margin-top:1px}
 #view-data{position:absolute;inset:0;display:none;overflow-y:auto;
 padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolling:touch}
 #view-data.on{display:block}
@@ -121,15 +126,24 @@ body.youth #youth-banner{display:block}
    its own iframe document and isn't reachable from host markup. */
 .plan-chip{padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:#161b22;color:var(--dim);font-family:"SF Mono",monospace;font-size:11px;letter-spacing:.5px;cursor:pointer}
 .plan-chip.active{background:var(--gold);border-color:var(--gold);color:#0d1117;font-weight:700}
-/* TODAY section-menu (.76, owner mock shots/home-v2-mock.png) — a compact
-   always-visible row of icon+label pills so ARM/DRILLS/BODY/LIFT/GAME stay
-   reachable without scrolling, now that they're off the persistent tabbar
-   (PR #7). Pure nav, no live data — the #today-rows bars below still carry
-   the actual progress. */
-#today-section-menu{display:flex;gap:6px;margin:12px 0}
+/* TODAY section-menu (.76, owner mock shots/home-v2-mock.png) — icon+label
+   pills so ARM/DRILLS/BODY/LIFT/GAME stay reachable, now that they're off the
+   persistent tabbar (PR #7). Pure nav, no live data — the #today-rows bars
+   below carry the actual progress.
+   Design review item 2 (2026-08-18, §9 MUST-FIX): this used to render
+   unconditionally, duplicating the rows beneath it 90px apart. Cutting the
+   section menu but keeping the plan-gated rows would strand any stream the
+   active day-type turned off -- on a Rest day there'd be no path AT ALL to
+   LIFT. So the reach survives, collapsed behind the "ALL SECTIONS ›" line
+   (toggleAllSections()) instead of being permanently visible -- same five
+   pills, same nav, direct reach without changing the plan, just not taking
+   up above-the-fold space by default. */
+#today-section-menu{display:none;gap:6px;margin:10px 0}
+#today-section-menu.open{display:flex}
 .sec-pill{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px;border-radius:12px;background:#161b22;border:1px solid var(--line);color:var(--dim);cursor:pointer}
 .sec-pill .ico{font-size:19px;line-height:1}
 .sec-pill .lb{font-size:9px;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#all-sections-toggle{display:block;width:100%;text-align:center;background:none;border:none;color:var(--faint);font-family:"SF Mono",monospace;font-size:10px;letter-spacing:1px;padding:8px 0 2px;cursor:pointer}
 /* GAME's "resting" warn dot moved off the tabbar onto its TODAY quick-link row */
 #today-rows [data-v="game"].warn span:first-child::after{content:'';display:inline-block;margin-left:6px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold);vertical-align:middle}
 /* TODAY 'fully charged' celebration (host surprise) — one-time/day burst when the
@@ -184,7 +198,7 @@ body.youth #youth-banner{display:block}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.18.84</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.18.85</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -10642,7 +10656,29 @@ body.youth #youth-banner{display:block}
 </html>
 "></iframe>
 <section id="view-today">
-<div class="gd-card"><h3 id="today-greet">Today</h3><p id="today-sub">Your daily readiness — arm, drills, body and fuel in one number.</p>
+<div class="gd-card">
+<!-- Design review item 2 (2026-08-18): above-the-fold reset. Greeting deleted
+     (was a static "Today" + a sentence describing the ring, purely decorative
+     -- see review §3, "zero actions" above the fold). Flow button lifted to
+     the top and relabeled to the next unchecked item + a done/total count
+     (refreshFlowBtn()) instead of a generic "start" label, since resuming
+     what you were already doing is the actual point of opening this screen.
+     The 172px ring is now a small glance beside the plan-chip row (the
+     closest thing this build has to the review's "day strip") instead of a
+     centered hero -- same tap target, same celebration animation, ~150px of
+     vertical space returned to the action + rows below. -->
+<button id="flow-btn" onclick="startFlow()" style="display:none;width:100%;margin-bottom:10px;background:#161b22;border:1px solid var(--gold);color:var(--goldb);font-family:'SF Mono',monospace;font-size:13px;letter-spacing:1px;padding:12px;border-radius:11px;cursor:pointer">▶ START TODAY'S FLOW</button>
+<div style="display:flex;align-items:center;gap:10px">
+<div id="today-ring" style="--p:0;--rc:var(--green)"><div class="inner"><span class="score" id="today-score">–</span><span class="lbl">READY</span></div></div>
+<div id="today-plan" style="flex:1;min-width:0"><div style="font-size:10px;letter-spacing:1px;color:var(--faint);text-transform:uppercase;margin-bottom:6px">Today's plan</div><div id="today-plan-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
+</div>
+<div id="today-why" style="display:none;margin:10px auto 0;max-width:320px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#0d1117"></div>
+<div id="today-rows"></div>
+<!-- §9 MUST-FIX: deleting the always-visible section menu strands whichever
+     streams today's day-type turned off (a Rest day would have NO path to
+     LIFT). This always-visible single line is the escape hatch -- direct
+     reach to all five sections, one tap, without changing the plan. -->
+<button id="all-sections-toggle" onclick="toggleAllSections()">ALL SECTIONS ›</button>
 <div id="today-section-menu">
 <div class="sec-pill" onclick="go('arm')"><span class="ico">🦾</span><span class="lb">ARM</span></div>
 <div class="sec-pill" onclick="go('drills')"><span class="ico">🧤</span><span class="lb">DRILLS</span></div>
@@ -10650,11 +10686,6 @@ body.youth #youth-banner{display:block}
 <div class="sec-pill" onclick="goTab('body','lifting')"><span class="ico">🏋️</span><span class="lb">LIFT</span></div>
 <div class="sec-pill" onclick="go('game')"><span class="ico">⚾</span><span class="lb">GAME</span></div>
 </div>
-<div id="today-ring" style="--p:0;--rc:var(--green)"><div class="inner"><span class="score" id="today-score">–</span><span class="lbl">READY</span></div></div>
-<div id="today-why" style="display:none;margin:0 auto 10px;max-width:320px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#0d1117"></div>
-<div id="today-plan" style="margin:10px 0 4px"><div style="font-size:10px;letter-spacing:1px;color:var(--faint);text-transform:uppercase;margin-bottom:6px">Today's plan</div><div id="today-plan-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
-<div id="today-rows"></div>
-<button id="flow-btn" onclick="startFlow()" style="display:none;width:100%;margin-top:6px;background:#161b22;border:1px solid var(--gold);color:var(--goldb);font-family:'SF Mono',monospace;font-size:13px;letter-spacing:1px;padding:12px;border-radius:11px;cursor:pointer">▶ START TODAY'S FLOW</button>
 <div id="today-note" class="dmeta" style="margin-top:8px"></div>
 <div id="today-sleep-adv" style="display:none;margin-top:8px;font-size:12px;line-height:1.45;border-radius:10px;padding:8px 11px"></div>
 </div>
@@ -10770,7 +10801,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v84').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v84').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v85').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v85').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -12554,6 +12585,18 @@ function readinessBreakdown(){
   }
   return items;
 }
+// Design review item 2, §9 MUST-FIX escape hatch: reveals the same five
+// section pills the always-visible menu used to show, one tap away, without
+// touching the plan -- so a stream the active day-type turned off is still
+// reachable. Label flips ALL SECTIONS ›  /  CLOSE ‹ so the toggle itself
+// communicates its own state.
+window.toggleAllSections=function(){
+  var menu=document.getElementById('today-section-menu');
+  var btn=document.getElementById('all-sections-toggle');
+  if(!menu)return;
+  var open=menu.classList.toggle('open');
+  if(btn)btn.textContent=open?'CLOSE ‹':'ALL SECTIONS ›';
+};
 window.toggleReadyWhy=function(){
   var box=document.getElementById('today-why'); if(!box)return;
   if(box.style.display!=='none'){box.style.display='none';return;}
@@ -12633,13 +12676,6 @@ function renderToday(){
     var conv='<button class="plan-chip'+(isFull?' active':'')+'" style="opacity:.7" onclick="setPlanAll(true)">Full</button>'+
       '<button class="plan-chip'+(isRest?' active':'')+'" style="opacity:.7" onclick="setPlanAll(false)">Rest</button>';
     planChipsEl.innerHTML=pills+'<span style="width:1px;align-self:stretch;background:var(--line);margin:0 2px"></span>'+conv;
-  }
-  var greet=document.getElementById('today-greet');
-  if(greet){
-    var h=new Date().getHours();
-    var part=h<12?'Good morning':(h<18?'Good afternoon':'Good evening');
-    var nm=(typeof profileName==='function'&&profile)?profileName(profile):'';
-    greet.textContent=part+(nm?', '+escHtml(nm):'')+'.';
   }
   var rowsEl=document.getElementById('today-rows');
   if(rowsEl){
@@ -12822,11 +12858,36 @@ function flowSteps(){
   }
   return steps;
 }
+// Design review item 2: "name the next unchecked item... say START only when
+// nothing is done" (a string + position change, not a new data source).
+// Mirrors flowSteps()'s own applicability predicates exactly, but counts every
+// APPLICABLE item (done or not) for the denominator, not just what's left --
+// flowSteps() only ever returns the remainder, so "total" isn't otherwise
+// available. This is section-level granularity (e.g. "Arm care"), not a
+// specific exercise name -- the host doesn't have per-exercise visibility
+// into either iframe's step list; only {done,total} per stream.
+function flowProgress(){
+  var youth=profileTier(profile)==='youth', total=0;
+  var plan=getActivePlan();
+  if(_batCounts){
+    ['arm','drills','body'].forEach(function(k){if(!plan[k])return;var c=_batCounts[k];if(c&&c.total>0)total++;});
+    if(plan.lift&&!youth){var lf=_batCounts.lift;if(lf&&lf.total>0)total++;}
+  }
+  if(_batFuel){
+    if(_batFuel.tWater>0)total++;
+    if(!youth&&_batFuel.tProtein>0)total++;
+  }
+  var remaining=flowSteps();
+  return {total:total,done:Math.max(0,total-remaining.length),remaining:remaining.length,next:remaining[0]||null};
+}
 function refreshFlowBtn(){
   var b=document.getElementById('flow-btn'); if(!b)return;
-  var n=flowSteps().length;
-  b.style.display=n?'block':'none';
-  b.textContent=n?('▶ START TODAY\'S FLOW — '+n+' left'):'';
+  var p=flowProgress();
+  b.style.display=p.remaining?'block':'none';
+  if(!p.remaining){b.textContent='';return;}
+  b.textContent=p.done>0
+    ? ('▶ CONTINUE '+p.next.label.toUpperCase()+' · '+p.done+'/'+p.total)
+    : ('▶ START TODAY\'S FLOW — '+p.remaining+' left');
 }
 async function startFlow(){
   var steps=flowSteps();
