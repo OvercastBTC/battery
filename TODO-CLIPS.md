@@ -71,3 +71,33 @@ wires the buttons.
 - **Dynamic warmup:** BYoung PT <https://youtu.be/N-kfCjoz7Hg> · Jaime Baseball Academy <https://youtu.be/4JIle7nXlPQ>
 - **Thrower stretches:** Select Medical "Throwers Ten" <https://youtu.be/TOQH95Tm8Yo> (canonical; ⚠ strengthening-leaning) · Cody Baker <https://youtu.be/7DN3GtOX5i0>
 - **Jaeger #9/#12:** official <https://jaegersports.com/j-bands-exercises-baseball-workout> + @jaegersports socials (wrist-cuff clip → #12) · third-party <https://youtu.be/2sudrYkjVK8> · <https://youtu.be/cvs2Q3pm1QM> (label unofficial)
+
+---
+
+## Pitching mechanics — cut, NOT yet wired (2026-08-18, owner directive)
+
+Owner asked to save+commit these for future use; **UI placement is still open** — no
+"Pitching" surface exists in the app yet (nav is HOME+FUEL tabbar, ARM/DRILLS/BODY/GAME
+as TODAY quick-links per the `.75` restructure). Proposing a new pitching-drills group
+under DRILLS, or its own TODAY quick-link, is a call for the owner/Lane E, not made here.
+
+Source: YouTube video **"Trevor Bauer Accused Of Cheating In Mexico"** (owner's iCloud
+Drive copy, `0.5 Baseball/`). ⚠ **Different provenance than the existing `bauer-gd-*`
+clips** — those came from Bauer's own official "Game Day Warm-up" instructional upload.
+This source is an edited interview/commentary video (title implies third-party
+editorializing, not an official instructional demo) — **more likely to carry real
+copyright exposure if this ever ships to the public `master`/GitHub Pages build.**
+Re-hosting it deviates from the repo's default **LINK/EMBED only** posture above; doing
+so here is the owner's explicit per-clip call (2026-08-18), same mechanism the posture
+note already reserves ("owner decides link-vs-record per group") — but flagging it
+loudly since this is a public site, not a private note. Full-res originals kept
+privately in the owner's iCloud Drive (`0.5 Baseball/`), not in this repo.
+
+- [x] `bauer-pitch-hipfire.mp4` — hip-fire sequencing drill (source 4:41–5:34)
+- [x] `bauer-pitch-gloveside.mp4` — glove-side mechanics: hips rotate first around a
+  stable axis (scap retraction), glove/arm finish last; dowel-in-ground + walking drills
+  (source 17:56–19:59)
+
+**Not yet done:** button/section wiring, youth-gate review (§4.3 — pitching-mechanics
+content is not obviously youth-unsafe, but hasn't been reviewed against that boundary),
+copyright sign-off before any release that reaches `master`.
