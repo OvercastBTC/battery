@@ -1,15 +1,27 @@
-# BATTERY — LANE BOARD (live tandem-work coordination)
+# LANE.md — durable lane board
 
-> **This is the doc to hand the VS Code Opus 4.8 agent to start.** It is the live lane board for two agents editing the single `index.html` at the same time. The durable backlog + rationale is `HANDOFF.md §12.2`; read `HANDOFF.md §1–§11` first for the architecture, the srcdoc footgun (§7.1), the youth-safety gate (§4.3), and the data-model invariants (§3.4). **Committed to the repo** so both agents (and future cloud sessions) read the same board.
+> ⚠️ **This file is committed and is what OUTSIDE readers (new lanes, cloud sessions, design/review
+> tools) see first.** Day-to-day status lives in the non-git `~/battery-comms.md`; anything that
+> should outlive a session belongs HERE. Refresh it at release time — a stale board actively
+> misinforms. (It once advertised `.61` and a "10-test gate" while master was at `.82`/22 suites,
+> and an external design review repeated both.)
 
-**Current good base (DEPLOYED / live):** `master` `c8c22b9`, stamp `26.06.14.22`, SW cache `battery-v22`, **10-test gate green**. Contains **E1–E6** + the **E7 iframe-side seam** + docs. **PENDING release (on `laneA/content` `c8813fb`, NOT deployed):** the PlyoCare pos-card reconciliation — awaiting **Lane B's final DA + gate + push** (release ownership moved to Lane B, see the 🔔 block).
-**Last updated:** 2026-06-22 by **Lane A** (Claude Code) — week-card fuel hit-rate feature on `claude/epic-einstein-p2nhow` (`b06bb76`, stamp `.55`/cache `v55`), draft **PR #1**, **awaiting Lane B gate+release** (see the 🔔 NEW block).
+## Current state (2026-08-16)
 
-> **📡 CROSS-MACHINE COMMS (cloud ⇄ MacBook):** `~/battery-comms.md` is a *non-git* file and only works between worktrees on **one** machine — the cloud session's container does **not** share a filesystem with the MacBook lanes. The cross-machine channel is **GitHub Issue #2 — "Lane Coordination Channel"** (one comment per message, no merge conflicts, readable from cloud via MCP + MacBook via gh/web). During an active PR, reply **on that PR** for the fastest round-trip (the cloud session is subscribed to PR activity and wakes on comments); use #2 for anything that should outlive the PR.
-
-> **STATUS 2026-06-14 (Lane A → integration done):** Lane A shipped **E1–E5** (`1500e29`), **merged Lane B's `laneB/e6` into master** (`915c9ae`, one trivial conflict = the clickable bolt, took Lane B's), bumped the **combined release to `.22`** (`8c72794`), and fixed a **srcdoc footgun I introduced** (`5e9f832` — a literal `"` in a regex truncated the fuel iframe; caught by `youth-fuel-gate` post-merge). Full **10-test gate green** + host `node --check` OK. **Lane B: `git pull` master (or merge it into your next branch) before E7** — master is ahead of `laneB/e6`. Commits are **local-only**; owner gates the push. **LESSON for both lanes:** a literal `"` inside an iframe srcdoc (even inside a regex char-class) silently truncates the whole iframe with NO page error — always write `&quot;`. Re-run the 10-gate before any push.
+- **Live / deployed:** `master` `0580797` = stamp **`26.08.15.82`**, SW cache **`battery-v82`**,
+  full gate **22 suites green**.
+- **Next NN:** derived by Lane E from `HANDOFF.md §10` at release time. **Deliberately not written here** — a hardcoded NN silently rots (this file advertised `.61` for ~20 releases).
+- **Active lanes:** **A** (`~/battery-laneA`, FUEL+ARM iframe content, spec/coordination, browser
+  verification) · **E** (`~/battery-laneE`, host shell + **sole release engineer**) · **D** (cloud,
+  `claude/*` branches + PRs). **Lane identity binds to the WORKTREE, not the app/session label.**
+- **Retired:** **B** (was VS Code; quota consumed by day job — worktree deleted) and **C** (glyph
+  art, owner directive). Do not resurrect either; glyph work, if unparked, goes to cloud Lane D.
+- **Queued:** `laneA/recovery-context` (`d5b57fc`) → `.83` · PR #13 (Lane D, US-2.7 + shake control)
+  behind it.
 
 ---
+
+## Historical log (below this line may be stale — treat the block above as authoritative)
 
 ## The two lanes (who owns what — by file REGION, which is what makes parallel work safe)
 

@@ -10,7 +10,7 @@ Project rules in §1–§8 below layer on top; where they conflict, the project 
 
 ## 1. What BATTERY Is
 
-Single-file installable PWA: `/Users/bacona/battery/index.html` (~9 400 lines, hand-edited, no bundler).
+Single-file installable PWA: `index.html` (~12 700 lines, hand-edited, no bundler).
 Deployed via GitHub Pages from branch `master`: **<https://overcastbtc.github.io/battery/>**
 Baseball arm-care + nutrition/hydration tracker (profiles: adult / youth).
 
@@ -20,16 +20,16 @@ One host HTML shell containing **two srcdoc iframes** (NOT `src=`), sharing the 
 
 | iframe | id | title | line range (verify by reading — shift as file grows) |
 |--------|-----|-------|------------------------------------------------------|
-| ARM | `#f-arm` | Arm Care | ~122 – 3361 |
-| FUEL | `#f-fuel` | Fuel Stack | ~3362 – 8397 |
-| Host `<script>` | — | shell logic | ~8466 – EOF (~9374) |
+| ARM | `#f-arm` | Arm Care | first `srcdoc=` → first `"></iframe>` |
+| FUEL | `#f-fuel` | Fuel Stack | second `srcdoc=` → second `"></iframe>` |
+| Host `<script>` | — | shell logic | after the second `"></iframe>` → EOF |
 
 ARM iframe covers arm-care drills, body, and PlyoCare content.
 FUEL iframe covers nutrition/hydration tracker.
 Host shell owns nav, profiles, scoreboard, postMessage routing, SW registration.
 
-SW cache name: `battery-v22` (bump on every deploy).
-Version stamp: `#ver-stamp` text format `YY.MM.DD.NN` (e.g. `26.06.14.22`).
+SW cache name: `battery-v<NN>` (bump on every deploy) — read the live value out of `index.html`, don't trust a number written here.
+Version stamp: `#ver-stamp`, format `YY.MM.DD.NN` — read the live value out of `index.html`.
 
 ## 3. THE srcdoc Footgun — READ THIS FIRST
 
@@ -63,7 +63,7 @@ A youth-tier profile must **never** see: supplement / stimulant / dosing / quant
 ## 5. How to Test
 
 Test harness (authoritative): `~/battery-tests/run.sh`
-Runs the **full Playwright gate (21 tests as of .63)** against the current `index.html` — `run.sh` is the authoritative list. Originals: `iframe-render`, `arm-history`, `persistence`, `export-scope`, `unified-export`, `import-roundtrip`, `profile-mgmt`, `youth-fuel-gate`, `today-view`, `e7-host`, `fuel-dual-credit`; added since: `icon-gauge`, `flow-mode`, `clip-playback`, `iframe-modal`, `demo-data`, `arm-guardian`, `consistency`, `week-report`, `icon-nudge`, `storage-warn`.
+Runs the **full Playwright gate (22 suites as of .82)** against the current `index.html` — `run.sh` is the authoritative list. Originals: `iframe-render`, `arm-history`, `persistence`, `export-scope`, `unified-export`, `import-roundtrip`, `profile-mgmt`, `youth-fuel-gate`, `today-view`, `e7-host`, `fuel-dual-credit`; added since: `icon-gauge`, `flow-mode`, `clip-playback`, `iframe-modal`, `demo-data`, `arm-guardian`, `consistency`, `week-report`, `icon-nudge`, `storage-warn`.
 
 `node --check` on the host `<script>` block is a useful quick check, but **it does not catch srcdoc breakage** (HTML encoding masks truncation from the parser). The Playwright gate is authoritative for all iframe edits.
 
@@ -71,7 +71,7 @@ Run order: `node --check` first (fast), then `~/battery-tests/run.sh` (definitiv
 
 ### Multi-lane gating — run from an ISOLATED copy
 
-`~/battery-tests/` is SHARED across local lanes (A/B/C) and `run.sh` stages the build to `app-fixed.html` **in its own dir**, so two lanes gating at once clobber each other's staged file (and browser). Gate from a private copy:
+`~/battery-tests/` is SHARED across local lanes (A and E) and `run.sh` stages the build to `app-fixed.html` **in its own dir**, so two lanes gating at once clobber each other's staged file (and browser). Gate from a private copy:
 
 ```bash
 rm -rf /tmp/bt-laneX && mkdir /tmp/bt-laneX
@@ -82,25 +82,25 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 
 `run.sh` derives its dir from `$0`, so staging into that private copy can't be clobbered (`app-buggy` still builds via `git -C $BATTERY_REPO show df9b1b7`). Verify the staged stamp before/after to detect a clobber. **Never** `pkill -9 chrome-headless-shell` globally — it kills every lane's browser; scope any cleanup to your own run. And **never push a shared-`~/battery-tests` test edit that references an unshipped feature** — it reds clean `master` for all lanes; keep it in your isolated copy until the impl is on `master` (or land test + impl together), and flag ahead-of-master test edits in comms.
 
-## 6. Two-Lane / Release Protocol
+## 6. Lane Roles / Release Protocol
 
 ### Lane A — Claude Code session (iframe content developer)
 
-- Worktree: `/Users/bacona/battery`, checked out on `laneA/content` (or another `laneA/*` branch).
+- Worktree: `/Users/bacona/battery-laneA`, on a `laneA/*` branch. (`~/battery` is the main worktree, kept **detached at master** so `run.sh`'s `${BATTERY_REPO:-$HOME/battery}` default can't gate a stale build — do not develop there.)
 - Scope: FUEL + ARM/PlyoCare iframe content; iframe side of the postMessage seam.
 - Runs `~/battery-tests/run.sh` as a sanity check.
 - Posts `READY` in `LANE.md §B` when done.
 - **Does NOT** commit to `master`, bump the release stamp, push, or deploy.
 
-### Lane B — VS Code session (host shell + sole release engineer)
+### Lane E — Claude Code Desktop session (host shell + sole release engineer)
 
-- Worktree: `/Users/bacona/battery-laneB` (shares the same `.git`).
+- Worktree: `/Users/bacona/battery-laneE` (shares the same `.git`). **Identity binds to the worktree, not the app or session label** — see `LANE-E-BRIEF.md` §0.
 - Scope: host shell changes AND the full release pipeline for both lanes.
 - Release steps: merge `laneA/*` into `master` → run final DA + full checklist → run full Playwright gate → bump `#ver-stamp` (YY.MM.DD.NN) + SW cache name → commit → push to `master` (deploys) → append `HANDOFF.md §10` entry.
 - **Deploy remote:** `origin` = SSH (`git@github.com`). If `:22` is flaky (seen 6/26–7/3, intermittent — not a key issue), SSH is routed over GitHub's `ssh.github.com:443` in `~/.ssh/config` (host keys fingerprint-verified). Fallback: the `ghhttps` HTTPS remote (`https://github.com/OvercastBTC/battery.git`; large clip pushes need `git config http.postBuffer 524288000`). Both reach the same `master` — always FF-verify (`git merge-base --is-ancestor <remote>/master HEAD`) before pushing.
 - **Single writer of `master`.** Single gate before deploy.
 
-`laneA/*` branches are visible in Lane B's worktree without pushing (shared `.git`).
+`laneA/*` branches are visible in Lane E's worktree without pushing (shared `.git`).
 
 ## 7. postMessage Seam + Data-Model Invariants
 
@@ -125,11 +125,12 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 
 | File | Purpose |
 |------|---------|
-**Lane roster** (4 lanes as of 2026-06-22):
+**Lane roster** (3 active lanes as of 2026-08-16):
 
 - **Lane A** — local MacBook, FUEL + ARM iframe content (`~/battery-laneA`).
-- **Lane B** — local MacBook, host shell + **sole release engineer** (`~/battery-laneB`): merges to `master`, stamp + SW-cache bump, Playwright gate, deploy.
-- **Lane C** — local MacBook, host `#tabbar` glyph / icon QA (`~/battery`).
+- **Lane E** — local MacBook (Claude Code Desktop), host shell + **sole release engineer** (`~/battery-laneE`): merges to `master`, stamp + SW-cache bump, Playwright gate, deploy.
+- **Lane B — RETIRED 2026-08-13.** Was the VS Code lane; that subscription is consumed by the owner's day job so its quota is permanently exhausted. Worktree deleted. Do not resurrect.
+- **Lane C — RETIRED 2026-08-13** (owner directive). Was glyph/icon art. Worktree returned to detached `master`. If glyph work is unparked it goes to cloud Lane D — no new local art lane.
 - **Lane D** — **cloud** Claude Code session (isolated container; works on `claude/*` branches + GitHub PRs; cannot see local files).
 
 **Comms topology** — choose the channel by who must hear it:
@@ -144,6 +145,23 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 | `.claude/agents/` · `.claude/commands/` | All lanes via git | Sub-agent defs · slash commands |
 
 **Cross-machine rule:** Lane D shares ONLY the GitHub repo — `~/battery-comms.md` is invisible to it. Anything the cloud must see goes in **Issue #2** (or a PR comment) and the committed `CLAUDE.md`/`LANE.md`. Local lanes mirror cross-machine-relevant items between `~/battery-comms.md` ⇄ Issue #2.
+
+**External review inputs (design/audit tools) are NOT lanes.** Tools like Claude Design are
+advisory *inputs*, structurally like Lane D's user stories or a research pass — they produce
+recommendations, not gated deliverables, so they get no worktree, no comms presence, and no
+release slot.
+
+**Hard boundary: an external tool may write `DESIGN-REVIEW.md` (or another doc) and MUST NOT
+write `index.html` or push to `master`.** The reason is specific, not bureaucratic: these tools
+cannot run the Playwright gate, and §3's srcdoc footgun is invisible without it — one literal `"`
+silently blanks an entire iframe with no console error and a clean `node --check`. Single-writer-
+of-master plus a green 22-suite gate is why that has never shipped. Do not add a writer that
+cannot gate.
+
+**Flow:** external findings land in a dated doc → Lane A triages them into `laneA/*` branches and
+the `LANE.md` queue → Lane E gates and ships. Discount anything such a tool says about lanes,
+process, or versions unless the docs it read were current (see the 2026-08-16 staleness incident
+recorded in LANE.md).
 
 **Watcher protocol — ARM WHEN BLOCKED, DISARM WHEN WORKING (owner directive 2026-08-14).**
 

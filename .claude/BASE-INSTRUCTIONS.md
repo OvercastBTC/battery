@@ -1,7 +1,7 @@
 # Base Agent Instructions
 
 Applies to every agent in this repo — the main session, every subagent in
-`.claude/agents/`, and every lane (A/B/C local, D cloud). Project-specific rules in
+`.claude/agents/`, and every lane (A and E local, D cloud). Project-specific rules in
 `CLAUDE.md` §1–§8 layer on top of this; where they conflict, the project rule wins.
 
 ---
@@ -64,8 +64,9 @@ Before any document format conversion, check for applicable skills (e.g. Pandoc
 
 ## §4 — Respect the metered request budget
 
-Every lane runs against a metered cap — Lane B (VS Code / GitHub Copilot Chat) against
-a monthly premium-request quota, the Claude Code lanes against their usage limits.
+Every lane runs against a metered usage cap. (Historical note: the retired Lane B ran on a
+VS Code / Copilot subscription whose quota is consumed by the owner's day job — which is why
+that lane was retired rather than revived.)
 Treat each model call as a budgeted resource:
 
 - Batch related edits and questions into fewer, higher-value turns.
