@@ -6,18 +6,38 @@
 > misinforms. (It once advertised `.61` and a "10-test gate" while master was at `.82`/22 suites,
 > and an external design review repeated both.)
 
-## Current state (2026-08-16)
+## Current state (2026-08-18)
 
-- **Live / deployed:** `master` `0580797` = stamp **`26.08.15.82`**, SW cache **`battery-v82`**,
-  full gate **22 suites green**.
-- **Next NN:** derived by Lane E from `HANDOFF.md §10` at release time. **Deliberately not written here** — a hardcoded NN silently rots (this file advertised `.61` for ~20 releases).
+- **Live / deployed:** `master` = stamp **`26.08.18.83`**, SW cache **`battery-v83`**, full gate
+  **21 suites green, 242 checks**. See `HANDOFF.md §10` for the full release log.
+- **Next NN:** derived by Lane E from `HANDOFF.md §10` at release time. **Deliberately not written
+  here** — a hardcoded NN silently rots (this file advertised `.61` for ~20 releases).
 - **Active lanes:** **A** (`~/battery-laneA`, FUEL+ARM iframe content, spec/coordination, browser
   verification) · **E** (`~/battery-laneE`, host shell + **sole release engineer**) · **D** (cloud,
   `claude/*` branches + PRs). **Lane identity binds to the WORKTREE, not the app/session label.**
 - **Retired:** **B** (was VS Code; quota consumed by day job — worktree deleted) and **C** (glyph
   art, owner directive). Do not resurrect either; glyph work, if unparked, goes to cloud Lane D.
-- **Queued:** `laneA/recovery-context` (`d5b57fc`) → `.83` · PR #13 (Lane D, US-2.7 + shake control)
-  behind it.
+- **Just shipped:** `laneA/docs-roster-refresh` + `laneA/recovery-context` + PR #13 (shake-favorites
+  water-credit fix, `syncFuelDayFromPlan` `light` catch-all, US-2.7 recovery-aware protein floor).
+- **Queued (design review triage, owner-approved §1–§7 + §9 MUST-FIX):**
+  1. **Item 1 (day-type unification), host half — Lane E, in progress.** Widen
+     `syncFuelDayFromPlan()` to emit all 5 activity types (`rest/light/train/heavy/game`) +
+     `travel` as a modifier, not a 6th type. **Ordering hazard (Lane A found it):** Lane A's FUEL
+     half (chips → read-only, drop the nudge branch) is **blocked** until this lands — doing it in
+     the review's stated order (FUEL first) makes heavy/game/travel completely unsettable from
+     HOME, strictly worse than today.
+  2. **Item 2 (HOME above-the-fold reset) — Lane E, host-only, queued after item 1.** Delete
+     `#today-section-menu` + greeting, ring 172px→64px, relabel Flow button. **Must ship in the
+     same commit as §9's MUST-FIX:** an always-visible `ALL SECTIONS ›` escape hatch, or a REST day
+     strands every stream the day-type turned off (no path to LIFT at all).
+  3. **Items 3–6** — Lane A (FUEL srcdoc), sequenced after 1+2 per the review's own advice (ship,
+     let the owner use it for a week, then continue).
+  4. **C.1 (recovery-day-after-LIFT)** — Lane D, clean sibling of US-2.7 in code D owns (same
+     `recomputeDayTargets()` floor, triggered by yesterday's LIFT-tab completion).
+  5. **Icon swap (emoji → metal icons)** — held off a parallel branch or after item 3; must NOT
+     ship inside the item-1/2 observation window (confounds the IA-change measurement).
+- **Docs:** `DESIGN-REVIEW.md` (external review, read-only input, no-write boundary — see §8) +
+  `DESIGN-BRIEF.md` (read-first brief for the next design pass) + `DESIGN-CHANNEL.md`.
 
 ---
 
