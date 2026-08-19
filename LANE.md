@@ -32,6 +32,14 @@
      strands every stream the day-type turned off (no path to LIFT at all).
   3. **Items 3–6** — Lane A (FUEL srcdoc), sequenced after 1+2 per the review's own advice (ship,
      let the owner use it for a week, then continue).
+  4. **Pitching-mechanics clips (Lane A, `laneA/pitching-drill-clips`, `733b6c7`) — READY, not
+     urgent.** Asset+doc only, no code change: `clips/bauer-pitch-hipfire.mp4` +
+     `clips/bauer-pitch-gloveside.mp4`, logged in `TODO-CLIPS.md`. **Not wired into the UI** — no
+     pitching surface exists yet, placement is an open owner/Lane E call. **Copyright flag:**
+     source is an edited interview video, different provenance than the existing `bauer-gd-*`
+     clips (which came from Bauer's own official demo upload) — needs an explicit owner/Lane E
+     sign-off before this branch merges to `master`/public GitHub Pages. Full detail in
+     `TODO-CLIPS.md`'s new "Pitching mechanics" section.
   4. **C.1 (recovery-day-after-LIFT)** — Lane D, clean sibling of US-2.7 in code D owns (same
      `recomputeDayTargets()` floor, triggered by yesterday's LIFT-tab completion).
   5. **Icon swap (emoji → metal icons)** — held off a parallel branch or after item 3; must NOT
