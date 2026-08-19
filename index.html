@@ -7004,14 +7004,14 @@ body.youth #youth-banner{display:block}
       </div>
       <div class=&quot;hint&quot; style=&quot;margin-top:6px;color:var(--goldb)&quot;>On a GLP-1, the app will favor liquid protein and eat-by-clock cues, and warn near your ~48h post-shot nausea window on game days.</div>
     </div>
+    <!-- Owner finding 2.0: was a manual 4-way segmented control writing a
+         never-aging relative string, duplicated on the host DATA screen. Now a
+         read-only readout of the dated pitch log, with the real logging action
+         one tap away -- report, do not set (same shape as design item 1). -->
     <div class=&quot;pform-row&quot;>
-      <label>Last hard throw <span class=&quot;hint&quot;>— ties arm-care recovery to fueling</span></label>
-      <div class=&quot;seg-control&quot; id=&quot;seg-arm&quot; style=&quot;flex-wrap:wrap&quot;>
-        <button data-val=&quot;none&quot; class=&quot;seg-btn active&quot;>N/A</button>
-        <button data-val=&quot;today&quot; class=&quot;seg-btn&quot;>Today</button>
-        <button data-val=&quot;yesterday&quot; class=&quot;seg-btn&quot;>Yest.</button>
-        <button data-val=&quot;2plus&quot; class=&quot;seg-btn&quot;>2+ days</button>
-      </div>
+      <label>Last hard throw <span class=&quot;hint&quot;>— from your logged outings</span></label>
+      <div id=&quot;last-throw-readout&quot; class=&quot;hint&quot; style=&quot;margin-top:2px;color:var(--bone)&quot;>—</div>
+      <button class=&quot;seg-btn&quot; style=&quot;margin-top:7px&quot; onclick=&quot;goLogOuting()&quot;>Log an outing ›</button>
       <div class=&quot;hint&quot; style=&quot;margin-top:4px&quot;>Bullpen / long-toss / game throws. Flags recovery-protein priority + lighter arm-care.</div>
     </div>
 
@@ -7824,14 +7824,70 @@ body.youth #youth-banner{display:block}
   };
   const FRAME_MULT = { small: 0.92, medium: 1.00, large: 1.05 };
 
+  /* ===== Owner finding 2.0 (2026-08-18): &quot;Last hard throw&quot; did not make sense.
+     Three defects, all structural:
+       1. IT NEVER AGED. It stored a RELATIVE word ('today'/'yesterday'/'2plus')
+          with no date, and nothing ever re-evaluated it. Set &quot;Today&quot; once and
+          the app believed you threw hard today forever -- a permanently raised
+          protein floor and a verdict line that never stopped saying it.
+       2. IT EXISTED TWICE across the seam -- a segmented control here in FUEL
+          and a <select> on the host DATA screen, both writing one field. That
+          is the same two-controls-one-fact shape design item 1 just deleted.
+       3. IT DUPLICATED BETTER DATA. 'arm-care-pitchlog' already stores real
+          DATED outings, and recoveryBoost() already treated that log as
+          authoritative whenever it could decide.
+     The review's own IA rule (SS1) says Settings holds &quot;anything set once and
+     forgotten&quot; -- this was stale in 24 hours, so it never belonged there.
+     Resolution, same shape as item 1: the log is the single source of truth and
+     FUEL reports it. Derived below, so it ages by itself. ===== */
+  function lastThrowInfo(){
+    try{
+      if(!parent || typeof parent.readPitchLog!=='function') return null;
+      const log=parent.readPitchLog(); if(!log || !log.length) return null;
+      const d=new Date(), pad=n=>String(n).padStart(2,'0');
+      const todayMs=Date.parse(d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T00:00:00');
+      let best=null;
+      log.forEach(function(o){
+        if(!o || !o.date) return;
+        const ms=Date.parse(o.date+'T00:00:00');
+        if(isNaN(ms) || ms>todayMs) return;          // ignore future-dated rows
+        const days=Math.round((todayMs-ms)/86400000);
+        if(best===null || days<best.days) best={days:days, pitches:+o.p||0, date:o.date};
+      });
+      return best;
+    }catch(e){ return null; }
+  }
+  // Same vocabulary the manual control used ('today'|'yesterday'|'2plus'|null),
+  // now DERIVED from dated outings so it corrects itself as days pass.
+  function lastThrowState(){
+    const t=lastThrowInfo();
+    if(!t) return null;
+    return t.days===0 ? 'today' : (t.days===1 ? 'yesterday' : '2plus');
+  }
+  // The outing log lives on the host (Arm Guardian owns it), so logging routes
+  // there rather than FUEL growing a second writer of 'arm-care-pitchlog'.
+  window.goLogOuting = function(){
+    try { if (parent &amp;&amp; typeof parent.armGuardLog === 'function') { parent.armGuardLog(); return; } } catch(e){}
+    try { parent.go('game'); } catch(e){}
+  };
+  function renderLastThrow(){
+    const el=document.getElementById('last-throw-readout'); if(!el) return;
+    const t=lastThrowInfo();
+    if(!t){ el.textContent='No outings logged yet.'; return; }
+    const when = t.days===0 ? 'today' : (t.days===1 ? 'yesterday' : t.days+' days ago');
+    el.textContent = (t.pitches ? t.pitches+' pitches · ' : '') + when + ' (' + t.date + ')';
+  }
+  window.renderLastThrow = renderLastThrow;
+
   /* ===== US-2.7 (Lane A guardrails, Issue #2 2026-07-06): recovery-aware
      protein floor. Derives &quot;trained hard yesterday&quot; from the actual pitch log
-     (Arm Guardian) instead of relying solely on the manual lastThrow toggle --
-     same-origin parent.readPitchLog()/parent.pitchRestDays() read, same
-     try/catch + reachability-guard convention as US-2.6's parent.pitchRestInfo()
-     call. lastThrow stays as a manual fallback per the AC when no matching log
-     entry exists. &quot;Trained hard&quot; = an outing that itself required >=1 Pitch
-     Smart rest day (pitchRestDays()), so a light bullpen doesn't trigger this. */
+     (Arm Guardian) -- same-origin parent.readPitchLog()/parent.pitchRestDays()
+     read, same try/catch + reachability-guard convention as US-2.6's
+     parent.pitchRestInfo() call. &quot;Trained hard&quot; = an outing that itself required
+     >=1 Pitch Smart rest day (pitchRestDays()), so a light bullpen doesn't
+     trigger this. The manual lastThrow fallback the original AC allowed is GONE
+     as of owner finding 2.0 above -- it never aged, so it could hold this floor
+     raised forever. The log is now the only input. */
   function recoveryBoost(p){
     try{
       if(!parent || typeof parent.readPitchLog!=='function' || typeof parent.pitchRestDays!=='function') return null;
@@ -7855,7 +7911,13 @@ body.youth #youth-banner{display:block}
         const restDays=parent.pitchRestDays(p.age, outing.p);
         return restDays>=1 ? {pitches:outing.p, restDays:restDays, source:'log'} : null;
       }
-      if(p.lastThrow==='yesterday') return {pitches:null, restDays:1, source:'manual'};
+      // Owner finding 2.0: the old fallback here was `p.lastThrow==='yesterday'`
+      // -- a never-aging manual string that kept this floor raised indefinitely
+      // once set. Replaced by the same DATED outing the branch above reads: when
+      // age is missing Pitch Smart cannot grade the outing, but a real logged
+      // outing yesterday is still strictly better evidence than a stale flag,
+      // so honour it at the minimum floor instead of guessing from stale input.
+      if(outing &amp;&amp; outing.p) return {pitches:outing.p, restDays:1, source:'log-noage'};
       return null;
     }catch(e){ return null; }
   }
@@ -10192,7 +10254,6 @@ body.youth #youth-banner{display:block}
   (function(){
     const PF = (window.profileForm = window.profileForm || {});
     PF.glp = PF.glp || 'none'; PF.glpDose=PF.glpDose||''; PF.glpDay=PF.glpDay||'';
-    PF.lastThrow = PF.lastThrow || 'none';
     function wireSeg(id, key, after){
       const el=document.getElementById(id); if(!el) return;
       el.querySelectorAll('.seg-btn').forEach(b=>b.addEventListener('click',()=>{
@@ -10202,7 +10263,7 @@ body.youth #youth-banner{display:block}
     }
     function init(){
       wireSeg('seg-glp','glp',v=>{document.getElementById('glp-detail').style.display=(v==='none')?'none':'block';});
-      wireSeg('seg-arm','lastThrow');
+      if(typeof renderLastThrow==='function') renderLastThrow();   // owner 2.0: derived readout, no longer a control
       const dose=document.getElementById('prof-glp-dose'); if(dose)dose.addEventListener('input',()=>PF.glpDose=dose.value.trim());
       const day=document.getElementById('prof-glp-day'); if(day)day.addEventListener('change',()=>PF.glpDay=day.value);
       // hydrate from saved profile
@@ -10211,7 +10272,6 @@ body.youth #youth-banner{display:block}
         if(p.glp){PF.glp=p.glp;const b=document.querySelector('#seg-glp .seg-btn[data-val=&quot;'+p.glp+'&quot;]');if(b){document.querySelectorAll('#seg-glp .seg-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');}document.getElementById('glp-detail').style.display=(p.glp==='none'||!p.glp)?'none':'block';}
         if(p.glpDose&amp;&amp;dose)dose.value=p.glpDose;
         if(p.glpDay&amp;&amp;day)day.value=p.glpDay;
-        if(p.lastThrow){PF.lastThrow=p.lastThrow;const b=document.querySelector('#seg-arm .seg-btn[data-val=&quot;'+p.lastThrow+'&quot;]');if(b){document.querySelectorAll('#seg-arm .seg-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');}}
       }
     }
     if(document.readyState!=='loading')setTimeout(init,150);
@@ -10228,7 +10288,9 @@ body.youth #youth-banner{display:block}
         const p=loadProfile(); if(!p)return;
         const PF=window.profileForm||{};
         p.glp=PF.glp||'none'; p.glpDose=PF.glpDose||''; p.glpDay=PF.glpDay||'';
-        p.lastThrow=PF.lastThrow||'none';
+        // owner 2.0: p.lastThrow is no longer written here -- it is derived from
+        // the dated pitch log. The host DATA <select> is the last vestigial
+        // writer; nothing in FUEL reads the field anymore.
         saveProfileObj(p);
         if(typeof refreshSuggestions==='function')refreshSuggestions();
       }catch(e){}
@@ -10258,9 +10320,10 @@ body.youth #youth-banner{display:block}
               '<b>Nausea window:</b> ~'+since+'d post-shot. Side effects can peak now — small frequent sips, bland easy protein, don\'t force a big pre-game meal.</div>');
           }
         }
-        if(p.lastThrow==='today'||p.lastThrow==='yesterday'){
+        const _lt=(typeof lastThrowState==='function')?lastThrowState():null;   // owner 2.0: derived, ages itself
+        if(_lt==='today'||_lt==='yesterday'){
           adds.push('<div class=&quot;suggest-line&quot; style=&quot;border-left:2px solid #3fb950;padding-left:9px&quot;>'+
-            '<b>Arm recovery:</b> hard throws '+p.lastThrow+' — protein consistency matters most now for tissue repair. Hit your number even if appetite is low.</div>');
+            '<b>Arm recovery:</b> hard throws '+_lt+' — protein consistency matters most now for tissue repair. Hit your number even if appetite is low.</div>');
         }
         if(adds.length) body.insertAdjacentHTML('beforeend', adds.join(''));
       }catch(e){}
@@ -10359,8 +10422,9 @@ body.youth #youth-banner{display:block}
         zepNote='<div style=&quot;margin-top:10px;padding:9px 11px;border-left:2px solid #d4a017;background:#0d1117;border-radius:0 8px 8px 0;font-size:12px;color:#c9d1d9;line-height:1.5&quot;><b style=&quot;color:#f0b832&quot;>Zep-aware:</b> appetite will be low — don\'t wait to feel hungry. Hit protein in the solid window by the clock; lean on liquid calories if food feels like too much.</div>';
       }
       let armNote='';
-      if(prof &amp;&amp; (prof.lastThrow==='today'||prof.lastThrow==='yesterday') &amp;&amp; !isYouth){
-        armNote='<div style=&quot;margin-top:8px;padding:9px 11px;border-left:2px solid #3fb950;background:#0d1117;border-radius:0 8px 8px 0;font-size:12px;color:#c9d1d9;line-height:1.5&quot;><b style=&quot;color:#3fb950&quot;>Arm:</b> you threw '+prof.lastThrow+' — protein consistency aids recovery. Don\'t skimp even if appetite is low.</div>';
+      const _ltNote=(typeof lastThrowState==='function')?lastThrowState():null;  // owner 2.0: derived, ages itself
+      if((_ltNote==='today'||_ltNote==='yesterday') &amp;&amp; !isYouth){
+        armNote='<div style=&quot;margin-top:8px;padding:9px 11px;border-left:2px solid #3fb950;background:#0d1117;border-radius:0 8px 8px 0;font-size:12px;color:#c9d1d9;line-height:1.5&quot;><b style=&quot;color:#3fb950&quot;>Arm:</b> you threw '+_ltNote+' — protein consistency aids recovery. Don\'t skimp even if appetite is low.</div>';
       }
       const tagColor={solid:'#d4a017',liquid:'#58a6ff',sip:'#6e7681',go:'#3fb950'};
       const tagLabel={solid:'SOLID OK',liquid:'LIQUID',sip:'WATER ONLY',go:'GO'};
@@ -10473,6 +10537,11 @@ body.youth #youth-banner{display:block}
         return;
       }
 
+      // owner 2.0: derived from the dated pitch log, so it stops claiming a
+      // throw once the day passes (the old manual string never aged).
+      var _ltRaw=(typeof lastThrowState==='function')?lastThrowState():null;
+      var _ltVerdict=(_ltRaw==='today'||_ltRaw==='yesterday')?_ltRaw:null;
+
       // ADULT priority chain (most time-sensitive wins)
       if(train){
         lead='Training set today — '+(pLeft>0?'get '+pLeft+'g protein in before then; ':'')+'follow the runway below.';
@@ -10483,8 +10552,8 @@ body.youth #youth-banner{display:block}
       } else if(game &amp;&amp; game.d<=2){
         lead='Game in '+game.d+'d — start pre-loading: protein up, water +20oz, an electrolyte. '+remain+'.';
         accent='#d4a017';
-      } else if(prof &amp;&amp; (prof.lastThrow==='today'||prof.lastThrow==='yesterday') &amp;&amp; pLeft>0){
-        lead='Threw '+prof.lastThrow+' — protein drives recovery. '+remain+'.';
+      } else if(_ltVerdict &amp;&amp; pLeft>0){
+        lead='Threw '+_ltVerdict+' — protein drives recovery. '+remain+'.';
         accent='#3fb950';
       } else if(prof &amp;&amp; prof.glp &amp;&amp; prof.glp!=='none' &amp;&amp; pLeft>0){
         var _ps=paceState(totals.protein,tgt.protein);
