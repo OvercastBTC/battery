@@ -6,10 +6,10 @@
 > misinforms. (It once advertised `.61` and a "10-test gate" while master was at `.82`/22 suites,
 > and an external design review repeated both.)
 
-## Current state (2026-08-18)
+## Current state (2026-08-18, refreshed — was stale since `.83`; caught mid-batch, see §8 note)
 
-- **Live / deployed:** `master` = stamp **`26.08.18.83`**, SW cache **`battery-v83`**, full gate
-  **21 suites green, 242 checks**. See `HANDOFF.md §10` for the full release log.
+- **Live / deployed:** `master` = stamp **`26.08.18.88`**, SW cache **`battery-v88`**, full gate
+  **21 suites green, 256+ checks**. See `HANDOFF.md §10` for the full release log.
 - **Next NN:** derived by Lane E from `HANDOFF.md §10` at release time. **Deliberately not written
   here** — a hardcoded NN silently rots (this file advertised `.61` for ~20 releases).
 - **Active lanes:** **A** (`~/battery-laneA`, FUEL+ARM iframe content, spec/coordination, browser
@@ -17,33 +17,38 @@
   `claude/*` branches + PRs). **Lane identity binds to the WORKTREE, not the app/session label.**
 - **Retired:** **B** (was VS Code; quota consumed by day job — worktree deleted) and **C** (glyph
   art, owner directive). Do not resurrect either; glyph work, if unparked, goes to cloud Lane D.
-- **Just shipped:** `laneA/docs-roster-refresh` + `laneA/recovery-context` + PR #13 (shake-favorites
-  water-credit fix, `syncFuelDayFromPlan` `light` catch-all, US-2.7 recovery-aware protein floor).
-- **Queued (design review triage, owner-approved §1–§7 + §9 MUST-FIX):**
-  1. **Item 1 (day-type unification), host half — Lane E, in progress.** Widen
-     `syncFuelDayFromPlan()` to emit all 5 activity types (`rest/light/train/heavy/game`) +
-     `travel` as a modifier, not a 6th type. **Ordering hazard (Lane A found it):** Lane A's FUEL
-     half (chips → read-only, drop the nudge branch) is **blocked** until this lands — doing it in
-     the review's stated order (FUEL first) makes heavy/game/travel completely unsettable from
-     HOME, strictly worse than today.
-  2. **Item 2 (HOME above-the-fold reset) — Lane E, host-only, queued after item 1.** Delete
-     `#today-section-menu` + greeting, ring 172px→64px, relabel Flow button. **Must ship in the
-     same commit as §9's MUST-FIX:** an always-visible `ALL SECTIONS ›` escape hatch, or a REST day
-     strands every stream the day-type turned off (no path to LIFT at all).
-  3. **Items 3–6** — Lane A (FUEL srcdoc), sequenced after 1+2 per the review's own advice (ship,
-     let the owner use it for a week, then continue).
-  4. **Pitching-mechanics clips (Lane A, `laneA/pitching-drill-clips`, `733b6c7`) — READY, not
-     urgent.** Asset+doc only, no code change: `clips/bauer-pitch-hipfire.mp4` +
-     `clips/bauer-pitch-gloveside.mp4`, logged in `TODO-CLIPS.md`. **Not wired into the UI** — no
-     pitching surface exists yet, placement is an open owner/Lane E call. **Copyright flag:**
-     source is an edited interview video, different provenance than the existing `bauer-gd-*`
-     clips (which came from Bauer's own official demo upload) — needs an explicit owner/Lane E
-     sign-off before this branch merges to `master`/public GitHub Pages. Full detail in
-     `TODO-CLIPS.md`'s new "Pitching mechanics" section.
-  4. **C.1 (recovery-day-after-LIFT)** — Lane D, clean sibling of US-2.7 in code D owns (same
-     `recomputeDayTargets()` floor, triggered by yesterday's LIFT-tab completion).
-  5. **Icon swap (emoji → metal icons)** — held off a parallel branch or after item 3; must NOT
-     ship inside the item-1/2 observation window (confounds the IA-change measurement).
+- **Design review item 1 — COMPLETE, both halves.** HOME (`syncFuelDayFromPlan()`) is the single
+  source of truth for the activity-level day type (all 5 types + a host boot/reload-time emit so a
+  derived day never shows stale on first paint); FUEL's chips are locked read-only with a "set on
+  HOME ›" affordance, TRAVEL still settable as the one modifier HOME can't originate. The whole
+  two-controls reconciliation layer (nudge, untouched-day special case, mute key) is deleted.
+- **Item 2 (HOME above-the-fold reset) — shipped.** Greeting + always-visible section menu gone,
+  ring 172px→64px, Flow button relabeled/moved to the top, `ALL SECTIONS ›` escape hatch per §9.
+- **Item 3 (⋯ twin + ranked bar + undo toast) — shipped.** Visible ⋯ opens the pin/edit/move sheet;
+  one-tap ranked-bar logging gets an undo toast (diffs ledger before/after, handles multi-row
+  shake+elec taps); auto-ranking freezes per day-part (§9 MUST-FIX — a live-reordering bar fights
+  the muscle memory it's meant to speed up).
+- **Item 4 (bundles) — shipped.** `addItem()` was already the generic multi-delta logger, so a
+  bundle is just `{name,water,protein,elec}` replayed through it — nothing new mutates the ledger,
+  so undo/dual-credit/display all keep working unmodified. Two defaults + "+ bundle last 2" (builds
+  a bundle from what was actually logged, refuses below 2 rows rather than inventing one).
+  Deliberately did NOT build an automatic capture prompt — §9 held one-tap-plus-toast as a risk
+  pending real use; explicit-tap capture gives the same capability without guessing intent.
+- **Owner finding 2.0 — shipped.** "Last hard throw" was a manual relative string (`today`/
+  `yesterday`/`2plus`) that never aged and existed twice across the seam (FUEL segmented control +
+  host DATA `<select>`). Now derived from the dated `arm-care-pitchlog` (`lastThrowState()`),
+  read-only in FUEL with a "Log an outing ›" link back to the host; the dead host `<select>` (the
+  last remaining writer, confirmed unread) was deleted the same release.
+- **Pitching-mechanics clips — merged.** `clips/bauer-pitch-hipfire.mp4` + `bauer-pitch-gloveside.mp4`.
+  Owner reviewed and approved the copyright question directly (re-host as committed, no re-source
+  requirement). **Nav placement is still open** — no pitching surface exists yet in the app; not a
+  merge blocker, just undecided when the clips actually get wired up.
+- **Queued next:** items 5 (youth: "Kole today" card, pips, arm-feel faces, green accent) and 6
+  (FUEL tabs 10→4, deliberately last — §9 flags it as the highest youth-gate blast radius despite
+  being the smallest change). Owner said not to wait out the full observation week. C.1
+  (recovery-day-after-LIFT) is Lane D's, a clean sibling of US-2.7 in code D already owns. Icon
+  swap (emoji→metal) stays parked off a parallel branch or after item 5 — must not ship inside an
+  active IA-change observation window per the review's own measurement-confound warning.
 - **Docs:** `DESIGN-REVIEW.md` (external review, read-only input, no-write boundary — see §8) +
   `DESIGN-BRIEF.md` (read-first brief for the next design pass) + `DESIGN-CHANNEL.md`.
 
