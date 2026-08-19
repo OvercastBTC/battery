@@ -6289,12 +6289,6 @@ body.youth #youth-banner{display:block}
           <button onclick=&quot;applyGameNudge()&quot;>Set Game</button>
           <button class=&quot;gn-dismiss&quot; onclick=&quot;dismissGameNudge()&quot;>Not today</button>
         </div>
-        <!-- plan-v2: HOME plan → day-type sync suggestion (host emits bat-plan) -->
-        <div class=&quot;game-nudge&quot; id=&quot;plan-nudge&quot; style=&quot;display:none&quot;>
-          <span>🗓 <b>Your plan says <span id=&quot;plan-nudge-day&quot;>—</span> today.</b> Match the Fuel targets?</span>
-          <button onclick=&quot;applyPlanNudge()&quot;>Match it</button>
-          <button class=&quot;gn-dismiss&quot; onclick=&quot;dismissPlanNudge()&quot;>Keep mine</button>
-        </div>
       </div>
 
       <div class=&quot;goal-row&quot;>
@@ -8029,18 +8023,14 @@ body.youth #youth-banner{display:block}
      never {train} (which silently dropped the travel water). */
   const DAY_ACTIVITY = ['rest','light','train','heavy','game'];
 
-  /* Single commit path for every day-type write (chip tap, plan auto-apply,
-     nudge accept) so persistence, repaint and the touched-marker can't drift
-     between callers. */
+  /* Single commit path for every day-type write (chip tap, plan sync) so
+     persistence and repaint can't drift between callers. */
   function commitDays(arr){
     activeDays = new Set((arr || []).filter(d => DAY_TARGETS[d]));
     if (activeDays.size === 0) activeDays.add('train');
     const out = Array.from(activeDays);
     storeSet('fuel-day', out.join(','));
     storeSet('fuel-day-' + todayKey(), out.join(','));
-    // DELIBERATE-choice marker. Distinct from 'fuel-day-<date>', which boot
-    // stamps unconditionally -- see handlePlanSync for why that mattered.
-    storeSet('fuel-daytouched-' + todayKey(), '1');
     document.querySelectorAll('.day-chip').forEach(c => {
       c.classList.toggle('active', activeDays.has(c.dataset.day));
     });
@@ -8116,12 +8106,7 @@ body.youth #youth-banner{display:block}
     maybeGameNudge();
   }
 
-  /* ===== plan-v2: HOME-plan → day-type sync receiver (host emits bat-plan).
-     Owner's manual chip choice is never clobbered: REST auto-applies ONLY when
-     today's day-type is still untouched; everything else is a dismissible
-     suggestion (per-day dismissal, same pattern as the game nudge). ===== */
-  let _planSuggestDay = null;
-  const PLAN_NUDGE_LABELS = {rest:'Rest', light:'Light', train:'Train', heavy:'Heavy', game:'Game', travel:'Travel'};
+  /* ===== plan-v2: HOME-plan → day-type sync receiver (host emits bat-plan). ===== */
   /* Design item 1 (external review, 2026-08-18): HOME is now the SINGLE source of
      truth for the activity-level day type, so this stops negotiating and simply
      applies what it is told. Deleted with the second control: the untouched-day
@@ -8140,38 +8125,6 @@ body.youth #youth-banner{display:block}
     if (!day || !DAY_TARGETS[day]) return;
     if (activeDays.has(day)) return;                       // already matching
     commitDays(Array.from(activeDays).filter(x => DAY_ACTIVITY.indexOf(x) < 0).concat([day]));
-  }
-
-  function hidePlanNudge(){
-    const el = document.getElementById('plan-nudge');
-    if (el) el.style.display = 'none';
-  }
-  function applyPlanNudge(){
-    /* MODIFIER PRESERVATION (Lane E residual #2). This used to call setDay(),
-       which does `activeDays = new Set([d])` -- so an athlete on {travel,light}
-       who tapped 'Match it' for a train plan silently lost TRAVEL and its extra
-       hydration, with no indication. Replace the activity-level type only. */
-    if (_planSuggestDay &amp;&amp; DAY_TARGETS[_planSuggestDay]) {
-      commitDays(Array.from(activeDays).filter(d => DAY_ACTIVITY.indexOf(d) < 0).concat([_planSuggestDay]));
-    }
-    // Accepting must NOT set the per-day mute key -- only dismissing does.
-    // Previously both wrote it, so a user who tapped 'Match it' in the morning
-    // silenced the seam for the whole day: a later plan change (rest -> train)
-    // hit the `=== '1'` early-return and was dropped with no nudge and no
-    // indication, leaving them on Rest hydration/protein targets (150oz vs
-    // 200oz) through a training day. Accepting means they WANT the sync.
-    storeSet('fuel-plannudge-' + todayKey(), '');
-    hidePlanNudge();
-  }
-  function dismissPlanNudge(){
-    storeSet('fuel-plannudge-' + todayKey(), '1');
-    hidePlanNudge();
-  }
-  // Legacy single-select alias retained for any older code paths
-  function setDay(d) {
-    activeDays = new Set([d]);
-    toggleDay(d);
-    if (!activeDays.has(d)) activeDays.add(d); // ensure
   }
 
   function refreshTargets() {
