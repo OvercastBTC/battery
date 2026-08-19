@@ -9225,6 +9225,106 @@ body.youth #youth-banner{display:block}
   }
   window._favUndoToast = _favUndoToast;
 
+  /* ===== Design item 4 (external review SS5C): BUNDLES =====
+     A bundle is a NAMED LIST OF DELTAS -- {water, protein, elec} -- replayed
+     through addItem(). The review's instruction was explicit: the hard-coded
+     dual-credit sport drink already IS a bundle, so GENERALISE that case rather
+     than build a mechanism. Nothing new mutates the ledger -- addItem() stays
+     the only writer, so display, dual-credit pairing and Undo all keep working
+     unchanged, and `fuel-dual-credit`'s existing contract is untouched.
+
+     Whole-bundle undo was free: item 3's toast already takes an ARRAY of entry
+     ids because a shake+electrolyte tap could already write 3 rows. That is the
+     review's &quot;build undo first&quot; paying off one item later.
+
+     Deliberately NOT built: the automatic 90-second &quot;save these two as one
+     button?&quot; prompt. SS9 held the one-tap-plus-toast pattern as a silent-bad-data
+     risk pending real use, and an unprompted capture offer is the same bet with
+     more surface. saveRecentAsBundle() gives the identical capability from an
+     explicit tap -- built from real logged behaviour, not a form, and not
+     guessing at intent. The learning prompt can follow once there is usage.
+
+     SS4.3: a bundle carrying electrolytes is adult-only, filtered through the
+     same _favIsYouthSafe() rule the favorites strip already uses. ===== */
+  const DEFAULT_BUNDLES = [
+    { id:'b-shaker-liv',  name:'Shaker + Liquid IV', water:28, protein:0,  elec:1 },
+    { id:'b-post-throw',  name:'Post-throw shake',   water:28, protein:42, elec:0 }
+  ];
+  function loadBundles(){
+    try{ const a=JSON.parse(storeGet('fuel-bundles','')); if(Array.isArray(a)) return a; }catch(e){}
+    return DEFAULT_BUNDLES.slice();
+  }
+  function saveBundles(a){ storeSet('fuel-bundles', JSON.stringify(a||[])); }
+  // Same youth rule as the favorites strip: electrolytes/supplements never
+  // surface to youth, and the label is screened for branded supplement names.
+  function bundleYouthSafe(b){
+    if(!b) return false;
+    if((+b.elec||0) > 0) return false;
+    return _favIsYouthSafe({ type: ((+b.protein||0) > 0 ? 'protein' : 'water'), label: b.name || '' });
+  }
+  function bundleSummary(b){
+    const bits=[];
+    if(+b.water>0)   bits.push('+'+(+b.water)+'oz');
+    if(+b.protein>0) bits.push('+'+(+b.protein)+'g');
+    if(+b.elec>0)    bits.push('+'+(+b.elec)+'⚡');
+    return bits.join(' ') + ' ' + (b.name || 'Bundle');
+  }
+  window.useBundle = function(id){
+    const b = loadBundles().find(x => x.id === id);
+    if (!b) return;
+    if (_favYouth() &amp;&amp; !bundleYouthSafe(b)) return;      // §4.3 belt-and-suspenders
+    let before; try { before = new Set(loadEntries().map(e => e.id)); } catch (e) { before = new Set(); }
+    addItem({ water:+b.water||0, protein:+b.protein||0, elec:+b.elec||0, label: b.name || 'Bundle' });
+    try {
+      const added = loadEntries().filter(e => !before.has(e.id)).map(e => e.id);
+      if (added.length &amp;&amp; window._favUndoToast) window._favUndoToast(bundleSummary(b), added);
+    } catch (e) {}
+  };
+  // Build a bundle out of what was ACTUALLY just logged (review SS5C: the list
+  // builds itself from real habits instead of a form). Sums the last two real
+  // ledger rows, skipping the paired-water and bundled-electrolyte helper rows
+  // so a dual-credit item counts once, as one item, not as its component rows.
+  window.saveRecentAsBundle = async function(){
+    let es=[];
+    try { es = loadEntries().filter(e => !e.shakeWater &amp;&amp; !(e.type === 'electrolyte' &amp;&amp; e.bundled)); } catch (e) {}
+    if (es.length < 2) { try { await uiAlert('Not enough to bundle', 'Log two things first, then save them together as one button.'); } catch(e){} return; }
+    const shakeWater = {};
+    try { loadEntries().forEach(e => { if (e.shakeWater &amp;&amp; e.shakeId) shakeWater[e.shakeId] = +e.amount || 0; }); } catch (e) {}
+    const last = es.slice(-2);
+    let w=0, p=0, el=0;
+    last.forEach(e => {
+      if (e.type === 'water') { w += +e.amount || 0; el += +e.e || 0; }
+      else if (e.type === 'protein') { p += +e.amount || 0; if (e.shakeId) w += shakeWater[e.shakeId] || 0; }
+      else if (e.type === 'electrolyte') { el += +e.amount || 0; }
+    });
+    if (w <= 0 &amp;&amp; p <= 0 &amp;&amp; el <= 0) return;
+    const suggested = last.map(e => e.label || e.type).join(' + ');
+    let name = suggested;
+    try {
+      if (parent &amp;&amp; typeof parent.batteryModal === 'function') {
+        const r = await parent.batteryModal({ title:'Save as one button?',
+          body:'Logs ' + [(w>0?'+'+w+'oz':''),(p>0?'+'+p+'g':''),(el>0?'+'+el+'⚡':'')].filter(Boolean).join(' ') + ' in one tap.',
+          input:{ type:'text', label:'Name', value: suggested }, okLabel:'Save' });
+        if (!r) return;
+        name = (r.value || '').trim() || suggested;
+      }
+    } catch (e) {}
+    const list = loadBundles();
+    // id must not collide across same-named saves -- entry ids are already
+    // unique-per-ledger, so reuse that source rather than inventing a counter.
+    list.push({ id:'b-' + (last[last.length-1].id) , name:name, water:w, protein:p, elec:el });
+    saveBundles(list);
+    if (window.batteryRenderFav) try { window.batteryRenderFav(); } catch (e) {}
+  };
+  window.removeBundle = function(id){
+    saveBundles(loadBundles().filter(b => b.id !== id));
+    if (window.batteryRenderFav) try { window.batteryRenderFav(); } catch (e) {}
+  };
+  window._bundlesFor = function(){
+    const all = loadBundles();
+    return _favYouth() ? all.filter(bundleYouthSafe) : all;
+  };
+
   // 4.2: edit favorites — toggle edit mode (× on manual pins) + remove a manual pin.
   function toggleFavEdit(){ window._favEdit=!window._favEdit; if(window.batteryRenderFav)try{window.batteryRenderFav();}catch(e){} }
   function removeManualFav(type, amount, label){
@@ -10049,7 +10149,13 @@ body.youth #youth-banner{display:block}
       // manual pins (★) before most-used (↻), youth-filtered.
       let all=[];
       try{ if(typeof window._favMerged==='function') all=window._favMerged(12); }catch(e){}
-      if(all.length===0){ host.innerHTML=''; return; }
+      // Design item 4: bundles ship with defaults, so this strip can now have
+      // content on a brand-new profile with zero logged entries. Bail only when
+      // BOTH halves are empty -- the old favorites-only early return would have
+      // hidden the bundle row for exactly the user who benefits most from it.
+      let bundles=[];
+      try{ if(typeof window._bundlesFor==='function') bundles=window._bundlesFor(); }catch(e){}
+      if(all.length===0 &amp;&amp; bundles.length===0){ host.innerHTML=''; return; }
       const ed=!!window._favEdit;
       const favChip=f=>{
           const c = f.type==='protein' ? '#d4a017' : (f.type==='water' ? '#58a6ff' : '#3fb950');
@@ -10069,13 +10175,37 @@ body.youth #youth-banner{display:block}
             'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>'+
             mark+'+'+f.amount+u+(f.w?' +'+f.w+'oz':'')+' · '+(f.label||'')+(ed?rm:more)+'</button>';
       };
+      // Design item 4: bundles ride above the per-type favorites -- one tap
+      // logs every delta in the bundle, with whole-bundle undo. Youth-filtered
+      // in _bundlesFor() (electrolyte-carrying bundles never render for youth).
+      let bh='';
+      if(bundles.length){
+        bh='<div style=&quot;font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
+          'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin:7px 0 4px&quot;>📦 Bundles · one tap</div>'+
+          '<div style=&quot;display:flex;gap:6px;flex-wrap:wrap&quot;>'+bundles.map(b=>{
+            const parts=[];
+            if(+b.water>0)   parts.push('+'+(+b.water)+'oz');
+            if(+b.protein>0) parts.push('+'+(+b.protein)+'g');
+            if(+b.elec>0)    parts.push('+'+(+b.elec)+'⚡');
+            const bid=String(b.id||'').replace(/\x27/g,'');
+            const bx = ed ? '<span onclick=&quot;event.stopPropagation();removeBundle(\''+bid+'\')&quot; style=&quot;margin-left:7px;color:#f85149;font-weight:700&quot;>×</span>' : '';
+            return '<button onclick=&quot;'+(ed?'':'useBundle(\''+bid+'\')')+'&quot; '+
+              'style=&quot;background:#1c2128;border:1px solid #a371f7;color:#a371f7;border-radius:9px;'+
+              'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>'+
+              '<span style=&quot;color:#a371f7;margin-right:4px&quot;>📦</span>'+parts.join(' ')+' · '+(b.name||'Bundle')+bx+'</button>';
+          }).join('')+
+          '<button onclick=&quot;saveRecentAsBundle()&quot; title=&quot;Save your last two logs as one button&quot; '+
+          'style=&quot;background:none;border:1px dashed #444c56;color:#8b949e;border-radius:9px;'+
+          'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>+ bundle last 2</button>'+
+          '</div>';
+      }
       const grp={water:[],electrolyte:[],protein:[]};
       all.forEach(f=>{ (grp[f.type]||grp.water).push(f); });
       let h='<div style=&quot;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px&quot;>'+
         '<span style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
         'font-family:\'SF Mono\',monospace;text-transform:uppercase&quot;>★ Favorites</span>'+
         '<button onclick=&quot;toggleFavEdit()&quot; style=&quot;background:none;border:1px solid #30363d;color:'+(ed?'#d4a017':'#8b949e')+';'+
-        'font-family:\'SF Mono\',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:6px;cursor:pointer&quot;>'+(ed?'Done':'Edit')+'</button></div>';
+        'font-family:\'SF Mono\',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:6px;cursor:pointer&quot;>'+(ed?'Done':'Edit')+'</button></div>'+bh;
       [['water','💧 Water'],['electrolyte','⚡ Electrolytes'],['protein','🥤 Protein']].forEach(g=>{
         const arr=grp[g[0]]; if(!arr.length) return;
         h+='<div style=&quot;font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
