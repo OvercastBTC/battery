@@ -6289,12 +6289,6 @@ body.youth #youth-banner{display:block}
           <button onclick=&quot;applyGameNudge()&quot;>Set Game</button>
           <button class=&quot;gn-dismiss&quot; onclick=&quot;dismissGameNudge()&quot;>Not today</button>
         </div>
-        <!-- plan-v2: HOME plan → day-type sync suggestion (host emits bat-plan) -->
-        <div class=&quot;game-nudge&quot; id=&quot;plan-nudge&quot; style=&quot;display:none&quot;>
-          <span>🗓 <b>Your plan says <span id=&quot;plan-nudge-day&quot;>—</span> today.</b> Match the Fuel targets?</span>
-          <button onclick=&quot;applyPlanNudge()&quot;>Match it</button>
-          <button class=&quot;gn-dismiss&quot; onclick=&quot;dismissPlanNudge()&quot;>Keep mine</button>
-        </div>
       </div>
 
       <div class=&quot;goal-row&quot;>
@@ -7010,14 +7004,14 @@ body.youth #youth-banner{display:block}
       </div>
       <div class=&quot;hint&quot; style=&quot;margin-top:6px;color:var(--goldb)&quot;>On a GLP-1, the app will favor liquid protein and eat-by-clock cues, and warn near your ~48h post-shot nausea window on game days.</div>
     </div>
+    <!-- Owner finding 2.0: was a manual 4-way segmented control writing a
+         never-aging relative string, duplicated on the host DATA screen. Now a
+         read-only readout of the dated pitch log, with the real logging action
+         one tap away -- report, do not set (same shape as design item 1). -->
     <div class=&quot;pform-row&quot;>
-      <label>Last hard throw <span class=&quot;hint&quot;>— ties arm-care recovery to fueling</span></label>
-      <div class=&quot;seg-control&quot; id=&quot;seg-arm&quot; style=&quot;flex-wrap:wrap&quot;>
-        <button data-val=&quot;none&quot; class=&quot;seg-btn active&quot;>N/A</button>
-        <button data-val=&quot;today&quot; class=&quot;seg-btn&quot;>Today</button>
-        <button data-val=&quot;yesterday&quot; class=&quot;seg-btn&quot;>Yest.</button>
-        <button data-val=&quot;2plus&quot; class=&quot;seg-btn&quot;>2+ days</button>
-      </div>
+      <label>Last hard throw <span class=&quot;hint&quot;>— from your logged outings</span></label>
+      <div id=&quot;last-throw-readout&quot; class=&quot;hint&quot; style=&quot;margin-top:2px;color:var(--bone)&quot;>—</div>
+      <button class=&quot;seg-btn&quot; style=&quot;margin-top:7px&quot; onclick=&quot;goLogOuting()&quot;>Log an outing ›</button>
       <div class=&quot;hint&quot; style=&quot;margin-top:4px&quot;>Bullpen / long-toss / game throws. Flags recovery-protein priority + lighter arm-care.</div>
     </div>
 
@@ -7830,14 +7824,70 @@ body.youth #youth-banner{display:block}
   };
   const FRAME_MULT = { small: 0.92, medium: 1.00, large: 1.05 };
 
+  /* ===== Owner finding 2.0 (2026-08-18): &quot;Last hard throw&quot; did not make sense.
+     Three defects, all structural:
+       1. IT NEVER AGED. It stored a RELATIVE word ('today'/'yesterday'/'2plus')
+          with no date, and nothing ever re-evaluated it. Set &quot;Today&quot; once and
+          the app believed you threw hard today forever -- a permanently raised
+          protein floor and a verdict line that never stopped saying it.
+       2. IT EXISTED TWICE across the seam -- a segmented control here in FUEL
+          and a <select> on the host DATA screen, both writing one field. That
+          is the same two-controls-one-fact shape design item 1 just deleted.
+       3. IT DUPLICATED BETTER DATA. 'arm-care-pitchlog' already stores real
+          DATED outings, and recoveryBoost() already treated that log as
+          authoritative whenever it could decide.
+     The review's own IA rule (SS1) says Settings holds &quot;anything set once and
+     forgotten&quot; -- this was stale in 24 hours, so it never belonged there.
+     Resolution, same shape as item 1: the log is the single source of truth and
+     FUEL reports it. Derived below, so it ages by itself. ===== */
+  function lastThrowInfo(){
+    try{
+      if(!parent || typeof parent.readPitchLog!=='function') return null;
+      const log=parent.readPitchLog(); if(!log || !log.length) return null;
+      const d=new Date(), pad=n=>String(n).padStart(2,'0');
+      const todayMs=Date.parse(d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T00:00:00');
+      let best=null;
+      log.forEach(function(o){
+        if(!o || !o.date) return;
+        const ms=Date.parse(o.date+'T00:00:00');
+        if(isNaN(ms) || ms>todayMs) return;          // ignore future-dated rows
+        const days=Math.round((todayMs-ms)/86400000);
+        if(best===null || days<best.days) best={days:days, pitches:+o.p||0, date:o.date};
+      });
+      return best;
+    }catch(e){ return null; }
+  }
+  // Same vocabulary the manual control used ('today'|'yesterday'|'2plus'|null),
+  // now DERIVED from dated outings so it corrects itself as days pass.
+  function lastThrowState(){
+    const t=lastThrowInfo();
+    if(!t) return null;
+    return t.days===0 ? 'today' : (t.days===1 ? 'yesterday' : '2plus');
+  }
+  // The outing log lives on the host (Arm Guardian owns it), so logging routes
+  // there rather than FUEL growing a second writer of 'arm-care-pitchlog'.
+  window.goLogOuting = function(){
+    try { if (parent &amp;&amp; typeof parent.armGuardLog === 'function') { parent.armGuardLog(); return; } } catch(e){}
+    try { parent.go('game'); } catch(e){}
+  };
+  function renderLastThrow(){
+    const el=document.getElementById('last-throw-readout'); if(!el) return;
+    const t=lastThrowInfo();
+    if(!t){ el.textContent='No outings logged yet.'; return; }
+    const when = t.days===0 ? 'today' : (t.days===1 ? 'yesterday' : t.days+' days ago');
+    el.textContent = (t.pitches ? t.pitches+' pitches · ' : '') + when + ' (' + t.date + ')';
+  }
+  window.renderLastThrow = renderLastThrow;
+
   /* ===== US-2.7 (Lane A guardrails, Issue #2 2026-07-06): recovery-aware
      protein floor. Derives &quot;trained hard yesterday&quot; from the actual pitch log
-     (Arm Guardian) instead of relying solely on the manual lastThrow toggle --
-     same-origin parent.readPitchLog()/parent.pitchRestDays() read, same
-     try/catch + reachability-guard convention as US-2.6's parent.pitchRestInfo()
-     call. lastThrow stays as a manual fallback per the AC when no matching log
-     entry exists. &quot;Trained hard&quot; = an outing that itself required >=1 Pitch
-     Smart rest day (pitchRestDays()), so a light bullpen doesn't trigger this. */
+     (Arm Guardian) -- same-origin parent.readPitchLog()/parent.pitchRestDays()
+     read, same try/catch + reachability-guard convention as US-2.6's
+     parent.pitchRestInfo() call. &quot;Trained hard&quot; = an outing that itself required
+     >=1 Pitch Smart rest day (pitchRestDays()), so a light bullpen doesn't
+     trigger this. The manual lastThrow fallback the original AC allowed is GONE
+     as of owner finding 2.0 above -- it never aged, so it could hold this floor
+     raised forever. The log is now the only input. */
   function recoveryBoost(p){
     try{
       if(!parent || typeof parent.readPitchLog!=='function' || typeof parent.pitchRestDays!=='function') return null;
@@ -7861,7 +7911,13 @@ body.youth #youth-banner{display:block}
         const restDays=parent.pitchRestDays(p.age, outing.p);
         return restDays>=1 ? {pitches:outing.p, restDays:restDays, source:'log'} : null;
       }
-      if(p.lastThrow==='yesterday') return {pitches:null, restDays:1, source:'manual'};
+      // Owner finding 2.0: the old fallback here was `p.lastThrow==='yesterday'`
+      // -- a never-aging manual string that kept this floor raised indefinitely
+      // once set. Replaced by the same DATED outing the branch above reads: when
+      // age is missing Pitch Smart cannot grade the outing, but a real logged
+      // outing yesterday is still strictly better evidence than a stale flag,
+      // so honour it at the minimum floor instead of guessing from stale input.
+      if(outing &amp;&amp; outing.p) return {pitches:outing.p, restDays:1, source:'log-noage'};
       return null;
     }catch(e){ return null; }
   }
@@ -8029,18 +8085,14 @@ body.youth #youth-banner{display:block}
      never {train} (which silently dropped the travel water). */
   const DAY_ACTIVITY = ['rest','light','train','heavy','game'];
 
-  /* Single commit path for every day-type write (chip tap, plan auto-apply,
-     nudge accept) so persistence, repaint and the touched-marker can't drift
-     between callers. */
+  /* Single commit path for every day-type write (chip tap, plan sync) so
+     persistence and repaint can't drift between callers. */
   function commitDays(arr){
     activeDays = new Set((arr || []).filter(d => DAY_TARGETS[d]));
     if (activeDays.size === 0) activeDays.add('train');
     const out = Array.from(activeDays);
     storeSet('fuel-day', out.join(','));
     storeSet('fuel-day-' + todayKey(), out.join(','));
-    // DELIBERATE-choice marker. Distinct from 'fuel-day-<date>', which boot
-    // stamps unconditionally -- see handlePlanSync for why that mattered.
-    storeSet('fuel-daytouched-' + todayKey(), '1');
     document.querySelectorAll('.day-chip').forEach(c => {
       c.classList.toggle('active', activeDays.has(c.dataset.day));
     });
@@ -8116,12 +8168,7 @@ body.youth #youth-banner{display:block}
     maybeGameNudge();
   }
 
-  /* ===== plan-v2: HOME-plan → day-type sync receiver (host emits bat-plan).
-     Owner's manual chip choice is never clobbered: REST auto-applies ONLY when
-     today's day-type is still untouched; everything else is a dismissible
-     suggestion (per-day dismissal, same pattern as the game nudge). ===== */
-  let _planSuggestDay = null;
-  const PLAN_NUDGE_LABELS = {rest:'Rest', light:'Light', train:'Train', heavy:'Heavy', game:'Game', travel:'Travel'};
+  /* ===== plan-v2: HOME-plan → day-type sync receiver (host emits bat-plan). ===== */
   /* Design item 1 (external review, 2026-08-18): HOME is now the SINGLE source of
      truth for the activity-level day type, so this stops negotiating and simply
      applies what it is told. Deleted with the second control: the untouched-day
@@ -8140,38 +8187,6 @@ body.youth #youth-banner{display:block}
     if (!day || !DAY_TARGETS[day]) return;
     if (activeDays.has(day)) return;                       // already matching
     commitDays(Array.from(activeDays).filter(x => DAY_ACTIVITY.indexOf(x) < 0).concat([day]));
-  }
-
-  function hidePlanNudge(){
-    const el = document.getElementById('plan-nudge');
-    if (el) el.style.display = 'none';
-  }
-  function applyPlanNudge(){
-    /* MODIFIER PRESERVATION (Lane E residual #2). This used to call setDay(),
-       which does `activeDays = new Set([d])` -- so an athlete on {travel,light}
-       who tapped 'Match it' for a train plan silently lost TRAVEL and its extra
-       hydration, with no indication. Replace the activity-level type only. */
-    if (_planSuggestDay &amp;&amp; DAY_TARGETS[_planSuggestDay]) {
-      commitDays(Array.from(activeDays).filter(d => DAY_ACTIVITY.indexOf(d) < 0).concat([_planSuggestDay]));
-    }
-    // Accepting must NOT set the per-day mute key -- only dismissing does.
-    // Previously both wrote it, so a user who tapped 'Match it' in the morning
-    // silenced the seam for the whole day: a later plan change (rest -> train)
-    // hit the `=== '1'` early-return and was dropped with no nudge and no
-    // indication, leaving them on Rest hydration/protein targets (150oz vs
-    // 200oz) through a training day. Accepting means they WANT the sync.
-    storeSet('fuel-plannudge-' + todayKey(), '');
-    hidePlanNudge();
-  }
-  function dismissPlanNudge(){
-    storeSet('fuel-plannudge-' + todayKey(), '1');
-    hidePlanNudge();
-  }
-  // Legacy single-select alias retained for any older code paths
-  function setDay(d) {
-    activeDays = new Set([d]);
-    toggleDay(d);
-    if (!activeDays.has(d)) activeDays.add(d); // ensure
   }
 
   function refreshTargets() {
@@ -9086,24 +9101,67 @@ body.youth #youth-banner{display:block}
       .map(k => Object.assign({ count: counts[k], manual: false }, meta[k]))
       .slice(0, topN || 6);
   }
+  // Design item 3 (external review, 2026-08-18) SS9 MUST-FIX: a ranked bar that
+  // reorders between taps destroys the muscle memory people log fast with, so
+  // the auto (most-used) portion freezes at day-part boundaries -- morning /
+  // training / evening -- rather than live-recomputing on every render. Manual
+  // pins are already stable (explicit array order); only the auto tail needed this.
+  function _favDayPart() {
+    const h = new Date().getHours();
+    return h < 11 ? 'morning' : (h < 18 ? 'training' : 'evening');
+  }
+  function _favAutoFrozen(topN) {
+    const key = 'fuel-favrank-' + todayKey() + '-' + _favDayPart();
+    const live = _favMostUsed(topN || 12);
+    let stored;
+    try { stored = JSON.parse(storeGet(key, '')); } catch (e) { stored = null; }
+    if (!Array.isArray(stored) || !stored.length) {
+      storeSet(key, JSON.stringify(live.map(_favKey)));
+      return live;
+    }
+    const byKey = {};
+    live.forEach(it => { byKey[_favKey(it)] = it; });
+    const ordered = [];
+    stored.forEach(k => { if (byKey[k]) { ordered.push(byKey[k]); delete byKey[k]; } });
+    const newcomers = live.filter(it => byKey[_favKey(it)]);
+    if (newcomers.length) {
+      const merged = ordered.concat(newcomers);
+      storeSet(key, JSON.stringify(merged.map(_favKey)));
+      return merged;
+    }
+    return ordered;
+  }
   // Merge manual pins (win / marked) with most-used auto items, youth-filtered.
   // Manual pins first; auto items fill remaining slots, deduped against pins.
   function _favMerged(limit) {
     const manual = _favManualList().filter(_favIsYouthSafe);
     const seen = {};
     manual.forEach(m => { seen[_favKey(m)] = true; });
-    const auto = _favMostUsed(12).filter(a => _favIsYouthSafe(a) &amp;&amp; !seen[_favKey(a)]);
+    const auto = _favAutoFrozen(12).filter(a => _favIsYouthSafe(a) &amp;&amp; !seen[_favKey(a)]);
     return manual.concat(auto).slice(0, limit || 8);
   }
-  // Re-log a fav via the generic addItem one-tap path (4.2).
+  // Re-log a fav via the generic addItem one-tap path (4.2). Design item 3
+  // SS5B: one tap must be safe with no confirmation dialog, so the safety net
+  // is an undo toast -- diff entries before/after rather than threading IDs
+  // back out of addShake/addItem (which can each write 1-3 rows).
   function useFavStripItem(type, amount, label, elec, pairedOz) {
+    let before; try { before = new Set(loadEntries().map(e => e.id)); } catch (e) { before = new Set(); }
     const w = +pairedOz || 0;
-    if (type === 'protein' &amp;&amp; w > 0) { addShake(+amount, w, label || 'Item'); return; }
-    const o = { label: label || 'Item' };
-    if (type === 'water') { o.water = +amount; if (+elec > 0) o.elec = +elec; }
-    else if (type === 'protein') o.protein = +amount;
-    else if (type === 'electrolyte') o.elec = +amount;
-    addItem(o);
+    if (type === 'protein' &amp;&amp; w > 0) { addShake(+amount, w, label || 'Item'); }
+    else {
+      const o = { label: label || 'Item' };
+      if (type === 'water') { o.water = +amount; if (+elec > 0) o.elec = +elec; }
+      else if (type === 'protein') o.protein = +amount;
+      else if (type === 'electrolyte') o.elec = +amount;
+      addItem(o);
+    }
+    try {
+      const unit = type === 'protein' ? 'g' : (type === 'water' ? 'oz' : '');
+      const added = loadEntries().filter(e => !before.has(e.id)).map(e => e.id);
+      if (added.length &amp;&amp; window._favUndoToast) {
+        window._favUndoToast('+' + amount + unit + ' ' + (label || 'Item'), added);
+      }
+    } catch (e) {}
   }
   // Pin/unpin an item from a log row. Routes elec -> favs.elec (additive).
   function togglePinFromLog(type, amount, label, elec, pairedOz) {
@@ -9133,6 +9191,139 @@ body.youth #youth-banner{display:block}
   window.togglePinFromLog = togglePinFromLog;
   window._favMerged = _favMerged;
   window._favIsPinned = _favIsPinned;
+
+  // Design item 3: undo toast for one-tap ranked-bar logging. Removes the exact
+  // entries added by the tap it belongs to (ids captured by useFavStripItem),
+  // not just the newest row -- a shake/elec tap can write up to 3 entries.
+  function _favUndoToast(msg, ids) {
+    let host = document.getElementById('fav-undo-toast');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'fav-undo-toast';
+      host.style.cssText = 'position:fixed;left:50%;bottom:70px;transform:translateX(-50%);'
+        + 'background:#161b22;border:1px solid #3fb950;color:#e6edf3;padding:10px 14px;'
+        + 'border-radius:11px;font-size:13px;z-index:9999;box-shadow:0 8px 30px #00000070;'
+        + 'display:flex;align-items:center;gap:12px;max-width:88%';
+      document.body.appendChild(host);
+    }
+    host.innerHTML = '<span>✓ ' + msg + '</span>'
+      + '<button style=&quot;background:none;border:1px solid #3fb950;color:#3fb950;border-radius:7px;'
+      + 'padding:4px 10px;font-size:12px;cursor:pointer&quot;>Undo</button>';
+    const btn = host.querySelector('button');
+    btn.onclick = function () {
+      try {
+        saveEntries(loadEntries().filter(e => ids.indexOf(e.id) === -1));
+        refreshProgress();
+        refreshLog();
+        if (window.batteryRenderFav) window.batteryRenderFav();
+      } catch (e) {}
+      host.style.display = 'none';
+    };
+    host.style.display = 'flex';
+    clearTimeout(host._h);
+    host._h = setTimeout(() => { host.style.display = 'none'; }, 4000);
+  }
+  window._favUndoToast = _favUndoToast;
+
+  /* ===== Design item 4 (external review SS5C): BUNDLES =====
+     A bundle is a NAMED LIST OF DELTAS -- {water, protein, elec} -- replayed
+     through addItem(). The review's instruction was explicit: the hard-coded
+     dual-credit sport drink already IS a bundle, so GENERALISE that case rather
+     than build a mechanism. Nothing new mutates the ledger -- addItem() stays
+     the only writer, so display, dual-credit pairing and Undo all keep working
+     unchanged, and `fuel-dual-credit`'s existing contract is untouched.
+
+     Whole-bundle undo was free: item 3's toast already takes an ARRAY of entry
+     ids because a shake+electrolyte tap could already write 3 rows. That is the
+     review's &quot;build undo first&quot; paying off one item later.
+
+     Deliberately NOT built: the automatic 90-second &quot;save these two as one
+     button?&quot; prompt. SS9 held the one-tap-plus-toast pattern as a silent-bad-data
+     risk pending real use, and an unprompted capture offer is the same bet with
+     more surface. saveRecentAsBundle() gives the identical capability from an
+     explicit tap -- built from real logged behaviour, not a form, and not
+     guessing at intent. The learning prompt can follow once there is usage.
+
+     SS4.3: a bundle carrying electrolytes is adult-only, filtered through the
+     same _favIsYouthSafe() rule the favorites strip already uses. ===== */
+  const DEFAULT_BUNDLES = [
+    { id:'b-shaker-liv',  name:'Shaker + Liquid IV', water:28, protein:0,  elec:1 },
+    { id:'b-post-throw',  name:'Post-throw shake',   water:28, protein:42, elec:0 }
+  ];
+  function loadBundles(){
+    try{ const a=JSON.parse(storeGet('fuel-bundles','')); if(Array.isArray(a)) return a; }catch(e){}
+    return DEFAULT_BUNDLES.slice();
+  }
+  function saveBundles(a){ storeSet('fuel-bundles', JSON.stringify(a||[])); }
+  // Same youth rule as the favorites strip: electrolytes/supplements never
+  // surface to youth, and the label is screened for branded supplement names.
+  function bundleYouthSafe(b){
+    if(!b) return false;
+    if((+b.elec||0) > 0) return false;
+    return _favIsYouthSafe({ type: ((+b.protein||0) > 0 ? 'protein' : 'water'), label: b.name || '' });
+  }
+  function bundleSummary(b){
+    const bits=[];
+    if(+b.water>0)   bits.push('+'+(+b.water)+'oz');
+    if(+b.protein>0) bits.push('+'+(+b.protein)+'g');
+    if(+b.elec>0)    bits.push('+'+(+b.elec)+'⚡');
+    return bits.join(' ') + ' ' + (b.name || 'Bundle');
+  }
+  window.useBundle = function(id){
+    const b = loadBundles().find(x => x.id === id);
+    if (!b) return;
+    if (_favYouth() &amp;&amp; !bundleYouthSafe(b)) return;      // §4.3 belt-and-suspenders
+    let before; try { before = new Set(loadEntries().map(e => e.id)); } catch (e) { before = new Set(); }
+    addItem({ water:+b.water||0, protein:+b.protein||0, elec:+b.elec||0, label: b.name || 'Bundle' });
+    try {
+      const added = loadEntries().filter(e => !before.has(e.id)).map(e => e.id);
+      if (added.length &amp;&amp; window._favUndoToast) window._favUndoToast(bundleSummary(b), added);
+    } catch (e) {}
+  };
+  // Build a bundle out of what was ACTUALLY just logged (review SS5C: the list
+  // builds itself from real habits instead of a form). Sums the last two real
+  // ledger rows, skipping the paired-water and bundled-electrolyte helper rows
+  // so a dual-credit item counts once, as one item, not as its component rows.
+  window.saveRecentAsBundle = async function(){
+    let es=[];
+    try { es = loadEntries().filter(e => !e.shakeWater &amp;&amp; !(e.type === 'electrolyte' &amp;&amp; e.bundled)); } catch (e) {}
+    if (es.length < 2) { try { await uiAlert('Not enough to bundle', 'Log two things first, then save them together as one button.'); } catch(e){} return; }
+    const shakeWater = {};
+    try { loadEntries().forEach(e => { if (e.shakeWater &amp;&amp; e.shakeId) shakeWater[e.shakeId] = +e.amount || 0; }); } catch (e) {}
+    const last = es.slice(-2);
+    let w=0, p=0, el=0;
+    last.forEach(e => {
+      if (e.type === 'water') { w += +e.amount || 0; el += +e.e || 0; }
+      else if (e.type === 'protein') { p += +e.amount || 0; if (e.shakeId) w += shakeWater[e.shakeId] || 0; }
+      else if (e.type === 'electrolyte') { el += +e.amount || 0; }
+    });
+    if (w <= 0 &amp;&amp; p <= 0 &amp;&amp; el <= 0) return;
+    const suggested = last.map(e => e.label || e.type).join(' + ');
+    let name = suggested;
+    try {
+      if (parent &amp;&amp; typeof parent.batteryModal === 'function') {
+        const r = await parent.batteryModal({ title:'Save as one button?',
+          body:'Logs ' + [(w>0?'+'+w+'oz':''),(p>0?'+'+p+'g':''),(el>0?'+'+el+'⚡':'')].filter(Boolean).join(' ') + ' in one tap.',
+          input:{ type:'text', label:'Name', value: suggested }, okLabel:'Save' });
+        if (!r) return;
+        name = (r.value || '').trim() || suggested;
+      }
+    } catch (e) {}
+    const list = loadBundles();
+    // id must not collide across same-named saves -- entry ids are already
+    // unique-per-ledger, so reuse that source rather than inventing a counter.
+    list.push({ id:'b-' + (last[last.length-1].id) , name:name, water:w, protein:p, elec:el });
+    saveBundles(list);
+    if (window.batteryRenderFav) try { window.batteryRenderFav(); } catch (e) {}
+  };
+  window.removeBundle = function(id){
+    saveBundles(loadBundles().filter(b => b.id !== id));
+    if (window.batteryRenderFav) try { window.batteryRenderFav(); } catch (e) {}
+  };
+  window._bundlesFor = function(){
+    const all = loadBundles();
+    return _favYouth() ? all.filter(bundleYouthSafe) : all;
+  };
 
   // 4.2: edit favorites — toggle edit mode (× on manual pins) + remove a manual pin.
   function toggleFavEdit(){ window._favEdit=!window._favEdit; if(window.batteryRenderFav)try{window.batteryRenderFav();}catch(e){} }
@@ -9958,7 +10149,13 @@ body.youth #youth-banner{display:block}
       // manual pins (★) before most-used (↻), youth-filtered.
       let all=[];
       try{ if(typeof window._favMerged==='function') all=window._favMerged(12); }catch(e){}
-      if(all.length===0){ host.innerHTML=''; return; }
+      // Design item 4: bundles ship with defaults, so this strip can now have
+      // content on a brand-new profile with zero logged entries. Bail only when
+      // BOTH halves are empty -- the old favorites-only early return would have
+      // hidden the bundle row for exactly the user who benefits most from it.
+      let bundles=[];
+      try{ if(typeof window._bundlesFor==='function') bundles=window._bundlesFor(); }catch(e){}
+      if(all.length===0 &amp;&amp; bundles.length===0){ host.innerHTML=''; return; }
       const ed=!!window._favEdit;
       const favChip=f=>{
           const c = f.type==='protein' ? '#d4a017' : (f.type==='water' ? '#58a6ff' : '#3fb950');
@@ -9967,25 +10164,61 @@ body.youth #youth-banner{display:block}
           const mark = f.manual ? '<span style=&quot;color:#d4a017;margin-right:4px&quot;>★</span>'
                                 : '<span style=&quot;color:#6e7681;margin-right:4px;font-size:10px&quot;>↻</span>';
           const rm = (ed &amp;&amp; f.manual) ? '<span onclick=&quot;event.stopPropagation();removeManualFav(\''+f.type+'\','+f.amount+',\''+lbl+'\')&quot; style=&quot;margin-left:7px;color:#f85149;font-weight:700&quot;>×</span>' : '';
+          // Design item 3 SS4A: the pin/edit/move sheet was long-press-only (a
+          // hidden gesture). A visible ⋯ twin opens the identical menu so the
+          // capability has a pixel that advertises it, not just a gesture.
+          const more = '<span onclick=&quot;event.stopPropagation();if(window._favOpenMenu)window._favOpenMenu(this.closest(\'.fav-chip\'))&quot; '
+            + 'style=&quot;margin-left:7px;padding:0 3px;color:#8b949e;font-weight:700&quot;>⋯</span>';
           return '<button class=&quot;fav-chip&quot; data-ft=&quot;'+f.type+'&quot; data-fa=&quot;'+f.amount+'&quot; data-fl=&quot;'+lbl+'&quot; data-fe=&quot;'+(f.e||0)+'&quot; data-fw=&quot;'+(f.w||0)+'&quot; data-fm=&quot;'+(f.manual?1:0)+'&quot; onclick=&quot;'+(ed?'':'useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+','+(f.w||0)+')')+'&quot; '+
             'title=&quot;'+(f.manual?'Pinned favorite':'Most-used')+'&quot; '+
             'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:9px;'+
             'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>'+
-            mark+'+'+f.amount+u+(f.w?' +'+f.w+'oz':'')+' · '+(f.label||'')+rm+'</button>';
+            mark+'+'+f.amount+u+(f.w?' +'+f.w+'oz':'')+' · '+(f.label||'')+(ed?rm:more)+'</button>';
       };
+      // Design item 4: bundles ride above the per-type favorites -- one tap
+      // logs every delta in the bundle, with whole-bundle undo. Youth-filtered
+      // in _bundlesFor() (electrolyte-carrying bundles never render for youth).
+      let bh='';
+      if(bundles.length){
+        bh='<div style=&quot;font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
+          'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin:7px 0 4px&quot;>📦 Bundles · one tap</div>'+
+          '<div style=&quot;display:flex;gap:6px;flex-wrap:wrap&quot;>'+bundles.map(b=>{
+            const parts=[];
+            if(+b.water>0)   parts.push('+'+(+b.water)+'oz');
+            if(+b.protein>0) parts.push('+'+(+b.protein)+'g');
+            if(+b.elec>0)    parts.push('+'+(+b.elec)+'⚡');
+            const bid=String(b.id||'').replace(/\x27/g,'');
+            const bx = ed ? '<span onclick=&quot;event.stopPropagation();removeBundle(\''+bid+'\')&quot; style=&quot;margin-left:7px;color:#f85149;font-weight:700&quot;>×</span>' : '';
+            return '<button onclick=&quot;'+(ed?'':'useBundle(\''+bid+'\')')+'&quot; '+
+              'style=&quot;background:#1c2128;border:1px solid #a371f7;color:#a371f7;border-radius:9px;'+
+              'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>'+
+              '<span style=&quot;color:#a371f7;margin-right:4px&quot;>📦</span>'+parts.join(' ')+' · '+(b.name||'Bundle')+bx+'</button>';
+          }).join('')+
+          '<button onclick=&quot;saveRecentAsBundle()&quot; title=&quot;Save your last two logs as one button&quot; '+
+          'style=&quot;background:none;border:1px dashed #444c56;color:#8b949e;border-radius:9px;'+
+          'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>+ bundle last 2</button>'+
+          '</div>';
+      }
       const grp={water:[],electrolyte:[],protein:[]};
       all.forEach(f=>{ (grp[f.type]||grp.water).push(f); });
       let h='<div style=&quot;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px&quot;>'+
         '<span style=&quot;font-size:11px;letter-spacing:1.5px;color:#d4a017;'+
         'font-family:\'SF Mono\',monospace;text-transform:uppercase&quot;>★ Favorites</span>'+
         '<button onclick=&quot;toggleFavEdit()&quot; style=&quot;background:none;border:1px solid #30363d;color:'+(ed?'#d4a017':'#8b949e')+';'+
-        'font-family:\'SF Mono\',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:6px;cursor:pointer&quot;>'+(ed?'Done':'Edit')+'</button></div>';
+        'font-family:\'SF Mono\',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:6px;cursor:pointer&quot;>'+(ed?'Done':'Edit')+'</button></div>'+bh;
       [['water','💧 Water'],['electrolyte','⚡ Electrolytes'],['protein','🥤 Protein']].forEach(g=>{
         const arr=grp[g[0]]; if(!arr.length) return;
         h+='<div style=&quot;font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
           'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin:7px 0 4px&quot;>'+g[1]+'</div>'+
           '<div style=&quot;display:flex;gap:6px;flex-wrap:wrap&quot;>'+arr.map(favChip).join('')+'</div>';
       });
+      // Design item 3 SS4C: coach line, not a tour -- shown until the sheet has
+      // been opened twice (tracked by _favOpenMenu), then never again.
+      const opens = +storeGet('fuel-favmenu-opens', '0') || 0;
+      if (opens < 2) {
+        h += '<div style=&quot;font-size:9px;color:#484f58;font-family:\'SF Mono\',monospace;'+
+          'letter-spacing:.5px;margin-top:8px;text-align:center&quot;>HOLD A BUTTON OR TAP ⋯ TO EDIT, PIN OR REORDER</div>';
+      }
       host.innerHTML=h;
     }
 
@@ -10151,7 +10384,6 @@ body.youth #youth-banner{display:block}
   (function(){
     const PF = (window.profileForm = window.profileForm || {});
     PF.glp = PF.glp || 'none'; PF.glpDose=PF.glpDose||''; PF.glpDay=PF.glpDay||'';
-    PF.lastThrow = PF.lastThrow || 'none';
     function wireSeg(id, key, after){
       const el=document.getElementById(id); if(!el) return;
       el.querySelectorAll('.seg-btn').forEach(b=>b.addEventListener('click',()=>{
@@ -10161,7 +10393,7 @@ body.youth #youth-banner{display:block}
     }
     function init(){
       wireSeg('seg-glp','glp',v=>{document.getElementById('glp-detail').style.display=(v==='none')?'none':'block';});
-      wireSeg('seg-arm','lastThrow');
+      if(typeof renderLastThrow==='function') renderLastThrow();   // owner 2.0: derived readout, no longer a control
       const dose=document.getElementById('prof-glp-dose'); if(dose)dose.addEventListener('input',()=>PF.glpDose=dose.value.trim());
       const day=document.getElementById('prof-glp-day'); if(day)day.addEventListener('change',()=>PF.glpDay=day.value);
       // hydrate from saved profile
@@ -10170,7 +10402,6 @@ body.youth #youth-banner{display:block}
         if(p.glp){PF.glp=p.glp;const b=document.querySelector('#seg-glp .seg-btn[data-val=&quot;'+p.glp+'&quot;]');if(b){document.querySelectorAll('#seg-glp .seg-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');}document.getElementById('glp-detail').style.display=(p.glp==='none'||!p.glp)?'none':'block';}
         if(p.glpDose&amp;&amp;dose)dose.value=p.glpDose;
         if(p.glpDay&amp;&amp;day)day.value=p.glpDay;
-        if(p.lastThrow){PF.lastThrow=p.lastThrow;const b=document.querySelector('#seg-arm .seg-btn[data-val=&quot;'+p.lastThrow+'&quot;]');if(b){document.querySelectorAll('#seg-arm .seg-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');}}
       }
     }
     if(document.readyState!=='loading')setTimeout(init,150);
@@ -10187,7 +10418,9 @@ body.youth #youth-banner{display:block}
         const p=loadProfile(); if(!p)return;
         const PF=window.profileForm||{};
         p.glp=PF.glp||'none'; p.glpDose=PF.glpDose||''; p.glpDay=PF.glpDay||'';
-        p.lastThrow=PF.lastThrow||'none';
+        // owner 2.0: p.lastThrow is no longer written here -- it is derived from
+        // the dated pitch log. The host DATA <select> is the last vestigial
+        // writer; nothing in FUEL reads the field anymore.
         saveProfileObj(p);
         if(typeof refreshSuggestions==='function')refreshSuggestions();
       }catch(e){}
@@ -10217,9 +10450,10 @@ body.youth #youth-banner{display:block}
               '<b>Nausea window:</b> ~'+since+'d post-shot. Side effects can peak now — small frequent sips, bland easy protein, don\'t force a big pre-game meal.</div>');
           }
         }
-        if(p.lastThrow==='today'||p.lastThrow==='yesterday'){
+        const _lt=(typeof lastThrowState==='function')?lastThrowState():null;   // owner 2.0: derived, ages itself
+        if(_lt==='today'||_lt==='yesterday'){
           adds.push('<div class=&quot;suggest-line&quot; style=&quot;border-left:2px solid #3fb950;padding-left:9px&quot;>'+
-            '<b>Arm recovery:</b> hard throws '+p.lastThrow+' — protein consistency matters most now for tissue repair. Hit your number even if appetite is low.</div>');
+            '<b>Arm recovery:</b> hard throws '+_lt+' — protein consistency matters most now for tissue repair. Hit your number even if appetite is low.</div>');
         }
         if(adds.length) body.insertAdjacentHTML('beforeend', adds.join(''));
       }catch(e){}
@@ -10318,8 +10552,9 @@ body.youth #youth-banner{display:block}
         zepNote='<div style=&quot;margin-top:10px;padding:9px 11px;border-left:2px solid #d4a017;background:#0d1117;border-radius:0 8px 8px 0;font-size:12px;color:#c9d1d9;line-height:1.5&quot;><b style=&quot;color:#f0b832&quot;>Zep-aware:</b> appetite will be low — don\'t wait to feel hungry. Hit protein in the solid window by the clock; lean on liquid calories if food feels like too much.</div>';
       }
       let armNote='';
-      if(prof &amp;&amp; (prof.lastThrow==='today'||prof.lastThrow==='yesterday') &amp;&amp; !isYouth){
-        armNote='<div style=&quot;margin-top:8px;padding:9px 11px;border-left:2px solid #3fb950;background:#0d1117;border-radius:0 8px 8px 0;font-size:12px;color:#c9d1d9;line-height:1.5&quot;><b style=&quot;color:#3fb950&quot;>Arm:</b> you threw '+prof.lastThrow+' — protein consistency aids recovery. Don\'t skimp even if appetite is low.</div>';
+      const _ltNote=(typeof lastThrowState==='function')?lastThrowState():null;  // owner 2.0: derived, ages itself
+      if((_ltNote==='today'||_ltNote==='yesterday') &amp;&amp; !isYouth){
+        armNote='<div style=&quot;margin-top:8px;padding:9px 11px;border-left:2px solid #3fb950;background:#0d1117;border-radius:0 8px 8px 0;font-size:12px;color:#c9d1d9;line-height:1.5&quot;><b style=&quot;color:#3fb950&quot;>Arm:</b> you threw '+_ltNote+' — protein consistency aids recovery. Don\'t skimp even if appetite is low.</div>';
       }
       const tagColor={solid:'#d4a017',liquid:'#58a6ff',sip:'#6e7681',go:'#3fb950'};
       const tagLabel={solid:'SOLID OK',liquid:'LIQUID',sip:'WATER ONLY',go:'GO'};
@@ -10432,6 +10667,11 @@ body.youth #youth-banner{display:block}
         return;
       }
 
+      // owner 2.0: derived from the dated pitch log, so it stops claiming a
+      // throw once the day passes (the old manual string never aged).
+      var _ltRaw=(typeof lastThrowState==='function')?lastThrowState():null;
+      var _ltVerdict=(_ltRaw==='today'||_ltRaw==='yesterday')?_ltRaw:null;
+
       // ADULT priority chain (most time-sensitive wins)
       if(train){
         lead='Training set today — '+(pLeft>0?'get '+pLeft+'g protein in before then; ':'')+'follow the runway below.';
@@ -10442,8 +10682,8 @@ body.youth #youth-banner{display:block}
       } else if(game &amp;&amp; game.d<=2){
         lead='Game in '+game.d+'d — start pre-loading: protein up, water +20oz, an electrolyte. '+remain+'.';
         accent='#d4a017';
-      } else if(prof &amp;&amp; (prof.lastThrow==='today'||prof.lastThrow==='yesterday') &amp;&amp; pLeft>0){
-        lead='Threw '+prof.lastThrow+' — protein drives recovery. '+remain+'.';
+      } else if(_ltVerdict &amp;&amp; pLeft>0){
+        lead='Threw '+_ltVerdict+' — protein drives recovery. '+remain+'.';
         accent='#3fb950';
       } else if(prof &amp;&amp; prof.glp &amp;&amp; prof.glp!=='none' &amp;&amp; pLeft>0){
         var _ps=paceState(totals.protein,tgt.protein);
@@ -10586,11 +10826,18 @@ body.youth #youth-banner{display:block}
   (function(){
     var menu=null, pressTimer=null, longFired=false, startXY=null;
     function closeMenu(){ if(menu){ menu.remove(); menu=null; } }
-    function favData(chip){ return { type:chip.dataset.ft, amount:+chip.dataset.fa, label:chip.dataset.fl||'', e:+chip.dataset.fe||0, manual:chip.dataset.fm==='1' }; }
+    function favData(chip){ return { type:chip.dataset.ft, amount:+chip.dataset.fa, label:chip.dataset.fl||'', e:+chip.dataset.fe||0, w:+chip.dataset.fw||0, manual:chip.dataset.fm==='1' }; }
     function bucketOf(t){ return t==='water'?'water':(t==='protein'?'protein':'elec'); }
 
     function openMenu(chip){
       closeMenu();
+      // Design item 3 SS4C coach-line trigger: count sheet opens regardless of
+      // entry point (long-press, right-click or the new ⋯ twin) so the line
+      // retires after 2 real uses. Not re-rendered here -- chip is a live DOM
+      // node about to be measured; replacing the strip under it would detach
+      // it and zero out getBoundingClientRect(). The next natural re-render
+      // (any log/pin action) picks up the new count.
+      try{ storeSet('fuel-favmenu-opens', String((+storeGet('fuel-favmenu-opens','0')||0)+1)); }catch(e){}
       var f=favData(chip), r=chip.getBoundingClientRect();
       menu=document.createElement('div'); menu.className='fav-ctx';
       menu.style.cssText='position:fixed;z-index:9999;background:#161b22;border:1px solid #30363d;border-radius:11px;padding:5px;box-shadow:0 8px 28px #000c;display:flex;flex-direction:column;min-width:160px';
@@ -10602,7 +10849,9 @@ body.youth #youth-banner{display:block}
       menu.appendChild(hd);
       function item(txt, fn){ var b=document.createElement('button'); b.textContent=txt; b.style.cssText='background:none;border:none;color:#e6edf3;text-align:left;padding:10px 12px;font-size:13px;font-family:inherit;cursor:pointer;border-radius:7px'; b.addEventListener('click', function(ev){ ev.stopPropagation(); closeMenu(); fn(); }); menu.appendChild(b); }
       item('✎ Edit', function(){ editFav(f); });
-      item(f.manual?'☆ Unfavorite':'★ Favorite (pin)', function(){ try{ togglePinFromLog(f.type,f.amount,f.label,f.e); }catch(e){} });
+      // w rides along so pinning a shake/combo item from the menu keeps its
+      // paired water credit (same invariant togglePinFromLog's other callers hold).
+      item(f.manual?'☆ Unfavorite':'★ Favorite (pin)', function(){ try{ togglePinFromLog(f.type,f.amount,f.label,f.e,f.w); }catch(e){} });
       if(f.manual){ item('◀ Move left', function(){ moveFav(f,-1); }); item('Move right ▶', function(){ moveFav(f,1); }); }
       document.body.appendChild(menu);
     }
@@ -10642,6 +10891,9 @@ body.youth #youth-banner{display:block}
     document.addEventListener('touchend', function(e){ cancel(); if(longFired){ e.preventDefault(); } }, {passive:false});
     document.addEventListener('contextmenu', function(e){ var chip=chipFrom(e); if(!chip) return; e.preventDefault(); openMenu(chip); });
     document.addEventListener('click', function(e){ if(longFired){ e.stopPropagation(); e.preventDefault(); longFired=false; return; } if(menu &amp;&amp; !menu.contains(e.target)) closeMenu(); }, true);
+    // Design item 3 SS4A: visible ⋯ twin on the ranked-bar chip calls the same
+    // sheet the long-press/right-click already open -- one menu, two doors.
+    window._favOpenMenu = openMenu;
   })();
 
   /* ===== fuel-button category icons (steel glyph, currentColor by category) ===== */
