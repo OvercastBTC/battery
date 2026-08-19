@@ -70,6 +70,12 @@ padding:calc(env(safe-area-inset-top) + 54px) 14px 64px;-webkit-overflow-scrolli
 #view-data .add-athlete-btn{display:block;width:100%;margin-top:2px;font-size:12px;font-weight:700;padding:10px;border-radius:10px;background:none;border:1px dashed var(--line);color:var(--gold);cursor:pointer}
 .gd-card{background:var(--steel);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px}
 .gd-card.gold{border-color:var(--gold)}.gd-card h3{font-size:15px;margin-bottom:7px}.gd-card p{font-size:13px;color:var(--dim);line-height:1.5}
+/* Design item 5 (review §6): "his accent is green, same near-black steel and
+   monospace" -- reused here at card-border scale (not a full accent-variable
+   override, which is item 5's separate ARM/FUEL-iframe scope) so the ONE card
+   about him on the adult's own gold-accented HOME still reads as his. */
+.gd-card.youth-note{border-color:var(--green)}
+.gd-card.youth-note h3{color:var(--green);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
 .evpick{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
 .evpick label{font-size:11px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
 .evpick select,.evpick input{background:var(--ink);border:1px solid var(--line);color:var(--goldb);
@@ -201,7 +207,7 @@ body.youth #youth-banner{display:block}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.18.88</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.19.89</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -10957,6 +10963,14 @@ body.youth #youth-banner{display:block}
 <div id="today-note" class="dmeta" style="margin-top:8px"></div>
 <div id="today-sleep-adv" style="display:none;margin-top:8px;font-size:12px;line-height:1.45;border-radius:10px;padding:8px 11px"></div>
 </div>
+<!-- Design item 5, host half (2026-08-18, review §6): "the first youth build
+     isn't for him -- it's a two-athlete moment: one card on your HOME."
+     Own top-level card, separate from the athlete's own TODAY card above --
+     this is a glance at a DIFFERENT roster member, not part of the active
+     profile's own readiness. §4.3: renderYouthCards() itself refuses to run
+     for anything but an adult viewer (see the function) -- this must never
+     appear on the youth's own HOME. -->
+<div id="youth-today-cards"></div>
 <div class="gd-card" id="sleep-card" style="display:none;padding:11px 15px">
 <!-- .76 compact layout (owner): title + 3 buttons share one row, ~half the
      tile's prior vertical footprint. sleep-sub kept but shrunk, not removed. -->
@@ -11069,7 +11083,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v88').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v88').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v89').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v89').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -13061,7 +13075,58 @@ function renderToday(){
       adv.textContent=a.text;
     }else{adv.style.display='none';adv.textContent='';}
   }
+  try{renderYouthCards();}catch(e){}
   return score;
+}
+/* Design item 5, host half (review §6): "one card on your HOME -- 'Kole
+   today: J-Bands (check) 4 bottles arm felt good'. Build that card first."
+   One card per youth athlete with any activity logged today, on the ADULT'S
+   own HOME. Skipped entirely -- not just hidden -- for anyone but an adult
+   viewer; that is the §4.3 guarantee ("must not appear on his own HOME"),
+   enforced at the top of this function, not by CSS.
+   Data, all read via the SAME cross-profile-safe helpers the DATA/week-card
+   views already use for a non-active profile (namespaced battery::<id>::
+   keys) -- nothing new invented:
+     - "J-Bands (check)" -- the review's own example names one exercise; the
+       host only has stream-level {done,total} (bat-counts), not per-exercise
+       state, so this reads as "any arm care logged today" via
+       consistencyMap(id)[todayKey] > 0. Same disclosed-limitation shape as
+       item 2's Flow-button relabel (section granularity, not exercise
+       granularity) -- consistent rather than a one-off guess.
+     - "N bottles" -- counts objects, not macros, per §6's own direction
+       (water = bottles, not oz). 12oz = the app's own "Standard bottle"
+       quick-add size (index.html, FUEL water quick-adds) -- reused rather
+       than invented, so this line agrees with what a bottle already means
+       everywhere else in the app.
+     - "arm felt X" -- PROPOSED contract for Lane A's iframe half (the
+       post-throw three-face check, not yet shipped as of this commit):
+       reads arm-care-feel-<date> (bare key for the active profile,
+       battery::<id>::arm-care-feel-<date> otherwise), expecting the same
+       rough/okay/good vocabulary the existing sleep-log three-face check
+       already uses. Gracefully OMITTED if absent -- ships correctly today,
+       lights up automatically once that key exists, zero further host
+       change needed if the contract matches. Flagged in comms for Lane A to
+       confirm or correct before their side lands. */
+function renderYouthCards(){
+  var host=document.getElementById('youth-today-cards'); if(!host)return;
+  if(!profile || profileTier(profile)!=='adult'){ host.innerHTML=''; return; }   // §4.3: adult viewer only
+  var today=todayPlanKey(), people=[];
+  try{ people=getPeople(); }catch(e){}
+  var cards=people.filter(function(p){return p&&p.tier==='youth';}).map(function(p){
+    var armCount=0; try{ armCount=(consistencyMap(p.id)[today]||0); }catch(e){}
+    var water=0; try{ water=fuelDayTotals(today,p.id).water||0; }catch(e){}
+    var bottles=Math.round(water/12);
+    if(armCount<=0 && bottles<=0) return null;                 // nothing logged for him yet today
+    var bits=[armCount>0?'J-Bands ✓':'Arm care —', bottles+' bottle'+(bottles===1?'':'s')];
+    var feel=null;
+    try{ feel=localStorage.getItem((p.id===profile?'':'battery::'+p.id+'::')+'arm-care-feel-'+today); }catch(e){}
+    if(feel==='good')bits.push('arm felt good');
+    else if(feel==='okay')bits.push('arm felt okay');
+    else if(feel==='rough')bits.push('arm felt rough');
+    return '<div class="gd-card youth-note"><h3>'+escHtml(p.name)+' today</h3>'+
+      '<p style="color:var(--bone)">'+bits.map(escHtml).join(' · ')+'</p></div>';
+  }).filter(Boolean);
+  host.innerHTML=cards.join('');
 }
 window.renderToday=renderToday;window.readinessScore=readinessScore;
 /* ===== SLEEP LOG (VISION 1.2) — manual "how'd you sleep?" on TODAY =====
