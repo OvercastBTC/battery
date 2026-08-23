@@ -1014,6 +1014,18 @@ body.youth #youth-banner{display:block}
   body.youth .plyo-youth-only { display: block; }
   body.youth .plyo-heavy { display: none; }
   /* generic youth gates (4.3) — same mechanism, page-agnostic */
+  /* Lift-split picker. The owner deliberately pairs OPPOSING groups
+     (chest+bis, back+tris) rather than the conventional chest+tris: bench
+     already taxes the triceps as a secondary mover, so the conventional pairing
+     leaves the secondary too fatigued to train well on either lift. */
+  .split-bar { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 4px; }
+  .split-chip { padding:7px 12px; border:1px solid var(--line-bright); border-radius:999px;
+    font-family:'Courier New',monospace; font-size:11px; letter-spacing:.5px; text-transform:uppercase;
+    color:var(--dim); cursor:pointer; user-select:none; }
+  .split-chip.on { border-color:var(--gold); color:var(--ink); background:var(--gold); font-weight:700; }
+  .split-day { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 2px; }
+  .split-note { font-size:11px; color:var(--dim); font-style:italic; margin:6px 0 2px; }
+  .step.mg-hidden { display:none; }
   .youth-only { display: none; }
   body.youth .youth-only { display: block; }
   body.youth .youth-hide { display: none; }
@@ -3574,6 +3586,13 @@ body.youth #youth-banner{display:block}
 
   <div class=&quot;youth-hide&quot;>
   <p class=&quot;lede&quot;>Strength work in service of the four goals: pitching first, general conditioning, first-base/position defense, and a hard focus on hitting. Everything here is <b>optional</b> — it counts as +bonus and never gates the daily arm-care ratio.</p>
+  <div class=&quot;split-bar&quot; id=&quot;split-bar&quot;>
+    <div class=&quot;split-chip&quot; data-split=&quot;all&quot; onclick=&quot;setSplit('all')&quot;>All</div>
+    <div class=&quot;split-chip&quot; data-split=&quot;3day&quot; onclick=&quot;setSplit('3day')&quot;>3-Day</div>
+    <div class=&quot;split-chip&quot; data-split=&quot;2day&quot; onclick=&quot;setSplit('2day')&quot;>2-Day</div>
+  </div>
+  <div class=&quot;split-day&quot; id=&quot;split-day&quot;></div>
+  <div class=&quot;split-note&quot; id=&quot;split-note&quot;></div>
 
   <div class=&quot;card gold&quot;>
     <div class=&quot;card-head&quot;>
@@ -3590,7 +3609,7 @@ body.youth #youth-banner{display:block}
 
   <ul class=&quot;steplist&quot;>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-row&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-row&quot; data-mg=&quot;back&quot; data-eq=&quot;machine&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3606,7 +3625,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-press&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-press&quot; data-mg=&quot;chest&quot; data-eq=&quot;machine&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3621,7 +3640,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-curls&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-curls&quot; data-mg=&quot;bis&quot; data-eq=&quot;bar&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3636,7 +3655,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-triceps&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-triceps&quot; data-mg=&quot;tris&quot; data-eq=&quot;bar&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3651,7 +3670,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-qsq-power&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-qsq-power&quot; data-mg=&quot;legs&quot; data-eq=&quot;bar&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3668,7 +3687,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-qsq-endur&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-qsq-endur&quot; data-mg=&quot;legs&quot; data-eq=&quot;bar&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3683,7 +3702,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-deadlift&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-deadlift&quot; data-mg=&quot;back&quot; data-eq=&quot;bar&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3700,7 +3719,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-goblet&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-goblet&quot; data-mg=&quot;legs&quot; data-eq=&quot;db&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3714,7 +3733,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-lunge&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-lunge&quot; data-mg=&quot;legs&quot; data-eq=&quot;bw&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3728,7 +3747,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-abs&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-abs&quot; data-mg=&quot;core&quot; data-eq=&quot;bw&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3743,7 +3762,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;lift-rotcore&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;lift-rotcore&quot; data-mg=&quot;core&quot; data-eq=&quot;band&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3755,6 +3774,257 @@ body.youth #youth-banner{display:block}
       <div class=&quot;step-detail&quot;>
         <p>Pick one per session: <b>med-ball rotational throws</b> (into a wall, hips lead), <b>wood-choppers</b> (band or cable, high-to-low and low-to-high), or <b>standing rotational twists</b>. Explosive out, controlled back.</p>
         <em>Pitching velocity and bat speed are rotation — this is the one thing the routine was missing for BOTH of your top goals.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-db-bench&quot; data-mg=&quot;chest&quot; data-eq=&quot;db&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>DB Bench Press</div>
+          <div class=&quot;step-target&quot;>Chest · Front Delt · Tris</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 8-12</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Flat bench, dumbbells. Lower to chest level with control, press without locking hard at the top.</p>
+        <em>Hotel-gym staple — no rack needed, and DBs let each side work independently.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-db-incline&quot; data-mg=&quot;chest&quot; data-eq=&quot;db&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>DB Incline Press</div>
+          <div class=&quot;step-target&quot;>Upper Chest</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Bench at ~30°. Higher than that and it becomes a shoulder press.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-cable-fly&quot; data-mg=&quot;chest&quot; data-eq=&quot;cable&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Cable / Band Fly</div>
+          <div class=&quot;step-target&quot;>Chest · Stretch under load</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 12-15</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Slight elbow bend, hands meet in front. Squeeze, slow return — the stretch is the point, not the load.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-pushup&quot; data-mg=&quot;chest&quot; data-eq=&quot;bw&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Push-Ups</div>
+          <div class=&quot;step-target&quot;>Chest · Core</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × max-2</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Anywhere, no equipment. Stop 2 reps short of failure so it does not cost you the next lift.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-db-row&quot; data-mg=&quot;back&quot; data-eq=&quot;db&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Single-Arm DB Row</div>
+          <div class=&quot;step-target&quot;>Lat · Mid-Back</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10 / side</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Hand and knee on the bench, flat back. Pull the elbow past the ribs, do not twist the torso to cheat it up.</p>
+        <em>Pull volume ≥ push volume for throwers — this is the easiest one to add anywhere.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-pulldown&quot; data-mg=&quot;back&quot; data-eq=&quot;cable&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Lat Pulldown</div>
+          <div class=&quot;step-target&quot;>Lat · Teres</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10-12</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Chest tall, drive the elbows down and back. If there is no pulldown, a band anchored high works.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-facepull&quot; data-mg=&quot;back&quot; data-eq=&quot;cable&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Face Pull</div>
+          <div class=&quot;step-target&quot;>Rear Delt · External Rotators</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 15</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Rope or band at face height. Elbows high, rotate the hands back at the end.</p>
+        <em>The single best shoulder-health accessory for a thrower. Do it even on light days.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-db-press&quot; data-mg=&quot;shoulders&quot; data-eq=&quot;db&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>DB Shoulder Press</div>
+          <div class=&quot;step-target&quot;>Delts · Tris</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 8-12</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Seated or standing. Do not arch the low back to finish a rep — drop the weight instead.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-lat-raise&quot; data-mg=&quot;shoulders&quot; data-eq=&quot;db&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Lateral Raise</div>
+          <div class=&quot;step-target&quot;>Side Delt</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 12-15</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Light. Lead with the elbows, stop at shoulder height. This is a small muscle; ego here shows up as neck tension.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-rear-fly&quot; data-mg=&quot;shoulders&quot; data-eq=&quot;db&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Rear-Delt Fly</div>
+          <div class=&quot;step-target&quot;>Rear Delt</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 15</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Hinge forward, thumbs down, wide arc. Balances every pressing motion and every throw.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-hammer&quot; data-mg=&quot;bis&quot; data-eq=&quot;db&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Hammer Curl</div>
+          <div class=&quot;step-target&quot;>Biceps · Brachialis · Forearm</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10-12</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Neutral grip, no swing. Grip carryover matters at 1B and at the plate.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-incline-curl&quot; data-mg=&quot;bis&quot; data-eq=&quot;db&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Incline DB Curl</div>
+          <div class=&quot;step-target&quot;>Biceps (long head)</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Bench at 45°, arms hanging back. The stretched position is what makes this different from a standing curl.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-pushdown&quot; data-mg=&quot;tris&quot; data-eq=&quot;cable&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Cable / Band Pushdown</div>
+          <div class=&quot;step-target&quot;>Triceps</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 12-15</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Elbows pinned to the ribs. Only the forearm moves.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-oh-ext&quot; data-mg=&quot;tris&quot; data-eq=&quot;db&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Overhead DB Extension</div>
+          <div class=&quot;step-target&quot;>Triceps (long head)</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10-12</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>One DB, both hands, elbows close to the ears. The overhead angle is what hits the long head.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-bench-dip&quot; data-mg=&quot;tris&quot; data-eq=&quot;bw&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Bench Dip</div>
+          <div class=&quot;step-target&quot;>Triceps</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 12</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Hands on a bench behind you. Keep the shoulders down and back — if the front of the shoulder pinches, stop.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-smith-squat&quot; data-mg=&quot;legs&quot; data-eq=&quot;smith&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Smith Squat</div>
+          <div class=&quot;step-target&quot;>Quads · Glutes</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 8-10</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>When there is no real rack. Feet slightly forward, controlled depth.</p>
+        <em>Hotel-gym substitute for the barbell squat — the Smith is usually the only squatting option on the road.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-db-rdl&quot; data-mg=&quot;legs&quot; data-eq=&quot;db&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>DB Romanian Deadlift</div>
+          <div class=&quot;step-target&quot;>Hamstrings · Glutes</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Hinge at the hips, soft knees, DBs close to the legs. Stop where the low back would round.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-step-up&quot; data-mg=&quot;legs&quot; data-eq=&quot;db&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Step-Up</div>
+          <div class=&quot;step-target&quot;>Single-Leg · Balance</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10 / side</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Bench or box at knee height. Drive through the whole foot, control the way down.</p>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;lift-calf&quot; data-mg=&quot;legs&quot; data-eq=&quot;bw&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Calf Raise</div>
+          <div class=&quot;step-target&quot;>Calves · Ankle Stiffness</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 15-20</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Any step. Full stretch at the bottom, pause at the top. Ankle stiffness feeds the drive leg.</p>
       </div>
     </li>
 
@@ -4050,6 +4320,53 @@ body.youth #youth-banner{display:block}
     storeSet(today, done.join(','));
   }
 
+  /* ===== LIFT SPLIT (owner) =====
+     3x/week (rare): Chest+Bis / Back+Tris / Shoulders+Legs.
+     2x/week (typical): the merged 2-day version of the same pairing.
+     Opposing groups on purpose -- bench already taxes the tris as a secondary
+     mover, so the conventional chest+tris pairing leaves the second muscle too
+     fatigued to train well on either lift. Core rides along on every day.
+     The filter only HIDES steps; nothing is deleted and a hidden step keeps its
+     completion, so switching patterns never costs a checkmark. ===== */
+  var SPLITS = {
+    '3day': { days:[['A','Chest + Bis',['chest','bis']],['B','Back + Tris',['back','tris']],['C','Shoulders + Legs',['shoulders','legs']]] },
+    '2day': { days:[['1','Chest + Bis + Shoulders',['chest','bis','shoulders']],['2','Back + Tris + Legs',['back','tris','legs']]] }
+  };
+  function getSplit(){ return storeGet('arm-care-liftsplit','all'); }
+  function getSplitDay(){ return storeGet('arm-care-liftday',''); }
+  window.setSplit=function(p){
+    storeSet('arm-care-liftsplit',p);
+    if(p==='all'){ storeSet('arm-care-liftday',''); }
+    else { var d=SPLITS[p].days; if(!d.some(function(x){return x[0]===getSplitDay();})) storeSet('arm-care-liftday',d[0][0]); }
+    renderSplit();
+  };
+  window.setSplitDay=function(d){ storeSet('arm-care-liftday',d); renderSplit(); };
+  function renderSplit(){
+    var bar=document.getElementById('split-bar'); if(!bar) return;
+    var pat=getSplit(), day=getSplitDay();
+    bar.querySelectorAll('.split-chip').forEach(function(c){ c.classList.toggle('on', c.dataset.split===pat); });
+    var dayBox=document.getElementById('split-day'), note=document.getElementById('split-note');
+    var groups=null;
+    if(pat==='all'){
+      if(dayBox) dayBox.innerHTML='';
+      if(note) note.textContent='Every exercise, ungrouped. Pick 3-Day or 2-Day to train one pairing at a time.';
+    } else {
+      var cfg=SPLITS[pat], html='';
+      cfg.days.forEach(function(d){
+        html+='<div class=&quot;split-chip'+(d[0]===day?' on':'')+'&quot; onclick=&quot;setSplitDay(\''+d[0]+'\')&quot;>'+d[0]+' · '+d[1]+'</div>';
+      });
+      if(dayBox) dayBox.innerHTML=html;
+      var sel=cfg.days.filter(function(d){return d[0]===day;})[0]||cfg.days[0];
+      groups=sel[2];
+      if(note) note.textContent='Showing '+sel[1]+' (+ core). Opposing groups are paired on purpose — bench already taxes the tris.';
+    }
+    document.querySelectorAll('#page-lifting .step[data-mg]').forEach(function(st){
+      var mg=st.dataset.mg;
+      st.classList.toggle('mg-hidden', !(!groups || mg==='core' || groups.indexOf(mg)>=0));
+    });
+  }
+  window.renderSplit=renderSplit;
+
   function updateCounter() {
     const c = groupCount(activeGroup);
     // optional/bonus exercises are tracked but don't gate the core ratio (2.0)
@@ -4176,6 +4493,8 @@ body.youth #youth-banner{display:block}
   setBonus(parseInt(storeGet('arm-care-bonus', '0'), 10));
   loadDone();
   applyJxExtras();   // 6.1.1: restore the optional-extras ON/OFF state
+  try{ renderSplit(); }catch(e){}
+  try{ renderSplit(); }catch(e){}
   // 5.x: first-week onboarding card — stays until dismissed once (per profile)
   if (storeGet('arm-care-firstweek', '') === 'done') {
     const fw = document.getElementById('fw-card');
