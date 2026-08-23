@@ -1014,6 +1014,22 @@ body.youth #youth-banner{display:block}
   body.youth .plyo-youth-only { display: block; }
   body.youth .plyo-heavy { display: none; }
   /* generic youth gates (4.3) — same mechanism, page-agnostic */
+  /* Today's Sequence — the ordered spine. The owner asked for a better flow of
+     warmups to arm-care to workout: the app had every piece but presented them
+     as a flat shelf of tabs with no order, so the sequence lived only in his
+     head. This renders the day AS an order. */
+  .seq { margin: 10px 0 4px; }
+  .seq-step { display:flex; align-items:center; gap:10px; padding:9px 11px; margin-bottom:6px;
+    border:1px solid var(--line); border-left:3px solid var(--line-bright); border-radius:0 8px 8px 0;
+    background:var(--steel); cursor:pointer; }
+  .seq-step.done { border-left-color: var(--green); background: rgba(63,185,80,0.07); }
+  .seq-step.now  { border-left-color: var(--gold); background: rgba(212,160,23,0.09); }
+  .seq-n { font-family:'Courier New',monospace; font-size:11px; color:var(--faint); width:14px; flex:none; }
+  .seq-step.done .seq-n { color: var(--green); }
+  .seq-step.now .seq-n { color: var(--gold); }
+  .seq-name { flex:1; font-size:13px; color:var(--bone); }
+  .seq-meta { font-family:'Courier New',monospace; font-size:11px; color:var(--dim); }
+  .seq-step.now .seq-meta { color: var(--gold); }
   .youth-only { display: none; }
   body.youth .youth-only { display: block; }
   body.youth .youth-hide { display: none; }
@@ -1184,6 +1200,7 @@ body.youth #youth-banner{display:block}
 
 <nav class=&quot;tabs&quot;>
   <button class=&quot;tab active&quot; data-tab=&quot;overview&quot;>Overview</button>
+  <button class=&quot;tab&quot; data-tab=&quot;warmup&quot;>Warm Up</button>
   <button class=&quot;tab&quot; data-tab=&quot;jbands&quot;>J-Bands</button>
   <button class=&quot;tab&quot; data-tab=&quot;tube&quot;>Shoulder Tube</button>
   <button class=&quot;tab&quot; data-tab=&quot;plyo&quot;>PlyoCare</button>
@@ -1201,6 +1218,7 @@ body.youth #youth-banner{display:block}
 <!-- ============== OVERVIEW ============== -->
 <div class=&quot;page active&quot; id=&quot;page-overview&quot;>
   <h2>The System</h2>
+  <div class=&quot;seq&quot; id=&quot;today-seq&quot;></div>
   <p class=&quot;lede&quot;>Bauer's arm care isn't a workout — it's a stack. Five components done in order, every throw day, since age 12. The reason he never had a major arm injury through 2,000+ MLB innings.</p>
 
   <!-- 5.x: first-week onboarding — dismissible ramp for new users (adult + kid copy) -->
@@ -1323,6 +1341,223 @@ body.youth #youth-banner{display:block}
 </div>
 
 <!-- ============== J-BANDS ============== -->
+
+<!-- ============== WARMUP (owner: warmup -> arm care -> workout flow) ============== -->
+<div class=&quot;page&quot; id=&quot;page-warmup&quot;>
+  <h2>Warm Up</h2>
+  <p class=&quot;lede&quot;>Two tracked parts. <b>Dynamic</b> comes before you throw or lift — it raises tissue temperature and opens range. <b>Static</b> comes after, when the tissue is warm and lengthening is safe. Doing static work cold is the classic mistake.</p>
+
+  <div class=&quot;card gold&quot;>
+    <div class=&quot;card-head&quot;>
+      <div class=&quot;card-title&quot;>Where this sits in the day</div>
+      <span class=&quot;badge gold&quot;>Order</span>
+    </div>
+    <ul>
+      <li><b>1 · Dynamic warm-up</b> — below. Always, before anything physical.</li>
+      <li><b>2 · J-Bands</b> — the arm-care stack. Near-universal, even on a rest day.</li>
+      <li><b>3 · The work</b> — throwing, drills, hitting, or the weight room.</li>
+      <li><b>4 · Static stretching</b> — below, <i>after</i> the work while you are still warm.</li>
+    </ul>
+    <div class=&quot;cue&quot;>Rest day? Dynamic + J-Bands is still worth it. Skip the static block if you did nothing to recover from.</div>
+  </div>
+
+  <h3 style=&quot;margin-top:18px&quot;>1 · Dynamic — before</h3>
+  <p style=&quot;font-size:12px;color:var(--dim);margin:4px 0 10px&quot;>Movement-based. Never hold a stretch here.</p>
+
+    <ul class=&quot;steplist&quot;>
+
+      <li class=&quot;step&quot; data-ex=&quot;fd1&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>01 · Leg Swings (Forward/Back + Side/Side)</div>
+            <div class=&quot;step-target&quot;>Hip Flexors · Hamstrings · Hip Mobility</div>
+          </div>
+          <div class=&quot;step-reps&quot;>15 each leg, each direction</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Hold a wall/fence for support. Swing one leg forward and back like a pendulum, 15 swings. Then side-to-side across the body, 15 swings. Switch legs.</p>
+          <em>The single best hip warmup. Do this every throw day.</em>
+        </div>
+      </li>
+
+      <li class=&quot;step&quot; data-ex=&quot;fd2&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>02 · Arm Circles</div>
+            <div class=&quot;step-target&quot;>Shoulder Mobility</div>
+          </div>
+          <div class=&quot;step-reps&quot;>10 small + 10 large each direction</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Both arms out to sides. Small forward circles (×10), gradually growing to large circles (×10). Reverse direction. Both arms together — gets blood to both shoulders.</p>
+          <em>Foundation movement, takes 30 seconds</em>
+        </div>
+      </li>
+
+      <li class=&quot;step&quot; data-ex=&quot;fd3&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>03 · Walking Lunge with Twist</div>
+            <div class=&quot;step-target&quot;>Hips · T-Spine · Quads</div>
+          </div>
+          <div class=&quot;step-reps&quot;>10 yards each direction</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Forward lunge. In the bottom position, twist torso toward the front leg's side. Hold 1 second. Stand and step into next lunge with opposite leg. Walk 10 yards out, 10 back.</p>
+          <em>Single most efficient dynamic stretch — hits hip flexors, T-spine, and balance simultaneously</em>
+        </div>
+      </li>
+
+      <li class=&quot;step&quot; data-ex=&quot;fd4&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>04 · High Knees + Butt Kicks</div>
+            <div class=&quot;step-target&quot;>Hip Flexors · Hamstrings · Heart Rate</div>
+          </div>
+          <div class=&quot;step-reps&quot;>30 sec each</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>30 seconds of high knees (knees up to waist), then 30 seconds of butt kicks (heels to glutes). Get the heart rate up.</p>
+          <em>The cardio component of warmup — often skipped, always missed</em>
+        </div>
+      </li>
+
+      <li class=&quot;step&quot; data-ex=&quot;fd5&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>05 · Hip Circles (All-Fours)</div>
+            <div class=&quot;step-target&quot;>Hip Mobility · Active ROM</div>
+          </div>
+          <div class=&quot;step-reps&quot;>10 each side, each direction</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>On hands and knees. Lift one knee out to the side, then circle it forward, up, and back — as large a circle as your hip allows. 10 forward, 10 reverse. Switch sides.</p>
+          <em>Specifically opens hip ROM — research links hip mobility to 20% reduced injury risk in throwers</em>
+        </div>
+      </li>
+
+      <li class=&quot;step&quot; data-ex=&quot;fd6&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>06 · Side-Lying T-Spine Rotation</div>
+            <div class=&quot;step-target&quot;>Thoracic Spine · Posterior Chain</div>
+          </div>
+          <div class=&quot;step-reps&quot;>8 each side</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Lie on side. Top leg crossed over with knee at 90°, planted. Both arms extended forward together. Open the top arm out and across to the other side, following with the eyes. Hold 5 seconds. Return. 8 reps each side.</p>
+          <em>T-spine rotation is the missing link in adult throwers. Don't skip.</em>
+        </div>
+      </li>
+
+    </ul>
+
+  <h3 style=&quot;margin-top:22px&quot;>4 · Static — after</h3>
+  <p style=&quot;font-size:12px;color:var(--dim);margin:4px 0 10px&quot;>Hold each. Only once the work is done and you are still warm.</p>
+
+    <ul class=&quot;steplist&quot;>
+
+      <li class=&quot;step&quot; data-ex=&quot;fs1&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>07 · Sleeper Stretch <span style=&quot;color:var(--blood);font-size:11px&quot;>(★ PITCHER MVP)</span></div>
+            <div class=&quot;step-target&quot;>Shoulder Internal Rotation · GIRD Prevention</div>
+          </div>
+          <div class=&quot;step-reps&quot;>2 × 30s each shoulder</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Lie on the throwing-arm side. Bend that elbow to 90°, upper arm in front of torso. Use the OPPOSITE hand to gently press the wrist toward the floor. Hold 30 seconds, 2 sets each side.</p>
+          <p style=&quot;margin-top:6px&quot;><b>Gentle.</b> Pushing too hard strains the posterior capsule.</p>
+          <em>Addresses GIRD (Glenohumeral Internal Rotation Deficit) — the most common throwing-shoulder issue and the #1 stretch missing from typical arm care content</em>
+        </div>
+      </li>
+
+      <li class=&quot;step&quot; data-ex=&quot;fs2&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>08 · Couch Stretch</div>
+            <div class=&quot;step-target&quot;>Hip Flexors · Quads</div>
+          </div>
+          <div class=&quot;step-reps&quot;>2 min each leg</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Kneel with the back foot up against a wall, couch back, or bench (top of foot on the surface). Front leg in 90° lunge. Drive hips forward, torso upright. 2-minute hold.</p>
+          <p style=&quot;margin-top:6px&quot;>Active version: flex into the stretch for 10–15 reps. Watch film while doing it — it's that long.</p>
+          <em>For pitchers: focus on the lead leg's hip flexor. Most-tight muscle in throwers and hitters.</em>
+        </div>
+      </li>
+
+      <li class=&quot;step&quot; data-ex=&quot;fs3&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>09 · 90/90 Hip Stretch</div>
+            <div class=&quot;step-target&quot;>Hip Internal/External Rotation</div>
+          </div>
+          <div class=&quot;step-reps&quot;>30s each side</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Sit on the floor. Front leg bent at 90° in front (external rotation). Back leg bent at 90° behind (internal rotation). Keep spine tall. Lean forward over the front leg to feel a stretch in the hip.</p>
+          <em>Hip rotation translates directly to bat speed and throwing power</em>
+        </div>
+      </li>
+
+      <li class=&quot;step&quot; data-ex=&quot;fs4&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>10 · Shoulder Cross-Body Stretch</div>
+            <div class=&quot;step-target&quot;>Posterior Shoulder Capsule</div>
+          </div>
+          <div class=&quot;step-reps&quot;>30s each arm</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Pull one arm across the chest, opposite hand holding above the elbow. Pull gently. Hold 30 seconds. Then move the same arm overhead, palm down, gently bend at the elbow.</p>
+          <em>The posterior shoulder is the deceleration brake — tight here means injury risk</em>
+        </div>
+      </li>
+
+      <li class=&quot;step&quot; data-ex=&quot;fs5&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>11 · Wrist Flexor Stretch</div>
+            <div class=&quot;step-target&quot;>Forearm · UCL Region</div>
+          </div>
+          <div class=&quot;step-reps&quot;>30s each arm</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Extend one arm forward, palm up. Use the opposite hand to gently pull back on the fingers. Then flip — palm down, pull fingers down. Hold 30 seconds each position.</p>
+          <em>Reduces risk of elbow injury and bicep tendonitis — both common in adult throwers</em>
+        </div>
+      </li>
+
+      <li class=&quot;step&quot; data-ex=&quot;fs6&quot;>
+        <div class=&quot;step-row&quot;>
+          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+            <div class=&quot;step-name&quot;>12 · Calf / Ankle Dorsiflexion</div>
+            <div class=&quot;step-target&quot;>Ankle Mobility · Achilles</div>
+          </div>
+          <div class=&quot;step-reps&quot;>30s each leg</div>
+        </div>
+        <div class=&quot;step-detail&quot;>
+          <p>Step forward into a small lunge with back leg straight, heel pressed to ground. Hold. Then bend back knee slightly to shift to soleus.</p>
+          <em>Catchers especially — squat depth requires ankle dorsiflexion. Often missing in adult athletes.</em>
+        </div>
+      </li>
+
+    </ul>
+</div>
+
 <div class=&quot;page&quot; id=&quot;page-jbands&quot;>
   <h2>J-Bands · Official 11 + Optional Extras</h2>
   <p class=&quot;lede&quot;>Created by Alan Jaeger. Bauer's been doing this exact routine since age 12. The bands have light tension by design — these target small rotator cuff muscles, not biceps.</p>
@@ -3194,99 +3429,6 @@ body.youth #youth-banner{display:block}
       <p>5–8 minutes. Goal: blood flow, neuromuscular activation, joint mobility. NO held stretches here.</p>
     </div>
 
-    <ul class=&quot;steplist&quot;>
-
-      <li class=&quot;step&quot; data-ex=&quot;fd1&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>01 · Leg Swings (Forward/Back + Side/Side)</div>
-            <div class=&quot;step-target&quot;>Hip Flexors · Hamstrings · Hip Mobility</div>
-          </div>
-          <div class=&quot;step-reps&quot;>15 each leg, each direction</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Hold a wall/fence for support. Swing one leg forward and back like a pendulum, 15 swings. Then side-to-side across the body, 15 swings. Switch legs.</p>
-          <em>The single best hip warmup. Do this every throw day.</em>
-        </div>
-      </li>
-
-      <li class=&quot;step&quot; data-ex=&quot;fd2&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>02 · Arm Circles</div>
-            <div class=&quot;step-target&quot;>Shoulder Mobility</div>
-          </div>
-          <div class=&quot;step-reps&quot;>10 small + 10 large each direction</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Both arms out to sides. Small forward circles (×10), gradually growing to large circles (×10). Reverse direction. Both arms together — gets blood to both shoulders.</p>
-          <em>Foundation movement, takes 30 seconds</em>
-        </div>
-      </li>
-
-      <li class=&quot;step&quot; data-ex=&quot;fd3&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>03 · Walking Lunge with Twist</div>
-            <div class=&quot;step-target&quot;>Hips · T-Spine · Quads</div>
-          </div>
-          <div class=&quot;step-reps&quot;>10 yards each direction</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Forward lunge. In the bottom position, twist torso toward the front leg's side. Hold 1 second. Stand and step into next lunge with opposite leg. Walk 10 yards out, 10 back.</p>
-          <em>Single most efficient dynamic stretch — hits hip flexors, T-spine, and balance simultaneously</em>
-        </div>
-      </li>
-
-      <li class=&quot;step&quot; data-ex=&quot;fd4&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>04 · High Knees + Butt Kicks</div>
-            <div class=&quot;step-target&quot;>Hip Flexors · Hamstrings · Heart Rate</div>
-          </div>
-          <div class=&quot;step-reps&quot;>30 sec each</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>30 seconds of high knees (knees up to waist), then 30 seconds of butt kicks (heels to glutes). Get the heart rate up.</p>
-          <em>The cardio component of warmup — often skipped, always missed</em>
-        </div>
-      </li>
-
-      <li class=&quot;step&quot; data-ex=&quot;fd5&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>05 · Hip Circles (All-Fours)</div>
-            <div class=&quot;step-target&quot;>Hip Mobility · Active ROM</div>
-          </div>
-          <div class=&quot;step-reps&quot;>10 each side, each direction</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>On hands and knees. Lift one knee out to the side, then circle it forward, up, and back — as large a circle as your hip allows. 10 forward, 10 reverse. Switch sides.</p>
-          <em>Specifically opens hip ROM — research links hip mobility to 20% reduced injury risk in throwers</em>
-        </div>
-      </li>
-
-      <li class=&quot;step&quot; data-ex=&quot;fd6&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>06 · Side-Lying T-Spine Rotation</div>
-            <div class=&quot;step-target&quot;>Thoracic Spine · Posterior Chain</div>
-          </div>
-          <div class=&quot;step-reps&quot;>8 each side</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Lie on side. Top leg crossed over with knee at 90°, planted. Both arms extended forward together. Open the top arm out and across to the other side, following with the eyes. Hold 5 seconds. Return. 8 reps each side.</p>
-          <em>T-spine rotation is the missing link in adult throwers. Don't skip.</em>
-        </div>
-      </li>
-
-    </ul>
 
     <div class=&quot;card gold&quot; style=&quot;margin-top: 20px;&quot;>
       <div class=&quot;card-head&quot;>
@@ -3297,101 +3439,6 @@ body.youth #youth-banner{display:block}
       <div class=&quot;cue&quot;>Pitchers develop reduced external rotation and increased internal rotation in the throwing shoulder, plus limited thoracic mobility. Static stretching directly addresses these imbalances over time.</div>
     </div>
 
-    <ul class=&quot;steplist&quot;>
-
-      <li class=&quot;step&quot; data-ex=&quot;fs1&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>07 · Sleeper Stretch <span style=&quot;color:var(--blood);font-size:11px&quot;>(★ PITCHER MVP)</span></div>
-            <div class=&quot;step-target&quot;>Shoulder Internal Rotation · GIRD Prevention</div>
-          </div>
-          <div class=&quot;step-reps&quot;>2 × 30s each shoulder</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Lie on the throwing-arm side. Bend that elbow to 90°, upper arm in front of torso. Use the OPPOSITE hand to gently press the wrist toward the floor. Hold 30 seconds, 2 sets each side.</p>
-          <p style=&quot;margin-top:6px&quot;><b>Gentle.</b> Pushing too hard strains the posterior capsule.</p>
-          <em>Addresses GIRD (Glenohumeral Internal Rotation Deficit) — the most common throwing-shoulder issue and the #1 stretch missing from typical arm care content</em>
-        </div>
-      </li>
-
-      <li class=&quot;step&quot; data-ex=&quot;fs2&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>08 · Couch Stretch</div>
-            <div class=&quot;step-target&quot;>Hip Flexors · Quads</div>
-          </div>
-          <div class=&quot;step-reps&quot;>2 min each leg</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Kneel with the back foot up against a wall, couch back, or bench (top of foot on the surface). Front leg in 90° lunge. Drive hips forward, torso upright. 2-minute hold.</p>
-          <p style=&quot;margin-top:6px&quot;>Active version: flex into the stretch for 10–15 reps. Watch film while doing it — it's that long.</p>
-          <em>For pitchers: focus on the lead leg's hip flexor. Most-tight muscle in throwers and hitters.</em>
-        </div>
-      </li>
-
-      <li class=&quot;step&quot; data-ex=&quot;fs3&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>09 · 90/90 Hip Stretch</div>
-            <div class=&quot;step-target&quot;>Hip Internal/External Rotation</div>
-          </div>
-          <div class=&quot;step-reps&quot;>30s each side</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Sit on the floor. Front leg bent at 90° in front (external rotation). Back leg bent at 90° behind (internal rotation). Keep spine tall. Lean forward over the front leg to feel a stretch in the hip.</p>
-          <em>Hip rotation translates directly to bat speed and throwing power</em>
-        </div>
-      </li>
-
-      <li class=&quot;step&quot; data-ex=&quot;fs4&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>10 · Shoulder Cross-Body Stretch</div>
-            <div class=&quot;step-target&quot;>Posterior Shoulder Capsule</div>
-          </div>
-          <div class=&quot;step-reps&quot;>30s each arm</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Pull one arm across the chest, opposite hand holding above the elbow. Pull gently. Hold 30 seconds. Then move the same arm overhead, palm down, gently bend at the elbow.</p>
-          <em>The posterior shoulder is the deceleration brake — tight here means injury risk</em>
-        </div>
-      </li>
-
-      <li class=&quot;step&quot; data-ex=&quot;fs5&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>11 · Wrist Flexor Stretch</div>
-            <div class=&quot;step-target&quot;>Forearm · UCL Region</div>
-          </div>
-          <div class=&quot;step-reps&quot;>30s each arm</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Extend one arm forward, palm up. Use the opposite hand to gently pull back on the fingers. Then flip — palm down, pull fingers down. Hold 30 seconds each position.</p>
-          <em>Reduces risk of elbow injury and bicep tendonitis — both common in adult throwers</em>
-        </div>
-      </li>
-
-      <li class=&quot;step&quot; data-ex=&quot;fs6&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>12 · Calf / Ankle Dorsiflexion</div>
-            <div class=&quot;step-target&quot;>Ankle Mobility · Achilles</div>
-          </div>
-          <div class=&quot;step-reps&quot;>30s each leg</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Step forward into a small lunge with back leg straight, heel pressed to ground. Hold. Then bend back knee slightly to shift to soleus.</p>
-          <em>Catchers especially — squat depth requires ankle dorsiflexion. Often missing in adult athletes.</em>
-        </div>
-      </li>
-
-    </ul>
 
     <div class=&quot;pos-card&quot; data-pos=&quot;pitcher&quot;>
       <div class=&quot;pos-card-label&quot;>★ PITCHER PRIORITY</div>
@@ -3802,7 +3849,7 @@ body.youth #youth-banner{display:block}
      COMPLETION IS ONE SHARED STORE keyed by data-ex (arm-care-done-*): an exercise is
      recorded once no matter which group surfaces it. If a drill ever needs to live in
      both contexts, give it the SAME data-ex and it stays in sync automatically. */
-  const TAB_GROUPS = { washington:'drills', recovery:'body', extras:'body', lifting:'body' };
+  const TAB_GROUPS = { washington:'drills', recovery:'body', extras:'body', lifting:'body', warmup:'arm' };
   function tabGroup(id){ return TAB_GROUPS[id] || 'arm'; }
   let activeGroup = 'arm';
   function stepGroup(step){
@@ -4050,7 +4097,38 @@ body.youth #youth-banner{display:block}
     storeSet(today, done.join(','));
   }
 
+  /* Renders the day as an ORDER instead of a shelf. Each stage reads the same
+     .step completion the rest of the app uses, so it can never drift from the
+     checkboxes. 'now' marks the first unfinished stage -- that is the whole
+     point: one glance tells you what is next, not what exists. */
+  function renderSequence(){
+    var box=document.getElementById('today-seq'); if(!box) return;
+    function tally(sel){
+      var els=document.querySelectorAll(sel), d=0, t=0;
+      els.forEach(function(x){ if(jxDisabledStep(x)) return; t++; if(x.classList.contains('done')) d++; });
+      return {d:d,t:t};
+    }
+    var stages=[
+      {n:1,name:'Warm up',   tab:'warmup', c:tally('#page-warmup .step')},
+      {n:2,name:'Arm care',  tab:'jbands', c:tally('#page-jbands .step:not(.opt), #page-tube .step')},
+      {n:3,name:'The work',  tab:'plyo',   c:tally('#page-plyo .step, #page-long .step, #page-washington .step, #page-lifting .step')},
+      {n:4,name:'Recover',   tab:'recovery',c:tally('#page-recovery .step')}
+    ];
+    var firstOpen=stages.findIndex(function(s){ return s.c.t>0 && s.c.d<s.c.t; });
+    var html='';
+    stages.forEach(function(s,i){
+      if(!s.c.t) return;
+      var done=s.c.d>=s.c.t, now=(i===firstOpen);
+      html+='<div class=&quot;seq-step'+(done?' done':'')+(now?' now':'')+'&quot; onclick=&quot;switchTab(\''+s.tab+'\')&quot;>'+
+        '<span class=&quot;seq-n&quot;>'+(done?'✓':s.n)+'</span>'+
+        '<span class=&quot;seq-name&quot;>'+s.name+'</span>'+
+        '<span class=&quot;seq-meta&quot;>'+s.c.d+'/'+s.c.t+(now?' · next':'')+'</span></div>';
+    });
+    box.innerHTML=html;
+  }
+
   function updateCounter() {
+    try{ renderSequence(); }catch(e){}
     const c = groupCount(activeGroup);
     // optional/bonus exercises are tracked but don't gate the core ratio (2.0)
     const bonus = c.optDone > 0 ? ` +${c.optDone}` : '';
