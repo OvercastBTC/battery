@@ -9704,8 +9704,25 @@ body.youth #youth-banner{display:block}
       lines.push(`<div class=&quot;suggest-line&quot;><span class=&quot;gap met&quot;>✓ Protein hit.</span> ${Math.round(tot.protein - t.protein)}g over target — fine, surplus oxidizes.</div>`);
     } else {
       const opts = [];
+      /* §4.3 LEAK FIX (found in a pre-observation-week browser sweep of .89):
+         these option strings are built at runtime and rendered into #suggest-body
+         on the Tracker, which IS youth-visible. The static .qa-adult CSS gate
+         cannot reach a dynamically-built string, so a youth profile was seeing
+         supplement BRANDS and DOSING -- verified visible on a real youth boot:
+         '2 scoops Thorne (42g)' and 'tight window -- half-Liquid IV + Yeti now'.
+         53 other matches in the same document were correctly hidden; only the
+         generated ones leaked, which is exactly the gap a CSS gate leaves.
+
+         Youth gets FOOD-based guidance rather than a blanked card -- the design
+         review's principle that his version should feel like his app, not a
+         redacted copy of the adult one. No brands, no scoops, no dosing. */
+      const _youth = (window.BATTERY_TIER || 'youth') !== 'adult';
       // Build smart options
-      if (pGap >= 60) {
+      if (_youth) {
+        opts.push('Greek yogurt + a glass of milk');
+        opts.push('Eggs or a turkey sandwich');
+        opts.push('String cheese + a handful of nuts');
+      } else if (pGap >= 60) {
         opts.push('2 scoops Thorne + chicken breast + Greek yogurt');
         opts.push('Steak/fish dinner + Core Power Elite');
       } else if (pGap >= 40) {
@@ -9760,7 +9777,7 @@ body.youth #youth-banner{display:block}
       }
       const paceTxt = hoursRemaining > 3
         ? `≈${wPerHour.toFixed(0)}oz/hr to stay on pace`
-        : `<span style=&quot;color:var(--blood)&quot;>tight window — half-Liquid IV + Yeti now</span>`;
+        : `<span style=&quot;color:var(--blood)&quot;>tight window — ${(window.BATTERY_TIER || 'youth') !== 'adult' ? 'drink a big glass of water now' : 'half-Liquid IV + Yeti now'}</span>`;
       lines.push(`<div class=&quot;suggest-line&quot;>
         <span class=&quot;gap water&quot;>${Math.round(wGap)}oz water</span> remaining · ${paceTxt}
         <div class=&quot;options&quot;>${opts.map(o => `<span class=&quot;opt&quot;>${o}</span>`).join('')}</div>
