@@ -1128,7 +1128,7 @@ body.youth #youth-banner{display:block}
   <div class=&quot;wrap&quot;>
     <div class=&quot;title-row&quot;>
       <div class=&quot;title-left&quot;>
-        <h1 class=&quot;stencil&quot;>Bauer <span>// Arm Care</span></h1>
+        <h1 class=&quot;stencil&quot;><span id=&quot;ttl-pre&quot;>Bauer</span> <span>// Arm Care</span></h1>
         <div class=&quot;sub&quot;>Protocol</div>
       </div>
       <button class=&quot;collapse-toggle&quot; id=&quot;collapse-btn&quot; onclick=&quot;toggleControls()&quot; aria-label=&quot;Toggle controls&quot;>
@@ -4399,8 +4399,16 @@ body.youth #youth-banner{display:block}
     document.querySelectorAll('.tab').forEach(t=>{
       t.style.display = (tabGroup(t.dataset.tab)===activeGroup) ? '' : 'none';
     });
+    /* Title is GROUP-AWARE, not one brand over everything. 'Bauer' is kept only
+       where the content actually is his protocol (arm care). The BODY group is
+       now Lifting + Recovery + Daily Extras -- a body stack, not Bauer's -- and
+       DRILLS is Ron Washington's infield system plus general field work. Keeping
+       one man's name over all three was both a branding oddity (owner's ask) and
+       a quiet mis-attribution. */
     const span = document.querySelector('.title-left h1 span');
-    if(span) span.textContent = activeGroup==='drills' ? '// Drills' : (activeGroup==='body' ? '// Body Care' : '// Arm Care');
+    const pre  = document.getElementById('ttl-pre');
+    if(span) span.textContent = activeGroup==='drills' ? '// Drills' : (activeGroup==='body' ? '// Stack' : '// Arm Care');
+    if(pre)  pre.textContent  = activeGroup==='drills' ? 'Field' : (activeGroup==='body' ? 'Body' : 'Bauer');
     const active = document.querySelector('.tab.active');
     const curGroup = active ? tabGroup(active.dataset.tab) : 'arm';
     if(curGroup !== activeGroup){
@@ -4685,7 +4693,7 @@ body.youth #youth-banner{display:block}
   }
 
   async function resetDay() {
-    const label = activeGroup==='drills' ? 'Drills' : (activeGroup==='body' ? 'Body Care' : 'Arm Care');
+    const label = activeGroup==='drills' ? 'Drills' : (activeGroup==='body' ? 'Body Stack' : 'Arm Care');
     if (!(await uiConfirm('Reset Day', 'Reset today\'s ' + label + ' checkboxes? (Other tabs, all-time count and streak are unaffected.)', true))) return;
     const today = getTodayKey();
     const keep = [];
