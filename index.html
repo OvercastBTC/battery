@@ -8094,7 +8094,38 @@ body.youth #youth-banner{display:block}
      (or the affordance) takes you to HOME rather than doing nothing -- so if a
      derived day (game from the calendar, heavy from yesterday's load) has not
      reached FUEL yet, you are never stuck without a way to set it. */
+  /* ===== OBSERVATION-WEEK INSTRUMENT (design review §7) =====
+     The review defined the success test for items 1+2 -- if the resume button
+     works, the owner stops opening FUEL just to check things -- but nothing in
+     the app measured it, so the week would end in recollection rather than
+     evidence. This records a few counters per date.
+
+     LOCAL ONLY. No network, no identifiers, nothing leaves the device; it is
+     the same localStorage the app already uses, and it rides existing backups.
+     Deliberately has NO visible surface: adding a readout during the window
+     would change the very behaviour being observed. Lane A reads it out at the
+     end of the week and then this comes out.
+
+     Counters, and what each one would tell us:
+       homeLinkTap - you tapped FUEL's locked day-type chips or the affordance.
+                     High = the day-type does NOT feel like it lives on HOME yet,
+                     i.e. item 1 moved the control but not your instinct.
+       dayChange   - day-type actually changed. High = you are fiddling, which
+                     is the review's own ACCEPTED RISK (TRAIN vs HEAVY at 6am)
+                     and the trigger for its REST/TRAIN/GAME fallback.
+       fuelLog     - a real logging action. This is the denominator: FUEL visits
+                     that did useful work, versus visits that only checked. */
+  function obsBump(k){
+    try{
+      const key = 'fuel-obs-' + todayKey();
+      const o = JSON.parse(storeGet(key, '{}')) || {};
+      o[k] = (o[k] || 0) + 1;
+      storeSet(key, JSON.stringify(o));
+    }catch(e){}
+  }
+
   window.goSetDayOnHome = function(){
+    obsBump('homeLinkTap');
     try { parent.go('today'); } catch(e) {}
   };
 
@@ -8135,6 +8166,7 @@ body.youth #youth-banner{display:block}
     refreshWeekly();
     maybeGameNudge();
     renderRecFrom();
+    obsBump('dayChange');
   }
 
   /* ===== Recovery context (owner Option A) — WHAT you're recovering from.
@@ -8255,6 +8287,7 @@ body.youth #youth-banner{display:block}
   }
 
   function addEntry(type, amount, label, electrolyteUnits) {
+    obsBump('fuelLog');
     _stampGoalSnapshot(todayKey());
     const entries = loadEntries();
     entries.push({
