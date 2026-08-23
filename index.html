@@ -7895,37 +7895,64 @@ body.youth #youth-banner{display:block}
      as of owner finding 2.0 above -- it never aged, so it could hold this floor
      raised forever. The log is now the only input. */
   function recoveryBoost(p){
+    // 1) Throwing signal (US-2.7 + Owner finding 2.0, unchanged from master
+    // except restructured so a decisive-but-LIGHT outing falls through to the
+    // independent lift signal in step 2 below, instead of exiting the whole
+    // function -- a light bullpen says nothing about whether lifting was also
+    // hard that same day.
     try{
-      if(!parent || typeof parent.readPitchLog!=='function' || typeof parent.pitchRestDays!=='function') return null;
-      const log=parent.readPitchLog();
-      let outing=null;
-      if(log &amp;&amp; log.length){
-        const y=new Date(); y.setDate(y.getDate()-1);
-        const yKey=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
-        outing=log.find(function(o){ return o &amp;&amp; o.date===yKey; }) || null;
+      if(parent &amp;&amp; typeof parent.readPitchLog==='function' &amp;&amp; typeof parent.pitchRestDays==='function'){
+        const log=parent.readPitchLog();
+        let outing=null;
+        if(log &amp;&amp; log.length){
+          const y=new Date(); y.setDate(y.getDate()-1);
+          const yKey=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+          outing=log.find(function(o){ return o &amp;&amp; o.date===yKey; }) || null;
+        }
+        // Lane A review (PR #13): only let the log decide when it CAN decide.
+        // pitchRestDays() also returns 0 when p.age is missing (pitchBand(age)
+        // -> falsy), which looks identical to a genuinely light outing -- that
+        // silently swallowed the manual lastThrow fallback for an athlete with no
+        // age set who logged a big outing AND flagged a hard throw manually.
+        // Copilot review (PR #13): when the log CAN decide (age known + a matching
+        // outing exists), its verdict is authoritative over a stale manual flag.
+        if(outing &amp;&amp; outing.p &amp;&amp; p.age){
+          const restDays=parent.pitchRestDays(p.age, outing.p);
+          if(restDays>=1) return {pitches:outing.p, restDays:restDays, source:'log'};
+          // else: decisive-light verdict -- fall through to the lift signal
+          // below instead of returning null (see note above).
+        } else {
+          // Owner finding 2.0: the old fallback here was `p.lastThrow==='yesterday'`
+          // -- a never-aging manual string that kept this floor raised indefinitely
+          // once set. Replaced by the same DATED outing the branch above reads: when
+          // age is missing Pitch Smart cannot grade the outing, but a real logged
+          // outing yesterday is still strictly better evidence than a stale flag,
+          // so honour it at the minimum floor instead of guessing from stale input.
+          if(outing &amp;&amp; outing.p) return {pitches:outing.p, restDays:1, source:'log-noage'};
+        }
       }
-      // Lane A review (PR #13): only let the log decide when it CAN decide.
-      // pitchRestDays() also returns 0 when p.age is missing (pitchBand(age)
-      // -> falsy), which looks identical to a genuinely light outing -- that
-      // silently swallowed the manual lastThrow fallback for an athlete with no
-      // age set who logged a big outing AND flagged a hard throw manually.
-      // Copilot review (PR #13): when the log CAN decide (age known + a matching
-      // outing exists), its verdict is authoritative -- return immediately either
-      // way. Falling through to the manual toggle on a confirmed-light outing let
-      // a stale lastThrow flag override a real, better-informed determination.
-      if(outing &amp;&amp; outing.p &amp;&amp; p.age){
-        const restDays=parent.pitchRestDays(p.age, outing.p);
-        return restDays>=1 ? {pitches:outing.p, restDays:restDays, source:'log'} : null;
+    }catch(e){}
+
+    // 2) Lift signal (C.1 -- Issue #2, a sibling of #1 living in the same
+    // recomputeDayTargets() home): a rest day that's actually a recovery day
+    // because yesterday was a lift day. Independent of the throwing check
+    // above -- a light bullpen + a hard lift day still floors. Reads ARM's own
+    // per-date completion record directly via shared localStorage
+    // (arm-care-done-<date> is real cross-iframe storage, not a JS-scope
+    // function -- no parent.X() call needed, unlike the pitch log above).
+    // Trained hard = at least 3 Lifting-tab exercises checked done -- filters
+    // an accidental single tap without a ratio against a total that can
+    // silently drift as the tab's exercise list changes over time.
+    try{
+      const y=new Date(); y.setDate(y.getDate()-1);
+      const key='arm-care-done-'+y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();
+      const raw=localStorage.getItem(key);
+      if(raw){
+        const liftCount=raw.split(',').filter(function(id){ return id.indexOf('lift-')===0; }).length;
+        if(liftCount>=3) return {pitches:null, restDays:1, source:'lift'};
       }
-      // Owner finding 2.0: the old fallback here was `p.lastThrow==='yesterday'`
-      // -- a never-aging manual string that kept this floor raised indefinitely
-      // once set. Replaced by the same DATED outing the branch above reads: when
-      // age is missing Pitch Smart cannot grade the outing, but a real logged
-      // outing yesterday is still strictly better evidence than a stale flag,
-      // so honour it at the minimum floor instead of guessing from stale input.
-      if(outing &amp;&amp; outing.p) return {pitches:outing.p, restDays:1, source:'log-noage'};
-      return null;
-    }catch(e){ return null; }
+    }catch(e){}
+    return null;
   }
   // Recompute DAY_TARGETS from the profile. Returns details for the &quot;how was this calculated&quot; panel.
   function recomputeDayTargets() {
