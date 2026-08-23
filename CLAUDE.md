@@ -63,7 +63,7 @@ A youth-tier profile must **never** see: supplement / stimulant / dosing / quant
 ## 5. How to Test
 
 Test harness (authoritative): `~/battery-tests/run.sh`
-Runs the **full Playwright gate (23 suites as of .89)** against the current `index.html` — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. Originals: `iframe-render`, `arm-history`, `persistence`, `export-scope`, `unified-export`, `import-roundtrip`, `profile-mgmt`, `youth-fuel-gate`, `today-view`, `e7-host`, `fuel-dual-credit`; added since: `icon-gauge`, `flow-mode`, `clip-playback`, `iframe-modal`, `demo-data`, `arm-guardian`, `consistency`, `week-report`, `icon-nudge`, `storage-warn`, `toast`, `fuel-bundles`.
+Runs the **full Playwright gate (24 suites as of .90)** against the current `index.html` — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. Originals: `iframe-render`, `arm-history`, `persistence`, `export-scope`, `unified-export`, `import-roundtrip`, `profile-mgmt`, `youth-fuel-gate`, `today-view`, `e7-host`, `fuel-dual-credit`; added since: `icon-gauge`, `flow-mode`, `clip-playback`, `iframe-modal`, `demo-data`, `arm-guardian`, `consistency`, `week-report`, `icon-nudge`, `storage-warn`, `toast`, `fuel-bundles`, `recovery-boost`.
 
 `node --check` on the host `<script>` block is a useful quick check, but **it does not catch srcdoc breakage** (HTML encoding masks truncation from the parser). The Playwright gate is authoritative for all iframe edits.
 
