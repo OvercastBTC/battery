@@ -5970,6 +5970,28 @@ body.youth #youth-banner{display:block}
   .qa-btn .qa-ico svg { width: 13px; height: 13px; display: block; }
   /* Youth safety gate (§4.3): supplement/stimulant quick-add hidden for youth */
   body.fuel-youth .qa-adult { display: none !important; }
+  /* 1.0: protein banking -- an opt-in variable in the target equation */
+  .bank-row {
+    display: flex; align-items: center; gap: 10px;
+    margin: 8px 0 2px; padding: 9px 12px;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: rgba(255,255,255,0.02);
+  }
+  .bank-row label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .bank-row .bank-t {
+    font-family: 'Courier New', monospace; font-size: 11px;
+    letter-spacing: 0.05em; color: var(--fg);
+  }
+  .bank-row .bank-n {
+    margin-left: auto; font-family: 'Courier New', monospace; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.04em; color: var(--dim); text-align: right;
+  }
+  .bank-row .bank-n.up   { color: var(--gold); }
+  .bank-row .bank-n.down { color: var(--ok, #5fd38d); }
+  #bank-why {
+    font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.6;
+    color: var(--dim); margin: 4px 2px 0;
+  }
 
   /* Custom add form */
   .custom-add-form {
@@ -6914,6 +6936,15 @@ body.youth #youth-banner{display:block}
           <div class=&quot;val&quot; id=&quot;goal-water&quot;>150<span class=&quot;unit&quot;> oz</span></div>
         </div>
       </div>
+
+      <div class=&quot;bank-row qa-adult&quot;>
+        <label>
+          <input type=&quot;checkbox&quot; id=&quot;bank-on&quot; class=&quot;caf-checkbox&quot; onchange=&quot;toggleBank()&quot; />
+          <span class=&quot;bank-t&quot;>Protein banking · 48h</span>
+        </label>
+        <span class=&quot;bank-n&quot; id=&quot;bank-n&quot;>off</span>
+      </div>
+      <div class=&quot;bank-why qa-adult&quot; id=&quot;bank-why&quot;></div>
     </div>
   </div>
 </header>
@@ -8675,6 +8706,83 @@ body.youth #youth-banner{display:block}
   });
 
   // Computed combined target — max across all selected day-types
+  /* ===== 1.0 -- PROTEIN BANKING (opt-in checkbox, adult only) =====
+     The owner's actual pattern: hard to hit protein ON a lift day, easy the day
+     after. Banking makes yesterday a variable in today's equation instead of
+     letting a near-miss vanish at midnight -- fall 30g short today and tomorrow
+     asks for 30g more; run 30g over and tomorrow asks for less.
+
+     Why this is defensible and not just accounting theatre: total protein across
+     days drives the adaptation, and muscle protein synthesis stays elevated well
+     past the 24h a calendar day allows for, so a 48h view is closer to the
+     physiology than a hard midnight reset. It is NOT licence to skip a day --
+     hence the guards below.
+
+     THREE DELIBERATE GUARDS:
+     1. One day of lookback only. Debt never compounds across a bad week.
+     2. Capped at 25% of the base target, rounded to 5g. A blown day cannot
+        produce an unreachable tomorrow, which is the failure mode that makes
+        people quit a tracker.
+     3. A day with NO logged protein banks NOTHING. Otherwise every day the app
+        went untouched would read as a total shortfall and pile a fake debt onto
+        the next real day. This guard matters more than the other two.
+
+     OFF by default, so nothing changes for anyone who does not ask for it, and
+     adult-only (.qa-adult) -- §4.3 keeps quantified macro mechanics away from the
+     youth tier. */
+  function bankOn(){ return storeGet('fuel-protein-bank','0') === '1'; }
+  window.toggleBank = function(){
+    storeSet('fuel-protein-bank', bankOn() ? '0' : '1');
+    refreshTargets(); refreshProgress(); renderBank();
+  };
+  function yesterKey(){
+    const d = new Date(); d.setDate(d.getDate() - 1);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  /* base target for a stored day-type string (same max-across rule as today) */
+  function baseTargetFor(dayStr){
+    const parts = (dayStr || '').split(',').filter(Boolean);
+    let p = 0;
+    parts.forEach(d => { const t = DAY_TARGETS[d]; if (t) p = Math.max(p, t.protein); });
+    return p || DAY_TARGETS.train.protein;
+  }
+  /* returns grams to ADD to today (positive = owed, negative = credit) */
+  function bankAdj(baseP){
+    if (!bankOn()) return 0;
+    const y = getTotalsForDate(yesterKey());
+    if (!y || !y.protein) return 0;                 // guard 3: nothing logged, nothing banked
+    const yGoal = baseTargetFor(y.day);
+    const cap = Math.round(baseP * 0.25 / 5) * 5;   // guard 2
+    let adj = Math.round((yGoal - y.protein) / 5) * 5;
+    if (adj >  cap) adj =  cap;
+    if (adj < -cap) adj = -cap;
+    return adj;
+  }
+  function renderBank(){
+    const box = document.getElementById('bank-n'), why = document.getElementById('bank-why');
+    const cb = document.getElementById('bank-on');
+    if (cb) cb.checked = bankOn();
+    if (!box) return;
+    if (!bankOn()){
+      box.textContent = 'off'; box.className = 'bank-n';
+      if (why) why.textContent = 'Off: each day stands alone. On: yesterday\'s miss or surplus carries into today, capped at a quarter of the target.';
+      return;
+    }
+    let base = 0;
+    activeDays.forEach(d => { const t = DAY_TARGETS[d]; if (t) base = Math.max(base, t.protein); });
+    if (!base) base = DAY_TARGETS.train.protein;
+    const adj = bankAdj(base);
+    const y = getTotalsForDate(yesterKey());
+    box.textContent = adj === 0 ? 'level' : (adj > 0 ? '+' + adj + 'g' : adj + 'g');
+    box.className = 'bank-n' + (adj > 0 ? ' up' : (adj < 0 ? ' down' : ''));
+    if (why){
+      if (!y || !y.protein) why.textContent = 'Nothing logged yesterday, so nothing is carried. A day off the app is not a debt.';
+      else if (adj > 0)  why.textContent = 'Yesterday finished ' + Math.round(baseTargetFor(y.day) - y.protein) + 'g short. Carrying ' + adj + 'g into today.';
+      else if (adj < 0)  why.textContent = 'Yesterday finished ' + Math.round(y.protein - baseTargetFor(y.day)) + 'g over. Today asks for ' + (-adj) + 'g less.';
+      else               why.textContent = 'Yesterday landed on target. Nothing to carry.';
+    }
+  }
+
   function computedTarget() {
     let p = 0, w = 0, eM = 0, eW = 0;
     const labels = [];
@@ -8694,6 +8802,10 @@ body.youth #youth-banner{display:block}
     const label = labels.length === 1 ? labels[0] :
                   labels.length === 2 ? labels.join(' + ') :
                   `${labels.length} types`;
+    /* 1.0: banking is folded in HERE, at the single source of truth, so the
+       progress bar, the goal pills and the host seam can never disagree about
+       what today's target actually is. Off by default => identical behaviour. */
+    p = Math.max(60, p + bankAdj(p));
     return { protein: p, water: w, label, elecMax: eM, elecWarn: eW };
   }
 
@@ -8868,6 +8980,7 @@ body.youth #youth-banner{display:block}
     document.getElementById('protein-goal').textContent = `${t.protein}g`;
     document.getElementById('water-goal').textContent = `${t.water}oz`;
     document.getElementById('summary-day').textContent = t.label;
+    try { renderBank(); } catch (e) {}
   }
 
   /* ===== LOG / INTAKE ===== */
