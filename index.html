@@ -207,7 +207,7 @@ body.youth #youth-banner{display:block}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.26.93</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.26.94</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -12743,7 +12743,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v93').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v93').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v94').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v94').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
@@ -14763,15 +14763,14 @@ function renderToday(){
        quick-add size (index.html, FUEL water quick-adds) -- reused rather
        than invented, so this line agrees with what a bottle already means
        everywhere else in the app.
-     - "arm felt X" -- PROPOSED contract for Lane A's iframe half (the
-       post-throw three-face check, not yet shipped as of this commit):
-       reads arm-care-feel-<date> (bare key for the active profile,
-       battery::<id>::arm-care-feel-<date> otherwise), expecting the same
-       rough/okay/good vocabulary the existing sleep-log three-face check
-       already uses. Gracefully OMITTED if absent -- ships correctly today,
-       lights up automatically once that key exists, zero further host
-       change needed if the contract matches. Flagged in comms for Lane A to
-       confirm or correct before their side lands. */
+     - "arm felt X" -- Lane A's iframe half (Batch 9, 26.08.26, design
+       review §6's arm-feel check) shipped arm-care-feel-<date> (bare key
+       for the active profile, battery::<id>::arm-care-feel-<date>
+       otherwise), holding a NUMERIC code (3 great / 2 ok / 1 sore), not
+       the good/okay/rough words this card originally guessed -- fixed to
+       match Lane A's own copy/vocabulary exactly on landing rather than
+       maintaining a second guessed vocabulary for the same three values.
+       Gracefully OMITTED if absent (e.g. not logged yet today). */
 function renderYouthCards(){
   var host=document.getElementById('youth-today-cards'); if(!host)return;
   if(!profile || profileTier(profile)!=='adult'){ host.innerHTML=''; return; }   // §4.3: adult viewer only
@@ -14783,11 +14782,15 @@ function renderYouthCards(){
     var bottles=Math.round(water/12);
     if(armCount<=0 && bottles<=0) return null;                 // nothing logged for him yet today
     var bits=[armCount>0?'J-Bands ✓':'Arm care —', bottles+' bottle'+(bottles===1?'':'s')];
+    // Batch 9 (26.08.26) landed the real contract: arm-care-feel-<date> holds a
+    // numeric code (3 great / 2 ok / 1 sore), not the good/okay/rough words this
+    // card originally guessed -- matching Lane A's own copy exactly rather than
+    // re-guessing a second vocabulary for the same three values.
     var feel=null;
     try{ feel=localStorage.getItem((p.id===profile?'':'battery::'+p.id+'::')+'arm-care-feel-'+today); }catch(e){}
-    if(feel==='good')bits.push('arm felt good');
-    else if(feel==='okay')bits.push('arm felt okay');
-    else if(feel==='rough')bits.push('arm felt rough');
+    if(feel==='3')bits.push('arm felt great');
+    else if(feel==='2')bits.push('arm felt ok');
+    else if(feel==='1')bits.push('arm felt sore');
     return '<div class="gd-card youth-note"><h3>'+escHtml(p.name)+' today</h3>'+
       '<p style="color:var(--bone)">'+bits.map(escHtml).join(' · ')+'</p></div>';
   }).filter(Boolean);
