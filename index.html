@@ -1101,6 +1101,46 @@ body.youth #youth-banner{display:block}
   .split-note { font-size:11px; color:var(--dim); font-style:italic; margin:6px 0 2px; }
   .step.mg-hidden { display:none; }
   .youth-only { display: none; }
+  /* design §6: arm-feel check (youth input) + parent trend (adult readout).
+     Steel SVG faces, never emoji -- owner ruling 2026-07-03 item 7.0. */
+  #feel-card { margin: 12px 0 4px; }
+  .feel-row { display: flex; gap: 8px; margin-top: 10px; }
+  .feel-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.02); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 6px 10px; cursor: pointer;
+    -webkit-user-select: none; user-select: none; touch-action: manipulation;
+  }
+  .feel-btn svg { width: 34px; height: 34px; display: block; }
+  .feel-btn .fl {
+    font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .feel-btn .fs-ring  { stroke: var(--dim); }
+  .feel-btn .fs-ink   { stroke: var(--dim); }
+  .feel-btn.on { border-color: var(--gold); background: rgba(212,160,23,0.10); }
+  .feel-btn.on .fl { color: var(--gold); }
+  .feel-btn.on .fs-ring, .feel-btn.on .fs-ink { stroke: var(--gold); }
+  #feel-said {
+    font-family: 'Courier New', monospace; font-size: 11px; line-height: 1.6;
+    color: var(--dim); margin-top: 10px;
+  }
+  /* parent-side trend */
+  .ft-athlete { margin-top: 14px; }
+  .ft-name {
+    font-family: 'Courier New', monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--bone); margin-bottom: 6px;
+  }
+  .ft-strip { display: flex; gap: 3px; align-items: flex-end; height: 30px; }
+  .ft-d { flex: 1; border-radius: 2px; background: var(--line); min-width: 4px; }
+  .ft-d.v3 { background: var(--gold);            height: 100%; }
+  .ft-d.v2 { background: rgba(212,160,23,0.45);  height: 62%; }
+  .ft-d.v1 { background: var(--blood);           height: 30%; }
+  .ft-d.v0 { background: rgba(255,255,255,0.06); height: 14%; }
+  .ft-legend, .ft-note {
+    font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.6;
+    color: var(--dim); margin-top: 6px;
+  }
   body.youth .youth-only { display: block; }
   body.youth .youth-hide { display: none; }
   /* kid-voice one-liners inside step details (5.x) — youth sees them, adults don't */
@@ -1290,6 +1330,41 @@ body.youth #youth-banner{display:block}
 <div class=&quot;page active&quot; id=&quot;page-overview&quot;>
   <h2>The System</h2>
   <div class=&quot;seq&quot; id=&quot;today-seq&quot;></div>
+
+  <!-- design §6: the one thing the kid gets that the grown-up does not. -->
+  <div class=&quot;card gold youth-only&quot; id=&quot;feel-card&quot;>
+    <div class=&quot;card-head&quot;>
+      <div class=&quot;card-title&quot;>How did your arm feel today?</div>
+    </div>
+    <p style=&quot;margin:0&quot;>Tap one. There is no wrong answer — a sore arm is information, not a mistake. Telling the truth here is what keeps you healthy.</p>
+    <div class=&quot;feel-row&quot; id=&quot;feel-row&quot;>
+      <div class=&quot;feel-btn&quot; data-feel=&quot;3&quot; onclick=&quot;setArmFeel(3)&quot;>
+        <svg viewBox=&quot;0 0 32 32&quot; fill=&quot;none&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot;>
+          <circle class=&quot;fs-ring&quot; cx=&quot;16&quot; cy=&quot;16&quot; r=&quot;13&quot;/>
+          <path class=&quot;fs-ink&quot; d=&quot;M10 12.5v1M22 12.5v1&quot;/>
+          <path class=&quot;fs-ink&quot; d=&quot;M9.5 19c1.8 3 4.1 4.5 6.5 4.5s4.7-1.5 6.5-4.5&quot;/>
+        </svg>
+        <div class=&quot;fl&quot;>Great</div>
+      </div>
+      <div class=&quot;feel-btn&quot; data-feel=&quot;2&quot; onclick=&quot;setArmFeel(2)&quot;>
+        <svg viewBox=&quot;0 0 32 32&quot; fill=&quot;none&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot;>
+          <circle class=&quot;fs-ring&quot; cx=&quot;16&quot; cy=&quot;16&quot; r=&quot;13&quot;/>
+          <path class=&quot;fs-ink&quot; d=&quot;M10 12.5v1M22 12.5v1&quot;/>
+          <path class=&quot;fs-ink&quot; d=&quot;M10.5 20.5h11&quot;/>
+        </svg>
+        <div class=&quot;fl&quot;>OK</div>
+      </div>
+      <div class=&quot;feel-btn&quot; data-feel=&quot;1&quot; onclick=&quot;setArmFeel(1)&quot;>
+        <svg viewBox=&quot;0 0 32 32&quot; fill=&quot;none&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot;>
+          <circle class=&quot;fs-ring&quot; cx=&quot;16&quot; cy=&quot;16&quot; r=&quot;13&quot;/>
+          <path class=&quot;fs-ink&quot; d=&quot;M10 12.5v1M22 12.5v1&quot;/>
+          <path class=&quot;fs-ink&quot; d=&quot;M9.5 22.5c1.8-3 4.1-4.5 6.5-4.5s4.7 1.5 6.5 4.5&quot;/>
+        </svg>
+        <div class=&quot;fl&quot;>Sore</div>
+      </div>
+    </div>
+    <div id=&quot;feel-said&quot;></div>
+  </div>
   <p class=&quot;lede&quot;>Bauer's arm care isn't a workout — it's a stack. Five components done in order, every throw day, since age 12. The reason he never had a major arm injury through 2,000+ MLB innings.</p>
 
   <!-- 5.x: first-week onboarding — dismissible ramp for new users (adult + kid copy) -->
@@ -4794,6 +4869,15 @@ body.youth #youth-banner{display:block}
 </div>
 
 <div class=&quot;page&quot; id=&quot;page-history&quot;>
+
+  <!-- design §6: the parent half of the arm-feel check. Adult-only surface. -->
+  <div class=&quot;card blue youth-hide&quot; id=&quot;feel-trend&quot; style=&quot;display:none&quot;>
+    <div class=&quot;card-head&quot;>
+      <div class=&quot;card-title&quot;>Arm feel · last 14 days</div>
+    </div>
+    <div id=&quot;ft-body&quot;></div>
+  </div>
+
   <h2>History</h2>
   <p class=&quot;lede&quot;>Your completed arm-care days, most recent first. Read-only &mdash; tap any day to see which exercises you logged.</p>
   <div id=&quot;arm-hist-summary&quot; class=&quot;card blue&quot;></div>
@@ -5791,6 +5875,112 @@ body.youth #youth-banner{display:block}
       renderShelf();
       celebrate(idx);
     }
+  /* ===== design review §6 -- ARM-FEEL CHECK =====
+     The review's brief: give the youth athlete something the adult does not get,
+     and surface the TREND to the parent rather than the raw number to the kid.
+
+     Why it earns its place rather than being a sticker: a daily subjective
+     soreness rating is the cheapest workload signal in the sport, and it is the
+     one input a 12-year-old can give more reliably than any sensor. It also
+     gives him a reason to open the app that is about HIM, not a checklist.
+
+     Key is `arm-care-feel-<date>`, deliberately under the existing `arm-care-`
+     PREFIX so it rides profile snapshot/restore, backup, export and import with
+     no change to PREFIXES. A new prefix would have silently vanished on the next
+     profile switch -- data loss with no error, which is the failure mode this
+     app has been bitten by before.
+
+     Values: 3 great / 2 ok / 1 sore. Never a number on the kid's screen.
+     §4.3-clean: no macros, no load ratios, no product content -- it is a feeling. */
+  function feelKey(d){
+    var x = d || new Date();
+    return 'arm-care-feel-' + x.getFullYear() + '-'
+      + String(x.getMonth()+1).padStart(2,'0') + '-'
+      + String(x.getDate()).padStart(2,'0');
+  }
+  window.setArmFeel = function(v){
+    try{ localStorage.setItem(feelKey(), String(v)); }catch(e){}
+    renderArmFeel();
+    /* an honest 'sore' should feel rewarded, not punished */
+    try{ if(window.maybeAwardCrossStickers) window.maybeAwardCrossStickers(); }catch(e){}
+  };
+  function renderArmFeel(){
+    var row = document.getElementById('feel-row'); if(!row) return;
+    var cur = null;
+    try{ cur = localStorage.getItem(feelKey()); }catch(e){}
+    row.querySelectorAll('.feel-btn').forEach(function(b){
+      b.classList.toggle('on', b.getAttribute('data-feel') === cur);
+    });
+    var said = document.getElementById('feel-said');
+    if(said){
+      said.textContent = cur === '3' ? 'Logged: great. That is what a well-warmed arm feels like.'
+        : cur === '2' ? 'Logged: OK. Normal for a throwing day.'
+        : cur === '1' ? 'Logged: sore. Good — say so. Tell your parent or coach too, especially if it is the same spot twice.'
+        : '';
+    }
+  }
+  /* ---- parent side: one strip per youth athlete, read cross-profile ---- */
+  function feelReadFor(pid, offset, activeId){
+    var d = new Date(); d.setDate(d.getDate() - offset);
+    var k = feelKey(d);
+    try{
+      /* the ACTIVE profile's keys live unprefixed; everyone else is namespaced */
+      return localStorage.getItem(pid === activeId ? k : ('battery::' + pid + '::' + k));
+    }catch(e){ return null; }
+  }
+  function renderFeelTrend(){
+    var card = document.getElementById('feel-trend'), body = document.getElementById('ft-body');
+    if(!card || !body) return;
+    var people = [], activeId = '';
+    try{
+      people = JSON.parse(localStorage.getItem('battery-people') || '[]') || [];
+      activeId = localStorage.getItem('battery-profile') || '';
+    }catch(e){ people = []; }
+    var youth = people.filter(function(p){ return p && p.tier !== 'adult'; });
+    if(!youth.length){ card.style.display = 'none'; return; }
+    body.textContent = '';
+    var any = false;
+    youth.forEach(function(pp){
+      var vals = [];
+      for(var i = 13; i >= 0; i--) vals.push(feelReadFor(pp.id, i, activeId));
+      if(!vals.some(function(v){ return v; })) return;
+      any = true;
+      var wrap = document.createElement('div'); wrap.className = 'ft-athlete';
+      var nm = document.createElement('div'); nm.className = 'ft-name';
+      nm.textContent = String(pp.name || pp.id);
+      wrap.appendChild(nm);
+      var strip = document.createElement('div'); strip.className = 'ft-strip';
+      vals.forEach(function(v){
+        var b = document.createElement('div');
+        b.className = 'ft-d v' + (v === '3' ? '3' : v === '2' ? '2' : v === '1' ? '1' : '0');
+        strip.appendChild(b);
+      });
+      wrap.appendChild(strip);
+      var sore = vals.filter(function(v){ return v === '1'; }).length;
+      var logged = vals.filter(function(v){ return v; }).length;
+      var note = document.createElement('div'); note.className = 'ft-note';
+      /* Say what it means, and say what it does NOT mean. A 14-day strip is a
+         conversation starter, not a diagnosis, and reading it as one is how a
+         parent talks a kid out of reporting honestly. */
+      note.textContent = sore >= 3
+        ? sore + ' sore days of ' + logged + ' logged. Worth asking whether it is the same spot each time — that is the part that matters, not the count.'
+        : sore > 0
+          ? sore + ' sore day' + (sore > 1 ? 's' : '') + ' of ' + logged + ' logged. Normal for a throwing block.'
+          : logged + ' days logged, none sore.';
+      wrap.appendChild(note);
+      body.appendChild(wrap);
+    });
+    if(!any){ card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    var lg = document.createElement('div'); lg.className = 'ft-legend';
+    lg.textContent = 'Tall = felt great · short red = sore · faint = no answer that day. His answer, unedited; it is a prompt to ask, not a verdict.';
+    body.appendChild(lg);
+  }
+  window.renderArmFeel = renderArmFeel;
+  window.renderFeelTrend = renderFeelTrend;
+  if(document.readyState !== 'loading') setTimeout(function(){ try{ renderArmFeel(); renderFeelTrend(); }catch(e){} }, 200);
+  else document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ try{ renderArmFeel(); renderFeelTrend(); }catch(e){} }, 200); });
+
     window.maybeAwardCrossStickers = function(){
       if(!isYouth()) return;
       try{ // water-goal day: today's logged water vs today's goal snapshot
