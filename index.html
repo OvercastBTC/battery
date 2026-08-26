@@ -797,6 +797,46 @@ body.youth #youth-banner{display:block}
     filter: grayscale(60%);
   }
   #page-jbands.jx-off .step.opt .step-detail { max-height: 0 !important; }
+  /* 3.0: whole-block ON/OFF switches */
+  .set-toggle {
+    display: flex; align-items: center; gap: 10px;
+    margin: -4px 0 16px; padding: 8px 12px;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: rgba(255,255,255,0.02);
+  }
+  .set-toggle .st-lab {
+    font-family: 'Courier New', monospace; font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim);
+    flex: 1; line-height: 1.5;
+  }
+  .set-toggle button {
+    background: var(--gold); border: 1px solid var(--gold); color: #0d1117;
+    font-family: 'Courier New', monospace; font-weight: 700; font-size: 10px;
+    letter-spacing: 0.06em; padding: 4px 14px; border-radius: 999px;
+    cursor: pointer; flex-shrink: 0; touch-action: manipulation;
+    -webkit-user-select: none; user-select: none;
+  }
+  .set-toggle button.off { background: transparent; border-color: var(--dim); color: var(--dim); }
+  .page.set-off .steplist { opacity: 0.32; pointer-events: none; filter: grayscale(65%); }
+  .page.set-off .steplist .step-detail { max-height: 0 !important; }
+  /* overview: one row to shape the day before it starts */
+  #today-blocks { margin: 14px 0 4px; }
+  #today-blocks .tb-head {
+    font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--dim); margin-bottom: 8px;
+  }
+  #today-blocks .tb-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+  .blk-chip {
+    background: rgba(212,175,55,0.12); border: 1px solid var(--gold); color: var(--gold);
+    font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.05em;
+    padding: 5px 11px; border-radius: 999px; cursor: pointer;
+    touch-action: manipulation; -webkit-user-select: none; user-select: none;
+  }
+  .blk-chip.off {
+    background: transparent; border-color: var(--line); color: var(--dim);
+    text-decoration: line-through;
+  }
+  .blk-chip.pinned::after { content: ' \2022'; }
   .step-detail {
     max-height: 0;
     overflow: hidden;
@@ -4349,7 +4389,7 @@ body.youth #youth-banner{display:block}
     let done=0,total=0,optDone=0,optTotal=0;
     document.querySelectorAll('.step').forEach(s=>{
       if(stepCountGroup(s)!==g) return;
-      if(jxDisabledStep(s)) return;
+      if(stepDisabled(s)) return;
       if(stepOptional(s)){ optTotal++; if(s.classList.contains('done')) optDone++; }
       else { total++; if(s.classList.contains('done')) done++; }
     });
@@ -4366,6 +4406,111 @@ body.youth #youth-banner{display:block}
     storeSet('arm-care-jx-enabled', jxEnabled() ? '0' : '1');
     applyJxExtras();
     updateCounter();
+  }
+
+  /* 3.0/3.1/3.2 -- whole-block ON/OFF switches.
+     OFF means the block is grayed, not checkable, and removed from EVERY count:
+     the denominator shrinks, so a day with no throwing can still read 100%.
+     Deliberately PER-DAY, not sticky: the owner's own example was 'plyoballs if
+     I am not throwing that day', which is a daily call. A sticky global switch
+     would sit silently off for weeks and quietly shrink every future day's goal.
+     Long-press a switch to save its current state as the default for new days --
+     that is the escape hatch for a block you genuinely never do. */
+  var SET_BLOCKS = [
+    ['warmup','Warm Up'], ['tube','Shoulder Tube'], ['plyo','PlyoCare'],
+    ['long','Long Toss'], ['washington','Infield Drills'],
+    ['fieldwork','Field Work'], ['lifting','Lifting'], ['recovery','Recovery']
+  ];
+  function setDayKey(){ return new Date().toISOString().slice(0,10); }
+  function setDefOn(k){ return storeGet('arm-care-setdef-'+k,'1') !== '0'; }
+  function setOn(k){
+    var v = storeGet('arm-care-set-'+k+'-'+setDayKey(), '');
+    return v === '' ? setDefOn(k) : v !== '0';
+  }
+  function setStepOff(s){
+    var pg = s.closest('[data-set]');
+    return !!pg && !setOn(pg.getAttribute('data-set'));
+  }
+  /* single predicate every counter must consult */
+  function stepDisabled(s){ return jxDisabledStep(s) || setStepOff(s); }
+
+  window.toggleSet = function(k){
+    storeSet('arm-care-set-'+k+'-'+setDayKey(), setOn(k) ? '0' : '1');
+    applySets(); updateCounter();
+  };
+  window.pinSet = function(k){
+    storeSet('arm-care-setdef-'+k, setOn(k) ? '1' : '0');
+    applySets();
+    var lab = document.getElementById('st-lab-'+k);
+    if(lab){
+      var was = lab.textContent;
+      lab.textContent = setOn(k) ? 'Saved: ON by default' : 'Saved: OFF by default';
+      setTimeout(function(){ try{ applySets(); }catch(e){ lab.textContent = was; } }, 1600);
+    }
+  };
+  function bindHold(el, k){
+    var t = null, held = false;
+    function down(){ held = false; t = setTimeout(function(){ held = true; window.pinSet(k); }, 550); }
+    function up(e){ if(t) clearTimeout(t); if(held){ e.preventDefault(); e.stopPropagation(); } else { window.toggleSet(k); } }
+    function off(){ if(t) clearTimeout(t); }
+    el.addEventListener('pointerdown', down);
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointerleave', off);
+    el.addEventListener('pointercancel', off);
+    el.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  }
+  function applySets(){
+    var wrap = null;
+    var host = document.getElementById('today-blocks');
+    if(!host){
+      var seq = document.getElementById('today-seq');
+      if(seq && seq.parentNode){
+        host = document.createElement('div'); host.id = 'today-blocks';
+        var hd = document.createElement('div'); hd.className = 'tb-head';
+        hd.textContent = 'Today includes -- tap to drop, hold to make it the default';
+        wrap = document.createElement('div'); wrap.className = 'tb-wrap';
+        host.appendChild(hd); host.appendChild(wrap);
+        seq.parentNode.insertBefore(host, seq.nextSibling);
+      }
+    } else { wrap = host.querySelector('.tb-wrap'); }
+    if(wrap) wrap.textContent = '';
+
+    SET_BLOCKS.forEach(function(b){
+      var k = b[0], name = b[1];
+      var pg = document.getElementById('page-'+k);
+      if(!pg) return;
+      pg.setAttribute('data-set', k);
+      var on = setOn(k);
+      pg.classList.toggle('set-off', !on);
+
+      /* in-page switch, built via DOM (no HTML strings -- srcdoc safe) */
+      var bar = pg.querySelector('.set-toggle');
+      if(!bar){
+        bar = document.createElement('div'); bar.className = 'set-toggle';
+        var lab = document.createElement('div'); lab.className = 'st-lab'; lab.id = 'st-lab-'+k;
+        var btn = document.createElement('button'); btn.id = 'st-btn-'+k;
+        bar.appendChild(lab); bar.appendChild(btn);
+        var h2 = pg.querySelector('h2');
+        if(h2 && h2.nextSibling) pg.insertBefore(bar, h2.nextSibling);
+        else pg.insertBefore(bar, pg.firstChild);
+        bindHold(btn, k);
+      }
+      var lab2 = bar.querySelector('.st-lab'), btn2 = bar.querySelector('button');
+      if(btn2){ btn2.textContent = on ? 'ON' : 'OFF'; btn2.classList.toggle('off', !on); }
+      if(lab2){
+        lab2.textContent = on
+          ? (setDefOn(k) ? 'Counted today. Hold to change the default.' : 'On for today only. Hold to make ON the default.')
+          : 'Off for today -- these do not count. Hold to make OFF the default.';
+      }
+
+      if(wrap){
+        var c = document.createElement('div');
+        c.className = 'blk-chip' + (on ? '' : ' off') + (setDefOn(k) === on ? ' pinned' : '');
+        c.textContent = name;
+        bindHold(c, k);
+        wrap.appendChild(c);
+      }
+    });
   }
   function postCounts(){
     try{
@@ -4586,7 +4731,7 @@ body.youth #youth-banner{display:block}
     var box=document.getElementById('today-seq'); if(!box) return;
     function tally(sel){
       var els=document.querySelectorAll(sel), d=0, t=0;
-      els.forEach(function(x){ if(jxDisabledStep(x)) return; t++; if(x.classList.contains('done')) d++; });
+      els.forEach(function(x){ if(stepDisabled(x)) return; t++; if(x.classList.contains('done')) d++; });
       return {d:d,t:t};
     }
     var stages=[
@@ -4781,6 +4926,7 @@ body.youth #youth-banner{display:block}
   setBonus(parseInt(storeGet('arm-care-bonus', '0'), 10));
   loadDone();
   applyJxExtras();   // 6.1.1: restore the optional-extras ON/OFF state
+  applySets();       // 3.0: restore today's block ON/OFF switches
   try{ renderSplit(); }catch(e){}
   try{ renderSplit(); }catch(e){}
   // 5.x: first-week onboarding card — stays until dismissed once (per profile)
