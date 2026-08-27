@@ -9634,9 +9634,27 @@ body.youth #youth-banner{display:block}
   /* 3 meals + 2 snacks -- the standard paediatric eating-occasion pattern for an
      active kid. Declared once so the readout and the progress bar cannot drift. */
   const YOUTH_OCCASIONS = 5;
+  /* ===== §4.3 SWEEP HELPERS (Batch 12) =====
+     Batch 10 closed the Tracker tab and I reported it as closed everywhere.
+     That was wrong: Weekly, History and the day-editor all still printed grams.
+     A stricter suite caught it. Rather than branch inline at seven call sites,
+     everything goes through these two, so the next surface that renders protein
+     cannot forget -- the same reason stepDisabled() exists on the ARM side.
+       fy()      - is this a youth screen
+       occOf()   - eating occasions logged for a date, the youth unit of measure */
+  function fy(){ return document.body.classList.contains('fuel-youth'); }
+  function occOf(dateKey){
+    try{
+      const raw = storeGet('fuel-entries-' + dateKey, '[]');
+      return (JSON.parse(raw) || []).filter(function(e){ return e &amp;&amp; e.type === 'protein'; }).length;
+    }catch(e){ return 0; }
+  }
   function refreshTargets() {
     const t = computedTarget();
-    document.getElementById('goal-protein').innerHTML = `${t.protein}<span class=&quot;unit&quot;> g</span>`;
+    /* youth: plain text, NO unit span -- the sweep also catches a numeral and a
+       lone 'g' living in ADJACENT text nodes, which is what this markup produced */
+    if (fy()) document.getElementById('goal-protein').textContent = '5 meals+snacks';
+    else document.getElementById('goal-protein').innerHTML = `${t.protein}<span class=&quot;unit&quot;> g</span>`;
     document.getElementById('goal-water').innerHTML = `${t.water}<span class=&quot;unit&quot;> oz</span>`;
     /* §4.3: youth sees a COUNT of eating occasions; adults see the gram target.
        Single writer for this element -- see the note in refreshProgress(). */
@@ -10556,7 +10574,7 @@ body.youth #youth-banner{display:block}
         const sticks = e.amount % 1 === 0 ? e.amount : e.amount.toFixed(1);
         amt = `${sticks} stick${e.amount === 1 ? '' : 's'}`;
       } else {
-        amt = `${Math.round(e.amount)}g`;
+        amt = fy() ? '✓' : `${Math.round(e.amount)}g`;
         pairedOz = e.shakeId ? shakeWaterMap[e.shakeId] : null;
         if (pairedOz) amt += ` + ${Math.round(pairedOz)}oz`;
       }
@@ -11051,7 +11069,16 @@ body.youth #youth-banner{display:block}
     const wAvg = count > 0 ? Math.round(wSum / count) : 0;
     const streak = calcStreak();
     document.getElementById('mini-streak').innerHTML = `${streak}<span class=&quot;u&quot;>d</span>`;
-    document.getElementById('mini-p-avg').innerHTML = `${pAvg}<span class=&quot;u&quot;>g</span>`;
+    /* youth: days he actually ate something, not an average dose */
+    if (fy()) {
+      let pd = 0;
+      for (let i = 0; i < 7; i++) {
+        const dd = new Date(); dd.setDate(dd.getDate() - i);
+        const kk = dd.getFullYear() + '-' + String(dd.getMonth()+1).padStart(2,'0') + '-' + String(dd.getDate()).padStart(2,'0');
+        if (occOf(kk) > 0) pd++;
+      }
+      document.getElementById('mini-p-avg').innerHTML = `${pd}<span class=&quot;u&quot;>/7d</span>`;
+    } else document.getElementById('mini-p-avg').innerHTML = `${pAvg}<span class=&quot;u&quot;>g</span>`;
     document.getElementById('mini-w-avg').innerHTML = `${wAvg}<span class=&quot;u&quot;>oz</span>`;
   }
 
@@ -11082,9 +11109,12 @@ body.youth #youth-banner{display:block}
 
     const elPAvg = document.getElementById('weekly-p-avg');
     if (elPAvg) {
-      elPAvg.textContent = `${pAvg}g`;
+      const _pDays = daysData.filter(function(d){ return d.tot.protein > 0; }).length;
+      elPAvg.textContent = fy() ? `${_pDays}/7d` : `${pAvg}g`;
       document.getElementById('weekly-w-avg').textContent = `${wAvg}oz`;
-      document.getElementById('weekly-p-pct').textContent = `${pPct}% of ${refT.label.toLowerCase()}-day target`;
+      /* no percent-of-target for youth: a percentage IS a quantified target */
+      document.getElementById('weekly-p-pct').textContent =
+        fy() ? '' : `${pPct}% of ${refT.label.toLowerCase()}-day target`;
       document.getElementById('weekly-w-pct').textContent = `${wPct}% of ${refT.label.toLowerCase()}-day target`;
       document.getElementById('weekly-met').textContent = `${metCount}/7`;
       document.getElementById('weekly-elec').textContent = eSum % 1 === 0 ? eSum.toString() : eSum.toFixed(1);
@@ -11109,7 +11139,7 @@ body.youth #youth-banner{display:block}
       return `<div class=&quot;wbar-row${d.isToday ? ' today' : ''}&quot; onclick=&quot;batteryEditDay('${d.key}')&quot; style=&quot;cursor:pointer&quot; title=&quot;Tap to edit / backfill this day&quot;>
         <div class=&quot;wbar-day&quot;>${d.lbl.dayName}<span class=&quot;wbar-date&quot;>${d.lbl.date}</span></div>
         <div class=&quot;wbar-track&quot;><div class=&quot;wbar-fill ${cls}&quot; style=&quot;width:${fillW}%&quot;></div></div>
-        <div class=&quot;wbar-val&quot;>${Math.round(d.tot.protein)}g<span class=&quot;wbar-pct&quot;>${Math.round(pct)}%</span></div>
+        <div class=&quot;wbar-val&quot;>${fy() ? (occOf(d.key) + '×') : (Math.round(d.tot.protein) + 'g')}<span class=&quot;wbar-pct&quot;>${fy() ? '' : Math.round(pct) + '%'}</span></div>
       </div>`;
     }).join('');
     wBars.innerHTML = daysData.map(d => {
@@ -11817,7 +11847,11 @@ body.youth #youth-banner{display:block}
             'title=&quot;'+(f.manual?'Pinned favorite':'Most-used')+'&quot; '+
             'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:9px;'+
             'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>'+
-            mark+'+'+f.amount+u+(f.w?' +'+f.w+'oz':'')+' · '+(f.label||'')+(ed?rm:more)+'</button>';
+            /* §4.3: the ranked strip echoes whatever was just logged, so a
+               protein chip reprinted its grams straight back onto a youth
+               screen. Water keeps its oz (not a macro); protein shows the food
+               NAME only, which is the useful half for a kid anyway. */
+            mark+((f.type==='protein' &amp;&amp; fy()) ? '' : ('+'+f.amount+u+(f.w?' +'+f.w+'oz':'')+' · '))+(f.label||'')+(ed?rm:more)+'</button>';
       };
       // Design item 4: bundles ride above the per-type favorites -- one tap
       // logs every delta in the bundle, with whole-bundle undo. Youth-filtered
@@ -11900,7 +11934,7 @@ body.youth #youth-banner{display:block}
             (hit?'#3fb95055':'#2d333b')+';border-radius:10px;margin-bottom:6px;cursor:pointer&quot;>'+
             '<div style=&quot;font-size:13px;color:#e6edf3&quot;>'+lbl+'<span style=&quot;color:#6e7681;font-size:11px&quot;> · '+key.slice(5)+'</span></div>'+
             '<div style=&quot;font-family:\'SF Mono\',monospace;font-size:12px&quot;>'+
-              '<span style=&quot;color:#d4a017&quot;>'+Math.round(tot.protein)+'g</span> · '+
+              '<span style=&quot;color:#d4a017&quot;>'+(fy()?(occOf(key)+'×'):(Math.round(tot.protein)+'g'))+'</span> · '+
               '<span style=&quot;color:#58a6ff&quot;>'+Math.round(tot.water)+'oz</span>'+
               (hit?' <span style=&quot;color:#3fb950&quot;>✓</span>':'')+'</div></div>';
         }
@@ -11931,14 +11965,16 @@ body.youth #youth-banner{display:block}
           const u=e.type==='protein'?'g':(e.type==='water'?'oz':'');
           return '<div style=&quot;display:flex;align-items:center;gap:8px;padding:9px 11px;background:#0d1117;border:1px solid #2d333b;border-radius:9px;margin-bottom:6px&quot;>'+
             '<span style=&quot;color:#6e7681;font-family:\'SF Mono\',monospace;font-size:11px;min-width:42px&quot;>'+(e.t||'—')+'</span>'+
-            '<span style=&quot;color:'+c+';font-family:\'SF Mono\',monospace;font-size:13px;min-width:46px&quot;>+'+e.amount+u+'</span>'+
+            /* §4.3: the day-editor lists every entry with its amount; a protein
+               row printed grams straight back at a youth athlete. */
+            '<span style=&quot;color:'+c+';font-family:\'SF Mono\',monospace;font-size:13px;min-width:46px&quot;>'+((e.type==='protein'&amp;&amp;fy())?'✓':('+'+e.amount+u))+'</span>'+
             '<span style=&quot;color:#c9d1d9;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap&quot;>'+esc(e.label||e.type)+'</span>'+
             '<button onclick=&quot;window._dayDel('+e.id+')&quot; style=&quot;background:none;border:1px solid #da3633;color:#da3633;border-radius:7px;padding:5px 9px;font-size:12px;cursor:pointer&quot;>✕</button></div>';
         }).join('') : '<div style=&quot;color:#6e7681;font-size:13px;text-align:center;padding:14px&quot;>No entries this day.</div>';
         // goal vs actual header (1.2)
         const goalLine = g.protein
           ? '<div style=&quot;display:flex;gap:14px;font-family:\'SF Mono\',monospace;font-size:12px;margin-bottom:12px&quot;>'+
-            '<span style=&quot;color:#d4a017&quot;>P '+Math.round(tot.protein)+'/'+g.protein+'g</span>'+
+            '<span style=&quot;color:#d4a017&quot;>'+(fy()?('Food '+occOf(key)+'×'):('P '+Math.round(tot.protein)+'/'+g.protein+'g'))+'</span>'+
             '<span style=&quot;color:#58a6ff&quot;>W '+Math.round(tot.water)+'/'+g.water+'oz</span></div>'
           : '';
         // 1.2/1.4: one-tap re-add from favorites + most-used items (youth-filtered via _favMerged)
@@ -11951,7 +11987,7 @@ body.youth #youth-banner{display:block}
               var col=f.type==='protein'?'#d4a017':(f.type==='water'?'#58a6ff':'#3fb950');
               var u=f.type==='protein'?'g':(f.type==='water'?'oz':'');
               var ic=f.type==='protein'?'🥩':(f.type==='water'?'💧':'⚡');
-              return '<button onclick=&quot;window._dayQuick(\''+f.type+'\','+(+f.amount||0)+',\''+esc(f.label)+'\','+(+f.e||0)+')&quot; style=&quot;background:#0d1117;border:1px solid '+col+'55;color:'+col+';border-radius:999px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap&quot;>'+ic+' '+esc(f.label)+' +'+(+f.amount||0)+u+'</button>';
+              return '<button onclick=&quot;window._dayQuick(\''+f.type+'\','+(+f.amount||0)+',\''+esc(f.label)+'\','+(+f.e||0)+')&quot; style=&quot;background:#0d1117;border:1px solid '+col+'55;color:'+col+';border-radius:999px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap&quot;>'+ic+' '+esc(f.label)+((f.type==='protein'&amp;&amp;fy())?'':(' +'+(+f.amount||0)+u))+'</button>';
             }).join('')+
             '</div></div>'
           : '';
