@@ -6833,6 +6833,15 @@ body.youth #youth-banner{display:block}
   .qa-btn .qa-ico svg { width: 13px; height: 13px; display: block; }
   /* Youth safety gate (§4.3): supplement/stimulant quick-add hidden for youth */
   body.fuel-youth .qa-adult { display: none !important; }
+  .youth-fuel-only { display: none; }
+  body.fuel-youth .youth-fuel-only { display: inline; }
+  /* §4.3 + design review §6: a youth screen counts OBJECTS, never macros.
+     The food NAME is what a kid needs; the gram numeral is the part the gate
+     forbids. Keep the button, drop the number -- the entry still logs its real
+     grams underneath, so the parent-facing history is unchanged. */
+  body.fuel-youth .quickadd-section.protein .qa-amt { display: none; }
+  body.fuel-youth .qa-gram { display: none; }
+  body.fuel-youth #protein-pct { display: none; }
   /* 1.0: protein banking -- an opt-in variable in the target equation */
   .bank-row {
     display: flex; align-items: center; gap: 10px;
@@ -7874,7 +7883,7 @@ body.youth #youth-banner{display:block}
 
     <div class=&quot;progress-row trk-prot&quot;>
       <div class=&quot;progress-label&quot;>
-        <span class=&quot;name&quot;><b>Protein</b> · today</span>
+        <span class=&quot;name&quot;><b class=&quot;qa-adult&quot;>Protein</b><b class=&quot;youth-fuel-only&quot;>Food</b> · today</span>
         <span class=&quot;vals&quot; id=&quot;protein-vals&quot;>
           <span class=&quot;cur&quot; id=&quot;protein-cur&quot;>0</span><span class=&quot;div&quot;>/</span><span class=&quot;goal&quot; id=&quot;protein-goal&quot;>180g</span>
           <span class=&quot;pct&quot; id=&quot;protein-pct&quot;>0%</span>
@@ -9836,11 +9845,17 @@ body.youth #youth-banner{display:block}
     commitDays(Array.from(activeDays).filter(x => DAY_ACTIVITY.indexOf(x) < 0).concat([day]));
   }
 
+  /* 3 meals + 2 snacks -- the standard paediatric eating-occasion pattern for an
+     active kid. Declared once so the readout and the progress bar cannot drift. */
+  const YOUTH_OCCASIONS = 5;
   function refreshTargets() {
     const t = computedTarget();
     document.getElementById('goal-protein').innerHTML = `${t.protein}<span class=&quot;unit&quot;> g</span>`;
     document.getElementById('goal-water').innerHTML = `${t.water}<span class=&quot;unit&quot;> oz</span>`;
-    document.getElementById('protein-goal').textContent = `${t.protein}g`;
+    /* §4.3: youth sees a COUNT of eating occasions; adults see the gram target.
+       Single writer for this element -- see the note in refreshProgress(). */
+    document.getElementById('protein-goal').textContent =
+      document.body.classList.contains('fuel-youth') ? '5 meals + snacks' : `${t.protein}g`;
     document.getElementById('water-goal').textContent = `${t.water}oz`;
     document.getElementById('summary-day').textContent = t.label;
     try { renderBank(); } catch (e) {}
@@ -10387,6 +10402,37 @@ body.youth #youth-banner{display:block}
       pBar.classList.remove('over');
     }
 
+    /* ===== §4.3 CLOSE-OUT: youth counts EATING OCCASIONS, not grams =====
+       Measured on .94 before this change: a youth profile saw a 0g / 60g
+       protein target, a live percentage, and 42 gram-labelled buttons. §4.3
+       says youth must never see quantified macro targets, so that was a real
+       gap, not a styling nit -- and the design review had already prescribed
+       the fix ('count objects, not macros'), which the owner approved.
+
+       Target is 5 = 3 meals + 2 snacks, the standard paediatric eating-occasion
+       pattern for an active kid. It is a COUNT, not a dose: nothing on the
+       screen tells a 12-year-old how many grams of anything to consume.
+
+       Grams are still logged and still stored -- only the DISPLAY changes -- so
+       the adult-side history, the weekly view and every export keep their real
+       numbers. Adults are untouched: this whole block is inside the youth test. */
+    if (document.body.classList.contains('fuel-youth')) {
+      const OCC_TARGET = YOUTH_OCCASIONS;
+      let occ = 0;
+      try { occ = loadEntries().filter(e => e && e.type === 'protein').length; } catch (e) {}
+      /* OWNERSHIP: #protein-goal belongs to refreshTargets(), so it is set
+         there, not here. Writing it from both places meant any refreshProgress()
+         call that was not paired with refreshTargets() left an ADULT looking at
+         '5 meals + snacks' -- caught in a live adult/youth toggle, invisible to
+         the gate. Each element now has exactly one writer. */
+      document.getElementById('protein-cur').textContent = String(occ);
+      document.getElementById('protein-pct').textContent = '';
+      pBar.style.width = Math.min(occ / OCC_TARGET * 100, 100) + '%';
+      const hit = occ >= OCC_TARGET;
+      pVals.classList.toggle('over', hit);
+      pBar.classList.toggle('over', hit);
+    }
+
     // Water
     const wPct = t.water > 0 ? (tot.water / t.water) * 100 : 0;
     document.getElementById('water-cur').textContent = `${Math.round(tot.water)}oz`;
@@ -10914,7 +10960,10 @@ body.youth #youth-banner{display:block}
   function bundleSummary(b){
     const bits=[];
     if(+b.water>0)   bits.push('+'+(+b.water)+'oz');
-    if(+b.protein>0) bits.push('+'+(+b.protein)+'g');
+    /* §4.3: a bundle button is built at runtime, so the CSS gate cannot reach
+       it -- same class of leak as the suggestion strings. Youth keeps the
+       bundle and its name, loses only the gram numeral. */
+    if(+b.protein>0 &amp;&amp; !document.body.classList.contains('fuel-youth')) bits.push('+'+(+b.protein)+'g');
     if(+b.elec>0)    bits.push('+'+(+b.elec)+'⚡');
     return bits.join(' ') + ' ' + (b.name || 'Bundle');
   }
@@ -11283,8 +11332,16 @@ body.youth #youth-banner{display:block}
     const lines = [];
 
     // === PROTEIN GAP ===
+    /* §4.3 CLOSE-OUT: the earlier fix here corrected the OPTION strings but left
+       the numbers around them -- the gap line still read '60g protein remaining'
+       and the pace line '2.9g/hr'. Both are quantified macro targets, both were
+       youth-visible. The flag is hoisted above the branch because the hit case
+       leaked a gram figure too. Adults keep every number exactly as before. */
+    const _youth = (window.BATTERY_TIER || 'youth') !== 'adult';
     if (pGap <= 0) {
-      lines.push(`<div class=&quot;suggest-line&quot;><span class=&quot;gap met&quot;>✓ Protein hit.</span> ${Math.round(tot.protein - t.protein)}g over target — fine, surplus oxidizes.</div>`);
+      lines.push(_youth
+        ? `<div class=&quot;suggest-line&quot;><span class=&quot;gap met&quot;>✓ Food handled.</span> You got everything you needed in today — nice.</div>`
+        : `<div class=&quot;suggest-line&quot;><span class=&quot;gap met&quot;>✓ Protein hit.</span> ${Math.round(tot.protein - t.protein)}g over target — fine, surplus oxidizes.</div>`);
     } else {
       const opts = [];
       /* §4.3 LEAK FIX (found in a pre-observation-week browser sweep of .89):
@@ -11299,7 +11356,6 @@ body.youth #youth-banner{display:block}
          Youth gets FOOD-based guidance rather than a blanked card -- the design
          review's principle that his version should feel like his app, not a
          redacted copy of the adult one. No brands, no scoops, no dosing. */
-      const _youth = (window.BATTERY_TIER || 'youth') !== 'adult';
       // Build smart options
       if (_youth) {
         opts.push('Greek yogurt + a glass of milk');
@@ -11325,11 +11381,17 @@ body.youth #youth-banner{display:block}
         opts.push('Fairlife milk 8oz');
         opts.push('String cheese + jerky');
       }
-      const paceTxt = hoursRemaining > 3
-        ? `≈${pPerHour.toFixed(1)}g/hr to stay on pace`
-        : `<span style=&quot;color:var(--blood)&quot;>tight window — front-load now</span>`;
+      const paceTxt = _youth
+        ? (hoursRemaining > 3 ? 'plenty of day left' : 'grab something soon')
+        : (hoursRemaining > 3
+            ? `≈${pPerHour.toFixed(1)}g/hr to stay on pace`
+            : `<span style=&quot;color:var(--blood)&quot;>tight window — front-load now</span>`);
+      /* youth sees a SIZE, not a dose: one more thing to eat, or a couple */
+      const gapTxt = _youth
+        ? (pGap >= 40 ? 'A couple more things to eat' : 'One more thing to eat')
+        : `${Math.round(pGap)}g protein`;
       lines.push(`<div class=&quot;suggest-line&quot;>
-        <span class=&quot;gap&quot;>${Math.round(pGap)}g protein</span> remaining · ${paceTxt}
+        <span class=&quot;gap&quot;>${gapTxt}</span>${_youth ? '' : ' remaining'} · ${paceTxt}
         <div class=&quot;options&quot;>${opts.map(o => `<span class=&quot;opt&quot;>${o}</span>`).join('')}</div>
       </div>`);
     }
@@ -11851,7 +11913,11 @@ body.youth #youth-banner{display:block}
           '<div style=&quot;display:flex;gap:6px;flex-wrap:wrap&quot;>'+bundles.map(b=>{
             const parts=[];
             if(+b.water>0)   parts.push('+'+(+b.water)+'oz');
-            if(+b.protein>0) parts.push('+'+(+b.protein)+'g');
+            /* §4.3: the REAL bundle button label is built here (bundleSummary()
+               only feeds the undo toast). Runtime-built, so the CSS gate cannot
+               reach it -- youth keeps the bundle and its name, loses the gram
+               numeral. Found by sweeping the rendered youth DOM, not by reading. */
+            if(+b.protein>0 &amp;&amp; !document.body.classList.contains('fuel-youth')) parts.push('+'+(+b.protein)+'g');
             if(+b.elec>0)    parts.push('+'+(+b.elec)+'⚡');
             const bid=String(b.id||'').replace(/\x27/g,'');
             const bx = ed ? '<span onclick=&quot;event.stopPropagation();removeBundle(\''+bid+'\')&quot; style=&quot;margin-left:7px;color:#f85149;font-weight:700&quot;>×</span>' : '';
