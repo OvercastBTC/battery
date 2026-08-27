@@ -119,6 +119,14 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 
 - localStorage key prefixes: `fuel-` (FUEL), `arm-care-` (ARM), `battery-plan-` (host, plan-v2 — per-date only, no carryover). **Do not rename** — renames orphan existing user data.
 - Keys are also mirrored as `battery::<profileId>::<key>`.
+- **Any NEW persisted key MUST start with one of those prefixes.** `liveKeys()` snapshots only prefixed keys, so a key named anything else looks perfect in testing and then **silently vanishes on the next profile switch** — data loss with no error and no failing test. Batch 9's `arm-care-feel-<date>` was named for this reason, not by accident.
+- **Cross-seam value vocabularies are contracts. Write them down here; never infer them from the other side's UI copy.** Reader and writer live in different frames and ship from different lanes, so a wrong guess fails *silently* — the branch just never matches and the clause never renders. Nothing asserts a vocabulary unless a test does.
+
+  | Key | Written by | Read by | Values |
+  |---|---|---|---|
+  | `arm-care-feel-<date>` | ARM iframe (`setArmFeel`) | host youth card; ARM History trend | `'3'` great · `'2'` ok · `'1'` sore — **numeric codes as strings**, not words |
+
+  This table exists because Lane E's host card independently guessed a `good`/`okay`/`rough` word vocabulary for these exact three values. Both the type and the words were wrong, so `if(feel==='good')` could never match — no error, no test failure. Caught only by reading the shipped source after merge. **If you add a cross-seam key, add a row and a test asserting the real values.**
 - Migrations must be one-time idempotent guards. Plan-v2 example: `battery-plan-<date>` used to store a single preset string (full/throwing/hitting/lift/rest); `getActivePlan()` migrates a legacy string value to the new `{arm,drills,body,lift}` JSON flag object the first time it's read, then rewrites it as JSON so migration only runs once per date key.
 
 ## 8. Coordination Pointers
