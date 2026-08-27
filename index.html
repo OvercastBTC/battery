@@ -207,7 +207,7 @@ body.youth #youth-banner{display:block}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.26.94</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.08.27.95</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -7869,7 +7869,7 @@ body.youth #youth-banner{display:block}
         <div class=&quot;mini-stat-val streak&quot; id=&quot;mini-streak&quot;>0<span class=&quot;u&quot;>d</span></div>
       </div>
       <div class=&quot;mini-stat&quot;>
-        <div class=&quot;mini-stat-label&quot;>7d P avg</div>
+        <div class=&quot;mini-stat-label&quot;><span class=&quot;qa-adult&quot;>7d P avg</span><span class=&quot;youth-fuel-only&quot;>7d food</span></div>
         <div class=&quot;mini-stat-val protein&quot; id=&quot;mini-p-avg&quot;>0<span class=&quot;u&quot;>g</span></div>
       </div>
       <div class=&quot;mini-stat&quot;>
@@ -9850,12 +9850,25 @@ body.youth #youth-banner{display:block}
   const YOUTH_OCCASIONS = 5;
   function refreshTargets() {
     const t = computedTarget();
-    document.getElementById('goal-protein').innerHTML = `${t.protein}<span class=&quot;unit&quot;> g</span>`;
+    /* §4.3: the top-of-page &quot;Protein target&quot; pill (#goal-protein) is a SECOND,
+       independent display of the same quantified macro figure the tracker
+       row's #protein-goal already gates below -- unconditional before this
+       fix, so it leaked a raw gram target regardless of tier. Same
+       runtime-built-leak class as the log entry/fav chip/bundle label fixed
+       alongside this; independently found by screenshot review after the
+       automated text-node sweep (which only matches a digit and its unit in
+       the SAME text node) missed it, since this card splits them across
+       sibling spans. Youth sees the identical eating-occasion count
+       #protein-goal shows, not a second guess at wording. */
+    const isYouthFuel = document.body.classList.contains('fuel-youth');
+    document.getElementById('goal-protein').innerHTML = isYouthFuel
+      ? `${YOUTH_OCCASIONS}<span class=&quot;unit&quot;> meals+snacks</span>`
+      : `${t.protein}<span class=&quot;unit&quot;> g</span>`;
     document.getElementById('goal-water').innerHTML = `${t.water}<span class=&quot;unit&quot;> oz</span>`;
     /* §4.3: youth sees a COUNT of eating occasions; adults see the gram target.
        Single writer for this element -- see the note in refreshProgress(). */
     document.getElementById('protein-goal').textContent =
-      document.body.classList.contains('fuel-youth') ? '5 meals + snacks' : `${t.protein}g`;
+      isYouthFuel ? '5 meals + snacks' : `${t.protein}g`;
     document.getElementById('water-goal').textContent = `${t.water}oz`;
     document.getElementById('summary-day').textContent = t.label;
     try { renderBank(); } catch (e) {}
@@ -10640,9 +10653,16 @@ body.youth #youth-banner{display:block}
         const sticks = e.amount % 1 === 0 ? e.amount : e.amount.toFixed(1);
         amt = `${sticks} stick${e.amount === 1 ? '' : 's'}`;
       } else {
-        amt = `${Math.round(e.amount)}g`;
+        // §4.3: the running log's own protein amount is a quantified macro
+        // figure -- same runtime-built-leak class as the bundle button/favorite
+        // chip fixed alongside this. Independently found sweeping a rendered
+        // youth log list for /\d\s*g\b/, the same method that caught those two.
+        // Youth keeps the label and any paired water credit, loses only the
+        // gram numeral.
+        const hideG = document.body.classList.contains('fuel-youth');
+        amt = hideG ? '' : `${Math.round(e.amount)}g`;
         pairedOz = e.shakeId ? shakeWaterMap[e.shakeId] : null;
-        if (pairedOz) amt += ` + ${Math.round(pairedOz)}oz`;
+        if (pairedOz) amt += (amt ? ' + ' : '') + `${Math.round(pairedOz)}oz`;
       }
       if (e.type === 'water' &amp;&amp; e.e > 0) {
         elIcon = ` · ⚡${e.e % 1 === 0 ? e.e : e.e.toFixed(1)}`;
@@ -10662,9 +10682,10 @@ body.youth #youth-banner{display:block}
       const pinBtn = _favIsYouthSafe(pinItem)
         ? `<button class=&quot;log-pin${pinned ? ' pinned' : ''}&quot; title=&quot;${pinned ? 'Unpin from favorites' : 'Pin to favorites'}&quot; onclick=&quot;togglePinFromLog('${e.type}', ${e.amount}, '${safeLbl}', ${e.e || 0}, ${pairedOz || 0})&quot;>${pinned ? '★' : '☆'}</button>`
         : '';
+      const amtSep = amt ? ` · ${amt}` : '';
       return `<li>
         <span class=&quot;log-time&quot;>${e.t}</span>
-        <span class=&quot;log-desc&quot;><span class=&quot;tag ${tag}&quot;>${tagLabel}</span>${e.label} · ${amt}${elIcon}${dualIcon}</span>
+        <span class=&quot;log-desc&quot;><span class=&quot;tag ${tag}&quot;>${tagLabel}</span>${e.label}${amtSep}${elIcon}${dualIcon}</span>
         ${pinBtn}
         <button class=&quot;log-undo&quot; onclick=&quot;removeShakeEntry(${e.id}, '${e.shakeId || ''}')&quot;>Undo</button>
       </li>`;
@@ -11135,7 +11156,14 @@ body.youth #youth-banner{display:block}
     const wAvg = count > 0 ? Math.round(wSum / count) : 0;
     const streak = calcStreak();
     document.getElementById('mini-streak').innerHTML = `${streak}<span class=&quot;u&quot;>d</span>`;
-    document.getElementById('mini-p-avg').innerHTML = `${pAvg}<span class=&quot;u&quot;>g</span>`;
+    /* §4.3: the 7-day protein average is a quantified macro figure, same as
+       every other gram number gated on this pass -- independently found by a
+       proper text-node sweep (checking each node's OWN visibility, not a
+       container's textContent, which false-positives on hidden descendants).
+       Youth sees days-logged-this-week instead of a gram average. */
+    document.getElementById('mini-p-avg').innerHTML = document.body.classList.contains('fuel-youth')
+      ? `${count}<span class=&quot;u&quot;>/7d</span>`
+      : `${pAvg}<span class=&quot;u&quot;>g</span>`;
     document.getElementById('mini-w-avg').innerHTML = `${wAvg}<span class=&quot;u&quot;>oz</span>`;
   }
 
@@ -11164,11 +11192,18 @@ body.youth #youth-banner{display:block}
     const pPct = refT.protein > 0 ? Math.round((pAvg / refT.protein) * 100) : 0;
     const wPct = refT.water > 0 ? Math.round((wAvg / refT.water) * 100) : 0;
 
+    // §4.3: the weekly summary's protein average (a gram figure) and its
+    // percent-of-target line are two more quantified-macro displays, same
+    // class as the rest of this pass -- found sweeping the Weekly tab after
+    // the Tracker tab came back clean. Water and the day-count stay: neither
+    // is a macro. Youth sees days-logged instead of a gram average, and no
+    // percent-of-target line at all (mirrors #protein-pct's own suppression).
+    const isYouthFuel4 = document.body.classList.contains('fuel-youth');
     const elPAvg = document.getElementById('weekly-p-avg');
     if (elPAvg) {
-      elPAvg.textContent = `${pAvg}g`;
+      elPAvg.textContent = isYouthFuel4 ? `${count}<span class=&quot;u&quot;>/7d</span>` : `${pAvg}g`;
       document.getElementById('weekly-w-avg').textContent = `${wAvg}oz`;
-      document.getElementById('weekly-p-pct').textContent = `${pPct}% of ${refT.label.toLowerCase()}-day target`;
+      document.getElementById('weekly-p-pct').textContent = isYouthFuel4 ? '' : `${pPct}% of ${refT.label.toLowerCase()}-day target`;
       document.getElementById('weekly-w-pct').textContent = `${wPct}% of ${refT.label.toLowerCase()}-day target`;
       document.getElementById('weekly-met').textContent = `${metCount}/7`;
       document.getElementById('weekly-elec').textContent = eSum % 1 === 0 ? eSum.toString() : eSum.toFixed(1);
@@ -11190,10 +11225,17 @@ body.youth #youth-banner{display:block}
       const pct = d.d.pPct * 100;
       const fillW = Math.min(100, pct);
       const cls = d.d.tier === 'both' ? 'met' : 'protein';
+      /* §4.3: the per-day protein bar's own gram+percent label -- the bar FILL
+         is a visual proportion, not a number, and stays for everyone; only the
+         text label is a quantified macro figure. Youth sees a plain logged
+         checkmark instead of the gram/percent pair. */
+      const wbarValTxt = isYouthFuel4
+        ? (d.tot.protein > 0 ? '✓ logged' : '')
+        : `${Math.round(d.tot.protein)}g<span class=&quot;wbar-pct&quot;>${Math.round(pct)}%</span>`;
       return `<div class=&quot;wbar-row${d.isToday ? ' today' : ''}&quot; onclick=&quot;batteryEditDay('${d.key}')&quot; style=&quot;cursor:pointer&quot; title=&quot;Tap to edit / backfill this day&quot;>
         <div class=&quot;wbar-day&quot;>${d.lbl.dayName}<span class=&quot;wbar-date&quot;>${d.lbl.date}</span></div>
         <div class=&quot;wbar-track&quot;><div class=&quot;wbar-fill ${cls}&quot; style=&quot;width:${fillW}%&quot;></div></div>
-        <div class=&quot;wbar-val&quot;>${Math.round(d.tot.protein)}g<span class=&quot;wbar-pct&quot;>${Math.round(pct)}%</span></div>
+        <div class=&quot;wbar-val&quot;>${wbarValTxt}</div>
       </div>`;
     }).join('');
     wBars.innerHTML = daysData.map(d => {
@@ -11677,11 +11719,18 @@ body.youth #youth-banner{display:block}
     }
 
     // Always show computed targets in the grid (whether from saved profile or defaults)
+    // §4.3: this per-day-type breakdown is a THIRD independent display of the
+    // same quantified macro figure -- unconditional before this fix, so it
+    // leaked six gram numerals (one per day type) inside the &quot;Your computed
+    // targets&quot; panel, reachable via its own ▾ toggle. Same runtime-built-leak
+    // class as the rest of this pass; found by expanding the panel and
+    // re-running the visible-text sweep. Water stays -- oz is not a macro.
+    const isYouthFuel3 = document.body.classList.contains('fuel-youth');
     ['rest','light','train','heavy','game','travel'].forEach(k => {
       const T = DAY_TARGETS[k];
       const elP = document.getElementById(`pt-${k}-p`);
       const elW = document.getElementById(`pt-${k}-w`);
-      if (elP) elP.textContent = `${T.protein}g`;
+      if (elP) elP.textContent = isYouthFuel3 ? '5 meals+snacks' : `${T.protein}g`;
       if (elW) elW.textContent = `${T.water}oz`;
     });
 
@@ -11897,11 +11946,21 @@ body.youth #youth-banner{display:block}
           // capability has a pixel that advertises it, not just a gesture.
           const more = '<span onclick=&quot;event.stopPropagation();if(window._favOpenMenu)window._favOpenMenu(this.closest(\'.fav-chip\'))&quot; '
             + 'style=&quot;margin-left:7px;padding:0 3px;color:#8b949e;font-weight:700&quot;>⋯</span>';
+          // §4.3: a protein favorite chip's gram amount is a quantified macro
+          // figure -- same runtime-built-leak class as the bundle button and
+          // log-list entry fixed alongside this. Independently found sweeping
+          // the rendered youth fav strip for /\d\s*g\b/. Youth keeps the chip,
+          // its name and any paired water credit, loses only the gram numeral.
+          const showG = !(f.type==='protein' &amp;&amp; document.body.classList.contains('fuel-youth'));
+          const amtBits=[];
+          if(showG) amtBits.push('+'+f.amount+u);
+          if(f.w) amtBits.push('+'+f.w+'oz');
+          const amtTxt = amtBits.length ? (amtBits.join(' ')+' · ') : '';
           return '<button class=&quot;fav-chip&quot; data-ft=&quot;'+f.type+'&quot; data-fa=&quot;'+f.amount+'&quot; data-fl=&quot;'+lbl+'&quot; data-fe=&quot;'+(f.e||0)+'&quot; data-fw=&quot;'+(f.w||0)+'&quot; data-fm=&quot;'+(f.manual?1:0)+'&quot; onclick=&quot;'+(ed?'':'useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+','+(f.w||0)+')')+'&quot; '+
             'title=&quot;'+(f.manual?'Pinned favorite':'Most-used')+'&quot; '+
             'style=&quot;background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:9px;'+
             'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer&quot;>'+
-            mark+'+'+f.amount+u+(f.w?' +'+f.w+'oz':'')+' · '+(f.label||'')+(ed?rm:more)+'</button>';
+            mark+amtTxt+(f.label||'')+(ed?rm:more)+'</button>';
       };
       // Design item 4: bundles ride above the per-type favorites -- one tap
       // logs every delta in the bundle, with whole-bundle undo. Youth-filtered
@@ -11979,12 +12038,18 @@ body.youth #youth-banner{display:block}
           const g=(typeof _goalForDate==='function')?_goalForDate(key,i===0):{protein:0,water:0};
           const hit = g.protein &amp;&amp; tot.protein>=g.protein &amp;&amp; tot.water>=g.water;
           const lbl = dayLabelStr(i,key);
+          // §4.3: this default-open daily-log row is one of the most visible
+          // surfaces on the Weekly tab -- same runtime-built-leak class as the
+          // rest of this pass. Youth drops the protein gram figure, keeps
+          // water (not a macro) and the hit checkmark (not a number).
+          const isYouthHist = document.body.classList.contains('fuel-youth');
+          const pSeg = isYouthHist ? '' : ('<span style=&quot;color:#d4a017&quot;>'+Math.round(tot.protein)+'g</span> · ');
           rows+='<div onclick=&quot;batteryEditDay(\''+key+'\')&quot; style=&quot;display:flex;align-items:center;'+
             'justify-content:space-between;padding:10px 12px;background:#161b22;border:1px solid '+
             (hit?'#3fb95055':'#2d333b')+';border-radius:10px;margin-bottom:6px;cursor:pointer&quot;>'+
             '<div style=&quot;font-size:13px;color:#e6edf3&quot;>'+lbl+'<span style=&quot;color:#6e7681;font-size:11px&quot;> · '+key.slice(5)+'</span></div>'+
             '<div style=&quot;font-family:\'SF Mono\',monospace;font-size:12px&quot;>'+
-              '<span style=&quot;color:#d4a017&quot;>'+Math.round(tot.protein)+'g</span> · '+
+              pSeg+
               '<span style=&quot;color:#58a6ff&quot;>'+Math.round(tot.water)+'oz</span>'+
               (hit?' <span style=&quot;color:#3fb950&quot;>✓</span>':'')+'</div></div>';
         }
@@ -12010,19 +12075,29 @@ body.youth #youth-banner{display:block}
         const arr=entriesFor(key).filter(e=>!e.shakeWater);
         const g=(typeof _goalForDate==='function')?_goalForDate(key,false):{protein:0,water:0};
         const tot=getTotalsForDate(key);
+        // §4.3: this day-editor is reachable from the Weekly tab (any wbar-row
+        // or renderHistory() row) -- passive gram displays inside it are the
+        // same runtime-built-leak class as the rest of this pass. The manual
+        // amount-entry FORM further down (the g-protein/oz-water picker + free
+        // text amount) is a separate, larger product question -- an authoring
+        // affordance, not a display leak -- and is deliberately left as-is here,
+        // flagged for a follow-up decision rather than silently redesigned.
+        const isYouthDay = document.body.classList.contains('fuel-youth');
         const rows=arr.length? arr.slice().reverse().map(e=>{
           const c=e.type==='protein'?'#d4a017':(e.type==='water'?'#58a6ff':'#3fb950');
           const u=e.type==='protein'?'g':(e.type==='water'?'oz':'');
+          const amtTxt = (e.type==='protein' &amp;&amp; isYouthDay) ? '' : ('+'+e.amount+u);
           return '<div style=&quot;display:flex;align-items:center;gap:8px;padding:9px 11px;background:#0d1117;border:1px solid #2d333b;border-radius:9px;margin-bottom:6px&quot;>'+
             '<span style=&quot;color:#6e7681;font-family:\'SF Mono\',monospace;font-size:11px;min-width:42px&quot;>'+(e.t||'—')+'</span>'+
-            '<span style=&quot;color:'+c+';font-family:\'SF Mono\',monospace;font-size:13px;min-width:46px&quot;>+'+e.amount+u+'</span>'+
+            '<span style=&quot;color:'+c+';font-family:\'SF Mono\',monospace;font-size:13px;min-width:46px&quot;>'+amtTxt+'</span>'+
             '<span style=&quot;color:#c9d1d9;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap&quot;>'+esc(e.label||e.type)+'</span>'+
             '<button onclick=&quot;window._dayDel('+e.id+')&quot; style=&quot;background:none;border:1px solid #da3633;color:#da3633;border-radius:7px;padding:5px 9px;font-size:12px;cursor:pointer&quot;>✕</button></div>';
         }).join('') : '<div style=&quot;color:#6e7681;font-size:13px;text-align:center;padding:14px&quot;>No entries this day.</div>';
-        // goal vs actual header (1.2)
+        // goal vs actual header (1.2). §4.3: protein side is a gram figure;
+        // water stays since oz is not a macro.
         const goalLine = g.protein
           ? '<div style=&quot;display:flex;gap:14px;font-family:\'SF Mono\',monospace;font-size:12px;margin-bottom:12px&quot;>'+
-            '<span style=&quot;color:#d4a017&quot;>P '+Math.round(tot.protein)+'/'+g.protein+'g</span>'+
+            (isYouthDay ? '' : '<span style=&quot;color:#d4a017&quot;>P '+Math.round(tot.protein)+'/'+g.protein+'g</span>')+
             '<span style=&quot;color:#58a6ff&quot;>W '+Math.round(tot.water)+'/'+g.water+'oz</span></div>'
           : '';
         // 1.2/1.4: one-tap re-add from favorites + most-used items (youth-filtered via _favMerged)
@@ -12035,7 +12110,10 @@ body.youth #youth-banner{display:block}
               var col=f.type==='protein'?'#d4a017':(f.type==='water'?'#58a6ff':'#3fb950');
               var u=f.type==='protein'?'g':(f.type==='water'?'oz':'');
               var ic=f.type==='protein'?'🥩':(f.type==='water'?'💧':'⚡');
-              return '<button onclick=&quot;window._dayQuick(\''+f.type+'\','+(+f.amount||0)+',\''+esc(f.label)+'\','+(+f.e||0)+')&quot; style=&quot;background:#0d1117;border:1px solid '+col+'55;color:'+col+';border-radius:999px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap&quot;>'+ic+' '+esc(f.label)+' +'+(+f.amount||0)+u+'</button>';
+              // §4.3: same gram-numeral gate as the main fav strip -- youth
+              // keeps the chip and its name, loses only the protein amount.
+              var amtSuf = (f.type==='protein' &amp;&amp; isYouthDay) ? '' : (' +'+(+f.amount||0)+u);
+              return '<button onclick=&quot;window._dayQuick(\''+f.type+'\','+(+f.amount||0)+',\''+esc(f.label)+'\','+(+f.e||0)+')&quot; style=&quot;background:#0d1117;border:1px solid '+col+'55;color:'+col+';border-radius:999px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap&quot;>'+ic+' '+esc(f.label)+amtSuf+'</button>';
             }).join('')+
             '</div></div>'
           : '';
@@ -12809,7 +12887,7 @@ body.youth #youth-banner{display:block}
 </div></div>
 <script>
 /* PWA */
-if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v94').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v94').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
+if('serviceWorker' in navigator){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil((async()=>{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='battery-v95').map(k=>caches.delete(k)));await self.clients.claim();})());self.addEventListener('fetch',e=>{e.respondWith(caches.open('battery-v95').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>{try{c.put(e.request,n.clone())}catch(x){}return n}).catch(()=>r))))});`;try{navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}catch(e){}}
 (function(){const st=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(ios&&!st&&!localStorage.getItem('battery-install-dismiss')){setTimeout(()=>document.getElementById('install').style.display='block',1500);}document.querySelector('#install .x').addEventListener('click',()=>localStorage.setItem('battery-install-dismiss','1'));})();
 
 /* ===== iOS WebKit standalone VIEWPORT FIX (the bottom black bar) =====
