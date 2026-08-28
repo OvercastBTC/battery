@@ -8019,30 +8019,7 @@ body.youth #youth-banner{display:block}
 
     <div class=&quot;qa-subgroup-label&quot;>Containers · water only</div>
     <div class=&quot;qa-grid&quot;>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(28, 'Yeti 28oz')&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Yeti Rambler 28oz</span>
-      </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(28, 'Ocean Bottle')&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Ocean Bottle 28oz</span>
-      </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(28, 'Yeti shaker')&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Yeti shaker 28oz</span>
-      </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(33.8, 'Smart Water 1L')&quot;>
-        <span class=&quot;qa-amt&quot;>+33.8<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Smart Water 1L (33.8oz)</span>
-      </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(12, 'Bottle')&quot;>
-        <span class=&quot;qa-amt&quot;>+12<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Standard bottle</span>
-      </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(8, 'Glass')&quot;>
-        <span class=&quot;qa-amt&quot;>+8<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Glass / cup</span>
-      </button>
+      <span id=&quot;qa-w-containers&quot;></span>
     </div>
 
     <!-- 1.2: relational measures — no bottle, no problem. Estimates, clearly labeled. -->
@@ -8076,50 +8053,17 @@ body.youth #youth-banner{display:block}
       <strong>Liquid IV</strong> and <strong>LMNT</strong> are electrolyte powder/salt mix sticks you pour into water. They don't add water themselves — they boost sodium / potassium / magnesium. Log your container separately. Liquid IV ≈ 500mg Na + 11g sugar. LMNT ≈ 1000mg Na, no sugar.
     </div>
     <div class=&quot;qa-grid qa-adult&quot;>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addMixIn('Liquid IV', 1)&quot;>
-        <span class=&quot;qa-amt&quot;>+1<span class=&quot;u&quot;> stick</span></span>
-        <span class=&quot;qa-name&quot;>Liquid IV ⚡ full</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addMixIn('Liquid IV ½', 0.5)&quot;>
-        <span class=&quot;qa-amt&quot;>+½<span class=&quot;u&quot;> stick</span></span>
-        <span class=&quot;qa-name&quot;>Liquid IV ⚡ half</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addMixIn('Liquid IV Energy', 1)&quot;>
-        <span class=&quot;qa-amt&quot;>+1<span class=&quot;u&quot;> stick</span></span>
-        <span class=&quot;qa-name&quot;>Liquid IV Energy ⚡</span>
-      </button>
+      <span id=&quot;qa-w-mixins&quot;></span>
     </div>
 
     <div class=&quot;qa-subgroup-label&quot; style=&quot;margin-top:14px&quot;>Sport drink · water + electrolytes ⚡ ½</div>
     <div class=&quot;qa-grid&quot;>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addWaterWithElec(12, 'Sport drink', 0.3)&quot;>
-        <span class=&quot;qa-amt&quot;>+12<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Small · 12oz</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addWaterWithElec(20, 'Sport drink', 0.5)&quot;>
-        <span class=&quot;qa-amt&quot;>+20<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Standard · 20oz</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addWaterWithElec(28, 'Sport drink', 0.7)&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Large · 28oz</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addWaterWithElec(32, 'Sport drink', 0.8)&quot;>
-        <span class=&quot;qa-amt&quot;>+32<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>XL · 32oz</span>
-      </button>
+      <span id=&quot;qa-w-sportdrink&quot;></span>
     </div>
 
     <div class=&quot;qa-subgroup-label qa-adult&quot; style=&quot;margin-top:14px&quot;>Shaker + Liquid IV · water + ⚡ in one tap</div>
     <div class=&quot;qa-grid qa-adult&quot;>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addItem({water:28,elec:1,label:'28oz shaker + Liquid IV'})&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz ⚡</span></span>
-        <span class=&quot;qa-name&quot;>28oz shaker + Liquid IV</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addItem({water:28,elec:1,label:'28oz shaker + Liquid IV Energy'})&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz ⚡</span></span>
-        <span class=&quot;qa-name&quot;>28oz shaker + Liquid IV Energy</span>
-      </button>
+      <span id=&quot;qa-w-shaker&quot;></span>
     </div>
 
     <div class=&quot;custom-add-form&quot; id=&quot;custom-water-form&quot;>
@@ -10002,6 +9946,78 @@ body.youth #youth-banner{display:block}
   }
   function saveCustomItems(a){ storeSet('fuel-items-custom', JSON.stringify(a||[])); }
   window.fuelAllItems = function(){ return FUEL_ITEMS.concat(loadCustomItems()); };
+
+
+  /* ===== WATER + ELECTROLYTE CATALOG (stage 3) =====
+     Completes what stage 1 started: all 61 quick-adds are now data. Only the
+     ITEMS moved -- the group headings, the §4.3 .qa-adult classes on them, the
+     mix-in info copy and the whole estimator widget stay exactly where they were
+     as markup, because none of those are items and a catalog has no business
+     modelling them. Four hosts, one per grid, so the estimator keeps its place
+     in the middle of the section rather than being shuffled to an end.
+
+     w = water oz, e = electrolyte stick-equivalents, z = show the ⚡ suffix.
+     l is the ledger label and is byte-identical to the markup it replaces --
+     same compatibility contract as the protein catalog: favourites match on
+     (label, amount) and history stores the label string.
+
+     Routing is provably equivalent to the old handlers: addWaterWithElec() is a
+     pure alias for addWater(), and addWater() normalises a missing third arg to
+     0, so addItem({water,elec,label}) reaches the identical call for every one
+     of these 15. Mix-ins (e only, no water) route to addMixIn() exactly as before. */
+  const FUEL_W_ITEMS = [
+    {id:'yeti-28oz-28-0-0',g:'containers',w:28,e:0,l:'Yeti 28oz',n:'Yeti Rambler 28oz'},
+    {id:'ocean-bottle-28-0-0',g:'containers',w:28,e:0,l:'Ocean Bottle',n:'Ocean Bottle 28oz'},
+    {id:'yeti-shaker-28-0-0',g:'containers',w:28,e:0,l:'Yeti shaker',n:'Yeti shaker 28oz'},
+    {id:'smart-water-1l-33-8-0',g:'containers',w:33.8,e:0,l:'Smart Water 1L',n:'Smart Water 1L (33.8oz)'},
+    {id:'bottle-12-0-0',g:'containers',w:12,e:0,l:'Bottle',n:'Standard bottle'},
+    {id:'glass-8-0-0',g:'containers',w:8,e:0,l:'Glass',n:'Glass / cup'},
+    {id:'liquid-iv-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV',n:'Liquid IV ⚡ full'},
+    {id:'liquid-iv-0-0-5',g:'mixins',w:0,e:0.5,l:'Liquid IV ½',n:'Liquid IV ⚡ half'},
+    {id:'liquid-iv-energy-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV Energy',n:'Liquid IV Energy ⚡'},
+    {id:'sport-drink-12-0-0-3',g:'sportdrink',w:12,e:0.3,l:'Sport drink',n:'Small · 12oz'},
+    {id:'sport-drink-20-0-0-5',g:'sportdrink',w:20,e:0.5,l:'Sport drink',n:'Standard · 20oz'},
+    {id:'sport-drink-28-0-0-7',g:'sportdrink',w:28,e:0.7,l:'Sport drink',n:'Large · 28oz'},
+    {id:'sport-drink-32-0-0-8',g:'sportdrink',w:32,e:0.8,l:'Sport drink',n:'XL · 32oz'},
+    {id:'28oz-shaker-liquid-iv-28-0',g:'shaker',w:28,e:1,l:'28oz shaker + Liquid IV',n:'28oz shaker + Liquid IV',z:1},
+    {id:'28oz-shaker-liquid-iv-ener',g:'shaker',w:28,e:1,l:'28oz shaker + Liquid IV Energy',n:'28oz shaker + Liquid IV Energy',z:1}
+  ];
+  function renderWaterQuickAdds(){
+    ['containers','mixins','sportdrink','shaker'].forEach(function(gid){
+      const host = document.getElementById('qa-w-' + gid);
+      if(!host) return;
+      host.textContent = '';
+      FUEL_W_ITEMS.filter(function(it){ return it.g === gid; }).forEach(function(it){
+        const b = document.createElement('button');
+        b.className = 'qa-btn water';
+        b.dataset.item = it.id;
+        const amt = document.createElement('span');
+        amt.className = 'qa-amt';
+        if(+it.w > 0){
+          amt.appendChild(document.createTextNode('+' + it.w));
+          const u = document.createElement('span'); u.className = 'u'; u.textContent = 'oz';
+          amt.appendChild(u);
+          if(it.z) amt.appendChild(document.createTextNode(' ⚡'));
+        } else {
+          /* sticks read as a half or a whole, never as 0.5 */
+          const n = (+it.e === 0.5) ? '½' : String(it.e);
+          /* half a stick is still 'stick', not 'sticks' -- pluralise above one,
+             not merely away from one (caught in live render: it read '+½ sticks') */
+          amt.appendChild(document.createTextNode('+' + n + ' stick' + (+it.e > 1 ? 's' : '')));
+        }
+        const nm = document.createElement('span');
+        nm.className = 'qa-name'; nm.textContent = it.n;
+        b.appendChild(amt); b.appendChild(nm);
+        b.addEventListener('click', function(){
+          addItem({ water: +it.w || 0, elec: +it.e || 0, label: it.l });
+        });
+        host.appendChild(b);
+      });
+    });
+  }
+  window.renderWaterQuickAdds = renderWaterQuickAdds;
+  if(document.readyState !== 'loading') setTimeout(function(){ try{ renderWaterQuickAdds(); }catch(e){} }, 60);
+  else document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ try{ renderWaterQuickAdds(); }catch(e){} }, 60); });
 
   /* Built with createElement, never HTML strings -- srcdoc-safe by construction.
      A single stray double quote in one food name would blank the whole iframe. */
