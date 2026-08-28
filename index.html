@@ -2115,7 +2115,7 @@ body.youth #youth-banner{display:block}
     </li>
 
     <li class=&quot;step-divider&quot; id=&quot;jx-divider&quot;>
-      <span>Optional extras · complementary band work · +bonus</span>
+      <span>Optional extras · woven in below · counted only when ON</span>
       <button id=&quot;jx-toggle&quot; onclick=&quot;toggleJxExtras()&quot;>ON</button>
     </li>
 
@@ -2179,35 +2179,7 @@ body.youth #youth-banner{display:block}
         </div>
       </li>
 
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-9090er&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>90/90 External Rotation <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Infraspinatus @ 90/90</div>
-          </div>
-          <div class=&quot;step-reps&quot;>25 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Elbow raised to shoulder height, bent 90°. Rotate the forearm up and back, then slow return. Keep the elbow up.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-9090er.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
 
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-ir&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>Internal Rotation <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Subscapularis</div>
-          </div>
-          <div class=&quot;step-reps&quot;>25 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Elbow tucked to the side at 90°. Rotate the forearm in across the belly against the band, slow return.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ir.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
 
       <li class=&quot;step opt&quot; data-ex=&quot;jx-triceps&quot;>
         <div class=&quot;step-row&quot;>
@@ -4950,6 +4922,77 @@ body.youth #youth-banner{display:block}
     });
     return {done:done,total:total,optDone:optDone,optTotal:optTotal};
   }
+  /* ===== J-BANDS: ONE LIST, ORDERED BY WHAT THE TISSUE NEEDS FIRST =====
+     Owner ask: de-duplicate, merge the official 11 and the optional extras into
+     a single list, and order it for muscle use rather than for provenance.
+
+     Two exercises were literal duplicates and are DELETED outright (Lane D found
+     them in PR #17; re-verified here before removing):
+       jx-9090er == j10  (Elevated External Rotation, same movement)
+       jx-ir     == j6   (Internal Rotation, same movement)
+     KEPT despite looking like a third: j9 (Elevated IR Alt) sits on the same
+     position as j8 but on a different motion path, and the source protocol keeps
+     both on purpose -- small muscles do benefit from varied fibre angles. Cutting
+     it would be editing Bauer's routine, not de-duplicating it, so it stays and
+     now sits directly beside j8 where the relationship is obvious.
+
+     THE ORDER IS THE FEATURE. The old list was provenance-ordered: the official
+     11 in Jaeger's numbering, then everything else dumped underneath. That put
+     scapular work AFTER cuff work and left activation drills at the bottom. The
+     blocks below run big-to-small, and put the shoulder blade before the cuff:
+     the scapula is the platform the cuff pulls against, so training the cuff on
+     an uncontrolled blade is loading a joint whose base is still loose. Pattern
+     work goes last, once everything it depends on is awake.
+
+     Reordered at RENDER TIME by id, not by moving markup. Step ids never change,
+     so every logged check-off survives; changing the order later is one edit to
+     this array. Same approach as renderLiftGroups(). */
+  var JB_BLOCKS = [
+    { t: '1 · Wake it up — activation, then the big levers',
+      ids: ['jx-circles','j1','j2','j3'] },
+    { t: '2 · Set the shoulder blade — the platform the cuff pulls against',
+      ids: ['jx-fwdback','jx-rows','jx-a','jx-t','jx-y','jx-facepull'] },
+    { t: '3 · Delts — the prime movers around the joint',
+      ids: ['j4','j5'] },
+    { t: '4 · Cuff · arm at the side — smallest muscles, controlled position',
+      ids: ['j6','j7'] },
+    { t: '5 · Cuff · throwing position — the angle that actually gets stressed',
+      ids: ['j8','j9','j10'] },
+    { t: '6 · Put it together — the full pattern, decel included',
+      ids: ['j11'] },
+    { t: '7 · Forearm and finish',
+      ids: ['j12','jx-triceps'] }
+  ];
+  function renderJbandOrder(){
+    var list = document.querySelector('#page-jbands .steplist');
+    if(!list) return;
+    list.querySelectorAll('.jb-hdr').forEach(function(h){ h.remove(); });
+    /* the extras ON/OFF control now heads the whole list rather than splitting
+       it in two -- there is no second list left for it to divide */
+    var div = document.getElementById('jx-divider');
+    if(div) list.insertBefore(div, list.firstChild);
+    var byId = {};
+    list.querySelectorAll('.step').forEach(function(st){
+      var k = st.getAttribute('data-ex');
+      if(k) byId[k] = st;
+    });
+    var placed = {};
+    JB_BLOCKS.forEach(function(b){
+      var present = b.ids.filter(function(id){ return byId[id]; });
+      if(!present.length) return;
+      var h = document.createElement('li');
+      h.className = 'step-divider jb-hdr';
+      var sp = document.createElement('span');
+      sp.textContent = b.t;
+      h.appendChild(sp);
+      list.appendChild(h);
+      present.forEach(function(id){ placed[id] = 1; list.appendChild(byId[id]); });
+    });
+    /* anything not named in a block still renders, never silently dropped */
+    Object.keys(byId).forEach(function(id){ if(!placed[id]) list.appendChild(byId[id]); });
+  }
+  window.renderJbandOrder = renderJbandOrder;
+
   function applyJxExtras(){
     const pg = document.getElementById('page-jbands');
     const btn = document.getElementById('jx-toggle');
@@ -5537,6 +5580,7 @@ body.youth #youth-banner{display:block}
   setBonus(parseInt(storeGet('arm-care-bonus', '0'), 10));
   loadDone();
   applyJxExtras();   // 6.1.1: restore the optional-extras ON/OFF state
+  try{ renderJbandOrder(); }catch(e){}   // one list, ordered by tissue need
   applySets();       // 3.0: restore today's block ON/OFF switches
   try{ renderSplit(); }catch(e){}
   try{ renderSplit(); }catch(e){}
