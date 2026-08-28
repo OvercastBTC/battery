@@ -6840,6 +6840,43 @@ body.youth #youth-banner{display:block}
      forbids. Keep the button, drop the number -- the entry still logs its real
      grams underneath, so the parent-facing history is unchanged. */
   body.fuel-youth .quickadd-section.protein .qa-amt { display: none; }
+  /* stage 2: user-created items */
+  .qa-btn.qa-mine { position: relative; }
+  .qa-x {
+    position: absolute; top: 2px; right: 4px; padding: 0 4px;
+    color: #6e7681; font-weight: 700; font-size: 13px; line-height: 1.2;
+  }
+  .qa-x:hover { color: #f85149; }
+  .qa-add {
+    border-style: dashed !important;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--dim); font-weight: 700; letter-spacing: 0.04em;
+  }
+  .cust-sheet-ov { position: fixed; inset: 0; z-index: 10000; background: #000a;
+    display: flex; align-items: flex-end; justify-content: center; }
+  .cust-sheet { background: #161b22; border: 1px solid #30363d;
+    border-radius: 16px 16px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    width: 100%; max-width: 520px; }
+  .cust-sheet h4 { font-size: 14px; font-weight: 700; color: #e6edf3; margin: 0 0 4px; }
+  .cust-sheet .cs-sub { font-size: 11px; color: #8b949e; margin: 0 0 14px; line-height: 1.5;
+    font-family: 'Courier New', monospace; }
+  .cust-sheet input, .cust-sheet select {
+    width: 100%; background: #0d1117; border: 1px solid #30363d; color: #e6edf3;
+    padding: 11px; border-radius: 9px; font-size: 14px; margin-bottom: 9px;
+    box-sizing: border-box; font-family: inherit;
+  }
+  .cust-sheet .cs-row { display: flex; gap: 9px; }
+  .cust-sheet .cs-row input { flex: 1; }
+  .cust-sheet .cs-err { color: #f85149; font-size: 11px; min-height: 14px; margin-bottom: 6px;
+    font-family: 'Courier New', monospace; }
+  .cust-sheet .cs-ok {
+    width: 100%; background: var(--gold); border: none; color: #0d1117; border-radius: 9px;
+    padding: 12px; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  .cust-sheet .cs-cancel {
+    width: 100%; background: none; border: none; color: #8b949e; padding: 10px;
+    font-size: 13px; cursor: pointer; margin-top: 2px;
+  }
   body.fuel-youth .qa-gram { display: none; }
   body.fuel-youth #protein-pct { display: none; }
   /* 1.0: protein banking -- an opt-in variable in the target equation */
@@ -9929,9 +9966,13 @@ body.youth #youth-banner{display:block}
     if(!host) return;
     host.textContent = '';
     const all = window.fuelAllItems();
-    FUEL_GROUPS.forEach(function(g, gi){
+    /* MY_GROUP is appended, not stored in FUEL_GROUPS, so a user item can never
+       reorder or shadow a built-in group. */
+    FUEL_GROUPS.concat([MY_GROUP]).forEach(function(g, gi){
       const mine = all.filter(function(it){ return it.g === g.id; });
-      if(!mine.length) return;
+      /* the My items header shows even when empty, because it carries the add
+         tile -- a capability with no visible affordance does not exist (§4) */
+      if(!mine.length &amp;&amp; g.id !== MY_GROUP.id) return;
       const lab = document.createElement('div');
       lab.className = 'qa-subgroup-label' + (g.adult ? ' qa-adult' : '');
       if(gi > 0) lab.style.marginTop = '14px';
@@ -9954,12 +9995,106 @@ body.youth #youth-banner{display:block}
         b.addEventListener('click', function(){
           addItem({ protein: +it.p || 0, water: +it.w || 0, label: it.l });
         });
+        if(it.mine){
+          b.classList.add('qa-mine');
+          const x = document.createElement('span');
+          x.className = 'qa-x'; x.textContent = '×';
+          x.title = 'Remove this item';
+          x.addEventListener('click', function(ev){
+            ev.stopPropagation();
+            /* removing the button never touches logged entries -- history keeps
+               everything already eaten under its label */
+            window.removeCustomItem(it.id);
+          });
+          b.appendChild(x);
+        }
         grid.appendChild(b);
       });
+      if(g.id === MY_GROUP.id){
+        const add = document.createElement('button');
+        add.className = 'qa-btn protein qa-add';
+        add.id = 'qa-add-own';
+        add.textContent = '+ Add your own';
+        add.addEventListener('click', function(){ openAddItemSheet(); });
+        grid.appendChild(add);
+      }
       host.appendChild(grid);
     });
   }
   window.renderProteinQuickAdds = renderProteinQuickAdds;
+
+  /* ===== STAGE 2 -- ADD YOUR OWN ITEM (owner ask) =====
+     Stage 1 made items data; this is what that was for. A user item is the same
+     shape as a built-in, so it renders, logs, pins and undoes through the exact
+     same paths -- the only difference is that it can be deleted.
+
+     They land in their own MY_GROUP at the end rather than being scattered into
+     the built-in groups. One less decision at entry time, and it keeps what the
+     owner made obviously his (and obviously removable) instead of hiding it
+     among 48 presets.
+
+     l (the ledger label) is set to the typed name, which is what enters history.
+     That is deliberate: it is the same contract the built-ins hold, so a custom
+     item can be pinned to favourites and matched on (label, amount) like any
+     other. Renaming later would orphan those pins, so the sheet edits nothing --
+     you remove and re-add, which makes the consequence visible.
+
+     §4.3: ADULT ONLY. The whole affordance is .qa-adult. A gram-amount entry
+     form is exactly the quantified-macro surface the youth gate exists to
+     prevent, so youth never sees the tile, let alone the sheet. */
+  const MY_GROUP = { id: 'my-items', t: 'My items', adult: 1 };
+
+  function customIdFor(name, existing){
+    let base = String(name || 'item').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) || 'item';
+    let id = 'my-' + base, n = 2;
+    while (existing.some(function(x){ return x.id === id; })) { id = 'my-' + base + '-' + n; n++; }
+    return id;
+  }
+  window.removeCustomItem = function(id){
+    const keep = loadCustomItems().filter(function(x){ return x.id !== id; });
+    saveCustomItems(keep);
+    renderProteinQuickAdds();
+  };
+  function openAddItemSheet(){
+    const ov = document.createElement('div'); ov.className = 'cust-sheet-ov';
+    ov.addEventListener('click', function(e){ if(e.target === ov) ov.remove(); });
+    const card = document.createElement('div'); card.className = 'cust-sheet';
+    const h = document.createElement('h4'); h.textContent = 'Add your own item';
+    const sub = document.createElement('div'); sub.className = 'cs-sub';
+    sub.textContent = 'Give it a name and what it is worth. Leave water at 0 for food; set it for a shake and the tap credits both, same as the built-in shakes.';
+    const nameI = document.createElement('input');
+    nameI.type = 'text'; nameI.placeholder = 'Name (e.g. Mom chili)'; nameI.maxLength = 40;
+    const row = document.createElement('div'); row.className = 'cs-row';
+    const pI = document.createElement('input');
+    pI.type = 'number'; pI.min = '0'; pI.max = '300'; pI.placeholder = 'protein g';
+    const wI = document.createElement('input');
+    wI.type = 'number'; wI.min = '0'; wI.max = '200'; wI.placeholder = 'water oz (optional)';
+    row.appendChild(pI); row.appendChild(wI);
+    const err = document.createElement('div'); err.className = 'cs-err';
+    const ok = document.createElement('button'); ok.className = 'cs-ok'; ok.textContent = 'Add it';
+    const cancel = document.createElement('button'); cancel.className = 'cs-cancel'; cancel.textContent = 'Cancel';
+    cancel.addEventListener('click', function(){ ov.remove(); });
+    ok.addEventListener('click', function(){
+      const nm = (nameI.value || '').trim();
+      const pv = Math.round(+pI.value || 0), wv = Math.round(+wI.value || 0);
+      if(!nm){ err.textContent = 'Needs a name.'; return; }
+      if(pv <= 0 &amp;&amp; wv <= 0){ err.textContent = 'Needs a protein or water amount.'; return; }
+      if(pv < 0 || wv < 0 || pv > 300 || wv > 200){ err.textContent = 'Amounts look out of range.'; return; }
+      const cur = loadCustomItems();
+      if(cur.some(function(x){ return (x.l || '').toLowerCase() === nm.toLowerCase(); })){
+        err.textContent = 'You already have one called that.'; return;
+      }
+      cur.push({ id: customIdFor(nm, cur), g: MY_GROUP.id, p: pv, w: wv, l: nm, n: nm, mine: 1 });
+      saveCustomItems(cur);
+      renderProteinQuickAdds();
+      ov.remove();
+    });
+    card.appendChild(h); card.appendChild(sub); card.appendChild(nameI); card.appendChild(row);
+    card.appendChild(err); card.appendChild(ok); card.appendChild(cancel);
+    ov.appendChild(card); document.body.appendChild(ov);
+    setTimeout(function(){ try{ nameI.focus(); }catch(e){} }, 50);
+  }
+  window.openAddItemSheet = openAddItemSheet;
   if(document.readyState !== 'loading') setTimeout(function(){ try{ renderProteinQuickAdds(); }catch(e){} }, 60);
   else document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ try{ renderProteinQuickAdds(); }catch(e){} }, 60); });
 
