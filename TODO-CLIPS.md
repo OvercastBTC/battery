@@ -207,3 +207,71 @@ list where the LINK/EMBED default is worth actually keeping. If the owner wants
 offline-capable demo clips for the `wash-*` slots specifically, filming those six
 remains the cleanest path — they need a partner and a ball, and Washington's
 progression is fully documented in the app's own tab copy already.
+
+---
+
+## Source dissection, 2026-08-27 (Lane A) — both files analysed: frames + subtitles
+
+Method: `ffmpeg` contact sheets (every 4–10s) plus the **embedded subtitle track**
+extracted to SRT. Timings are cut-planning estimates; every in/out still needs a
+scrub to land on a clean rep.
+
+### A. `How to Train Like a Big League First Baseman…Ron Washington and Bryce Eldridge.mp4`
+7:15 · 1920×1080 · 23.98fps · **subtitles present, Washington narrates throughout**
+
+⚠ **This is NOT the video whose URL was sent.** The sent URL `4Xm_WZrLGEY` is the
+**Jerar Encarnacion** episode; this file is the **Bryce Eldridge** one. Same
+series, same coach, different player. Noting it so nobody later assumes one file
+is the other.
+
+| Time | What | Washington's own words |
+|---|---|---|
+| 0:05–2:45 | **KNEELING** short hops, continuous | more to the ground · you forgot the bad hop · when you use that pad you need bounce |
+| 1:15–2:45 | glove-path teaching, still kneeling | you see how you just turning that glove in · **you want to go right to it, you don't want to go here to slide up** |
+| 2:50–3:45 | **STANDING**, lateral | all right, **side to side** · when you throw it up you move |
+| 3:45–4:05 | standing, counted reps | **other way. Turn around other way. One. Two… Four.** |
+| 4:00–5:25 | standing, footwork + glove depth | **front foot out** … sit down … the glove got to be down · always just make **one move** |
+| 5:30–6:10 | standing **BACKHAND** | all right, backhand · this one out here, you want to **come direct** |
+| 6:15–7:00 | standing **MIDDLE** | in the middle · keep everything going in a **direct line** |
+| 7:00–7:15 | wrap-up talk | — |
+
+**Maps to 5 of our 6 `wash-*` slots, with one honest gap:**
+- `wash-knee-center` / `-forehand` / `-backhand` → all three come out of the
+  0:05–2:45 kneeling block, **but** the tape never verbally separates them the way
+  our slot names do; the explicit backhand and middle calls happen in the STANDING
+  block. Cutting three distinct kneeling clips means picking reps by eye.
+- `wash-stand-glove` → 2:50–6:10, abundant. Easiest cut on the list.
+- `wash-number-hops` → **3:45–4:05**, the counted One-Two-Four sequence.
+- `wash-stand-barehand` → ⚠ **NOT CONFIRMED PRESENT.** No frame clearly shows
+  bare-hand work. Either it is not in this episode or it is too brief to catch at
+  10s sampling. **Do not treat this slot as solved.**
+
+**Taxonomy mismatch, owner decision:** our slots model *knee(3) → stand-barehand →
+stand-glove → number-hops*. Washington's actual session runs *kneeling (general) →
+side-to-side → other-way counted → front-foot-out → backhand → middle*. His
+structure is arguably better because it is his. Renaming the six slots to match
+the tape is cheap and would make every clip land on a real segment rather than an
+invented one.
+
+### B. `How Freddie Freeman Prepares to Play First Base…mp4`
+3:08 · 1920×1080 · 24fps · subtitles present but **auto-generated and unusable**
+(garbled, duplicated, mostly press-conference audio)
+
+| Time | What |
+|---|---|
+| 0:00–0:12 | NLDS press conference — not drill footage |
+| 0:12–1:20 | **kneeling** short hops, partner feeding |
+| 1:26–2:15 | **standing**, bent-over short hops |
+| 2:15–2:36 | **big stretched lateral picks** — the classic 1B stretch/pick |
+| ~2:36–3:08 | Fanatics View outro + end cards |
+
+**Best use:** 2:15–2:36 is the single most on-point footage found so far for the
+**Field Work → First Base** steps added in Batch 3 (picks from every angle,
+short-hop scoops, the stretch at the bag). Only 0:12–2:36 is usable at all.
+
+### Re-host posture — unchanged, still binding
+A is an **MLB club channel** (SF Giants); B is an **aggregator republishing MLB
+footage**. Having the files downloaded locally does not change the rights
+position. Recommendation stands: **link/embed for the public build**. If offline
+demo clips are wanted for `wash-*`, filming them is still the clean path — and
+this transcript is now effectively a shot list for doing exactly that.
