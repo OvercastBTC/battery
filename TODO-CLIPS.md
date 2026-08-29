@@ -380,11 +380,19 @@ Every clip now shows **`Cut from: <source> ↗` above the player, always** — t
 official-demo link only appeared when a file was *missing*, so a clip that played
 carried no attribution at all.
 
-### Source files — location convention
-Originals live in **iCloud Drive → `0.5 Baseball`**, not in Downloads and not in
-the repo. All four were byte-size verified against their iCloud copies and then
-removed from `~/Downloads`. **Any future source download goes straight to
-`0.5 Baseball`.**
+### Source files — location convention ⚠ CORRECTED 2026-08-29
+**Archive** lives in iCloud Drive → `0.5 Baseball`. Never in the repo.
+
+**But a file that is only in iCloud cannot be cut from.** iCloud evicts files to
+save disk, leaving a dataless `.icloud` placeholder; from a sandboxed tool session
+`brctl download` returns success while materialising nothing, and the real path
+does not exist to `stat`. The three files that were successfully dissected were
+**real local files in `~/Downloads`** — that is the only reason it worked.
+
+**Working rule:** keep the source file somewhere genuinely local (`~/Downloads`
+is fine) *while it is being cut*, then move it to `0.5 Baseball` to archive once
+the clips are committed. Archiving first is what breaks it. This corrects the
+advice given on 2026-08-28, which caused exactly that.
 
 ## SF Giants series — the rest of it, all oEmbed-verified (for the 2B/SS/3B build)
 The `wash-*` teaching (arrow, direct line, don't-slide-up, feet moving) is
