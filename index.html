@@ -247,6 +247,23 @@ body.youth #youth-banner{display:block}
     --wash:    #ff6b35;
     --wash-dim: rgba(255,107,53,0.15);
   }
+
+  /* ===== design review §6: HIS ACCENT IS GREEN =====
+     Green primary where gold is yours, same near-black steel and monospace.
+     The cheapest identity win available: gold is a token, so the whole tier
+     re-skins by redefining two variables. Nothing else changes -- same steel,
+     same type, same layout. His app, not a redacted copy of the adult one.
+
+     Deliberately NOT --green (#3fb950). That token means done / hit-your-goal
+     everywhere in both frames, and reusing it as the accent would make every
+     border and heading read as a success state. This is a distinctly brighter,
+     more saturated green so the two stay tellable apart. If the owner wants a
+     different hue it is these two lines and nothing else. */
+  body.youth {
+    --gold: #2fd66b;
+    --gold-bright: #6ef2a0;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
     background: var(--ink);
@@ -6187,6 +6204,27 @@ body.youth #youth-banner{display:block}
           if(g.water > 0 && w >= g.water) awardCross('water');
         }
       }catch(e){}
+      try{ /* §6 STREAK BADGE: consecutive days of finished arm care.
+              The review asked for something like a 14-days-of-J-Bands badge. Every
+              other sticker here rewards a single day; this is the first one that
+              rewards showing up repeatedly, which is the behaviour actually
+              worth building in a 12-year-old.
+
+              Reads the SAME arm-care-<date> completion records the History tab
+              already writes, so it needs no new storage and cannot disagree with
+              what History shows. Awards at 3, 7, 14, 30 and then every 30 --
+              milestones, not a badge every single day, so it keeps meaning
+              something. */
+        var st = 0;
+        for(var n=0; n<400; n++){
+          var dd = new Date(); dd.setDate(dd.getDate() - n);
+          var kk = dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');
+          var rec = localStorage.getItem('arm-care-' + kk);
+          if(rec && rec !== '[]') st++;
+          else { if(n === 0) continue; break; }   /* today not done yet != streak broken */
+        }
+        if(st === 3 || st === 7 || st === 14 || st === 30 || (st > 30 && st % 30 === 0)) awardCross('streak' + st);
+      }catch(e){}
       try{ // sleep streak: every 3rd consecutive logged night (3, 6, 9, ...)
         var id = localStorage.getItem('battery-profile');
         if(id){
@@ -6248,6 +6286,12 @@ body.youth #youth-banner{display:block}
     --d-game:   #ff9d3f;
     --d-travel: #bc8cff;
   }
+  /* §6: same green accent on the FUEL side of the seam (see the ARM note). */
+  body.fuel-youth {
+    --gold: #2fd66b;
+    --gold-bright: #6ef2a0;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
     background: var(--ink);
