@@ -1209,6 +1209,12 @@ body.youth #youth-banner{display:block}
     border: 1px dashed var(--line); border-radius: 8px;
   }
   #clip-modal.no-clip video { display: none; }
+  #clip-credit {
+    font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.6;
+    color: var(--dim); margin: 0 0 8px;
+  }
+  #clip-credit a { color: var(--gold); text-decoration: none; }
+  #clip-credit a:hover { text-decoration: underline; }
   #clip-modal.no-clip .clip-soon { display: block; }
 
   /* ===== 5.0 SURPRISE: YOUTH STICKER SHELF (youth-only) ===== */
@@ -3031,7 +3037,7 @@ body.youth #youth-banner{display:block}
 
   <h3 style=&quot;margin-top:22px&quot;>First base</h3>
   <ul class=&quot;steplist&quot;>
-    <li class=&quot;step&quot; data-ex=&quot;fw-1b-stretch&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;fw-1b-stretch&quot; data-clip=&quot;clips/fw-1b-stretch.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3045,7 +3051,7 @@ body.youth #youth-banner{display:block}
         <em>Fielding stretch, not a mobility stretch. If you want the hip mobility work for this position, that lives on the Warm Up tab.</em>
       </div>
     </li>
-    <li class=&quot;step&quot; data-ex=&quot;fw-1b-scoop&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;fw-1b-scoop&quot; data-clip=&quot;clips/fw-1b-scoops.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3058,7 +3064,7 @@ body.youth #youth-banner{display:block}
         <p>Glove out front and relaxed. Let the hop come to you; reaching at it is what turns a pick into an error.</p>
       </div>
     </li>
-    <li class=&quot;step&quot; data-ex=&quot;fw-1b-angles&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;fw-1b-angles&quot; data-clip=&quot;clips/fw-1b-stretch.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3174,7 +3180,7 @@ body.youth #youth-banner{display:block}
 
   <ul class=&quot;steplist&quot;>
 
-    <li class=&quot;step&quot; data-ex=&quot;w0&quot; data-track=&quot;full&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w0&quot; data-clip=&quot;clips/wash-arrow.mp4&quot; data-track=&quot;full&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3188,7 +3194,7 @@ body.youth #youth-banner{display:block}
         <em>This is not a drill, it is the reason the drills exist. He returns to it twice in eleven minutes, which is how you know it is the spine and not a tip.</em>
       </div>
     </li>
-    <li class=&quot;step&quot; data-ex=&quot;w1&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w1&quot; data-clip=&quot;clips/wash-knee-center.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3203,7 +3209,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;w2&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w2&quot; data-clip=&quot;clips/wash-knee-forehand.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3218,7 +3224,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;w3&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w3&quot; data-clip=&quot;clips/wash-knee-backhand.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3233,7 +3239,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;w4&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w4&quot; data-clip=&quot;clips/wash-stand-barehand.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3248,7 +3254,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;w5&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w5&quot; data-clip=&quot;clips/wash-stand-glove.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3263,7 +3269,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;w6&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w6&quot; data-clip=&quot;clips/wash-number-hops.mp4&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3278,7 +3284,7 @@ body.youth #youth-banner{display:block}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;w7&quot; data-track=&quot;full&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w7&quot; data-clip=&quot;clips/wash-force.mp4&quot; data-track=&quot;full&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3292,7 +3298,7 @@ body.youth #youth-banner{display:block}
         <em>Stops you only ever practising the hop that comes to you.</em>
       </div>
     </li>
-    <li class=&quot;step&quot; data-ex=&quot;w8&quot; data-track=&quot;full&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w8&quot; data-clip=&quot;clips/wash-pad.mp4&quot; data-track=&quot;full&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3306,7 +3312,7 @@ body.youth #youth-banner{display:block}
         <em>The pad is what turns a clean short-hop drill into a real one. Real infields produce bad hops; a flat gym floor does not.</em>
       </div>
     </li>
-    <li class=&quot;step&quot; data-ex=&quot;w9&quot; data-track=&quot;full&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w9&quot; data-clip=&quot;clips/wash-standstill.mp4&quot; data-track=&quot;full&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3320,7 +3326,7 @@ body.youth #youth-banner{display:block}
         <em>Washington is explicit: he does not want it from a standstill. Every drill above gets harder and more honest once this rule is on.</em>
       </div>
     </li>
-    <li class=&quot;step&quot; data-ex=&quot;w10&quot; data-track=&quot;full&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w10&quot; data-clip=&quot;clips/wash-gloveside.mp4&quot; data-track=&quot;full&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3334,7 +3340,7 @@ body.youth #youth-banner{display:block}
         <em>He calls the finished version painting a picture: one continuous line rather than a set of separate movements stapled together.</em>
       </div>
     </li>
-    <li class=&quot;step&quot; data-ex=&quot;w11&quot; data-track=&quot;full&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w11&quot; data-clip=&quot;clips/wash-fungo.mp4&quot; data-track=&quot;full&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -3348,7 +3354,7 @@ body.youth #youth-banner{display:block}
         <em>The first drill on this page where the ball behaves the way it will in a game.</em>
       </div>
     </li>
-    <li class=&quot;step&quot; data-ex=&quot;w12&quot; data-track=&quot;full&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;w12&quot; data-clip=&quot;clips/wash-crossover.mp4&quot; data-track=&quot;full&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -5906,9 +5912,10 @@ body.youth #youth-banner{display:block}
       <span class=&quot;clip-title&quot;>Demo clip</span>
       <button class=&quot;clip-close&quot; onclick=&quot;closeClip()&quot; aria-label=&quot;Close&quot;>×</button>
     </div>
+    <a id=&quot;clip-official&quot; class=&quot;clip-btn&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot; style=&quot;display:none&quot;>▶ Watch official demo ↗</a>
+    <div id=&quot;clip-credit&quot; style=&quot;display:none&quot;></div>
     <video id=&quot;clip-video&quot; controls playsinline preload=&quot;none&quot; onerror=&quot;clipFailed()&quot;></video>
     <div class=&quot;clip-soon&quot;>Clip coming soon — this demo hasn't been added to the <b>clips/</b> folder yet.</div>
-    <a id=&quot;clip-official&quot; class=&quot;clip-btn&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot; style=&quot;display:none;margin:10px auto 4px;text-align:center&quot;>▶ Watch official demo ↗</a>
   </div>
 </div>
 
@@ -5920,9 +5927,24 @@ body.youth #youth-banner{display:block}
      oEmbed-verified OFFICIAL demo as a LINK (new tab, never re-hosted). Keyed by the
      future filename prefix from TODO-CLIPS.md — the day a recorded clip lands with
      that name, the same button plays it locally and the link stops showing. */
+  /* CLIP_SOURCE: every locally-hosted clip credits the video it was cut from,
+     shown ABOVE the player and always -- not only when a file is missing. The
+     owner cleared use of this footage; crediting the source on screen is the
+     minimum that should ride along with that, and it also lets anyone watch the
+     full session rather than the 25 seconds we chose. */
+  var CLIP_SOURCE=[
+    ['wash-',    'Ron Washington · SF Giants — Train Like a Big League First Baseman', 'https://youtu.be/4Xm_WZrLGEY'],
+    ['fw-1b-',   'Freddie Freeman — First Base Defensive Drills', 'https://youtu.be/3juKYF0SoHE'],
+    ['bauer-gd-','Trevor Bauer — Game Day Warmup Routine (Baseball 401)', 'https://youtu.be/MeNseDHe5gc'],
+    ['plyo-',    'Trevor Bauer — Daily Weighted Ball Routine (Baseball 401)', 'https://youtu.be/VIDd2yMSSnY']
+  ];
+  function sourceFor(name){
+    for(var i=0;i<CLIP_SOURCE.length;i++){ if(name.indexOf(CLIP_SOURCE[i][0])===0) return CLIP_SOURCE[i]; }
+    return null;
+  }
   var OFFICIAL_DEMOS=[
     ['tube-','https://youtu.be/wdzV-oXLcR0'],
-    ['wash-','https://www.mlb.com/video/washington-and-moncada-work-on-fielding-drills'],
+    ['wash-','https://youtu.be/4Xm_WZrLGEY'],
     ['tb-','https://youtu.be/xY7gEwk6Fz8'],
     ['fd-','https://youtu.be/N-kfCjoz7Hg'],
     ['fs-','https://youtu.be/TOQH95Tm8Yo'],
@@ -5945,6 +5967,21 @@ body.youth #youth-banner{display:block}
     try{ src = parent.location.href.replace(/[^/]*$/,'') + 'clips/' + name; }
     catch(e){ src = 'clips/' + name; }
     v.src = src;
+    /* credit line above the player, built with textContent + a real anchor so a
+       source title can never inject markup */
+    var cr=document.getElementById('clip-credit');
+    if(cr){
+      cr.textContent='';
+      var srcInfo=sourceFor(_curClip);
+      if(srcInfo){
+        cr.appendChild(document.createTextNode('Cut from: '));
+        var lk=document.createElement('a');
+        lk.href=srcInfo[2]; lk.target='_blank'; lk.rel='noopener';
+        lk.textContent=srcInfo[1]+' ↗';
+        cr.appendChild(lk);
+        cr.style.display='block';
+      } else { cr.style.display='none'; }
+    }
     try{ v.load(); }catch(e){}
     m.classList.add('on');
   }
@@ -5964,6 +6001,7 @@ body.youth #youth-banner{display:block}
     if(v){ try{ v.pause(); }catch(e){} v.removeAttribute('src'); try{ v.load(); }catch(e){} }
     if(m){ m.classList.remove('on'); m.classList.remove('no-clip'); }
     var a=document.getElementById('clip-official'); if(a) a.style.display='none';
+    var cr=document.getElementById('clip-credit'); if(cr) cr.style.display='none';
   }
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeClip(); });
 
