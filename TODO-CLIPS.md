@@ -101,3 +101,70 @@ privately in the owner's iCloud Drive (`0.5 Baseball/`), not in this repo.
 **Not yet done:** button/section wiring, youth-gate review (§4.3 — pitching-mechanics
 content is not obviously youth-unsafe, but hasn't been reviewed against that boundary),
 copyright sign-off before any release that reaches `master`.
+
+---
+
+## Clip sourcing round 2 (Lane A, 2026-08-27) — every URL oEmbed-verified today
+
+**Verification standard, stated plainly:** each URL below returned HTTP 200 from
+YouTube's oEmbed endpoint, and the channel + title shown are what oEmbed returned
+— not what a search snippet claimed. **What that does NOT establish:** I cannot
+watch these, so I cannot confirm a given drill appears, or at what timestamp, or
+that the framing is usable. Treat channel + title as the confidence level. Every
+cut still needs a human to scrub the footage.
+
+### ⭐ Shoulder Tube (4 needed) — SOLVED, official source
+- **`https://youtu.be/-WomBkIThhU`** — *Trevor Bauer* (official channel) ·
+  "Trevor Bauer Shoulder Tube Routine"
+- Same provenance as the existing `bauer-gd-*` clips, which the owner already
+  approved cutting. One continuous take → cut the 4 planes from it.
+
+### PlyoCare — the exact source the app already cites
+- **`https://youtu.be/VIDd2yMSSnY`** — *Trevor Bauer* (official) · "Daily Weighted
+  Ball Routine And Drill Breakdown | Baseball 401"
+- The PlyoCare page copy already says it is adapted from this video, so cutting
+  from it makes the citation literal instead of a reference.
+- Shorts version: `https://youtu.be/LVb0-Gq27OU` · "Trevor Bauer's Plyo Ball Routine"
+
+### Washington Drills (6 needed) — 4 candidates, none officially Washington's
+- `https://youtu.be/wFr7gYTLWRE` — *MLB AL DÍA* · Washington + Dansby Swanson
+  (MLB-operated channel; **highest re-host exposure of the four**)
+- `https://youtu.be/D8UMUqw5B7I` — *Northern Baseball Training* (already in round 1)
+- `https://youtu.be/V-SArOlhXmY` — *Prospect Dugout* · "Driveway Drills: Ron Washington drill"
+- `https://youtu.be/RyLZPAtuOSs` — *Johnny Reina Baseball* · "Ron Washington Infield Drills"
+- ⚠ **No single source covers all six layers** (knee center/forehand/backhand →
+  stand barehand → stand glove → number-the-hops). Expect to cut across two or
+  three, or to record these six — they are the easiest on the whole list to film,
+  since they need a partner and a ball, not a facility.
+
+### J-Band gaps (2 needed) — new, better than round 1
+- `https://youtu.be/-4uEX-TaIU4` — *ARM Pitching Development* · "16 J-Band Exercises"
+  (16 > Jaeger's 11, so this is the most likely source for **#12 wrist/forearm**)
+- `https://youtu.be/yrgUzW0UK40` — *ARM Pitching Development* · youth J-Band exercises
+  (kid-appropriate framing; possible youth-tier demo source)
+
+### Bauer warm-up / stretches — partial
+- `https://youtu.be/MeNseDHe5gc` — *Trevor Bauer* (official) · "Game Day Warmup
+  Routine | Baseball 401". Already the source of `bauer-gd-*`; the remaining
+  stretch/mobility cuts should come from here before anywhere else.
+- Full official series: `https://www.youtube.com/playlist?list=PLIAmwQKhPrAS7izNsabkUo8E-0KIXT9fU`
+
+### ❌ NOT FOUND — owner help needed
+- **Bauer in Mexico (Diablos Rojos) or Japan (BayStars) doing warm-up/stretch
+  work.** Searched both directly. Found only game footage, news items and a
+  Dailymotion clip with no usable description. If footage like that exists it is
+  most likely on LMB/NPB broadcast feeds or Japanese-language channels, which is
+  where the owner's own searching would beat mine.
+- **TB12 band work (9)** — unchanged from round 1: the only official TB12 source
+  is a full-body home workout, not the shoulder-specific series these 9 need.
+
+### Copyright posture — unchanged, and it matters more now
+Repo default is **LINK/EMBED only**. Re-hosting is the owner's per-clip call
+(precedent: the 2026-08-18 pitching clips). Risk is **not uniform** across the
+list above:
+- **Bauer official-channel** cuts carry the same exposure the owner already
+  accepted for `bauer-gd-*`.
+- **MLB-operated channels** (`wFr7gYTLWRE`) are the highest exposure on a public
+  GitHub Pages site — link, do not re-host.
+- **Small third-party channels** sit in between; no permission is implied by them
+  being small.
