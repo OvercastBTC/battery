@@ -275,3 +275,52 @@ footage**. Having the files downloaded locally does not change the rights
 position. Recommendation stands: **link/embed for the public build**. If offline
 demo clips are wanted for `wash-*`, filming them is still the clean path — and
 this transcript is now effectively a shot list for doing exactly that.
+
+---
+
+## C. `…Ron Washington and Jerar Encarnacion.mp4` — 11:37, the best of the three
+1920×1080 · 23.98fps · **507 subtitle cues**, Washington coaching continuously.
+This IS the episode matching the originally-sent URL `4Xm_WZrLGEY`.
+
+Opens on a **title card: "RON WASHINGTON — GIANTS INFIELD COACH"**, which is
+useful: provenance is on-screen rather than inferred.
+
+| Time | Position | Segment (his words) |
+|---|---|---|
+| 0:00–0:20 | — | intro: *"technical stuff, footwork with feeds"* |
+| 0:20–1:00 | **KNEELING** | *"**Outside**… see that line going straight across?"* · *"**backhand** going straight down the line — don't go in here"* |
+| 1:20–1:40 | **KNEELING** | ***"Outside… Back in the middle… Backhand… Outside."*** |
+| 1:40–2:00 | transition | *"**force in, force out**"* |
+| 2:00–2:40 | STANDING | *"**side to side**… back the other way"* |
+| 3:20–4:20 | STANDING | *"**front foot out**"* · *"one more — **straight ahead**"* |
+| 4:40–5:40 | STANDING | *"with the **pad**… remember, **downhill**… there's your **arrow**"* · *"see that **skip**?"* |
+| 5:40–6:00 | STANDING | *"I don't want you to do this from a **standstill** — when I throw it up, move"* |
+| 6:00–6:40 | STANDING | *"now we're going to go **glove side**… you go out, you pick it up, and you keep going"* |
+| 6:40–7:20 | STANDING | *"I'm going to hit it **off the fungo**… keep your feet moving till you're ready to catch"* |
+| 7:20–8:00 | STANDING | *"now **glove side**"* · *"what you're actually doing is **painting a picture**"* |
+| 8:00–9:00 | STANDING | *"now, **backhand**. When I throw it up, take off. Boom, **crossover**"* |
+| 9:00–9:40 | STANDING | *"one more to the backhand — **cross and go**"* |
+| 10:00–10:20 | STANDING | *"**making his own hops** now"* |
+| 10:20–11:37 | — | wrap-up; at 11:20 he restates *"**draw your arrow** where you're supposed to go"* |
+
+### ⭐ This solves the three kneeling slots Eldridge could not
+At **1:20–1:40 he verbally calls "Outside… Back in the middle… Backhand" while
+kneeling** — the exact three-way split our slot names assume, called out loud, in
+one continuous stretch. That is a clean cut source for all three.
+
+### Combined coverage across all three files — 5 of 6 slots, one still open
+| Slot | Best source |
+|---|---|
+| `wash-knee-center` | **Jerar 1:20–1:40** ("back in the middle") |
+| `wash-knee-forehand` | **Jerar 0:20–1:00 / 1:20–1:40** ("outside") |
+| `wash-knee-backhand` | **Jerar 0:40–1:00** ("backhand straight down the line") |
+| `wash-stand-glove` | **Jerar 6:00–7:40** ("glove side") · or Eldridge 2:50–6:10 |
+| `wash-number-hops` | **Jerar 10:00** ("making his own hops") · or Eldridge 3:45–4:05 (counted "One. Two… Four.") |
+| `wash-stand-barehand` | ⚠ **STILL NOT CONFIRMED IN ANY OF THE THREE.** Not claimed as solved. |
+
+### Segments we have no slot for — worth adding, arguably better than what we have
+`force in / force out` · the **pad work** with *downhill* + *arrow* + reading the
+*skip* · **fungo** feeds with feet moving · the **crossover** backhand. The arrow
+concept in particular ("draw your arrow where you're supposed to go") is a
+teaching cue he returns to twice, opening and closing — it is the spine of his
+whole method and the app currently says nothing about it.
