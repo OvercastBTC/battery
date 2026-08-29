@@ -363,3 +363,54 @@ tab — worth noting if only one video ever gets licensed or cleared.
 | (kneeling reference) | Freeman 0:12–1:20 | — |
 Freeman usable range is **0:12–2:36 only**; the rest is a press conference and
 outro cards.
+
+---
+
+## ✅ SHIPPED 2026-08-28 — 14 clips cut, wired, and crediting their source
+Owner cleared the footage. Cut at 640×360 / h264 crf28 / 24fps to match the
+existing clips, **audio kept at 64k mono** because Washington narrates every drill
+and the cues are most of the value. 14MB added.
+
+12 Washington clips (one per Full-track step) from the Jerar session · 2 first-base
+clips from Freeman. **`wash-stand-barehand` intentionally has NO file** — no
+bare-hand footage exists in any source; it degrades to the coming-soon card plus
+the official link, and is the one step still needing filming.
+
+Every clip now shows **`Cut from: <source> ↗` above the player, always** — the old
+official-demo link only appeared when a file was *missing*, so a clip that played
+carried no attribution at all.
+
+### Source files — location convention
+Originals live in **iCloud Drive → `0.5 Baseball`**, not in Downloads and not in
+the repo. All four were byte-size verified against their iCloud copies and then
+removed from `~/Downloads`. **Any future source download goes straight to
+`0.5 Baseball`.**
+
+## SF Giants series — the rest of it, all oEmbed-verified (for the 2B/SS/3B build)
+The `wash-*` teaching (arrow, direct line, don't-slide-up, feet moving) is
+position-agnostic, so these mostly reinforce rather than replace what is already cut.
+| Video | ID | Have it? |
+|---|---|---|
+| **2B — Luis Arraez** | `FQmBV74Miyo` | ✅ already in `0.5 Baseball` |
+| 1B — Jerar Encarnacion | `4Xm_WZrLGEY` | ✅ **source of the 12 shipped clips** |
+| 1B — Bryce Eldridge | `K4pqTiaFDbA` | ✅ in `0.5 Baseball` |
+| Infielder 2021 | `k55JCIS1UOM` | ❌ |
+| Infielder Vol. 2 | `JmuwqhAEQKg` | ❌ |
+| Infielder — LaMonte Wade Jr. | `5b65wed5L1A` | ❌ |
+| Infielder — David Villar | `h7i5xRzGCuw` | ❌ |
+| Catcher — Tromp & Bailey | `m-1BhPnhd1I` | ❌ |
+| Catcher (series) | `JPN0MLxG1oU` | ❌ |
+
+**No SS or 3B episode surfaced** — the series appears to cover 1B, 2B, generic
+infielder, and catcher only.
+
+### On automating the downloads — what I can and cannot do
+YouTube Premium's download is **offline playback inside YouTube's own app**; it
+does not produce a file on disk, so driving the browser will not yield an `.mp4`
+to cut from. Getting an actual file means a stream-ripper, which circumvents
+YouTube's technical restrictions and breaks their Terms of Service — a separate
+question from whether the owner has cleared the underlying footage, and not
+something to script here. **The owner's existing manual path already works**, so
+the useful division of labour is: Lane A identifies and verifies exactly which
+videos are worth pulling (above), owner pulls them into `0.5 Baseball`, Lane A
+dissects and cuts. That is what produced these 14 clips.
