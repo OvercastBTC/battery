@@ -1100,6 +1100,7 @@ body.youth #youth-banner{display:block}
   .split-day { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 2px; }
   .split-note { font-size:11px; color:var(--dim); font-style:italic; margin:6px 0 2px; }
   .step.mg-hidden { display:none; }
+  .step.track-hidden { display:none; }
   .youth-only { display: none; }
   /* design §6: arm-feel check (youth input) + parent trend (adult readout).
      Steel SVG faces, never emoji -- owner ruling 2026-07-03 item 7.0. */
@@ -3146,10 +3147,30 @@ body.youth #youth-banner{display:block}
   </div>
 
   <h3 style=&quot;color: var(--bone);&quot;>The Core Progression (Daily, 4-5 min)</h3>
+
+  <div class=&quot;split-bar&quot; id=&quot;wash-track&quot;>
+    <div class=&quot;split-chip&quot; data-track=&quot;simple&quot; onclick=&quot;setWashTrack('simple')&quot;>Simple</div>
+    <div class=&quot;split-chip&quot; data-track=&quot;full&quot; onclick=&quot;setWashTrack('full')&quot;>Full method</div>
+  </div>
+  <div class=&quot;split-note&quot; id=&quot;wash-track-note&quot;></div>
   <p style=&quot;font-size: 12px; color: var(--dim); margin: 10px 0;&quot;>Same sequence for every position. Tap the box to mark done. Tap the name for details.</p>
 
   <ul class=&quot;steplist&quot;>
 
+    <li class=&quot;step&quot; data-ex=&quot;w0&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>00 · The Arrow</div>
+          <div class=&quot;step-target&quot;>The Idea Every Other Drill Serves</div>
+        </div>
+        <div class=&quot;step-reps&quot;>before you start</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Before the ball is hit, know the line you have to travel to get to it — and then travel it. Straight there. Not out and back in, not around it. Washington opens and closes the whole session on this: draw your arrow where you are supposed to go, then go.</p>
+        <em>This is not a drill, it is the reason the drills exist. He returns to it twice in eleven minutes, which is how you know it is the spine and not a tip.</em>
+      </div>
+    </li>
     <li class=&quot;step&quot; data-ex=&quot;w1&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
@@ -3237,6 +3258,91 @@ body.youth #youth-banner{display:block}
       <div class=&quot;step-detail&quot;>
         <p>Wash + Semien drill. Take ground balls (or short hops). Read the bounces and call out the LAST hop — the one you'll actually field — before it reaches you. Wash: the only thing the infielder should worry about is the last hop.</p>
         <em>Trains your eyes to read the bounce and commit to the hop you field.</em>
+      </div>
+    </li>
+
+    <li class=&quot;step&quot; data-ex=&quot;w7&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>07 · Force In, Force Out</div>
+          <div class=&quot;step-target&quot;>Working Both Directions Deliberately</div>
+        </div>
+        <div class=&quot;step-reps&quot;>8-10 each way</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>From the kneeling or short standing position, drive in toward the hop, then work back out away from it. Both directions on purpose, not just whichever way the ball happens to go.</p>
+        <em>Stops you only ever practising the hop that comes to you.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;w8&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>08 · Pad Work · Downhill and the Skip</div>
+          <div class=&quot;step-target&quot;>Reading the Hop Before It Arrives</div>
+        </div>
+        <div class=&quot;step-reps&quot;>2-3 min</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Partner throws off a pad so the ball skips. Watch the skip and read where it is going while it is still travelling. Work downhill through it — get on top rather than reaching under.</p>
+        <em>The pad is what turns a clean short-hop drill into a real one. Real infields produce bad hops; a flat gym floor does not.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;w9&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>09 · Never From A Standstill</div>
+          <div class=&quot;step-target&quot;>Move First, Then Field</div>
+        </div>
+        <div class=&quot;step-reps&quot;>every rep from here on</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>From this point nothing starts flat-footed. When the ball goes up, you go. Wait for it standing still and you have already given away the step that would have got you there.</p>
+        <em>Washington is explicit: he does not want it from a standstill. Every drill above gets harder and more honest once this rule is on.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;w10&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>10 · Glove Side · Go Get It And Keep Going</div>
+          <div class=&quot;step-target&quot;>Lateral, Through The Ball</div>
+        </div>
+        <div class=&quot;step-reps&quot;>8-10 each side</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Break to the glove side, pick it up, and keep going through it — do not field it and stop. The catch is a point you pass through, not a place you arrive at.</p>
+        <em>He calls the finished version painting a picture: one continuous line rather than a set of separate movements stapled together.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;w11&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>11 · Fungo Feeds · Feet Moving</div>
+          <div class=&quot;step-target&quot;>Live Off The Bat</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3-4 min</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Off the fungo now, not hand-fed. Keep your feet moving right up until you are ready to catch it. Live contact changes the timing enough that hand-fed reps alone will not prepare you.</p>
+        <em>The first drill on this page where the ball behaves the way it will in a game.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;w12&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>12 · Crossover Backhand · Cross And Go</div>
+          <div class=&quot;step-target&quot;>Backhand Under Real Range</div>
+        </div>
+        <div class=&quot;step-reps&quot;>6-8 reps</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Ball goes up, you take off — crossover step, then the backhand. Not a reach from where you stand; a crossover that covers ground and arrives with the glove already working down the line.</p>
+        <em>This is the backhand from step 03 after the arrow, the movement and the range have all been added to it.</em>
       </div>
     </li>
 
@@ -5031,7 +5137,49 @@ body.youth #youth-banner{display:block}
   }
   /* single predicate every counter must consult */
   function splitHidden(s){ return s.classList.contains('mg-hidden'); }
-  function stepDisabled(s){ return jxDisabledStep(s) || setStepOff(s) || splitHidden(s); }
+  /* 4-way predicate. Anything hidden for ANY reason is also uncounted -- the
+     owner's rule from item 3.x, applied uniformly so a new way of hiding a step
+     cannot silently leave it in the denominator. */
+  function trackHidden(s){ return s.classList.contains('track-hidden'); }
+  function stepDisabled(s){ return jxDisabledStep(s) || setStepOff(s) || splitHidden(s) || trackHidden(s); }
+
+  /* ===== WASHINGTON: SIMPLE vs FULL METHOD (owner ask) =====
+     Two genuinely different users, so two tracks rather than one compromise.
+
+     SIMPLE is the six-step core the tab already had: kneel center/forehand/
+     backhand, stand barehand, stand glove, number-the-hops. It is what the
+     Freeman footage shows and it is what somebody warming up before a game
+     actually needs -- short, no vocabulary to learn.
+
+     FULL adds the seven things Washington actually teaches across the two Giants
+     sessions, which the six-step version silently drops: the ARROW (step 00), his
+     organizing idea; force in/force out; pad work and reading the skip; the
+     never-from-a-standstill rule; glove-side through the ball; live fungo feeds;
+     and the crossover backhand. Sourced from his own words on tape, not invented.
+
+     The arrow leads the full track on purpose. He opens AND closes an eleven
+     minute session on it, which is how you tell a spine from a tip.
+
+     Hidden steps do not count, via trackHidden() above. Simple is the default:
+     someone who never touches the control gets the short version, and the long
+     one is opt-in. */
+  function getWashTrack(){ return storeGet('arm-care-washtrack','simple'); }
+  window.setWashTrack = function(t){ storeSet('arm-care-washtrack', t); renderWashTrack(); updateCounter(); };
+  function renderWashTrack(){
+    var bar = document.getElementById('wash-track'); if(!bar) return;
+    var t = getWashTrack();
+    bar.querySelectorAll('.split-chip').forEach(function(c){
+      c.classList.toggle('on', c.getAttribute('data-track') === t);
+    });
+    document.querySelectorAll('#page-washington .step[data-track=&quot;full&quot;]').forEach(function(st){
+      st.classList.toggle('track-hidden', t !== 'full');
+    });
+    var note = document.getElementById('wash-track-note');
+    if(note) note.textContent = t === 'full'
+      ? 'Everything he teaches on tape, in his order — 13 steps, roughly 12 minutes. Starts with the arrow, because he does.'
+      : 'The six-step core. Enough to warm up hands before a game, nothing to learn first. Switch to Full method for what he actually coaches.';
+  }
+  window.renderWashTrack = renderWashTrack;
 
   window.toggleSet = function(k){
     storeSet('arm-care-set-'+k+'-'+setDayKey(), setOn(k) ? '0' : '1');
@@ -5582,6 +5730,7 @@ body.youth #youth-banner{display:block}
   applyJxExtras();   // 6.1.1: restore the optional-extras ON/OFF state
   try{ renderJbandOrder(); }catch(e){}   // one list, ordered by tissue need
   applySets();       // 3.0: restore today's block ON/OFF switches
+  try{ renderWashTrack(); }catch(e){}   // simple vs full Washington method
   try{ renderSplit(); }catch(e){}
   try{ renderSplit(); }catch(e){}
   // 5.x: first-week onboarding card — stays until dismissed once (per profile)
