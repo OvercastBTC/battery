@@ -324,3 +324,42 @@ one continuous stretch. That is a clean cut source for all three.
 concept in particular ("draw your arrow where you're supposed to go") is a
 teaching cue he returns to twice, opening and closing — it is the spine of his
 whole method and the app currently says nothing about it.
+
+---
+
+## ⭐ CUT LIST — Washington, remapped to the Batch 16 Full track
+
+Batch 16 replaced the six invented slots with **13 steps taken from what he
+actually teaches**, so cuts now map 1:1 to a real tape segment instead of being
+crammed into a name we made up. Sources: **J** = Jerar Encarnacion (11:37),
+**E** = Bryce Eldridge (7:15). All timings are cut-planning estimates from
+contact sheets + extracted subtitles; scrub to land on a clean rep.
+
+| Step | Clip file | Source | Segment | Confidence |
+|---|---|---|---|---|
+| `w0` The Arrow | `wash-arrow.mp4` | **J 0:40–1:00** + J 11:20 | *"straight down the line to where you want to go — don't go in here"* / *"draw your arrow"* | **high** — he says it twice, book-ending |
+| `w1` Knee, center | `wash-knee-center.mp4` | **J 1:20–1:40** | *"back in the middle"*, kneeling | **high** |
+| `w2` Knee, forehand | `wash-knee-forehand.mp4` | **J 0:20–1:00 / 1:20–1:40** | *"outside"*, kneeling | **high** |
+| `w3` Knee, backhand | `wash-knee-backhand.mp4` | **J 0:40–1:00** | *"backhand going straight down the line"*, kneeling | **high** |
+| `w4` Stand, barehand | `wash-stand-barehand.mp4` | — | ⚠ **NO SOURCE FOUND** | **none — film it** |
+| `w5` Stand, glove | `wash-stand-glove.mp4` | **J 6:00–6:40** · alt **E 2:50–6:10** | *"now we're going to go glove side"* | **high** |
+| `w6` Number-the-hops | `wash-number-hops.mp4` | **J 10:00–10:20** · alt **E 3:45–4:05** | *"making his own hops now"* / E's counted *"One. Two… Four."* | **high** |
+| `w7` Force in/out | `wash-force.mp4` | **J 1:40–2:00** | *"force in, force out"* | medium — brief |
+| `w8` Pad · downhill/skip | `wash-pad.mp4` | **J 4:40–5:40** | *"remember, downhill… there's your arrow… see that skip?"* | **high** — longest teaching block |
+| `w9` Never standstill | `wash-standstill.mp4` | **J 5:40–6:00** | *"I don't want you to do this from a standstill"* | medium — short, mostly talk |
+| `w10` Glove side, through | `wash-gloveside.mp4` | **J 7:20–8:00** | *"now glove side… painting a picture"* | **high** |
+| `w11` Fungo feeds | `wash-fungo.mp4` | **J 6:40–7:20** | *"I'm going to hit it off the fungo… keep your feet moving"* | **high** |
+| `w12` Crossover backhand | `wash-crossover.mp4` | **J 8:00–9:00** · tail **9:00–9:40** | *"boom, crossover"* / *"cross and go"* | **high** |
+
+**11 of 13 high confidence, 1 medium-short, 1 with no source.** Every high-
+confidence cut comes from the Jerar episode, so one file yields almost the entire
+tab — worth noting if only one video ever gets licensed or cleared.
+
+### First Base (Field Work tab, Batch 3) — separate from the above
+| Step | Source | Segment |
+|---|---|---|
+| stretch at the bag / picks from every angle | **Freeman 2:15–2:36** | big stretched lateral picks — the most on-point footage found |
+| short-hop scoops | **Freeman 1:26–2:15** | standing bent-over short hops |
+| (kneeling reference) | Freeman 0:12–1:20 | — |
+Freeman usable range is **0:12–2:36 only**; the rest is a press conference and
+outro cards.
