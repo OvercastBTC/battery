@@ -168,3 +168,42 @@ list above:
   GitHub Pages site — link, do not re-host.
 - **Small third-party channels** sit in between; no permission is implied by them
   being small.
+
+---
+
+## ⭐ Owner-supplied, 2026-08-27 — the best Washington source yet
+
+Both oEmbed-verified (HTTP 200; channel + title as returned by oEmbed).
+**Content NOT verified:** YouTube blocks description/chapter scraping, so the
+drill list and timestamps below are inference from the titles, not observation.
+
+### `https://youtu.be/4Xm_WZrLGEY` — **San Francisco Giants** (official club channel)
+"How to Train Like a Big League First Baseman with **Ron Washington** and Jerar Encarnacion"
+
+**This is better than all four Washington candidates from round 2 combined**, for
+one reason: it is *Washington himself teaching*, not a third party demonstrating
+his drills second-hand. It is also, uniquely, **first-base specific**, so it
+plausibly covers two separate placeholder groups at once:
+- `wash-*` (6) — Washington Drills tab
+- `fw-1b-*` — the First Base section of the Field Work tab (Batch 3): the stretch
+  at the bag, short-hop scoops, picks from every angle
+- possibly the pairs in Warm Up section 5 (Batch 6), if he covers pre-work mobility
+
+### `https://youtu.be/3juKYF0SoHE` — *Baseball on Fanatics View* (third-party)
+"How Freddie Freeman Prepares to Play First Base for Los Angeles Dodgers"
+- Maps to the same First Base section. Freeman is about as good a 1B model as
+  exists, so this is a strong reference even if it is only ever a reference.
+
+### ⚠ Re-host risk on these two is the HIGHEST on the whole list
+- **SF Giants** is an MLB club channel — same exposure class as the MLB AL DÍA
+  clip, i.e. the top of the risk table for a public GitHub Pages site.
+- **Fanatics View** is an *aggregator*: the underlying footage is near-certainly
+  MLB's. Re-hosting from it is re-hosting MLB content one step removed, which is
+  **not safer than going direct — arguably less clear**, since the aggregator's
+  own rights to sub-license are unknown.
+
+**Recommendation: link/embed both, do not cut.** These are the two items on the
+list where the LINK/EMBED default is worth actually keeping. If the owner wants
+offline-capable demo clips for the `wash-*` slots specifically, filming those six
+remains the cleanest path — they need a partner and a ball, and Washington's
+progression is fully documented in the app's own tab copy already.
