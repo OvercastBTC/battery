@@ -422,3 +422,33 @@ something to script here. **The owner's existing manual path already works**, so
 the useful division of labour is: Lane A identifies and verifies exactly which
 videos are worth pulling (above), owner pulls them into `0.5 Baseball`, Lane A
 dissects and cuts. That is what produced these 14 clips.
+
+---
+
+## `wash-stand-barehand` — CONCLUSION: cannot be sourced, must be filmed (2026-08-29)
+Scanned the subtitle track of **every** Washington/Giants source obtained so far
+for `bare ?hand` / `no glove` / `without a glove` / `glove off`:
+
+| Source | Hits |
+|---|---|
+| 1B — Jerar Encarnacion | 0 |
+| 1B — Bryce Eldridge | 0 |
+| 2B — Luis Arraez | 0 |
+| Infielder — David Villar | 0 |
+| Infielder — Vol. 2 | 0 |
+| Infielder — LaMonte Wade Jr. | 0 |
+| Catcher | 0 |
+
+**Zero across seven sources.** The step is not invented — bare-hand work is part
+of Washington's documented method and predates this video series — but **it is not
+in this footage**, and no amount of further cutting will produce it. Treat it as a
+filming task, not a sourcing task. It is a partner, a ball, and no glove; the
+step's own copy is the shot list.
+
+## Japan vlog — CLOSED, nothing to cut
+`I Faced Japan's Home Run Champion.mp4` (41:00, 2,513 subtitle cues) was
+keyword-scanned in full for stretch / warm-up / J-band / shoulder tube / plyo /
+mobility / cuff / forearm / scap. **43 incidental hits**, all game commentary
+("routine looper to left", one passing "my hips feel good"). The single promising
+hit — a "preset posture squat drill" mention at 6:31 — sits over pitching-command
+talk, not a demonstration. It is a game vlog, not instructional. Evicted.
