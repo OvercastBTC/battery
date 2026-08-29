@@ -101,3 +101,265 @@ privately in the owner's iCloud Drive (`0.5 Baseball/`), not in this repo.
 **Not yet done:** button/section wiring, youth-gate review (§4.3 — pitching-mechanics
 content is not obviously youth-unsafe, but hasn't been reviewed against that boundary),
 copyright sign-off before any release that reaches `master`.
+
+---
+
+## Clip sourcing round 2 (Lane A, 2026-08-27) — every URL oEmbed-verified today
+
+**Verification standard, stated plainly:** each URL below returned HTTP 200 from
+YouTube's oEmbed endpoint, and the channel + title shown are what oEmbed returned
+— not what a search snippet claimed. **What that does NOT establish:** I cannot
+watch these, so I cannot confirm a given drill appears, or at what timestamp, or
+that the framing is usable. Treat channel + title as the confidence level. Every
+cut still needs a human to scrub the footage.
+
+### ⭐ Shoulder Tube (4 needed) — SOLVED, official source
+- **`https://youtu.be/-WomBkIThhU`** — *Trevor Bauer* (official channel) ·
+  "Trevor Bauer Shoulder Tube Routine"
+- Same provenance as the existing `bauer-gd-*` clips, which the owner already
+  approved cutting. One continuous take → cut the 4 planes from it.
+
+### PlyoCare — the exact source the app already cites
+- **`https://youtu.be/VIDd2yMSSnY`** — *Trevor Bauer* (official) · "Daily Weighted
+  Ball Routine And Drill Breakdown | Baseball 401"
+- The PlyoCare page copy already says it is adapted from this video, so cutting
+  from it makes the citation literal instead of a reference.
+- Shorts version: `https://youtu.be/LVb0-Gq27OU` · "Trevor Bauer's Plyo Ball Routine"
+
+### Washington Drills (6 needed) — 4 candidates, none officially Washington's
+- `https://youtu.be/wFr7gYTLWRE` — *MLB AL DÍA* · Washington + Dansby Swanson
+  (MLB-operated channel; **highest re-host exposure of the four**)
+- `https://youtu.be/D8UMUqw5B7I` — *Northern Baseball Training* (already in round 1)
+- `https://youtu.be/V-SArOlhXmY` — *Prospect Dugout* · "Driveway Drills: Ron Washington drill"
+- `https://youtu.be/RyLZPAtuOSs` — *Johnny Reina Baseball* · "Ron Washington Infield Drills"
+- ⚠ **No single source covers all six layers** (knee center/forehand/backhand →
+  stand barehand → stand glove → number-the-hops). Expect to cut across two or
+  three, or to record these six — they are the easiest on the whole list to film,
+  since they need a partner and a ball, not a facility.
+
+### J-Band gaps (2 needed) — new, better than round 1
+- `https://youtu.be/-4uEX-TaIU4` — *ARM Pitching Development* · "16 J-Band Exercises"
+  (16 > Jaeger's 11, so this is the most likely source for **#12 wrist/forearm**)
+- `https://youtu.be/yrgUzW0UK40` — *ARM Pitching Development* · youth J-Band exercises
+  (kid-appropriate framing; possible youth-tier demo source)
+
+### Bauer warm-up / stretches — partial
+- `https://youtu.be/MeNseDHe5gc` — *Trevor Bauer* (official) · "Game Day Warmup
+  Routine | Baseball 401". Already the source of `bauer-gd-*`; the remaining
+  stretch/mobility cuts should come from here before anywhere else.
+- Full official series: `https://www.youtube.com/playlist?list=PLIAmwQKhPrAS7izNsabkUo8E-0KIXT9fU`
+
+### ❌ NOT FOUND — owner help needed
+- **Bauer in Mexico (Diablos Rojos) or Japan (BayStars) doing warm-up/stretch
+  work.** Searched both directly. Found only game footage, news items and a
+  Dailymotion clip with no usable description. If footage like that exists it is
+  most likely on LMB/NPB broadcast feeds or Japanese-language channels, which is
+  where the owner's own searching would beat mine.
+- **TB12 band work (9)** — unchanged from round 1: the only official TB12 source
+  is a full-body home workout, not the shoulder-specific series these 9 need.
+
+### Copyright posture — unchanged, and it matters more now
+Repo default is **LINK/EMBED only**. Re-hosting is the owner's per-clip call
+(precedent: the 2026-08-18 pitching clips). Risk is **not uniform** across the
+list above:
+- **Bauer official-channel** cuts carry the same exposure the owner already
+  accepted for `bauer-gd-*`.
+- **MLB-operated channels** (`wFr7gYTLWRE`) are the highest exposure on a public
+  GitHub Pages site — link, do not re-host.
+- **Small third-party channels** sit in between; no permission is implied by them
+  being small.
+
+---
+
+## ⭐ Owner-supplied, 2026-08-27 — the best Washington source yet
+
+Both oEmbed-verified (HTTP 200; channel + title as returned by oEmbed).
+**Content NOT verified:** YouTube blocks description/chapter scraping, so the
+drill list and timestamps below are inference from the titles, not observation.
+
+### `https://youtu.be/4Xm_WZrLGEY` — **San Francisco Giants** (official club channel)
+"How to Train Like a Big League First Baseman with **Ron Washington** and Jerar Encarnacion"
+
+**This is better than all four Washington candidates from round 2 combined**, for
+one reason: it is *Washington himself teaching*, not a third party demonstrating
+his drills second-hand. It is also, uniquely, **first-base specific**, so it
+plausibly covers two separate placeholder groups at once:
+- `wash-*` (6) — Washington Drills tab
+- `fw-1b-*` — the First Base section of the Field Work tab (Batch 3): the stretch
+  at the bag, short-hop scoops, picks from every angle
+- possibly the pairs in Warm Up section 5 (Batch 6), if he covers pre-work mobility
+
+### `https://youtu.be/3juKYF0SoHE` — *Baseball on Fanatics View* (third-party)
+"How Freddie Freeman Prepares to Play First Base for Los Angeles Dodgers"
+- Maps to the same First Base section. Freeman is about as good a 1B model as
+  exists, so this is a strong reference even if it is only ever a reference.
+
+### ⚠ Re-host risk on these two is the HIGHEST on the whole list
+- **SF Giants** is an MLB club channel — same exposure class as the MLB AL DÍA
+  clip, i.e. the top of the risk table for a public GitHub Pages site.
+- **Fanatics View** is an *aggregator*: the underlying footage is near-certainly
+  MLB's. Re-hosting from it is re-hosting MLB content one step removed, which is
+  **not safer than going direct — arguably less clear**, since the aggregator's
+  own rights to sub-license are unknown.
+
+**Recommendation: link/embed both, do not cut.** These are the two items on the
+list where the LINK/EMBED default is worth actually keeping. If the owner wants
+offline-capable demo clips for the `wash-*` slots specifically, filming those six
+remains the cleanest path — they need a partner and a ball, and Washington's
+progression is fully documented in the app's own tab copy already.
+
+---
+
+## Source dissection, 2026-08-27 (Lane A) — both files analysed: frames + subtitles
+
+Method: `ffmpeg` contact sheets (every 4–10s) plus the **embedded subtitle track**
+extracted to SRT. Timings are cut-planning estimates; every in/out still needs a
+scrub to land on a clean rep.
+
+### A. `How to Train Like a Big League First Baseman…Ron Washington and Bryce Eldridge.mp4`
+7:15 · 1920×1080 · 23.98fps · **subtitles present, Washington narrates throughout**
+
+⚠ **This is NOT the video whose URL was sent.** The sent URL `4Xm_WZrLGEY` is the
+**Jerar Encarnacion** episode; this file is the **Bryce Eldridge** one. Same
+series, same coach, different player. Noting it so nobody later assumes one file
+is the other.
+
+| Time | What | Washington's own words |
+|---|---|---|
+| 0:05–2:45 | **KNEELING** short hops, continuous | more to the ground · you forgot the bad hop · when you use that pad you need bounce |
+| 1:15–2:45 | glove-path teaching, still kneeling | you see how you just turning that glove in · **you want to go right to it, you don't want to go here to slide up** |
+| 2:50–3:45 | **STANDING**, lateral | all right, **side to side** · when you throw it up you move |
+| 3:45–4:05 | standing, counted reps | **other way. Turn around other way. One. Two… Four.** |
+| 4:00–5:25 | standing, footwork + glove depth | **front foot out** … sit down … the glove got to be down · always just make **one move** |
+| 5:30–6:10 | standing **BACKHAND** | all right, backhand · this one out here, you want to **come direct** |
+| 6:15–7:00 | standing **MIDDLE** | in the middle · keep everything going in a **direct line** |
+| 7:00–7:15 | wrap-up talk | — |
+
+**Maps to 5 of our 6 `wash-*` slots, with one honest gap:**
+- `wash-knee-center` / `-forehand` / `-backhand` → all three come out of the
+  0:05–2:45 kneeling block, **but** the tape never verbally separates them the way
+  our slot names do; the explicit backhand and middle calls happen in the STANDING
+  block. Cutting three distinct kneeling clips means picking reps by eye.
+- `wash-stand-glove` → 2:50–6:10, abundant. Easiest cut on the list.
+- `wash-number-hops` → **3:45–4:05**, the counted One-Two-Four sequence.
+- `wash-stand-barehand` → ⚠ **NOT CONFIRMED PRESENT.** No frame clearly shows
+  bare-hand work. Either it is not in this episode or it is too brief to catch at
+  10s sampling. **Do not treat this slot as solved.**
+
+**Taxonomy mismatch, owner decision:** our slots model *knee(3) → stand-barehand →
+stand-glove → number-hops*. Washington's actual session runs *kneeling (general) →
+side-to-side → other-way counted → front-foot-out → backhand → middle*. His
+structure is arguably better because it is his. Renaming the six slots to match
+the tape is cheap and would make every clip land on a real segment rather than an
+invented one.
+
+### B. `How Freddie Freeman Prepares to Play First Base…mp4`
+3:08 · 1920×1080 · 24fps · subtitles present but **auto-generated and unusable**
+(garbled, duplicated, mostly press-conference audio)
+
+| Time | What |
+|---|---|
+| 0:00–0:12 | NLDS press conference — not drill footage |
+| 0:12–1:20 | **kneeling** short hops, partner feeding |
+| 1:26–2:15 | **standing**, bent-over short hops |
+| 2:15–2:36 | **big stretched lateral picks** — the classic 1B stretch/pick |
+| ~2:36–3:08 | Fanatics View outro + end cards |
+
+**Best use:** 2:15–2:36 is the single most on-point footage found so far for the
+**Field Work → First Base** steps added in Batch 3 (picks from every angle,
+short-hop scoops, the stretch at the bag). Only 0:12–2:36 is usable at all.
+
+### Re-host posture — unchanged, still binding
+A is an **MLB club channel** (SF Giants); B is an **aggregator republishing MLB
+footage**. Having the files downloaded locally does not change the rights
+position. Recommendation stands: **link/embed for the public build**. If offline
+demo clips are wanted for `wash-*`, filming them is still the clean path — and
+this transcript is now effectively a shot list for doing exactly that.
+
+---
+
+## C. `…Ron Washington and Jerar Encarnacion.mp4` — 11:37, the best of the three
+1920×1080 · 23.98fps · **507 subtitle cues**, Washington coaching continuously.
+This IS the episode matching the originally-sent URL `4Xm_WZrLGEY`.
+
+Opens on a **title card: "RON WASHINGTON — GIANTS INFIELD COACH"**, which is
+useful: provenance is on-screen rather than inferred.
+
+| Time | Position | Segment (his words) |
+|---|---|---|
+| 0:00–0:20 | — | intro: *"technical stuff, footwork with feeds"* |
+| 0:20–1:00 | **KNEELING** | *"**Outside**… see that line going straight across?"* · *"**backhand** going straight down the line — don't go in here"* |
+| 1:20–1:40 | **KNEELING** | ***"Outside… Back in the middle… Backhand… Outside."*** |
+| 1:40–2:00 | transition | *"**force in, force out**"* |
+| 2:00–2:40 | STANDING | *"**side to side**… back the other way"* |
+| 3:20–4:20 | STANDING | *"**front foot out**"* · *"one more — **straight ahead**"* |
+| 4:40–5:40 | STANDING | *"with the **pad**… remember, **downhill**… there's your **arrow**"* · *"see that **skip**?"* |
+| 5:40–6:00 | STANDING | *"I don't want you to do this from a **standstill** — when I throw it up, move"* |
+| 6:00–6:40 | STANDING | *"now we're going to go **glove side**… you go out, you pick it up, and you keep going"* |
+| 6:40–7:20 | STANDING | *"I'm going to hit it **off the fungo**… keep your feet moving till you're ready to catch"* |
+| 7:20–8:00 | STANDING | *"now **glove side**"* · *"what you're actually doing is **painting a picture**"* |
+| 8:00–9:00 | STANDING | *"now, **backhand**. When I throw it up, take off. Boom, **crossover**"* |
+| 9:00–9:40 | STANDING | *"one more to the backhand — **cross and go**"* |
+| 10:00–10:20 | STANDING | *"**making his own hops** now"* |
+| 10:20–11:37 | — | wrap-up; at 11:20 he restates *"**draw your arrow** where you're supposed to go"* |
+
+### ⭐ This solves the three kneeling slots Eldridge could not
+At **1:20–1:40 he verbally calls "Outside… Back in the middle… Backhand" while
+kneeling** — the exact three-way split our slot names assume, called out loud, in
+one continuous stretch. That is a clean cut source for all three.
+
+### Combined coverage across all three files — 5 of 6 slots, one still open
+| Slot | Best source |
+|---|---|
+| `wash-knee-center` | **Jerar 1:20–1:40** ("back in the middle") |
+| `wash-knee-forehand` | **Jerar 0:20–1:00 / 1:20–1:40** ("outside") |
+| `wash-knee-backhand` | **Jerar 0:40–1:00** ("backhand straight down the line") |
+| `wash-stand-glove` | **Jerar 6:00–7:40** ("glove side") · or Eldridge 2:50–6:10 |
+| `wash-number-hops` | **Jerar 10:00** ("making his own hops") · or Eldridge 3:45–4:05 (counted "One. Two… Four.") |
+| `wash-stand-barehand` | ⚠ **STILL NOT CONFIRMED IN ANY OF THE THREE.** Not claimed as solved. |
+
+### Segments we have no slot for — worth adding, arguably better than what we have
+`force in / force out` · the **pad work** with *downhill* + *arrow* + reading the
+*skip* · **fungo** feeds with feet moving · the **crossover** backhand. The arrow
+concept in particular ("draw your arrow where you're supposed to go") is a
+teaching cue he returns to twice, opening and closing — it is the spine of his
+whole method and the app currently says nothing about it.
+
+---
+
+## ⭐ CUT LIST — Washington, remapped to the Batch 16 Full track
+
+Batch 16 replaced the six invented slots with **13 steps taken from what he
+actually teaches**, so cuts now map 1:1 to a real tape segment instead of being
+crammed into a name we made up. Sources: **J** = Jerar Encarnacion (11:37),
+**E** = Bryce Eldridge (7:15). All timings are cut-planning estimates from
+contact sheets + extracted subtitles; scrub to land on a clean rep.
+
+| Step | Clip file | Source | Segment | Confidence |
+|---|---|---|---|---|
+| `w0` The Arrow | `wash-arrow.mp4` | **J 0:40–1:00** + J 11:20 | *"straight down the line to where you want to go — don't go in here"* / *"draw your arrow"* | **high** — he says it twice, book-ending |
+| `w1` Knee, center | `wash-knee-center.mp4` | **J 1:20–1:40** | *"back in the middle"*, kneeling | **high** |
+| `w2` Knee, forehand | `wash-knee-forehand.mp4` | **J 0:20–1:00 / 1:20–1:40** | *"outside"*, kneeling | **high** |
+| `w3` Knee, backhand | `wash-knee-backhand.mp4` | **J 0:40–1:00** | *"backhand going straight down the line"*, kneeling | **high** |
+| `w4` Stand, barehand | `wash-stand-barehand.mp4` | — | ⚠ **NO SOURCE FOUND** | **none — film it** |
+| `w5` Stand, glove | `wash-stand-glove.mp4` | **J 6:00–6:40** · alt **E 2:50–6:10** | *"now we're going to go glove side"* | **high** |
+| `w6` Number-the-hops | `wash-number-hops.mp4` | **J 10:00–10:20** · alt **E 3:45–4:05** | *"making his own hops now"* / E's counted *"One. Two… Four."* | **high** |
+| `w7` Force in/out | `wash-force.mp4` | **J 1:40–2:00** | *"force in, force out"* | medium — brief |
+| `w8` Pad · downhill/skip | `wash-pad.mp4` | **J 4:40–5:40** | *"remember, downhill… there's your arrow… see that skip?"* | **high** — longest teaching block |
+| `w9` Never standstill | `wash-standstill.mp4` | **J 5:40–6:00** | *"I don't want you to do this from a standstill"* | medium — short, mostly talk |
+| `w10` Glove side, through | `wash-gloveside.mp4` | **J 7:20–8:00** | *"now glove side… painting a picture"* | **high** |
+| `w11` Fungo feeds | `wash-fungo.mp4` | **J 6:40–7:20** | *"I'm going to hit it off the fungo… keep your feet moving"* | **high** |
+| `w12` Crossover backhand | `wash-crossover.mp4` | **J 8:00–9:00** · tail **9:00–9:40** | *"boom, crossover"* / *"cross and go"* | **high** |
+
+**11 of 13 high confidence, 1 medium-short, 1 with no source.** Every high-
+confidence cut comes from the Jerar episode, so one file yields almost the entire
+tab — worth noting if only one video ever gets licensed or cleared.
+
+### First Base (Field Work tab, Batch 3) — separate from the above
+| Step | Source | Segment |
+|---|---|---|
+| stretch at the bag / picks from every angle | **Freeman 2:15–2:36** | big stretched lateral picks — the most on-point footage found |
+| short-hop scoops | **Freeman 1:26–2:15** | standing bent-over short hops |
+| (kneeling reference) | Freeman 0:12–1:20 | — |
+Freeman usable range is **0:12–2:36 only**; the rest is a press conference and
+outro cards.

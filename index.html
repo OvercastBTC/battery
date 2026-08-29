@@ -1100,6 +1100,7 @@ body.youth #youth-banner{display:block}
   .split-day { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 2px; }
   .split-note { font-size:11px; color:var(--dim); font-style:italic; margin:6px 0 2px; }
   .step.mg-hidden { display:none; }
+  .step.track-hidden { display:none; }
   .youth-only { display: none; }
   /* design §6: arm-feel check (youth input) + parent trend (adult readout).
      Steel SVG faces, never emoji -- owner ruling 2026-07-03 item 7.0. */
@@ -2115,7 +2116,7 @@ body.youth #youth-banner{display:block}
     </li>
 
     <li class=&quot;step-divider&quot; id=&quot;jx-divider&quot;>
-      <span>Optional extras · complementary band work · +bonus</span>
+      <span>Optional extras · woven in below · counted only when ON</span>
       <button id=&quot;jx-toggle&quot; onclick=&quot;toggleJxExtras()&quot;>ON</button>
     </li>
 
@@ -2179,35 +2180,7 @@ body.youth #youth-banner{display:block}
         </div>
       </li>
 
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-9090er&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>90/90 External Rotation <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Infraspinatus @ 90/90</div>
-          </div>
-          <div class=&quot;step-reps&quot;>25 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Elbow raised to shoulder height, bent 90°. Rotate the forearm up and back, then slow return. Keep the elbow up.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-9090er.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
 
-      <li class=&quot;step opt&quot; data-ex=&quot;jx-ir&quot;>
-        <div class=&quot;step-row&quot;>
-          <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-          <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-            <div class=&quot;step-name&quot;>Internal Rotation <span style=&quot;color:var(--gold);font-size:11px&quot;>(EXTRA)</span></div>
-            <div class=&quot;step-target&quot;>Subscapularis</div>
-          </div>
-          <div class=&quot;step-reps&quot;>25 reps</div>
-        </div>
-        <div class=&quot;step-detail&quot;>
-          <p>Elbow tucked to the side at 90°. Rotate the forearm in across the belly against the band, slow return.</p>
-          <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jband-ir.mp4')&quot; style=&quot;margin-top:7px&quot;>▶ Watch demo</button>
-        </div>
-      </li>
 
       <li class=&quot;step opt&quot; data-ex=&quot;jx-triceps&quot;>
         <div class=&quot;step-row&quot;>
@@ -3174,10 +3147,30 @@ body.youth #youth-banner{display:block}
   </div>
 
   <h3 style=&quot;color: var(--bone);&quot;>The Core Progression (Daily, 4-5 min)</h3>
+
+  <div class=&quot;split-bar&quot; id=&quot;wash-track&quot;>
+    <div class=&quot;split-chip&quot; data-track=&quot;simple&quot; onclick=&quot;setWashTrack('simple')&quot;>Simple</div>
+    <div class=&quot;split-chip&quot; data-track=&quot;full&quot; onclick=&quot;setWashTrack('full')&quot;>Full method</div>
+  </div>
+  <div class=&quot;split-note&quot; id=&quot;wash-track-note&quot;></div>
   <p style=&quot;font-size: 12px; color: var(--dim); margin: 10px 0;&quot;>Same sequence for every position. Tap the box to mark done. Tap the name for details.</p>
 
   <ul class=&quot;steplist&quot;>
 
+    <li class=&quot;step&quot; data-ex=&quot;w0&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>00 · The Arrow</div>
+          <div class=&quot;step-target&quot;>The Idea Every Other Drill Serves</div>
+        </div>
+        <div class=&quot;step-reps&quot;>before you start</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Before the ball is hit, know the line you have to travel to get to it — and then travel it. Straight there. Not out and back in, not around it. Washington opens and closes the whole session on this: draw your arrow where you are supposed to go, then go.</p>
+        <em>This is not a drill, it is the reason the drills exist. He returns to it twice in eleven minutes, which is how you know it is the spine and not a tip.</em>
+      </div>
+    </li>
     <li class=&quot;step&quot; data-ex=&quot;w1&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
@@ -3265,6 +3258,91 @@ body.youth #youth-banner{display:block}
       <div class=&quot;step-detail&quot;>
         <p>Wash + Semien drill. Take ground balls (or short hops). Read the bounces and call out the LAST hop — the one you'll actually field — before it reaches you. Wash: the only thing the infielder should worry about is the last hop.</p>
         <em>Trains your eyes to read the bounce and commit to the hop you field.</em>
+      </div>
+    </li>
+
+    <li class=&quot;step&quot; data-ex=&quot;w7&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>07 · Force In, Force Out</div>
+          <div class=&quot;step-target&quot;>Working Both Directions Deliberately</div>
+        </div>
+        <div class=&quot;step-reps&quot;>8-10 each way</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>From the kneeling or short standing position, drive in toward the hop, then work back out away from it. Both directions on purpose, not just whichever way the ball happens to go.</p>
+        <em>Stops you only ever practising the hop that comes to you.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;w8&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>08 · Pad Work · Downhill and the Skip</div>
+          <div class=&quot;step-target&quot;>Reading the Hop Before It Arrives</div>
+        </div>
+        <div class=&quot;step-reps&quot;>2-3 min</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Partner throws off a pad so the ball skips. Watch the skip and read where it is going while it is still travelling. Work downhill through it — get on top rather than reaching under.</p>
+        <em>The pad is what turns a clean short-hop drill into a real one. Real infields produce bad hops; a flat gym floor does not.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;w9&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>09 · Never From A Standstill</div>
+          <div class=&quot;step-target&quot;>Move First, Then Field</div>
+        </div>
+        <div class=&quot;step-reps&quot;>every rep from here on</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>From this point nothing starts flat-footed. When the ball goes up, you go. Wait for it standing still and you have already given away the step that would have got you there.</p>
+        <em>Washington is explicit: he does not want it from a standstill. Every drill above gets harder and more honest once this rule is on.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;w10&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>10 · Glove Side · Go Get It And Keep Going</div>
+          <div class=&quot;step-target&quot;>Lateral, Through The Ball</div>
+        </div>
+        <div class=&quot;step-reps&quot;>8-10 each side</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Break to the glove side, pick it up, and keep going through it — do not field it and stop. The catch is a point you pass through, not a place you arrive at.</p>
+        <em>He calls the finished version painting a picture: one continuous line rather than a set of separate movements stapled together.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;w11&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>11 · Fungo Feeds · Feet Moving</div>
+          <div class=&quot;step-target&quot;>Live Off The Bat</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3-4 min</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Off the fungo now, not hand-fed. Keep your feet moving right up until you are ready to catch it. Live contact changes the timing enough that hand-fed reps alone will not prepare you.</p>
+        <em>The first drill on this page where the ball behaves the way it will in a game.</em>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;w12&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>12 · Crossover Backhand · Cross And Go</div>
+          <div class=&quot;step-target&quot;>Backhand Under Real Range</div>
+        </div>
+        <div class=&quot;step-reps&quot;>6-8 reps</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Ball goes up, you take off — crossover step, then the backhand. Not a reach from where you stand; a crossover that covers ground and arrives with the glove already working down the line.</p>
+        <em>This is the backhand from step 03 after the arrow, the movement and the range have all been added to it.</em>
       </div>
     </li>
 
@@ -4950,6 +5028,77 @@ body.youth #youth-banner{display:block}
     });
     return {done:done,total:total,optDone:optDone,optTotal:optTotal};
   }
+  /* ===== J-BANDS: ONE LIST, ORDERED BY WHAT THE TISSUE NEEDS FIRST =====
+     Owner ask: de-duplicate, merge the official 11 and the optional extras into
+     a single list, and order it for muscle use rather than for provenance.
+
+     Two exercises were literal duplicates and are DELETED outright (Lane D found
+     them in PR #17; re-verified here before removing):
+       jx-9090er == j10  (Elevated External Rotation, same movement)
+       jx-ir     == j6   (Internal Rotation, same movement)
+     KEPT despite looking like a third: j9 (Elevated IR Alt) sits on the same
+     position as j8 but on a different motion path, and the source protocol keeps
+     both on purpose -- small muscles do benefit from varied fibre angles. Cutting
+     it would be editing Bauer's routine, not de-duplicating it, so it stays and
+     now sits directly beside j8 where the relationship is obvious.
+
+     THE ORDER IS THE FEATURE. The old list was provenance-ordered: the official
+     11 in Jaeger's numbering, then everything else dumped underneath. That put
+     scapular work AFTER cuff work and left activation drills at the bottom. The
+     blocks below run big-to-small, and put the shoulder blade before the cuff:
+     the scapula is the platform the cuff pulls against, so training the cuff on
+     an uncontrolled blade is loading a joint whose base is still loose. Pattern
+     work goes last, once everything it depends on is awake.
+
+     Reordered at RENDER TIME by id, not by moving markup. Step ids never change,
+     so every logged check-off survives; changing the order later is one edit to
+     this array. Same approach as renderLiftGroups(). */
+  var JB_BLOCKS = [
+    { t: '1 · Wake it up — activation, then the big levers',
+      ids: ['jx-circles','j1','j2','j3'] },
+    { t: '2 · Set the shoulder blade — the platform the cuff pulls against',
+      ids: ['jx-fwdback','jx-rows','jx-a','jx-t','jx-y','jx-facepull'] },
+    { t: '3 · Delts — the prime movers around the joint',
+      ids: ['j4','j5'] },
+    { t: '4 · Cuff · arm at the side — smallest muscles, controlled position',
+      ids: ['j6','j7'] },
+    { t: '5 · Cuff · throwing position — the angle that actually gets stressed',
+      ids: ['j8','j9','j10'] },
+    { t: '6 · Put it together — the full pattern, decel included',
+      ids: ['j11'] },
+    { t: '7 · Forearm and finish',
+      ids: ['j12','jx-triceps'] }
+  ];
+  function renderJbandOrder(){
+    var list = document.querySelector('#page-jbands .steplist');
+    if(!list) return;
+    list.querySelectorAll('.jb-hdr').forEach(function(h){ h.remove(); });
+    /* the extras ON/OFF control now heads the whole list rather than splitting
+       it in two -- there is no second list left for it to divide */
+    var div = document.getElementById('jx-divider');
+    if(div) list.insertBefore(div, list.firstChild);
+    var byId = {};
+    list.querySelectorAll('.step').forEach(function(st){
+      var k = st.getAttribute('data-ex');
+      if(k) byId[k] = st;
+    });
+    var placed = {};
+    JB_BLOCKS.forEach(function(b){
+      var present = b.ids.filter(function(id){ return byId[id]; });
+      if(!present.length) return;
+      var h = document.createElement('li');
+      h.className = 'step-divider jb-hdr';
+      var sp = document.createElement('span');
+      sp.textContent = b.t;
+      h.appendChild(sp);
+      list.appendChild(h);
+      present.forEach(function(id){ placed[id] = 1; list.appendChild(byId[id]); });
+    });
+    /* anything not named in a block still renders, never silently dropped */
+    Object.keys(byId).forEach(function(id){ if(!placed[id]) list.appendChild(byId[id]); });
+  }
+  window.renderJbandOrder = renderJbandOrder;
+
   function applyJxExtras(){
     const pg = document.getElementById('page-jbands');
     const btn = document.getElementById('jx-toggle');
@@ -4988,7 +5137,49 @@ body.youth #youth-banner{display:block}
   }
   /* single predicate every counter must consult */
   function splitHidden(s){ return s.classList.contains('mg-hidden'); }
-  function stepDisabled(s){ return jxDisabledStep(s) || setStepOff(s) || splitHidden(s); }
+  /* 4-way predicate. Anything hidden for ANY reason is also uncounted -- the
+     owner's rule from item 3.x, applied uniformly so a new way of hiding a step
+     cannot silently leave it in the denominator. */
+  function trackHidden(s){ return s.classList.contains('track-hidden'); }
+  function stepDisabled(s){ return jxDisabledStep(s) || setStepOff(s) || splitHidden(s) || trackHidden(s); }
+
+  /* ===== WASHINGTON: SIMPLE vs FULL METHOD (owner ask) =====
+     Two genuinely different users, so two tracks rather than one compromise.
+
+     SIMPLE is the six-step core the tab already had: kneel center/forehand/
+     backhand, stand barehand, stand glove, number-the-hops. It is what the
+     Freeman footage shows and it is what somebody warming up before a game
+     actually needs -- short, no vocabulary to learn.
+
+     FULL adds the seven things Washington actually teaches across the two Giants
+     sessions, which the six-step version silently drops: the ARROW (step 00), his
+     organizing idea; force in/force out; pad work and reading the skip; the
+     never-from-a-standstill rule; glove-side through the ball; live fungo feeds;
+     and the crossover backhand. Sourced from his own words on tape, not invented.
+
+     The arrow leads the full track on purpose. He opens AND closes an eleven
+     minute session on it, which is how you tell a spine from a tip.
+
+     Hidden steps do not count, via trackHidden() above. Simple is the default:
+     someone who never touches the control gets the short version, and the long
+     one is opt-in. */
+  function getWashTrack(){ return storeGet('arm-care-washtrack','simple'); }
+  window.setWashTrack = function(t){ storeSet('arm-care-washtrack', t); renderWashTrack(); updateCounter(); };
+  function renderWashTrack(){
+    var bar = document.getElementById('wash-track'); if(!bar) return;
+    var t = getWashTrack();
+    bar.querySelectorAll('.split-chip').forEach(function(c){
+      c.classList.toggle('on', c.getAttribute('data-track') === t);
+    });
+    document.querySelectorAll('#page-washington .step[data-track=&quot;full&quot;]').forEach(function(st){
+      st.classList.toggle('track-hidden', t !== 'full');
+    });
+    var note = document.getElementById('wash-track-note');
+    if(note) note.textContent = t === 'full'
+      ? 'Everything he teaches on tape, in his order — 13 steps, roughly 12 minutes. Starts with the arrow, because he does.'
+      : 'The six-step core. Enough to warm up hands before a game, nothing to learn first. Switch to Full method for what he actually coaches.';
+  }
+  window.renderWashTrack = renderWashTrack;
 
   window.toggleSet = function(k){
     storeSet('arm-care-set-'+k+'-'+setDayKey(), setOn(k) ? '0' : '1');
@@ -5537,7 +5728,9 @@ body.youth #youth-banner{display:block}
   setBonus(parseInt(storeGet('arm-care-bonus', '0'), 10));
   loadDone();
   applyJxExtras();   // 6.1.1: restore the optional-extras ON/OFF state
+  try{ renderJbandOrder(); }catch(e){}   // one list, ordered by tissue need
   applySets();       // 3.0: restore today's block ON/OFF switches
+  try{ renderWashTrack(); }catch(e){}   // simple vs full Washington method
   try{ renderSplit(); }catch(e){}
   try{ renderSplit(); }catch(e){}
   // 5.x: first-week onboarding card — stays until dismissed once (per profile)
@@ -7975,30 +8168,7 @@ body.youth #youth-banner{display:block}
 
     <div class=&quot;qa-subgroup-label&quot;>Containers · water only</div>
     <div class=&quot;qa-grid&quot;>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(28, 'Yeti 28oz')&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Yeti Rambler 28oz</span>
-      </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(28, 'Ocean Bottle')&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Ocean Bottle 28oz</span>
-      </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(28, 'Yeti shaker')&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Yeti shaker 28oz</span>
-      </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(33.8, 'Smart Water 1L')&quot;>
-        <span class=&quot;qa-amt&quot;>+33.8<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Smart Water 1L (33.8oz)</span>
-      </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(12, 'Bottle')&quot;>
-        <span class=&quot;qa-amt&quot;>+12<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Standard bottle</span>
-      </button>
-      <button class=&quot;qa-btn water&quot; onclick=&quot;addWater(8, 'Glass')&quot;>
-        <span class=&quot;qa-amt&quot;>+8<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Glass / cup</span>
-      </button>
+      <span id=&quot;qa-w-containers&quot;></span>
     </div>
 
     <!-- 1.2: relational measures — no bottle, no problem. Estimates, clearly labeled. -->
@@ -8032,50 +8202,17 @@ body.youth #youth-banner{display:block}
       <strong>Liquid IV</strong> and <strong>LMNT</strong> are electrolyte powder/salt mix sticks you pour into water. They don't add water themselves — they boost sodium / potassium / magnesium. Log your container separately. Liquid IV ≈ 500mg Na + 11g sugar. LMNT ≈ 1000mg Na, no sugar.
     </div>
     <div class=&quot;qa-grid qa-adult&quot;>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addMixIn('Liquid IV', 1)&quot;>
-        <span class=&quot;qa-amt&quot;>+1<span class=&quot;u&quot;> stick</span></span>
-        <span class=&quot;qa-name&quot;>Liquid IV ⚡ full</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addMixIn('Liquid IV ½', 0.5)&quot;>
-        <span class=&quot;qa-amt&quot;>+½<span class=&quot;u&quot;> stick</span></span>
-        <span class=&quot;qa-name&quot;>Liquid IV ⚡ half</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addMixIn('Liquid IV Energy', 1)&quot;>
-        <span class=&quot;qa-amt&quot;>+1<span class=&quot;u&quot;> stick</span></span>
-        <span class=&quot;qa-name&quot;>Liquid IV Energy ⚡</span>
-      </button>
+      <span id=&quot;qa-w-mixins&quot;></span>
     </div>
 
     <div class=&quot;qa-subgroup-label&quot; style=&quot;margin-top:14px&quot;>Sport drink · water + electrolytes ⚡ ½</div>
     <div class=&quot;qa-grid&quot;>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addWaterWithElec(12, 'Sport drink', 0.3)&quot;>
-        <span class=&quot;qa-amt&quot;>+12<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Small · 12oz</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addWaterWithElec(20, 'Sport drink', 0.5)&quot;>
-        <span class=&quot;qa-amt&quot;>+20<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Standard · 20oz</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addWaterWithElec(28, 'Sport drink', 0.7)&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>Large · 28oz</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addWaterWithElec(32, 'Sport drink', 0.8)&quot;>
-        <span class=&quot;qa-amt&quot;>+32<span class=&quot;u&quot;>oz</span></span>
-        <span class=&quot;qa-name&quot;>XL · 32oz</span>
-      </button>
+      <span id=&quot;qa-w-sportdrink&quot;></span>
     </div>
 
     <div class=&quot;qa-subgroup-label qa-adult&quot; style=&quot;margin-top:14px&quot;>Shaker + Liquid IV · water + ⚡ in one tap</div>
     <div class=&quot;qa-grid qa-adult&quot;>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addItem({water:28,elec:1,label:'28oz shaker + Liquid IV'})&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz ⚡</span></span>
-        <span class=&quot;qa-name&quot;>28oz shaker + Liquid IV</span>
-      </button>
-      <button class=&quot;qa-btn electrolyte&quot; onclick=&quot;addItem({water:28,elec:1,label:'28oz shaker + Liquid IV Energy'})&quot;>
-        <span class=&quot;qa-amt&quot;>+28<span class=&quot;u&quot;>oz ⚡</span></span>
-        <span class=&quot;qa-name&quot;>28oz shaker + Liquid IV Energy</span>
-      </button>
+      <span id=&quot;qa-w-shaker&quot;></span>
     </div>
 
     <div class=&quot;custom-add-form&quot; id=&quot;custom-water-form&quot;>
@@ -9958,6 +10095,78 @@ body.youth #youth-banner{display:block}
   }
   function saveCustomItems(a){ storeSet('fuel-items-custom', JSON.stringify(a||[])); }
   window.fuelAllItems = function(){ return FUEL_ITEMS.concat(loadCustomItems()); };
+
+
+  /* ===== WATER + ELECTROLYTE CATALOG (stage 3) =====
+     Completes what stage 1 started: all 61 quick-adds are now data. Only the
+     ITEMS moved -- the group headings, the §4.3 .qa-adult classes on them, the
+     mix-in info copy and the whole estimator widget stay exactly where they were
+     as markup, because none of those are items and a catalog has no business
+     modelling them. Four hosts, one per grid, so the estimator keeps its place
+     in the middle of the section rather than being shuffled to an end.
+
+     w = water oz, e = electrolyte stick-equivalents, z = show the ⚡ suffix.
+     l is the ledger label and is byte-identical to the markup it replaces --
+     same compatibility contract as the protein catalog: favourites match on
+     (label, amount) and history stores the label string.
+
+     Routing is provably equivalent to the old handlers: addWaterWithElec() is a
+     pure alias for addWater(), and addWater() normalises a missing third arg to
+     0, so addItem({water,elec,label}) reaches the identical call for every one
+     of these 15. Mix-ins (e only, no water) route to addMixIn() exactly as before. */
+  const FUEL_W_ITEMS = [
+    {id:'yeti-28oz-28-0-0',g:'containers',w:28,e:0,l:'Yeti 28oz',n:'Yeti Rambler 28oz'},
+    {id:'ocean-bottle-28-0-0',g:'containers',w:28,e:0,l:'Ocean Bottle',n:'Ocean Bottle 28oz'},
+    {id:'yeti-shaker-28-0-0',g:'containers',w:28,e:0,l:'Yeti shaker',n:'Yeti shaker 28oz'},
+    {id:'smart-water-1l-33-8-0',g:'containers',w:33.8,e:0,l:'Smart Water 1L',n:'Smart Water 1L (33.8oz)'},
+    {id:'bottle-12-0-0',g:'containers',w:12,e:0,l:'Bottle',n:'Standard bottle'},
+    {id:'glass-8-0-0',g:'containers',w:8,e:0,l:'Glass',n:'Glass / cup'},
+    {id:'liquid-iv-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV',n:'Liquid IV ⚡ full'},
+    {id:'liquid-iv-0-0-5',g:'mixins',w:0,e:0.5,l:'Liquid IV ½',n:'Liquid IV ⚡ half'},
+    {id:'liquid-iv-energy-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV Energy',n:'Liquid IV Energy ⚡'},
+    {id:'sport-drink-12-0-0-3',g:'sportdrink',w:12,e:0.3,l:'Sport drink',n:'Small · 12oz'},
+    {id:'sport-drink-20-0-0-5',g:'sportdrink',w:20,e:0.5,l:'Sport drink',n:'Standard · 20oz'},
+    {id:'sport-drink-28-0-0-7',g:'sportdrink',w:28,e:0.7,l:'Sport drink',n:'Large · 28oz'},
+    {id:'sport-drink-32-0-0-8',g:'sportdrink',w:32,e:0.8,l:'Sport drink',n:'XL · 32oz'},
+    {id:'28oz-shaker-liquid-iv-28-0',g:'shaker',w:28,e:1,l:'28oz shaker + Liquid IV',n:'28oz shaker + Liquid IV',z:1},
+    {id:'28oz-shaker-liquid-iv-ener',g:'shaker',w:28,e:1,l:'28oz shaker + Liquid IV Energy',n:'28oz shaker + Liquid IV Energy',z:1}
+  ];
+  function renderWaterQuickAdds(){
+    ['containers','mixins','sportdrink','shaker'].forEach(function(gid){
+      const host = document.getElementById('qa-w-' + gid);
+      if(!host) return;
+      host.textContent = '';
+      FUEL_W_ITEMS.filter(function(it){ return it.g === gid; }).forEach(function(it){
+        const b = document.createElement('button');
+        b.className = 'qa-btn water';
+        b.dataset.item = it.id;
+        const amt = document.createElement('span');
+        amt.className = 'qa-amt';
+        if(+it.w > 0){
+          amt.appendChild(document.createTextNode('+' + it.w));
+          const u = document.createElement('span'); u.className = 'u'; u.textContent = 'oz';
+          amt.appendChild(u);
+          if(it.z) amt.appendChild(document.createTextNode(' ⚡'));
+        } else {
+          /* sticks read as a half or a whole, never as 0.5 */
+          const n = (+it.e === 0.5) ? '½' : String(it.e);
+          /* half a stick is still 'stick', not 'sticks' -- pluralise above one,
+             not merely away from one (caught in live render: it read '+½ sticks') */
+          amt.appendChild(document.createTextNode('+' + n + ' stick' + (+it.e > 1 ? 's' : '')));
+        }
+        const nm = document.createElement('span');
+        nm.className = 'qa-name'; nm.textContent = it.n;
+        b.appendChild(amt); b.appendChild(nm);
+        b.addEventListener('click', function(){
+          addItem({ water: +it.w || 0, elec: +it.e || 0, label: it.l });
+        });
+        host.appendChild(b);
+      });
+    });
+  }
+  window.renderWaterQuickAdds = renderWaterQuickAdds;
+  if(document.readyState !== 'loading') setTimeout(function(){ try{ renderWaterQuickAdds(); }catch(e){} }, 60);
+  else document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ try{ renderWaterQuickAdds(); }catch(e){} }, 60); });
 
   /* Built with createElement, never HTML strings -- srcdoc-safe by construction.
      A single stray double quote in one food name would blank the whole iframe. */
