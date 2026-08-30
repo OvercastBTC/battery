@@ -452,3 +452,77 @@ mobility / cuff / forearm / scap. **43 incidental hits**, all game commentary
 ("routine looper to left", one passing "my hips feel good"). The single promising
 hit — a "preset posture squat drill" mention at 6:31 — sits over pitching-command
 talk, not a demonstration. It is a game vlog, not instructional. Evicted.
+
+---
+
+## Owner UX feedback (2026-08-29) — Washington drill sequencing + J-Band redundant links
+
+Four items from the owner, reviewing the app directly. Handing to Lane A as a queued
+unit — not yet branched or implemented.
+
+1. **Step order doesn't match a hand→bat→feet progression.** Owner's read watching
+   the clips: expected kneeling-hand-fed → kneeling-bat-fed → standing, not the
+   current `w1..w12` order (which was built to match tape-segment order for cutting
+   convenience, not a deliberate teaching progression — see the "Taxonomy mismatch,
+   owner decision" note above, still unresolved). No kneeling **bat**-fed step exists
+   in the current taxonomy at all (fungo/bat-fed work is `w11`, standing, much later)
+   — worth checking whether that's a real gap in the source footage or a
+   misidentification while watching (possible overlap with item 2 below).
+
+2. **`wash-knee-center` / `-forehand` / `-backhand` aren't actually isolated by side.**
+   Confirmed against this doc's own dissection notes (line ~239 above): all three are
+   cut from the same continuous kneeling block and "the tape never verbally separates
+   them the way our slot names do... cutting three distinct kneeling clips means
+   picking reps by eye." Owner is seeing exactly that — each "single-side" clip shows
+   all three directions. **Proposed fix (owner + agreed):** collapse `w1`/`w2`/`w3`
+   into one step with one video, and **three individual checkboxes underneath**
+   (center / forehand / backhand) rather than three near-duplicate step cards. Keeps
+   per-side progress tracking (matters for the Daily Readiness step count) while
+   matching what the footage actually shows. A single combined checkbox was
+   considered and rejected — loses the ability to mark partial completion.
+
+3. **Slow-mo passes for technique-critical clips.** Add a slowed-down (`setpts=2.0*PTS`,
+   0.5x) cut alongside the normal-speed clip where the mechanic is hard to see at full
+   speed — candidates: backhand angle (`wash-knee-backhand`), glove-side lateral
+   (`wash-gloveside`), crossover step (`wash-crossover`). Not blanket — pick per clip.
+
+4. **Remove the redundant J-Band top-level demo card.** `index.html:1909-1927` — the
+   "▶ Jaeger Routine Demos" card sits above the J-Band checklist with 11 duplicate
+   play buttons, even though every individual exercise below already has its own
+   "▶ Watch demo" button (e.g. `index.html:2157` rows, `:2172` facepulls, etc.). Cut
+   the top card (or keep the attribution text, drop the 11 buttons) — the per-exercise
+   links make it redundant now that every exercise is wired.
+
+---
+
+## 📐 CLIP ENCODE STANDARD — owner ruling 2026-08-29
+**(a) now, (b) for future cuts.** The ~96MB already in `clips/` stays as-is; every
+NEW cut from here uses the lower-bitrate profile below.
+
+```
+ffmpeg -ss <IN> -to <OUT> -i <SOURCE> \
+  -vf "scale=640:-2,fps=24" \
+  -c:v libx264 -crf 32 -preset veryfast -pix_fmt yuv420p \
+  -c:a aac -b:a 64k -ac 1 -movflags +faststart clips/<name>.mp4
+```
+
+**Measured, not assumed — and correcting an overstatement.** I told the owner
+crf32 would "roughly halve" the files. It does not. Re-encoding two shipped clips
+at crf32 gave **31% and 33%** smaller. Cutting from source rather than from an
+already-compressed clip should do slightly better, but the honest planning number
+is **~one third off, not one half**.
+
+**Audio stays.** It is roughly 25% of each file (64k mono over a ~25s clip), which
+is the single biggest remaining lever — and the wrong one to pull. Washington and
+the Giants coaches narrate every drill; a silent clip throws away the better half
+of what makes these worth shipping. If a future squeeze is ever needed, drop to
+48k mono before touching video quality or resolution.
+
+**Why 640×360 is fixed:** every existing clip is that size, and a mixed-resolution
+library looks like a bug in the modal rather than a deliberate choice.
+
+**The real constraint to watch** is not disk, it is that binaries in git are
+permanent — `clips/` can never shrink by deleting files later. At the current
+rate (SS/3B/catcher plus any Bauer footage) the profile above keeps us near
+~130MB rather than ~150MB+. Revisit option (c) — assets out of git — only if a
+future batch would cross ~250MB.
