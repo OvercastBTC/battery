@@ -11392,6 +11392,12 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     row.innerHTML = flags.map(f => `<div class=&quot;status-flag ${f.cls}&quot;>${f.txt}</div>`).join('');
   }
 
+  // owner: swap the WATER/PROTEIN text badges for the same icons used
+  // elsewhere in the app (🥩 protein / 💧 water, e.g. the Tracker chips
+  // and progress bars) -- shorter glyphs also stop the badge from wrapping.
+  // Hoisted out of refreshLog()'s per-row map callback (Copilot review, PR #20).
+  const LOG_TAG_ICON = { water: '💧', protein: '🥩' };
+
   function refreshLog() {
     try{if(window.batteryRenderHist)window.batteryRenderHist();if(window.batteryRenderFav)window.batteryRenderFav();}catch(e){}
     const list = document.getElementById('log-list');
@@ -11412,10 +11418,6 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     const sorted = [...entries].reverse();
     list.innerHTML = sorted.map(e => {
       const tag = e.type;
-      // owner: swap the WATER/PROTEIN text badges for the same icons used
-      // elsewhere in the app (🥩 protein / 💧 water, e.g. the Tracker chips
-      // and progress bars) -- shorter glyphs also stop the badge from wrapping.
-      const LOG_TAG_ICON = { water: '💧', protein: '🥩' };
       const tagLabel = LOG_TAG_ICON[tag] || tag.toUpperCase();
       let amt, elIcon = '', pairedOz = null;
       if (e.type === 'water') {
