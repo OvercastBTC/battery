@@ -11412,7 +11412,9 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     const sorted = [...entries].reverse();
     list.innerHTML = sorted.map(e => {
       const tag = e.type;
-      const tagLabel = tag.toUpperCase();
+      // owner: swap the WATER text badge for the drop icon everywhere else in
+      // the app uses -- shorter glyph also stops the badge from wrapping.
+      const tagLabel = tag === 'water' ? '💧' : tag.toUpperCase();
       let amt, elIcon = '', pairedOz = null;
       if (e.type === 'water') {
         amt = `${Math.round(e.amount)}oz`;
