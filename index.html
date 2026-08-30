@@ -11412,9 +11412,11 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     const sorted = [...entries].reverse();
     list.innerHTML = sorted.map(e => {
       const tag = e.type;
-      // owner: swap the WATER text badge for the drop icon everywhere else in
-      // the app uses -- shorter glyph also stops the badge from wrapping.
-      const tagLabel = tag === 'water' ? '💧' : tag.toUpperCase();
+      // owner: swap the WATER/PROTEIN text badges for the same icons used
+      // elsewhere in the app (🥩 protein / 💧 water, e.g. the Tracker chips
+      // and progress bars) -- shorter glyphs also stop the badge from wrapping.
+      const LOG_TAG_ICON = { water: '💧', protein: '🥩' };
+      const tagLabel = LOG_TAG_ICON[tag] || tag.toUpperCase();
       let amt, elIcon = '', pairedOz = null;
       if (e.type === 'water') {
         amt = `${Math.round(e.amount)}oz`;
@@ -12814,7 +12816,11 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       function esc(s){return String(s==null?'':s).replace(/'/g,'').replace(/&quot;/g,'');}
       function render(){
         const arr=entriesFor(key).filter(e=>!e.shakeWater);
-        const g=(typeof _goalForDate==='function')?_goalForDate(key,false):{protein:0,water:0};
+        // owner-reported bug: this always passed isToday=false, so editing TODAY
+        // fell into _goalForDate's frozen/reconstructed-snapshot branch and never
+        // picked up live adjustments (protein banking) the Tracker pill shows --
+        // pass the real isToday flag like every other _goalForDate call site does.
+        const g=(typeof _goalForDate==='function')?_goalForDate(key,key===todayKey()):{protein:0,water:0};
         const tot=getTotalsForDate(key);
         // §4.3: this day-editor is reachable from the Weekly tab (any wbar-row
         // or renderHistory() row) -- passive gram displays inside it are the
