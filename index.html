@@ -8655,9 +8655,7 @@ body.youth #youth-banner{display:block}
     </div>
 
     <div class=&quot;qa-subgroup-label&quot;>Containers · water only</div>
-    <div class=&quot;qa-grid&quot;>
-      <span id=&quot;qa-w-containers&quot;></span>
-    </div>
+    <div class=&quot;qa-grid&quot; id=&quot;qa-w-containers&quot;></div>
 
     <!-- 1.2: relational measures — no bottle, no problem. Estimates, clearly labeled. -->
     <div class=&quot;qa-subgroup-label&quot; style=&quot;margin-top:14px&quot;>
@@ -8689,19 +8687,13 @@ body.youth #youth-banner{display:block}
     <div class=&quot;qa-mixin-info qa-adult&quot; id=&quot;mixin-info&quot; style=&quot;display:none&quot;>
       <strong>Liquid IV</strong> and <strong>LMNT</strong> are electrolyte powder/salt mix sticks you pour into water. They don't add water themselves — they boost sodium / potassium / magnesium. Log your container separately. Liquid IV ≈ 500mg Na + 11g sugar. LMNT ≈ 1000mg Na, no sugar.
     </div>
-    <div class=&quot;qa-grid qa-adult&quot;>
-      <span id=&quot;qa-w-mixins&quot;></span>
-    </div>
+    <div class=&quot;qa-grid qa-adult&quot; id=&quot;qa-w-mixins&quot;></div>
 
     <div class=&quot;qa-subgroup-label&quot; style=&quot;margin-top:14px&quot;>Sport drink · water + electrolytes ⚡ ½</div>
-    <div class=&quot;qa-grid&quot;>
-      <span id=&quot;qa-w-sportdrink&quot;></span>
-    </div>
+    <div class=&quot;qa-grid&quot; id=&quot;qa-w-sportdrink&quot;></div>
 
     <div class=&quot;qa-subgroup-label qa-adult&quot; style=&quot;margin-top:14px&quot;>Shaker + Liquid IV · water + ⚡ in one tap</div>
-    <div class=&quot;qa-grid qa-adult&quot;>
-      <span id=&quot;qa-w-shaker&quot;></span>
-    </div>
+    <div class=&quot;qa-grid qa-adult&quot; id=&quot;qa-w-shaker&quot;></div>
 
     <div class=&quot;custom-add-form&quot; id=&quot;custom-water-form&quot;>
       <!-- US-2.9B: one-tap quantity control (1–48oz; ceiling sanity-checked vs
@@ -10620,6 +10612,11 @@ body.youth #youth-banner{display:block}
     {id:'28oz-shaker-liquid-iv-ener',g:'shaker',w:28,e:1,l:'28oz shaker + Liquid IV Energy',n:'28oz shaker + Liquid IV Energy',z:1}
   ];
   function renderWaterQuickAdds(){
+    /* LAYOUT BUG FIX: the hosts used to be a <span> INSIDE each .qa-grid, which
+       left the grid with exactly one child. Every button then stacked vertically
+       because they were no longer grid items -- the buttons were children of the
+       span, not of the grid. The id now sits ON the grid div itself so buttons
+       are direct grid children again, matching the protein section. */
     ['containers','mixins','sportdrink','shaker'].forEach(function(gid){
       const host = document.getElementById('qa-w-' + gid);
       if(!host) return;
