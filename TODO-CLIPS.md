@@ -558,3 +558,28 @@ a 41-minute file gets written off in a single pass.
 
 Bonus: the Recovery page had **zero checkable steps** before this, which is why the
 Recover stage of Today's Sequence was always empty. It now reads `4 | Recover | 0/4`.
+
+## Mexico vlog — re-checked under the new rule. Verdict: real content, NOT worth cutting.
+Applied the frames-first rule to `Trevor Bauer Accused Of Cheating In Mexico.mp4`
+(31:06), previously mined only for two pitching clips.
+
+**The rule generalised — the structure was again announced on screen and I had
+never looked.** There is an on-screen card at ~3:55 reading
+**"OBJECTIVES · 1. Catch up on sleep · 2. Improve fielding skills"**, followed by
+genuine footage: team warm-up and catch play ~3:30–4:10, and **pitcher fielding
+practice ~4:40–5:30**.
+
+**Cutting none of it, deliberately.** It is *demonstrative B-roll, not teaching* —
+a pitcher taking ground balls with no coaching, no cues, no progression. The app
+already carries 12 Washington clips and 13 Giants-program clips on fielding, every
+one of them with a coach talking through it. A silent clip of someone fielding
+would sit next to those and add nothing but weight, and `clips/` bytes are
+permanent.
+
+**The genuine gap it exposes is PFP — pitcher fielding practice** — which the app
+has no content for at all, and which is a real and distinct skill (comebackers,
+covering first, the 1-6-3). This footage is not good enough to teach it. Worth an
+owner decision on whether PFP deserves its own block, sourced properly.
+
+*Recording the negative result so nobody re-checks this file: the rule was applied,
+the content was found, the call not to ship was deliberate.*
