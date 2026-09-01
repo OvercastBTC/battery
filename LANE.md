@@ -198,3 +198,36 @@ New for E7 (Lane B defines the host emit; **Lane A implements the iframe receive
 - Finish a unit → push it (after the §A gate) and append a `HANDOFF.md §10` entry: `YYYY-MM-DD — .NN <commit> — <what + how to test>`. Newest at the bottom.
 - Blockers / design questions / lane disputes: write them here at the top of §B for your lane, or in `HANDOFF.md §12.2`, rather than guessing.
 - **Lane B is the final reviewer/release engineer** (`§12.1`): it runs the final DA + 7-gate on Lane A's pushed units on pull, and owns stamp/cache discipline if Lane A defers it.
+
+---
+
+## FUEL-stack revision backlog — owner, 2026-08-31 (QUEUED, no approach approved yet)
+
+Reached Lane A via the Dispatch session (`bacona-d5`) rather than through comms, so
+it existed only in a chat transcript. **Written down here on arrival** — a backlog
+that lives in a transcript is a backlog that dies. Every anchor below was
+re-verified against current `master` by Lane A, not taken on relay.
+
+**⚠ NOTHING HERE IS APPROVED.** The owner has not signed off an implementation
+approach on any of these. Do not start building from this list; it is a record,
+not a work order.
+
+| # | Item | Verified state |
+|---|---|---|
+| 1 | **Tap a day / dropdown to load that date into the live FUEL tracker for editing** | `loadEntries()` (10403) and `saveEntries()` (10407) are hardcoded to `todayKey()` with no date parameter. **28 call sites** (18 load / 10 save). `getTotalsForDate()` already reads any date, so per-date *storage* exists — what is missing is a selected-date concept in the live tracker. |
+| 2 | **Demote "This Week in Review"** from a passive dot-grid into that same editable-history / day-picker surface | depends entirely on #1 |
+| 3 | **Protein-banking SURPLUS direction lacks grounding** | `bankAdj()` negative clamp at **10136**. Shortfall-carries-forward has cumulative-intake support; a literal *surplus* giveback does not, and may fight `recoveryBoost()`'s floor. **This is my own Batch 8 design and the concern is fair** — I built the symmetric case because it was tidy, not because evidence asked for it. |
+| 4 | **Rest vs. recovery day** | `recoveryBoost()` (**9913**) already floors protein after hard training, but it is **invisible** under the plain "Rest" label; `fuel-recovery-<date>` is a separate inert tag that never touches targets. Two mechanisms, one of them silent. |
+| 5 | **Free-form / custom lifting-log entry + editable per-date lift history** | Lifting has **no** equivalent to FUEL's `fuel-items-custom` (grep: 2 refs for fuel, **0** for lifting). Should share ONE selected-date mechanism with #1 rather than being built twice. |
+| 6 | **Heavy vs Train** | `syncFuelDayFromPlan()` (**15403**): Heavy is driven *entirely* by yesterday's throwing load. **Lifting today maps to `train`** — identical to a full arm+drills+body day with no lifting at all. Owner says that does not match his mental model; wants a design call. |
+
+**⚠ TRANSCRIPTION TO CONFIRM WITH THE OWNER BEFORE ANY SCOPING:** one phrase came
+through as *"heavy… and the lake"* and is believed to be *"and the like"*. **Only
+the owner can confirm what he said** — nobody should infer scope from a guess at
+a misheard word.
+
+**Sequencing note from Lane A:** items 1, 2 and 5 are one feature, not three. All
+three need a single `selectedDate` concept threaded through the FUEL tracker;
+building them separately means doing that plumbing three times and getting three
+subtly different answers. Items 3, 4 and 6 are independent design questions and
+can be decided in any order.

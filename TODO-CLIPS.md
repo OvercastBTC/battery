@@ -445,7 +445,8 @@ in this footage**, and no amount of further cutting will produce it. Treat it as
 filming task, not a sourcing task. It is a partner, a ball, and no glove; the
 step's own copy is the shot list.
 
-## Japan vlog — CLOSED, nothing to cut
+## Japan vlog — ⚠ THIS CONCLUSION WAS WRONG. See the correction below.
+### (original entry kept so the mistake is legible)
 `I Faced Japan's Home Run Champion.mp4` (41:00, 2,513 subtitle cues) was
 keyword-scanned in full for stretch / warm-up / J-band / shoulder tube / plyo /
 mobility / cuff / forearm / scap. **43 incidental hits**, all game commentary
@@ -526,3 +527,59 @@ permanent — `clips/` can never shrink by deleting files later. At the current
 rate (SS/3B/catcher plus any Bauer footage) the profile above keeps us near
 ~130MB rather than ~150MB+. Revisit option (c) — assets out of git — only if a
 future batch would cross ~250MB.
+
+
+---
+
+## ↩ CORRECTION — the Japan vlog was NOT a dead end (2026-08-30)
+**Lane D was right and I was wrong.** Their 08-29 note said Bauer's *vlogs* show him
+warming up while talking about something else. I had already closed this file after
+keyword-scanning its **subtitle track** and finding 43 incidental hits.
+
+**That instrument cannot see the content.** In a vlog the arm-care work is VISUAL and
+the audio is about something else entirely — he is not narrating the stretch, he is
+talking about the game while doing it. A transcript scan is structurally blind to
+exactly the footage worth having.
+
+Re-examined with contact sheets. What was actually in it:
+| Time | Content |
+|---|---|
+| 0:18 | on-screen title card reading **WORKOUT** — the structure was announced and I never looked |
+| 1:24–2:02 | gym: side plank over a bolster, feet-elevated bridge work |
+| 2:30 | on-screen card reading **PRACTICE** |
+| 18:06–18:34 | **team stretch circle on the grass** after practice |
+| 19:24–21:04 | **~2 min of side-lying foam-roller work** — mid-back, then hips/glutes |
+
+Four clips cut (`jp1-*`, crf32) and wired to a new Recovery block. **The lesson is the
+method, and it is now a rule: for a VLOG, look at frames first and treat the
+transcript as secondary. For an INSTRUCTIONAL video, the transcript leads.** They are
+different source types and want different instruments; using one on the other is how
+a 41-minute file gets written off in a single pass.
+
+Bonus: the Recovery page had **zero checkable steps** before this, which is why the
+Recover stage of Today's Sequence was always empty. It now reads `4 | Recover | 0/4`.
+
+## Mexico vlog — re-checked under the new rule. Verdict: real content, NOT worth cutting.
+Applied the frames-first rule to `Trevor Bauer Accused Of Cheating In Mexico.mp4`
+(31:06), previously mined only for two pitching clips.
+
+**The rule generalised — the structure was again announced on screen and I had
+never looked.** There is an on-screen card at ~3:55 reading
+**"OBJECTIVES · 1. Catch up on sleep · 2. Improve fielding skills"**, followed by
+genuine footage: team warm-up and catch play ~3:30–4:10, and **pitcher fielding
+practice ~4:40–5:30**.
+
+**Cutting none of it, deliberately.** It is *demonstrative B-roll, not teaching* —
+a pitcher taking ground balls with no coaching, no cues, no progression. The app
+already carries 12 Washington clips and 13 Giants-program clips on fielding, every
+one of them with a coach talking through it. A silent clip of someone fielding
+would sit next to those and add nothing but weight, and `clips/` bytes are
+permanent.
+
+**The genuine gap it exposes is PFP — pitcher fielding practice** — which the app
+has no content for at all, and which is a real and distinct skill (comebackers,
+covering first, the 1-6-3). This footage is not good enough to teach it. Worth an
+owner decision on whether PFP deserves its own block, sourced properly.
+
+*Recording the negative result so nobody re-checks this file: the rule was applied,
+the content was found, the call not to ship was deliberate.*
