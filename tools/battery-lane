@@ -1,0 +1,333 @@
+#!/usr/bin/env python3
+"""
+battery-lane - durable lane identity for the BATTERY multi-session workflow.
+
+THE PROBLEM THIS SOLVES
+-----------------------
+Sessions are addressed by an auto-generated label (bacona-d5, bacona-a1, ...).
+That label is NOT stable: it changes when a session resumes. Dispatch kept
+having to ask "are you Lane A?" and guess from context, and a wrong guess routes
+work to the wrong worktree. CLAUDE.md already states the correct principle --
+identity binds to the WORKTREE, never to an app or a session label -- but there
+was no mechanism that actually enforced it.
+
+THE DESIGN
+----------
+Everything that CAN be derived IS derived; only the one fact that cannot be
+derived is stored.
+
+  DERIVED (never stored, so it can never go stale):
+    - which sessions are alive   <- /tmp/cc-socks/<pid>.sock + a live PID
+    - each session's message address <- the socket path itself
+    - each session's STABLE uuid  <- the --resume=<uuid> flag in its own argv
+    - each session's model        <- the --model flag in its own argv
+
+  STORED (~/battery-lanes.json):
+    - uuid -> lane assignment, and the worktree that assignment means
+
+The session uuid is the durable key. Unlike the bacona-* label it survives
+resume, compaction and restart -- it is the identity of the CONVERSATION, and it
+is what the transcript file and the scratchpad directory are both named after.
+Bind a lane to that once and it stays bound.
+
+A stored row is never trusted for liveness. A crashed session cannot leave a
+lie behind, because "alive" is recomputed from the process table every call.
+
+USAGE
+  battery-lane whoami            what am I?
+  battery-lane roster            who is everyone? (alias: who)
+  battery-lane claim <LANE> [-w <worktree>]   bind THIS session to a lane
+  battery-lane set <uuid> <LANE> [-w <dir>]   bind ANOTHER session
+  battery-lane forget <uuid>     drop a binding
+  battery-lane addr <LANE>       print a lane's socket address (for SendMessage)
+  ... any command with --json for machine-readable output.
+"""
+import argparse, json, os, re, subprocess, sys, time
+
+SOCK_DIR = "/tmp/cc-socks"
+REGISTRY = os.path.expanduser("~/battery-lanes.json")
+
+# The canonical worktree -> lane map. This is the ground truth CLAUDE.md points
+# at: a lane IS its worktree. Kept here so `claim` can sanity-check a session
+# that declares a lane whose worktree does not match.
+WORKTREE_LANE = {
+    "/Users/bacona/battery-laneA": "LANE-A",
+    "/Users/bacona/battery-laneE": "LANE-E",
+}
+# Roles that legitimately own NO worktree. CLAUDE.md documents DISPATCH as an
+# explicit NON-lane; it must never be given a branch namespace or a merge target.
+NO_WORKTREE_ROLES = {"DISPATCH", "OWNER"}
+
+
+def load():
+    try:
+        with open(REGISTRY) as f:
+            d = json.load(f)
+            return d if isinstance(d, dict) else {}
+    except Exception:
+        return {}
+
+
+def save(d):
+    tmp = REGISTRY + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(d, f, indent=2, sort_keys=True)
+        f.write("\n")
+    os.replace(tmp, REGISTRY)
+
+
+def pid_alive(pid):
+    try:
+        os.kill(pid, 0)
+        return True
+    except (OSError, ProcessLookupError):
+        return False
+    except PermissionError:
+        return True
+
+
+def argv_of(pid):
+    try:
+        return subprocess.run(["ps", "-o", "command=", "-p", str(pid)],
+                              capture_output=True, text=True, timeout=5).stdout.strip()
+    except Exception:
+        return ""
+
+
+def started_at(pid):
+    try:
+        return subprocess.run(["ps", "-o", "lstart=", "-p", str(pid)],
+                              capture_output=True, text=True, timeout=5).stdout.strip()
+    except Exception:
+        return ""
+
+
+def sessions():
+    """Every live Claude session on this machine, fully derived."""
+    out = []
+    try:
+        names = os.listdir(SOCK_DIR)
+    except Exception:
+        return out
+    for n in sorted(names):
+        if not n.endswith(".sock"):
+            continue
+        try:
+            pid = int(n[:-5])
+        except ValueError:
+            continue
+        if not pid_alive(pid):
+            continue  # stale socket, dead process
+        cmd = argv_of(pid)
+        if "claude" not in cmd:
+            continue
+        m = re.search(r"--resume[= ]([0-9a-f-]{36})", cmd)
+        mm = re.search(r"--model[= ](\S+)", cmd)
+        out.append({
+            "pid": pid,
+            "uuid": m.group(1) if m else None,
+            "socket": os.path.join(SOCK_DIR, n),
+            "model": mm.group(1) if mm else "?",
+            "started": started_at(pid),
+        })
+    return out
+
+
+def my_uuid():
+    """This session's own stable uuid, from its own parent process argv."""
+    # A hook may hand it to us directly; prefer that when present.
+    for k in ("CLAUDE_SESSION_ID", "BATTERY_SESSION_UUID"):
+        v = os.environ.get(k)
+        if v and re.fullmatch(r"[0-9a-f-]{36}", v):
+            return v
+    sock = os.environ.get("CLAUDE_CODE_MESSAGING_SOCKET", "")
+    pid = None
+    if sock:
+        base = os.path.basename(sock)
+        if base.endswith(".sock"):
+            try:
+                pid = int(base[:-5])
+            except ValueError:
+                pid = None
+    if pid is None:
+        pid = os.getppid()
+    m = re.search(r"--resume[= ]([0-9a-f-]{36})", argv_of(pid))
+    return m.group(1) if m else None
+
+
+def my_socket():
+    s = os.environ.get("CLAUDE_CODE_MESSAGING_SOCKET")
+    if s:
+        return s
+    u = my_uuid()
+    for s2 in sessions():
+        if s2["uuid"] == u:
+            return s2["socket"]
+    return None
+
+
+def decorate(reg, s):
+    row = reg.get(s["uuid"] or "", {})
+    s = dict(s)
+    s["lane"] = row.get("lane", "UNCLAIMED")
+    s["worktree"] = row.get("worktree", "")
+    s["note"] = row.get("note", "")
+    return s
+
+
+def cmd_roster(a):
+    reg = load()
+    rows = [decorate(reg, s) for s in sessions()]
+    if a.json:
+        print(json.dumps(rows, indent=2))
+        return 0
+    if not rows:
+        print("no live Claude sessions found (is /tmp/cc-socks populated?)")
+        return 1
+    me = my_uuid()
+    print(f"{'LANE':<10} {'PID':>7}  {'MODEL':<18} {'UUID':<38} SOCKET")
+    print("-" * 104)
+    for r in sorted(rows, key=lambda x: (x["lane"] == "UNCLAIMED", x["lane"])):
+        mark = " <- you" if r["uuid"] and r["uuid"] == me else ""
+        print(f"{r['lane']:<10} {r['pid']:>7}  {r['model']:<18} "
+              f"{(r['uuid'] or '(fresh session, no --resume)'):<38} {r['socket']}{mark}")
+    unclaimed = [r for r in rows if r["lane"] == "UNCLAIMED"]
+    if unclaimed:
+        print()
+        print(f"{len(unclaimed)} unclaimed session(s). Each should run:  battery-lane claim <LANE>")
+    return 0
+
+
+def cmd_whoami(a):
+    u, sock, reg = my_uuid(), my_socket(), load()
+    row = reg.get(u or "", {})
+    info = {"uuid": u, "socket": sock, "lane": row.get("lane", "UNCLAIMED"),
+            "worktree": row.get("worktree", ""), "note": row.get("note", "")}
+    if a.json:
+        print(json.dumps(info, indent=2))
+        return 0
+    if not u:
+        print("could not determine this session's uuid (no --resume in argv; fresh session?)")
+        print("run: battery-lane claim <LANE>   once a uuid exists, or set BATTERY_SESSION_UUID")
+        return 1
+    print(f"lane     : {info['lane']}")
+    print(f"uuid     : {u}")
+    print(f"socket   : {sock}")
+    if info["worktree"]:
+        print(f"worktree : {info['worktree']}")
+    if info["note"]:
+        print(f"note     : {info['note']}")
+    if info["lane"] == "UNCLAIMED":
+        print("\nThis session has no lane bound. Run:  battery-lane claim <LANE>")
+    return 0
+
+
+def _bind(uuid, lane, worktree, note):
+    lane = lane.upper()
+    if not worktree and lane not in NO_WORKTREE_ROLES:
+        for wt, ln in WORKTREE_LANE.items():
+            if ln == lane:
+                worktree = wt
+    if lane in NO_WORKTREE_ROLES and worktree:
+        print(f"refusing: {lane} is a NON-lane role and must not own a worktree "
+              f"(CLAUDE.md documents DISPATCH as owning no worktree).", file=sys.stderr)
+        return None
+    if worktree:
+        worktree = os.path.abspath(os.path.expanduser(worktree))
+        expected = WORKTREE_LANE.get(worktree)
+        if expected and expected != lane:
+            print(f"refusing: worktree {worktree} belongs to {expected}, not {lane}.",
+                  file=sys.stderr)
+            return None
+        if not os.path.isdir(worktree):
+            print(f"refusing: worktree {worktree} does not exist.", file=sys.stderr)
+            return None
+    reg = load()
+    prev = reg.get(uuid, {})
+    reg[uuid] = {
+        "lane": lane,
+        "worktree": worktree,
+        "note": note or prev.get("note", ""),
+        "first_seen": prev.get("first_seen") or time.strftime("%Y-%m-%d %H:%M:%S"),
+        "updated": time.strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    # A lane is singular: binding it to a new uuid releases any older holder, so
+    # a resumed session cannot end up shadowed by its own previous incarnation.
+    for k, v in list(reg.items()):
+        if k != uuid and v.get("lane") == lane:
+            v["lane"] = "RETIRED:" + lane
+            v["updated"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    save(reg)
+    return reg[uuid]
+
+
+def cmd_claim(a):
+    u = my_uuid()
+    if not u:
+        print("cannot claim: this session's uuid is undeterminable.", file=sys.stderr)
+        return 1
+    r = _bind(u, a.lane, a.worktree, a.note)
+    if r is None:
+        return 1
+    print(f"bound {a.lane.upper()} -> {u}" + (f"  ({r['worktree']})" if r["worktree"] else ""))
+    return 0
+
+
+def cmd_set(a):
+    r = _bind(a.uuid, a.lane, a.worktree, a.note)
+    if r is None:
+        return 1
+    print(f"bound {a.lane.upper()} -> {a.uuid}" + (f"  ({r['worktree']})" if r["worktree"] else ""))
+    return 0
+
+
+def cmd_forget(a):
+    reg = load()
+    if a.uuid in reg:
+        del reg[a.uuid]
+        save(reg)
+        print(f"forgot {a.uuid}")
+        return 0
+    print(f"no binding for {a.uuid}", file=sys.stderr)
+    return 1
+
+
+def cmd_addr(a):
+    want, reg = a.lane.upper(), load()
+    for s in sessions():
+        if s["uuid"] and reg.get(s["uuid"], {}).get("lane") == want:
+            print(s["socket"])
+            return 0
+    print(f"{want} is not currently live", file=sys.stderr)
+    return 1
+
+
+def main():
+    p = argparse.ArgumentParser(prog="battery-lane", description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--json", action="store_true", help="machine-readable output")
+    sub = p.add_subparsers(dest="cmd")
+
+    sub.add_parser("whoami").set_defaults(fn=cmd_whoami)
+    for name in ("roster", "who"):
+        sub.add_parser(name).set_defaults(fn=cmd_roster)
+
+    c = sub.add_parser("claim"); c.add_argument("lane")
+    c.add_argument("-w", "--worktree", default=""); c.add_argument("-n", "--note", default="")
+    c.set_defaults(fn=cmd_claim)
+
+    s = sub.add_parser("set"); s.add_argument("uuid"); s.add_argument("lane")
+    s.add_argument("-w", "--worktree", default=""); s.add_argument("-n", "--note", default="")
+    s.set_defaults(fn=cmd_set)
+
+    f = sub.add_parser("forget"); f.add_argument("uuid"); f.set_defaults(fn=cmd_forget)
+    d = sub.add_parser("addr"); d.add_argument("lane"); d.set_defaults(fn=cmd_addr)
+
+    a = p.parse_args()
+    if not getattr(a, "fn", None):
+        return cmd_roster(a)
+    return a.fn(a)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -139,6 +139,53 @@ Dispatch session flagged them unprompted. **A relay that forgets is worse than n
 relay, because everyone assumes the message landed.** The relay's defining
 obligation is durability, not routing.
 
+### Who is what lane right now — `battery-lane`
+
+**Never guess a session's lane, and never ask it to self-report from memory.**
+Run the tool. It is on `PATH` at `~/.local/bin/battery-lane`.
+
+```
+battery-lane roster      # every live session: lane, pid, model, uuid, socket
+battery-lane whoami      # this session's own lane + message address
+battery-lane addr LANE-E # a lane's socket path, for SendMessage
+battery-lane claim LANE-A   # bind THIS session to a lane (once per session)
+battery-lane set <uuid> LANE-E   # bind another session
+```
+
+**Why this exists.** The `bacona-*` session label is auto-generated and **changes
+on resume**, so Dispatch repeatedly had to ask "are you Lane A?" and infer the
+answer from context. Inference is where the mistakes came from, and a wrong guess
+routes work into the wrong worktree — the same class of failure §6 already
+describes for the Lane B / Lane E tangle.
+
+**The design rule: derive everything that can be derived; store only what cannot.**
+
+| Fact | Where it comes from |
+|---|---|
+| which sessions are alive | `/tmp/cc-socks/<pid>.sock` + a live PID — recomputed every call |
+| a session's message address | that socket path |
+| a session's **stable id** | the `--resume=<uuid>` flag in its own argv |
+| a session's model | the `--model` flag in its own argv |
+| **uuid → lane** | `~/battery-lanes.json` — the *only* stored fact |
+
+The session **uuid** is the durable key. Unlike the `bacona-*` label it survives
+resume, compaction and restart — it is the identity of the *conversation*, and it
+is what both the transcript file and the scratchpad directory are named after.
+Bind a lane to it once and it stays bound.
+
+**Liveness is never stored**, so a crashed session cannot leave a stale claim
+behind asserting it is still Lane E. That was the whole defect.
+
+**Three guards are enforced, matching the rules above:**
+- `DISPATCH` is refused a worktree — it owns none, per §6 rule 1.
+- A lane is refused another lane's worktree (`LANE-E` cannot claim `battery-laneA`).
+- A lane is singular: binding it to a new uuid **retires** the previous holder
+  rather than leaving two live claimants.
+
+`~/battery-lanes.json` is machine-local and **not in git** — it describes sessions
+on this Mac, which no other machine can observe. Cloud Lane D has no socket here
+and so never appears in the roster; that is correct, not a gap.
+
 ## 7. postMessage Seam + Data-Model Invariants
 
 ### Message shapes (change both sides in lockstep)
