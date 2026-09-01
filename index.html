@@ -5617,7 +5617,12 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     ['long','Long Toss'], ['washington','Infield Drills'],
     ['fieldwork','Field Work'], ['lifting','Lifting'], ['recovery','Recovery']
   ];
-  function setDayKey(){ return new Date().toISOString().slice(0,10); }
+  /* Local, not UTC: on a UTC-behind timezone the old toISOString() form rolled the
+     day over in the early evening, so a set toggled ON in the afternoon reset
+     itself before bedtime. One-time cost of the change is that a toggle set during
+     today's stale window falls back to its saved default, which is the intended
+     resting state anyway. */
+  function setDayKey(){ return armLocalDay(); }
   function setDefOn(k){ return storeGet('arm-care-setdef-'+k,'1') !== '0'; }
   function setOn(k){
     var v = storeGet('arm-care-set-'+k+'-'+setDayKey(), '');
@@ -6103,6 +6108,22 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   }
   function getTodayKey() { return armDoneKey(); }
 
+  /* Local-time YYYY-MM-DD, zero-padded — byte-identical to FUEL's todayKey().
+     Use this for ANY key that has to line up with the FUEL side, and never
+     new Date().toISOString().slice(0,10).
+
+     toISOString() is UTC. It LOOKS like the right format and is wrong for part of
+     every day: west of UTC it rolls over in the evening, east of UTC it is already
+     a day ahead. Measured — under Pacific/Kiritimati the UTC form returned
+     2026-09-01 while FUEL had written 2026-09-02, so the cross-store read simply
+     missed. For this app's own users that window is every evening after UTC
+     midnight, which is exactly when a kid logs the day's last water and checks
+     the sticker shelf. */
+  function armLocalDay(d) {
+    const x = d || new Date();
+    return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+  }
+
   function loadDone() {
     const today = getTodayKey();
     const data = storeGet(today, '');
@@ -6295,12 +6316,16 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 
   function updateStreakOnCheck() {
     const lastDate = storeGet('arm-care-last-date', '');
-    const today = new Date();
-    const todayStr = today.toISOString().slice(0,10);
+    /* Local, not UTC. These two were toISOString(), which is self-consistent but puts
+       the day boundary at UTC midnight -- 5pm local on the US west coast. So working
+       out both before and after that line counted as TWO days: the afternoon stamped
+       today, the evening saw UTC's tomorrow, matched it against yesterday, and
+       incremented again. The streak inflated by one for every split session. */
+    const todayStr = armLocalDay();
     if (lastDate === todayStr) return;
     let streak = parseInt(storeGet('arm-care-streak', '0'), 10) || 0;
     const y = new Date(); y.setDate(y.getDate() - 1);
-    const yStr = y.toISOString().slice(0,10);
+    const yStr = armLocalDay(y);
     if (lastDate === yStr || lastDate === '') {
       streak++;
     } else {
@@ -6747,7 +6772,10 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     function isYouth(){ return document.body.classList.contains('youth'); }
     function load(){ try{ return JSON.parse(localStorage.getItem('arm-care-stickers')||'[]') || []; }catch(e){ return []; } }
     function save(a){ try{ localStorage.setItem('arm-care-stickers', JSON.stringify(a)); }catch(e){} }
-    function dayStr(){ return new Date().toISOString().slice(0,10); }
+    /* was new Date().toISOString().slice(0,10) -- UTC, so it disagreed with the
+       LOCAL day FUEL writes for part of every day and the cross-store sticker
+       reads below silently missed. */
+    function dayStr(){ return armLocalDay(); }
     function renderShelf(){
       var grid = document.getElementById('sticker-grid'); if(!grid) return;
       var earned = load();
@@ -6826,12 +6854,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 
      Values: 3 great / 2 ok / 1 sore. Never a number on the kid's screen.
      §4.3-clean: no macros, no load ratios, no product content -- it is a feeling. */
-  function feelKey(d){
-    var x = d || new Date();
-    return 'arm-care-feel-' + x.getFullYear() + '-'
-      + String(x.getMonth()+1).padStart(2,'0') + '-'
-      + String(x.getDate()).padStart(2,'0');
-  }
+  function feelKey(d){ return 'arm-care-feel-' + armLocalDay(d); }
   window.setArmFeel = function(v){
     try{ localStorage.setItem(feelKey(), String(v)); }catch(e){}
     renderArmFeel();
