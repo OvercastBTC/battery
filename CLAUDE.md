@@ -63,7 +63,7 @@ A youth-tier profile must **never** see: supplement / stimulant / dosing / quant
 ## 5. How to Test
 
 Test harness (authoritative): `~/battery-tests/run.sh`
-Runs the **full Playwright gate (24 suites as of .90)** against the current `index.html` — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. Originals: `iframe-render`, `arm-history`, `persistence`, `export-scope`, `unified-export`, `import-roundtrip`, `profile-mgmt`, `youth-fuel-gate`, `today-view`, `e7-host`, `fuel-dual-credit`; added since: `icon-gauge`, `flow-mode`, `clip-playback`, `iframe-modal`, `demo-data`, `arm-guardian`, `consistency`, `week-report`, `icon-nudge`, `storage-warn`, `toast`, `fuel-bundles`, `recovery-boost`.
+Runs the **full Playwright gate (28 suites / 350 checks as of 26.09.01)** against the current `index.html` — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. Originals: `iframe-render`, `arm-history`, `persistence`, `export-scope`, `unified-export`, `import-roundtrip`, `profile-mgmt`, `youth-fuel-gate`, `today-view`, `e7-host`, `fuel-dual-credit`; added since: `icon-gauge`, `flow-mode`, `clip-playback`, `iframe-modal`, `demo-data`, `arm-guardian`, `consistency`, `week-report`, `icon-nudge`, `storage-warn`, `toast`, `fuel-bundles`, `recovery-boost`.
 
 `node --check` on the host `<script>` block is a useful quick check, but **it does not catch srcdoc breakage** (HTML encoding masks truncation from the parser). The Playwright gate is authoritative for all iframe edits.
 
@@ -219,6 +219,15 @@ installing it user-wide does not spam every other project on the machine.
 | host → iframe | `{type:'bat-poll'}` | ARM: `postCounts()`; FUEL: `refreshProgress()` |
 | FUEL → host | `{type:'bat-fuel', water, protein, tWater, tProtein, day, runway}` | today totals. `runway:{state:'none'|'active'|'now', time?}` is additive — pre-training eat/drink window status, surfaced read-only on TODAY. |
 | host → FUEL | `{type:'bat-plan', day}` | plan-v2: sent whenever TODAY's plan flags change. Mapping (host `syncFuelDayFromPlan()`): all streams off → `'rest'`; `lift` on → `'train'`; arm+drills+body all on → `'train'`; otherwise nothing is sent. FUEL's `handlePlanSync()` auto-applies `'rest'` only on an untouched day; any other value is a dismissible nudge — an athlete's manual day-type choice is never overwritten. |
+
+> ⚠️ **THIS ROW DISAGREES WITH THE CODE — do not trust it until someone decides which is right.**
+> The doc says *"an athlete's manual day-type choice is never overwritten"*. `handlePlanSync()`
+> (`index.html:10586`) has no such guard: after rejecting an unknown day and a day that already
+> matches, it calls `commitDays(...)` **unconditionally**. There is no untouched-day check, no
+> nudge and nothing dismissible. So a manual day-type choice IS overwritten whenever the host
+> emits `bat-plan`. Either the doc describes intent that was never implemented, or the code
+> regressed away from it — **I could not tell which from the code alone, so I changed neither.**
+> Whoever resolves it should fix the loser, not quietly delete this note.
 
 ### Data-model invariants
 
