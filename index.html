@@ -582,6 +582,40 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   }
   .page.active { display: block; }
 
+  /* ===== FLOW — the arm-care sequence as ONE continuous page =====
+     Sections keep their own .page wrappers. That is load-bearing, not cosmetic:
+     every completion predicate in this iframe resolves group / optional / lift
+     through .closest('.page'), and tabGroup() falls back to 'arm' on an empty id,
+     so flattening the wrappers would silently reclassify every step into the arm
+     stream and corrupt the readiness ring with no error and no failing test.
+     Flow therefore only UN-HIDES the sections together; it never restructures. */
+  .flow-on .page.flow { display: block; }
+  .flow-on .page.flow + .page.flow {
+    border-top: 1px solid var(--line);
+    margin-top: 12px;
+  }
+  .flow-step {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 24px; height: 24px; padding: 0 7px; margin-right: 9px;
+    border-radius: 12px; background: var(--gold); color: var(--ink);
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 12px; font-weight: 800; vertical-align: middle;
+  }
+  .flow-jump {
+    display: flex; align-items: center; gap: 9px;
+    margin: 18px 0 2px; padding-top: 14px;
+    border-top: 1px dashed var(--line);
+  }
+  .flow-jump button {
+    flex: 1; padding: 11px 12px; border-radius: 11px;
+    background: var(--steel); border: 1px solid var(--gold);
+    color: var(--gold-bright); cursor: pointer;
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 12px; letter-spacing: 1px; font-weight: 700;
+  }
+  .flow-jump button:active { background: var(--steel-2); }
+  .flow-jump button.flow-end { border-color: var(--green); color: var(--green); }
+
   .page h2 {
     font-family: 'Georgia', serif;
     font-size: 22px;
@@ -1529,10 +1563,19 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       <span class=&quot;badge gold&quot;>Order</span>
     </div>
     <ul>
+      <!-- These numbers MUST match the FLOW_ORDER chips on each section heading.
+           They did not before: this card jumped straight from the warm-up to
+           J-Bands and never mentioned the Shoulder Tube, so the card called
+           J-Bands step 2 while the section itself is step 3. Nothing caught it
+           because the two never appeared on screen together until the sequence
+           was laid out continuously. arm-flow.test.mjs now asserts they agree. -->
       <li><b>1 · Dynamic warm-up</b> — below. Always, before anything physical.</li>
-      <li><b>2 · J-Bands</b> — the arm-care stack. Near-universal, even on a rest day.</li>
-      <li><b>3 · The work</b> — throwing, drills, hitting, or the weight room.</li>
-      <li><b>4 · Static stretching</b> — below, <i>after</i> the work while you are still warm.</li>
+      <li><b>2 · Shoulder Tube</b> — ~40s of cuff activation, immediately after the warm-up and <i>before</i> the bands.</li>
+      <li><b>3 · J-Bands</b> — the arm-care stack. Near-universal, even on a rest day.</li>
+      <li><b>4 · PlyoCare</b> — only if you are throwing, and never cold: the bands come first.</li>
+      <li><b>5 · Long Toss</b> — the throwing itself.</li>
+      <li><b>6 · The rest of the work</b> — drills, hitting, or the weight room.</li>
+      <li><b>7 · Static stretching</b> — below, <i>after</i> the work while you are still warm.</li>
     </ul>
     <div class=&quot;cue&quot;>Rest day? Dynamic + J-Bands is still worth it. Skip the static block if you did nothing to recover from.</div>
   </div>
@@ -5765,13 +5808,177 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   }
   window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof postCounts==='function') postCounts(); } });
 
+  /* ===== ARM FLOW — the sequence as ONE continuous page =====
+     Owner's ask, restated: warm-up, tube, J-Bands and plyo should physically lay
+     out in the order you actually perform them, so you can scroll straight through
+     instead of hopping between tabs. The tab strip stays, demoted to jump-anchors.
+
+     This is NOT the existing Flow Mode (host, startFlow/flowSteps). That walks whole
+     STREAMS in a modal -- 'Arm care: 3 left' then a tab switch -- and its own comment
+     says it has no per-exercise visibility. Different feature; this one is about the
+     physical order of the work.
+
+     FLOW_ORDER is the single source of truth for the sequence, and correcting it is
+     deliberate. The app already states this order in its own copy: the Tube page's
+     Protocol card says 'When: immediately after dynamic warmup, before J-Bands', and
+     the Plyo page says 'The J-Band routine MUST come first'. But the markup was
+     authored J-Bands-first and the tab strip inherited that, so BOTH contradicted the
+     protocol card. Nothing ever surfaced it, because only one page rendered at a time.
+     Laying the sections out continuously makes the contradiction visible, so tab order,
+     DOM order and scroll order are all now driven from this one array.
+     Reversing the sequence is a one-line edit here; nothing else knows the order. */
+  const FLOW_ORDER = ['warmup', 'tube', 'jbands', 'plyo', 'long'];
+  const FLOW_LABEL = { warmup: 'Dynamic Warm-Up', tube: 'Shoulder Tube',
+                       jbands: 'J-Bands', plyo: 'PlyoCare', long: 'Long Toss' };
+  function isFlowTab(t) { return FLOW_ORDER.indexOf(t) !== -1; }
+
+  /* Put the flow tabs and the flow sections into FLOW_ORDER, in place. Reordering
+     nodes is safe here where flattening them would not be: the wrappers survive, so
+     .closest('.page') keeps resolving, and `pages` is a static NodeList that holds
+     the same elements regardless of their order. */
+  /* ARM has TWO .wrap elements -- a header wrap and the page container -- so
+     querySelector('.wrap') silently returns the header one and flow-on lands where
+     no .page can see it. Resolve the container from a page instead of by class. */
+  function flowHost() {
+    var pg = document.getElementById('page-' + FLOW_ORDER[0]);
+    return pg ? pg.parentNode : null;
+  }
+
+  function reorderInto(parent, nodes) {
+    if (!nodes.length) return;
+    var kids = Array.prototype.slice.call(parent.children);
+    var anchor = nodes.reduce(function (a, b) {
+      return kids.indexOf(a) < kids.indexOf(b) ? a : b;
+    });
+    var mark = document.createComment('flow');
+    parent.insertBefore(mark, anchor);
+    nodes.forEach(function (n) { parent.insertBefore(n, mark); });
+    parent.removeChild(mark);
+  }
+
+  function buildFlow() {
+    var nav = document.querySelector('nav.tabs');
+    if (nav) {
+      reorderInto(nav, FLOW_ORDER
+        .map(function (k) { return nav.querySelector('.tab[data-tab=' + k + ']'); })
+        .filter(Boolean));
+    }
+    var pgs = FLOW_ORDER
+      .map(function (k) { return document.getElementById('page-' + k); })
+      .filter(Boolean);
+    if (pgs.length && pgs[0].parentNode) reorderInto(pgs[0].parentNode, pgs);
+
+    FLOW_ORDER.forEach(function (k, i) {
+      var pg = document.getElementById('page-' + k);
+      if (!pg) return;
+      pg.classList.add('flow');
+      var h = pg.querySelector('h2');
+      if (h && !h.querySelector('.flow-step')) {
+        var chip = document.createElement('span');
+        chip.className = 'flow-step';
+        chip.textContent = String(i + 1);
+        h.insertBefore(chip, h.firstChild);
+      }
+      // A 'next' control at the foot of each section, so the sequence is walkable
+      // without going back up to the tab strip. Built with createElement rather
+      // than innerHTML: this file is an iframe srcdoc, where one literal double
+      // quote silently truncates the whole document.
+      if (!pg.querySelector('.flow-jump')) {
+        var bar = document.createElement('div');
+        bar.className = 'flow-jump';
+        var b = document.createElement('button');
+        var nxt = FLOW_ORDER[i + 1];
+        if (nxt) {
+          b.textContent = 'NEXT · ' + (FLOW_LABEL[nxt] || nxt).toUpperCase() + ' ↓';
+          b.addEventListener('click', function () { switchTab(nxt); });
+        } else {
+          b.textContent = 'END OF THE ARM SEQUENCE ✓';
+          b.className = 'flow-end';
+          b.addEventListener('click', function () { switchTab(FLOW_ORDER[0]); });
+        }
+        bar.appendChild(b);
+        pg.appendChild(bar);
+      }
+    });
+  }
+
+  /* Scroll a section under the sticky tab strip rather than under the viewport top,
+     otherwise the heading lands behind the nav and reads as the wrong section. */
+  function flowScrollTo(tabName, smooth) {
+    var pg = document.getElementById('page-' + tabName);
+    if (!pg) return;
+    var nav = document.querySelector('nav.tabs');
+    var off = nav ? nav.getBoundingClientRect().height : 0;
+    var y = pg.getBoundingClientRect().top + window.pageYOffset - off - 8;
+    window.scrollTo({ top: Math.max(0, y), behavior: smooth ? 'smooth' : 'auto' });
+  }
+
+  /* Scroll-spy: as you scroll the continuous page, the tab strip follows you.
+     Without this the highlighted tab lies about where you are the moment you scroll,
+     which on a continuous page is worse than no highlight at all.
+
+     Deliberately a scroll listener and NOT an IntersectionObserver. IO was tried
+     first and does not work here: these sections are thousands of pixels tall, far
+     larger than any sensible root band, so the intersection RATIO stays near zero
+     and the observer kept reporting the first section as the intersecting one no
+     matter where the page was scrolled to. Measured, not assumed -- the observer
+     fired three times across a 540->4407 scroll and never once changed its answer.
+     Picking the last section whose top has crossed the strip is exact and cheap. */
+  var flowSpyOn = false, flowTick = null;
+  function flowSpyScroll() {
+    if (flowTick) return;                       // one measure per frame, not per event
+    flowTick = requestAnimationFrame(function () {
+      flowTick = null;
+      var host = flowHost();
+      if (!host || !host.classList.contains('flow-on')) return;
+      var nav = document.querySelector('nav.tabs');
+      var line = (nav ? nav.getBoundingClientRect().height : 0) + 24;
+      var cur = FLOW_ORDER[0];
+      FLOW_ORDER.forEach(function (k) {
+        var pg = document.getElementById('page-' + k);
+        if (pg && pg.getBoundingClientRect().top <= line) cur = k;
+      });
+      var on = document.querySelector('.tab.active');
+      if (on && on.dataset.tab === cur) return;  // nothing changed; do not thrash
+      tabs.forEach(function (t) { t.classList.toggle('active', t.dataset.tab === cur); });
+      // Keep the active tab in view by scrolling the STRIP horizontally, by hand.
+      // Do NOT use scrollIntoView here: the strip is position:sticky, so asking the
+      // browser to reveal a tab scrolls the DOCUMENT back to the top, which re-fires
+      // this handler and lands you on the first section again. That is not a theory --
+      // it is what happened: a scroll to 4407 snapped straight back to 548 and the
+      // active tab never left 'warmup'.
+      var now = document.querySelector('.tab.active');
+      if (now && nav) {
+        var want = now.offsetLeft - (nav.clientWidth - now.offsetWidth) / 2;
+        nav.scrollLeft = Math.max(0, want);
+      }
+    });
+  }
+  function startFlowSpy() {
+    if (flowSpyOn) return;
+    flowSpyOn = true;
+    window.addEventListener('scroll', flowSpyScroll, { passive: true });
+  }
+
   function switchTab(tabName) {
+    var flow = isFlowTab(tabName);
+    var host = flowHost();
+    if (host) host.classList.toggle('flow-on', flow);
     tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+    // In flow mode the five sections are shown by the .flow-on CSS rule, so .active
+    // keeps its original meaning -- exactly one page, the one the tab strip points at.
     pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + tabName));
-    // Re-apply the PLYO youth gate on every page show (reads live host tier)
+    // Re-apply the PLYO youth gate on every page show (reads live host tier). This
+    // matters MORE in flow mode, not less: plyo is now on screen whenever any flow
+    // section is, so a missed gate here would be a §4.3 youth exposure.
     if (typeof gatePlyoYouth === 'function') gatePlyoYouth();
-    // Reset scroll to top of page area, NOT all the way to top — keeps header visible context
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    if (flow) {
+      startFlowSpy();
+      flowScrollTo(tabName, false);
+    } else {
+      // Reset scroll to top of page area, NOT all the way to top — keeps header visible context
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
     // Render read-only history on demand
     if (tabName === 'history') renderArmHistory();
     // Persist last tab (global + per-group so each bottom tab remembers its own page)
@@ -6191,6 +6398,9 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   if (storeGet('arm-care-collapsed', '0') === '1') {
     document.body.classList.add('controls-collapsed');
   }
+  // Build the continuous arm-care flow BEFORE restoring the tab, so the restored
+  // tab lands on already-ordered, already-decorated sections.
+  buildFlow();
   // Restore last tab
   const lastTab = storeGet('arm-care-last-tab', 'overview');
   switchTab(lastTab);
