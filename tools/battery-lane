@@ -302,6 +302,60 @@ def cmd_addr(a):
     return 1
 
 
+
+def cmd_hook(a):
+    """SessionStart hook: tell the session what lane it is, at startup.
+
+    Reads the hook payload on stdin. The field carrying the stable id is
+    `session_id`; note it is `source`, not `start_reason`, that carries the
+    trigger -- verified against a live payload, the published docs summary has
+    that name wrong.
+
+    Prints Claude Code's JSON contract on stdout. Stays SILENT for sessions that
+    have nothing to do with BATTERY, so installing this user-wide does not spam
+    every unrelated project on the machine.
+    """
+    try:
+        payload = json.load(sys.stdin)
+    except Exception:
+        payload = {}
+    uuid = payload.get("session_id") or ""
+    cwd = payload.get("cwd") or ""
+    reg = load()
+    row = reg.get(uuid, {})
+
+    battery_cwd = cwd.startswith("/Users/bacona/battery") or cwd == "/Users/bacona"
+    if not row and not battery_cwd:
+        return 0  # not our business; emit nothing
+
+    lane = row.get("lane", "UNCLAIMED")
+    live = [decorate(reg, s) for s in sessions()]
+    others = [r for r in live if r["uuid"] != uuid]
+
+    lines = []
+    if lane == "UNCLAIMED":
+        lines.append("BATTERY lane identity: THIS SESSION IS UNCLAIMED.")
+        lines.append(f"  Bind it before coordinating with other lanes:  battery-lane claim <LANE>")
+        lines.append(f"  (your stable session uuid is {uuid})")
+    else:
+        lines.append(f"BATTERY lane identity: YOU ARE {lane}.")
+        if row.get("worktree"):
+            lines.append(f"  worktree: {row['worktree']}")
+        if row.get("note"):
+            lines.append(f"  role: {row['note']}")
+    if others:
+        lines.append("  Other live sessions right now:")
+        for r in others:
+            lines.append(f"    {r['lane']:<10} {r['socket']}")
+    lines.append("  Never guess another session's lane -- run `battery-lane roster`.")
+
+    print(json.dumps({"hookSpecificOutput": {
+        "hookEventName": "SessionStart",
+        "additionalContext": "\n".join(lines),
+    }}))
+    return 0
+
+
 def main():
     p = argparse.ArgumentParser(prog="battery-lane", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -322,6 +376,7 @@ def main():
 
     f = sub.add_parser("forget"); f.add_argument("uuid"); f.set_defaults(fn=cmd_forget)
     d = sub.add_parser("addr"); d.add_argument("lane"); d.set_defaults(fn=cmd_addr)
+    sub.add_parser("hook").set_defaults(fn=cmd_hook)
 
     a = p.parse_args()
     if not getattr(a, "fn", None):

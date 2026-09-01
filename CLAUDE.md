@@ -186,6 +186,27 @@ behind asserting it is still Lane E. That was the whole defect.
 on this Mac, which no other machine can observe. Cloud Lane D has no socket here
 and so never appears in the roster; that is correct, not a gap.
 
+**A session is TOLD its lane at startup.** A `SessionStart` hook runs
+`battery-lane hook` and injects the answer into context, so a resumed session
+never has to infer what it is — inference was the whole problem. Installed at
+**user level** in `~/.claude/settings.json`, deliberately **not** in the repo's
+`.claude/`, which is git-tracked and public.
+
+Verified end-to-end: a fresh session with no prior knowledge correctly reported
+both its own (unclaimed) status and DISPATCH's socket address — data that exists
+nowhere except the hook's output.
+
+Two traps worth knowing if you ever touch this:
+- Hooks **merge** across settings files rather than overriding by precedence, so a
+  second install double-injects. `battery-lane hook` is registered once, and the
+  installer checks for an existing entry before adding one.
+- The SessionStart payload field carrying the trigger is **`source`**, not
+  `start_reason` — the published docs summary has that name wrong. The stable id
+  arrives as `session_id`.
+
+The hook stays **silent** for any session whose cwd is unrelated to BATTERY, so
+installing it user-wide does not spam every other project on the machine.
+
 ## 7. postMessage Seam + Data-Model Invariants
 
 ### Message shapes (change both sides in lockstep)
