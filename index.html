@@ -6080,10 +6080,28 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   }
 
   /* ===== CHECKBOX COMPLETION ===== */
-  function getTodayKey() {
-    const d = new Date();
-    return `arm-care-done-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  /* THE ONE PLACE an arm-care completion key is built. Every reader and every writer
+     must come through here, and it takes a DATE so any day can be addressed -- not
+     just today.
+
+     The format is deliberately NOT zero-padded ('2026-9-1', never '2026-09-01').
+     That is a compatibility contract with data already on real devices, not a
+     preference: changing it orphans every existing user's history. Note FUEL uses
+     the OPPOSITE convention (zero-padded), and ARM's own feelKey() pads too, so a
+     date STRING must never be passed across those boundaries -- pass a Date and let
+     each side build its own key.
+
+     This helper exists because the convention drifting was not hypothetical. The
+     streak-milestone loop below built its own key inline, with BOTH the wrong prefix
+     ('arm-care-' instead of 'arm-care-done-') AND the wrong padding, so it read a key
+     nothing has ever written. Verified against a seeded run: ten consecutive fully
+     completed days produced a streak of 0, meaning the 3/7/14/30-day awards could
+     never fire at all. One builder, so that cannot recur. */
+  function armDoneKey(d) {
+    const x = d || new Date();
+    return `arm-care-done-${x.getFullYear()}-${x.getMonth()+1}-${x.getDate()}`;
   }
+  function getTodayKey() { return armDoneKey(); }
 
   function loadDone() {
     const today = getTodayKey();
@@ -6924,8 +6942,10 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
         var st = 0;
         for(var n=0; n<400; n++){
           var dd = new Date(); dd.setDate(dd.getDate() - n);
-          var kk = dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');
-          var rec = localStorage.getItem('arm-care-' + kk);
+          /* was: localStorage.getItem('arm-care-' + <zero-padded date>) -- a key this
+             app has never written, so the streak was always 0 and no milestone award
+             could ever fire. Goes through the single builder now. */
+          var rec = localStorage.getItem(armDoneKey(dd));
           if(rec && rec !== '[]') st++;
           else { if(n === 0) continue; break; }   /* today not done yet != streak broken */
         }
