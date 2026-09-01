@@ -102,6 +102,43 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 
 `laneA/*` branches are visible in Lane E's worktree without pushing (shared `.git`).
 
+### Session Dispatch — NOT A LANE
+
+The layer that routes requests between the owner and whichever Claude Code
+sessions are active. Owner's name for it: **Session Dispatch** / `DISPATCH`.
+
+**It is deliberately outside the A–E roster, and that is the point.** Every lane
+letter answers one question — *who writes here and holds the claim* — and identity
+binds to the **worktree**, never to an app or a session label. Dispatch owns no
+worktree and no branch namespace, so a letter would make the letter mean two
+incompatible things at once: a place in the code, or a role in the process. That
+ambiguity is not hypothetical. It is precisely what produced the Lane B / Lane E
+tangle, where a letter got attached to an application ("the VS Code lane") rather
+than to a worktree, and it cost real effort to unpick. A router with a letter
+would reintroduce that failure under a new name.
+
+There is a safety reason too: a lane letter reads as a claim to write. Dispatch
+working inside another lane's worktree is only safe **because** it holds no claim.
+Two writers on one worktree with no ownership boundary is how work gets silently
+clobbered — this project has already lost a gate result to a silent merge failure.
+
+**Rules:**
+
+1. Owns no worktree, claims no branch namespace, is never a merge target.
+2. **Never commits and never pushes.** Anything durable goes through the owning lane.
+3. When it must write inside a lane's worktree, it signs as the **origin of the
+   request** — `[OWNER · …]` or `[DISPATCH · …]` — **never as the lane.**
+4. **Anything it receives on a lane's behalf is written into that lane's durable
+   channel immediately** — `battery-comms.md`, `LANE.md`, or Issue #2 — and never
+   left in a chat transcript.
+
+Rule 4 is the load-bearing one and it is written from a real incident: on
+2026-08-31 six FUEL-stack revision items addressed to Lane A's scope existed only
+in a transcript Lane A could not see. They were recovered only because the
+Dispatch session flagged them unprompted. **A relay that forgets is worse than no
+relay, because everyone assumes the message landed.** The relay's defining
+obligation is durability, not routing.
+
 ## 7. postMessage Seam + Data-Model Invariants
 
 ### Message shapes (change both sides in lockstep)
