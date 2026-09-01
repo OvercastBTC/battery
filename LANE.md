@@ -231,3 +231,58 @@ three need a single `selectedDate` concept threaded through the FUEL tracker;
 building them separately means doing that plumbing three times and getting three
 subtly different answers. Items 3, 4 and 6 are independent design questions and
 can be decided in any order.
+
+### FUEL/ARM history + day-selection — sharpened 2026-08-31
+
+Relayed by **DISPATCH** (owner-driven), originally posted to `battery-comms.md`
+because tracked-file writes are outside the DISPATCH scope and Lane A was
+unreachable. Folded in here with attribution, per that boundary working as
+designed. **Sharpening of items 1/2/5 above, not a new ask. Still QUEUED / NOT
+APPROVED.**
+
+**Every claim below re-verified by Lane A against `master`, not taken on relay.**
+
+**FINDING 1 — the scope widens to ARM, and ARM is AHEAD of FUEL.** ✅ verified.
+`saveDone()` (**5916**) does `document.querySelectorAll('.step.done')` across the
+*whole* ARM iframe with **no per-tab scoping**, writing one key. So Warm Up,
+J-Bands, Tube, PlyoCare, Long Toss, Washington, **Lifting**, Body and Recovery are
+already per-date under one format. `collectArmHistory()` (**6117**) scans **every**
+`arm-care-done-*` key in localStorage — unbounded, not a trailing week — so ARM's
+read-only history is already *more* complete than FUEL's 7-day card. The
+"everything else" half of the ask is therefore a **promotion of an existing
+surface** (read-only → tap-to-load-and-edit), not a new build.
+
+**FINDING 2 — the acceptance bar, in the owner's own terms.** ✅ recorded as such.
+The value is **reusing the existing quick-add / favourite / bundle / checkbox
+affordances against a selected past date**. A date-picker that only *views* a day
+and makes him retype has missed the requirement. Concretely: `addWater()`,
+`addEntry()`, bundle-tap and custom-item-tap on the FUEL side, and `toggleDone()`
+on the ARM side, must all resolve against `selectedDate` — not merely the display
+and target math around them.
+
+**Do the three open design calls block this?** No. ✅ verified — `fuel-goalsnap-<date>`
+(**11097**) freezes a day's computed target at log time, so later changes to the
+banking formula or the heavy/train mapping cannot retroactively move what a past
+day reads as hit/miss. Storage-and-routing plumbing underneath; independent of
+those three.
+
+**⚠ LANE A ADDITION — A TRAP NEITHER ENTRY FLAGGED. The two iframes use
+INCOMPATIBLE date-key formats.**
+
+| | Builder | Produces |
+|---|---|---|
+| ARM | `getTodayKey()` **5876** — `${m+1}-${d}`, **no padding** | `arm-care-done-2026-8-31` |
+| FUEL | `todayKey()` — `padStart(2,'0')` | `2026-08-31` |
+
+A single shared `selectedDate` string **cannot** be handed to both sides. Worse,
+the failure is seasonal: it only diverges for single-digit months or days, so an
+implementation tested in, say, mid-October passes and then silently reads the
+wrong key every day from November 1st to the 9th. This is **already known and
+worked around once** — the sticker cross-store reader carries an explicit
+"NON-padded to match the host's key builder" comment — which proves it is a live
+hazard rather than a theoretical one.
+
+**Implication for whoever builds this:** `selectedDate` must be a DATE VALUE with
+a per-side key builder, never a pre-formatted string passed across the seam. Pick
+that shape first; it is the difference between one plumbing job and a bug that
+surfaces months later.
