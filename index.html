@@ -10706,6 +10706,15 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       ['rest', 'light'].forEach(k => {
         if (T[k] &amp;&amp; T[k].protein < T.train.protein) T[k].protein = T.train.protein;
       });
+      /* ITEM 11: remember the floor, because raising the base target is not enough on
+         its own. bankAdj() runs AFTER this and can subtract from the result, so a
+         surplus the day before hard work could quietly pull today back below the very
+         floor this just raised -- undoing a recovery guarantee with a credit. The
+         floor is recorded here and enforced against the credit direction ONLY in
+         computedTarget(); a genuine deficit still stacks on top, untouched. */
+      _recoveryFloorP = T.train.protein;
+    } else {
+      _recoveryFloorP = 0;
     }
     DAY_TARGETS = T;
 
@@ -10795,6 +10804,9 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     parts.forEach(d => { const t = DAY_TARGETS[d]; if (t) p = Math.max(p, t.protein); });
     return p || DAY_TARGETS.train.protein;
   }
+  /* Protein level below which a banking CREDIT must not pull today, set when the
+     recovery floor fires. 0 = no recovery signal active. */
+  let _recoveryFloorP = 0;
   /* returns grams to ADD to today (positive = owed, negative = credit) */
   function bankAdj(baseP){
     if (!bankOn()) return 0;
@@ -10802,7 +10814,21 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     if (!y || !y.protein) return 0;                 // guard 3: nothing logged, nothing banked
     const yGoal = baseTargetFor(y.day);
     const cap = Math.round(baseP * 0.25 / 5) * 5;   // guard 2
-    let adj = Math.round((yGoal - y.protein) / 5) * 5;
+    /* ITEM 8 -- the two directions are NOT symmetric, on purpose.
+
+       raw > 0 means yesterday finished SHORT, and today carries the whole gap: a
+       missed target is a real deficit and the athlete owes it.
+
+       raw < 0 means yesterday finished OVER, and today gives back only a QUARTER of
+       it. Carrying the full surplus back was an over-correction: eat 40g over on
+       Monday and Tuesday's target dropped 40g, which is how a good day turns into an
+       under-eating day. Protein is not a calorie budget to balance to zero -- a
+       surplus is mostly harmless, an induced deficit is not. So the credit is damped
+       and the debit is not. */
+    const raw = yGoal - y.protein;
+    let adj = raw >= 0
+      ? Math.round(raw / 5) * 5
+      : -(Math.round((-raw) * 0.25 / 5) * 5);
     if (adj >  cap) adj =  cap;
     if (adj < -cap) adj = -cap;
     return adj;
@@ -10814,7 +10840,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     if (!box) return;
     if (!bankOn()){
       box.textContent = 'off'; box.className = 'bank-n';
-      if (why) why.textContent = 'Off: each day stands alone. On: yesterday\'s miss or surplus carries into today, capped at a quarter of the target.';
+      if (why) why.textContent = 'Off: each day stands alone. On: a miss yesterday carries into today in full; a surplus gives back only a quarter of itself. Either way capped at a quarter of the target.';
       return;
     }
     let base = 0;
@@ -10827,7 +10853,18 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     if (why){
       if (!y || !y.protein) why.textContent = 'Nothing logged yesterday, so nothing is carried. A day off the app is not a debt.';
       else if (adj > 0)  why.textContent = 'Yesterday finished ' + Math.round(baseTargetFor(y.day) - y.protein) + 'g short. Carrying ' + adj + 'g into today.';
-      else if (adj < 0)  why.textContent = 'Yesterday finished ' + Math.round(y.protein - baseTargetFor(y.day)) + 'g over. Today asks for ' + (-adj) + 'g less.';
+      else if (adj < 0){
+        /* ITEM 11: say so when the recovery floor is what is actually holding the
+           number up. Otherwise the athlete reads 'today asks for 25g less', looks at
+           a target that did not drop 25g, and concludes the app is broken. A floor
+           nobody can see is indistinguishable from a bug. */
+        const over = Math.round(y.protein - baseTargetFor(y.day));
+        const held = _recoveryFloorP &amp;&amp; (base + adj) < _recoveryFloorP;
+        why.textContent = held
+          ? ('Yesterday finished ' + over + 'g over, but you trained hard — recovery holds today at '
+             + _recoveryFloorP + 'g rather than giving it back.')
+          : ('Yesterday finished ' + over + 'g over. Today asks for ' + (-adj) + 'g less.');
+      }
       else               why.textContent = 'Yesterday landed on target. Nothing to carry.';
     }
   }
@@ -10854,7 +10891,14 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     /* 1.0: banking is folded in HERE, at the single source of truth, so the
        progress bar, the goal pills and the host seam can never disagree about
        what today's target actually is. Off by default => identical behaviour. */
-    p = Math.max(60, p + bankAdj(p));
+    const _adj = bankAdj(p);
+    let _p = p + _adj;
+    /* ITEM 11: the recovery floor is a hard floor against the CREDIT direction only.
+       A credit may never pull today below it -- that is the whole point of a floor.
+       A deficit still stacks above it untouched, because owing protein after hard
+       work is not something the floor should forgive. */
+    if (_adj < 0 &amp;&amp; _recoveryFloorP &amp;&amp; _p < _recoveryFloorP) _p = _recoveryFloorP;
+    p = Math.max(60, _p);
     return { protein: p, water: w, label, elecMax: eM, elecWarn: eW };
   }
 
