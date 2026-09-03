@@ -655,6 +655,23 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   .step.wash-angle:first-of-type { border-top-width: 1px; border-top-color: var(--line-bright); }
   .step.wash-angle:last-of-type { border-radius: 0 0 12px 12px; margin-bottom: 10px; }
 
+  /* Phase labels for the Washington core progression. */
+  .wash-phase {
+    list-style: none; display: flex; align-items: center; gap: 9px;
+    margin: 20px 0 8px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase;
+    color: var(--dim); font-weight: 700;
+  }
+  .wash-phase:first-of-type { margin-top: 6px; }
+  .wp-n {
+    flex: 0 0 auto; width: 19px; height: 19px; border-radius: 50%;
+    background: var(--gold); color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; letter-spacing: 0;
+  }
+
   /* ----- free-form lifting log ----- */
   .lift-form { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
   .lift-form select {
@@ -5843,6 +5860,8 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     document.querySelectorAll('#page-washington .step[data-track=&quot;full&quot;]').forEach(function(st){
       st.classList.toggle('track-hidden', t !== 'full');
     });
+    /* headers follow the track: a phase whose steps are all hidden must go too */
+    if (typeof refreshWashPhases === 'function') refreshWashPhases();
     var note = document.getElementById('wash-track-note');
     if(note) note.textContent = t === 'full'
       ? 'Everything he teaches on tape, in his order — 13 steps, roughly 12 minutes. Starts with the arrow, because he does.'
@@ -6624,6 +6643,91 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   }
   window.renderLiftLog = renderLiftLog;
 
+  /* ===== WASHINGTON PHASE HEADERS (owner UX item 1) =====
+     The owner's complaint was that the core progression looked like it was ordered
+     for tape-cutting convenience rather than teaching. Reading the drills, the
+     ORDER is actually defensible -- concept, then knees, then standing, then
+     reading the hop, then movement, then live off the bat. What is missing is that
+     none of that is VISIBLE: thirteen flat cards in one list, so the progression
+     exists and the athlete cannot see it.
+
+     So this labels the phases and deliberately does NOT reorder anything. Changing
+     a coach's drill sequence on my inference of what he meant is not a call I
+     should make from the outside, and the owner's stated expectation
+     -- hand-fed then bat-fed then standing -- does not map cleanly onto these drills:
+     bat-fed work is the most advanced feed here, not a middle step. The question is
+     with him; if he wants a different order, WASH_PHASES is the one place to change
+     and the headers follow automatically.
+
+     Headers are derived from the FIRST step id of each phase, so they land wherever
+     that step is. Reordering the markup moves the header with it rather than
+     stranding a label above the wrong drills. */
+  var WASH_PHASES = [
+    ['w0',  'Start here \u00b7 the idea every drill serves'],
+    ['w1',  'On the knees \u00b7 hands only'],
+    ['w4',  'Standing \u00b7 still hand-fed'],
+    ['w7',  'Reading the hop \u00b7 deliberate direction'],
+    ['w9',  'On the move \u00b7 never from a standstill'],
+    ['w11', 'Live \u00b7 off the bat, at range']
+  ];
+  function buildWashPhases(){
+    document.querySelectorAll('#page-washington .wash-phase').forEach(function(h){ h.remove(); });
+    WASH_PHASES.forEach(function(ph, i){
+      var first = document.querySelector('#page-washington .step[data-ex=' + ph[0] + ']');
+      /* w1 is the knee block, which sits BELOW its .wash-block header card -- put the
+         phase label above that card, not between it and its own angle rows. */
+      var anchorEl = first;
+      if (first && first.previousElementSibling
+          && first.previousElementSibling.classList.contains('wash-block')) {
+        anchorEl = first.previousElementSibling;
+      }
+      if (!anchorEl || !anchorEl.parentNode) return;
+      var h = document.createElement('li');
+      h.className = 'wash-phase';
+      var n = document.createElement('span');
+      n.className = 'wp-n';
+      h.appendChild(n);
+      h.appendChild(document.createTextNode(ph[1]));
+      anchorEl.parentNode.insertBefore(h, anchorEl);
+    });
+    refreshWashPhases();
+  }
+
+  /* A phase header must disappear when everything under it is hidden, and the
+     visible ones must renumber. Without this the default Simple track -- which shows
+     only the six-step core and hides every data-track=full step -- rendered FOUR
+     empty headings labelling nothing, stacked at the bottom of the page. The
+     structural check passed happily; a screenshot is what showed it.
+
+     Membership is derived by walking forward from each header to the next one rather
+     than listing step ids per phase, so a step moved between phases is grouped by
+     where it actually SITS and no second list can fall out of date. */
+  function refreshWashPhases(){
+    var list = document.querySelectorAll('#page-washington .wash-phase');
+    var shown = 0;
+    list.forEach(function(h){
+      var live = 0;
+      for (var el = h.nextElementSibling; el; el = el.nextElementSibling) {
+        if (el.classList.contains('wash-phase')) break;
+        if (!el.classList.contains('step')) continue;
+        /* stepDisabled() is the app's OWN notion of hidden-or-uncounted, and it is
+           purely class-based. Do NOT test offsetParent or getClientRects here: the
+           ARM iframe is display:none whenever the host is on another view, so a
+           layout probe reports EVERYTHING hidden and every header disappears. That
+           is not hypothetical -- the first version of this did exactly that. */
+        if (typeof stepDisabled === 'function' && stepDisabled(el)) continue;
+        live++;
+      }
+      h.style.display = live ? '' : 'none';
+      if (live) {
+        shown++;
+        var n = h.querySelector('.wp-n');
+        if (n) n.textContent = String(shown);
+      }
+    });
+  }
+  window.refreshWashPhases = refreshWashPhases;
+
   function renderLiftGroups(){
     var list = document.querySelector('#page-lifting .steplist');
     if(!list) return;
@@ -6973,6 +7077,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   // Build the continuous arm-care flow BEFORE restoring the tab, so the restored
   // tab lands on already-ordered, already-decorated sections.
   buildFlow();
+  try { buildWashPhases(); } catch (e) {}
   try { renderLiftLog(); } catch (e) {}
   // Restore last tab
   const lastTab = storeGet('arm-care-last-tab', 'overview');
