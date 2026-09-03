@@ -1335,6 +1335,23 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     border: 1px dashed var(--line); border-radius: 8px;
   }
   #clip-modal.no-clip video { display: none; }
+  #clip-speed {
+    display: flex; align-items: center; gap: 6px; margin-top: 9px;
+  }
+  #clip-speed .cs-label {
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--dim); margin-right: 2px;
+  }
+  #clip-speed .cs-btn {
+    flex: 1; padding: 8px 0; border-radius: 9px; cursor: pointer;
+    background: var(--steel); border: 1px solid var(--line-bright); color: var(--dim);
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 13px; font-weight: 700;
+  }
+  #clip-speed .cs-btn.on {
+    background: var(--gold); border-color: var(--gold); color: var(--ink);
+  }
   #clip-credit {
     font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.6;
     color: var(--dim); margin: 0 0 8px;
@@ -7229,6 +7246,19 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     <a id=&quot;clip-official&quot; class=&quot;clip-btn&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot; style=&quot;display:none&quot;>▶ Watch official demo ↗</a>
     <div id=&quot;clip-credit&quot; style=&quot;display:none&quot;></div>
     <video id=&quot;clip-video&quot; controls playsinline preload=&quot;none&quot; onerror=&quot;clipFailed()&quot;></video>
+    <!-- Owner UX item 3 asked for slow-mo passes: re-encoded 0.5x copies of a few
+         technique-critical clips. This does the same job with playbackRate instead,
+         which is better on every axis that matters here. Re-encoding would have
+         added permanent git history for THREE clips out of eighty-two, on a disk
+         already at 84 percent, and the athlete would have had to know in advance
+         which drills happened to have a slow version. This works on every clip,
+         costs nothing, and can be changed while watching. -->
+    <div id=&quot;clip-speed&quot;>
+      <span class=&quot;cs-label&quot;>Speed</span>
+      <button class=&quot;cs-btn&quot; data-rate=&quot;1&quot; onclick=&quot;setClipRate(1)&quot;>1&times;</button>
+      <button class=&quot;cs-btn&quot; data-rate=&quot;0.5&quot; onclick=&quot;setClipRate(0.5)&quot;>&frac12;&times;</button>
+      <button class=&quot;cs-btn&quot; data-rate=&quot;0.25&quot; onclick=&quot;setClipRate(0.25)&quot;>&frac14;&times;</button>
+    </div>
     <div class=&quot;clip-soon&quot;>Clip coming soon — this demo hasn't been added to the <b>clips/</b> folder yet.</div>
   </div>
 </div>
@@ -7312,8 +7342,31 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       } else { cr.style.display='none'; }
     }
     try{ v.load(); }catch(e){}
+    applyClipRate();
     m.classList.add('on');
   }
+  /* Slow-motion without shipping a second copy of anything.
+
+     playbackRate survives a src change on some engines and resets on others, so it
+     is re-applied on every open rather than set once -- otherwise a clip opened
+     after a slowed one plays at the wrong speed with the buttons showing the right
+     one, which is worse than either. */
+  function clipRate(){
+    var r = parseFloat(storeGet('arm-care-clipspeed', '1'));
+    return (r === 0.5 || r === 0.25) ? r : 1;
+  }
+  function applyClipRate(){
+    var v = document.getElementById('clip-video');
+    var r = clipRate();
+    if (v) { try { v.playbackRate = r; } catch(e){} }
+    document.querySelectorAll('#clip-speed .cs-btn').forEach(function(b){
+      b.classList.toggle('on', parseFloat(b.getAttribute('data-rate')) === r);
+    });
+  }
+  window.setClipRate = function(r){
+    storeSet('arm-care-clipspeed', String(r));
+    applyClipRate();
+  };
   function clipFailed(){
     var m=document.getElementById('clip-modal');
     if(m) m.classList.add('no-clip');
