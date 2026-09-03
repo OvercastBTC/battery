@@ -626,6 +626,35 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   }
   .hist-edit:active { background: var(--steel-2); color: var(--gold-bright); border-color: var(--gold); }
 
+  /* ----- Washington: one block header + its angle checkboxes ----- */
+  .wash-block {
+    list-style: none; margin: 14px 0 0; padding: 13px 14px 12px;
+    background: var(--steel); border: 1px solid var(--line-bright);
+    border-radius: 12px 12px 0 0; border-bottom: 0;
+  }
+  .wb-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+  .wb-name {
+    font-family: 'Georgia', serif; font-size: 17px; font-weight: 900; color: var(--bone);
+  }
+  .wb-target {
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 11px; letter-spacing: 1px; color: var(--gold);
+  }
+  .wb-lede { font-size: 13px; color: var(--bone); margin-top: 7px; }
+  .wb-note {
+    font-size: 11px; color: var(--dim); margin-top: 7px;
+    padding-left: 9px; border-left: 2px solid var(--line-bright);
+  }
+  /* The angles read as ROWS of the block above, not as separate cards. The block
+     header sets border-bottom:0 expecting them to butt against it, so the usual
+     inter-step margin has to go or the header renders as a box with a missing edge
+     floating above a gap -- which reads as a rendering bug rather than a grouping. */
+  .step.wash-angle {
+    margin: 0; border-radius: 0; border-top-width: 0;
+  }
+  .step.wash-angle:first-of-type { border-top-width: 1px; border-top-color: var(--line-bright); }
+  .step.wash-angle:last-of-type { border-radius: 0 0 12px 12px; margin-bottom: 10px; }
+
   /* ----- free-form lifting log ----- */
   .lift-form { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
   .lift-form select {
@@ -3271,47 +3300,74 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
         <em>This is not a drill, it is the reason the drills exist. He returns to it twice in eleven minutes, which is how you know it is the spine and not a tip.</em>
       </div>
     </li>
-    <li class=&quot;step&quot; data-ex=&quot;w1&quot; data-clip=&quot;clips/wash-knee-center.mp4&quot;>
+    <!-- OWNER UX ITEM 2 (agreed fix). These were three near-duplicate step cards
+         claiming to isolate center / forehand / backhand. The FOOTAGE does not:
+         this doc's own dissection notes record that all three clips were cut from
+         one continuous kneeling block and &quot;the tape never verbally separates them
+         the way our slot names do&quot;, so cutting three distinct clips meant picking
+         reps by eye. The owner saw exactly that -- each single-side clip showed all
+         three directions.
+
+         So the PRESENTATION collapses to one card with one honest video, while the
+         three checkboxes stay. That split is deliberate and was agreed explicitly:
+         a single combined checkbox was considered and REJECTED because it loses
+         partial completion, and the three angles remain separate .step elements so
+         data-ex w1/w2/w3 keep their history and the Daily Readiness count is
+         unchanged. Only the duplicated card chrome goes away. -->
+    <li class=&quot;wash-block&quot; data-clip=&quot;clips/wash-knee-center.mp4&quot;>
+      <div class=&quot;wb-head&quot;>
+        <div class=&quot;wb-name&quot;>01–03 · Knee Short Hops</div>
+        <div class=&quot;wb-target&quot;>Hands only · on the knees · 8–10 ft apart</div>
+      </div>
+      <p class=&quot;wb-lede&quot;>Both partners on knees. Partner throws firm short hops; glove
+        fingers down, push through the line of the hop. No footwork — just hands. Work
+        all three angles from the same position, ticking each as you go.</p>
+      <p class=&quot;wb-note&quot;>One video for all three: the source is a single continuous
+        kneeling block and does not cleanly separate the sides, so labelling three
+        clips would claim a precision the tape does not have.</p>
+    </li>
+
+    <li class=&quot;step wash-angle&quot; data-ex=&quot;w1&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-          <div class=&quot;step-name&quot;>01 ; Knee Short Hops, Center</div>
-          <div class=&quot;step-target&quot;>Hands Only ; 10-15 reps</div>
+          <div class=&quot;step-name&quot;>Center</div>
+          <div class=&quot;step-target&quot;>At your center mass · 10–15 reps</div>
         </div>
         <div class=&quot;step-reps&quot;>10-15</div>
       </div>
       <div class=&quot;step-detail&quot;>
-        <p>Both partners on knees, 8-10 ft apart. Partner throws firm short hops at your center mass. Glove fingers down, push through the line of the hop. No footwork. Just hands.</p>
+        <p>Straight at the chest. Push through the line of the hop.</p>
         <em>The foundation. Every other Washington Drill builds on this.</em>
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;w2&quot; data-clip=&quot;clips/wash-knee-forehand.mp4&quot;>
+    <li class=&quot;step wash-angle&quot; data-ex=&quot;w2&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-          <div class=&quot;step-name&quot;>02 ; Knee Short Hops, Forehand</div>
-          <div class=&quot;step-target&quot;>Hands Only ; 10 reps</div>
+          <div class=&quot;step-name&quot;>Forehand</div>
+          <div class=&quot;step-target&quot;>Glove side · 10 reps</div>
         </div>
         <div class=&quot;step-reps&quot;>10</div>
       </div>
       <div class=&quot;step-detail&quot;>
-        <p>Same setup. Partner throws short hops to your glove side. Reach out with the glove only; don't shift your body. Catch in the 15-inch zone, push through the hop.</p>
-        <em>Trains reach without losing the catch position</em>
+        <p>Reach out with the glove only; don't shift your body. Catch in the 15-inch zone, push through the hop.</p>
+        <em>Trains reach without losing the catch position.</em>
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;w3&quot; data-clip=&quot;clips/wash-knee-backhand.mp4&quot;>
+    <li class=&quot;step wash-angle&quot; data-ex=&quot;w3&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-          <div class=&quot;step-name&quot;>03 ; Knee Short Hops, Backhand</div>
-          <div class=&quot;step-target&quot;>Hands Only ; 10 reps</div>
+          <div class=&quot;step-name&quot;>Backhand</div>
+          <div class=&quot;step-target&quot;>Backhand side · 10 reps</div>
         </div>
         <div class=&quot;step-reps&quot;>10</div>
       </div>
       <div class=&quot;step-detail&quot;>
-        <p>Same setup. Backhand side. The hardest of the three; the wrist angle has to be right or the ball squirts past.</p>
+        <p>The hardest of the three; the wrist angle has to be right or the ball squirts past.</p>
         <em>Catch it in the same part of the glove every time — the middle, with the hands — not out in the webbing. The wall principle still applies.</em>
       </div>
     </li>
@@ -7190,8 +7246,15 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       j9:'jbj-ir-alt', j12:'jbj-wrist'
     };
     function addClipBtn(step, file){
-      var det = step && step.querySelector('.step-detail');
-      if(!det || det.querySelector('.clip-btn')) return;
+      if(!step) return;
+      /* A .step keeps its button inside .step-detail, where it appears when the row
+         is expanded. A .wash-block has no .step-detail -- it is a block header whose
+         video belongs to the three angle rows beneath it -- and it must NOT borrow
+         one, because .step-detail is hidden until its row is opened and the button
+         would silently never appear. Fall back to the element itself, which for a
+         block is always visible. Steps are unaffected: they always have the detail. */
+      var det = step.querySelector('.step-detail') || step;
+      if(det.querySelector('.clip-btn')) return;
       var b=document.createElement('button');
       b.className='clip-btn';
       b.style.marginTop='7px';
@@ -7209,7 +7272,13 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
        not have a file yet. Same lesson as stepDisabled(): derive from the thing
        itself rather than from a parallel list somebody has to remember to update. */
     function injectClipButtons(){
-      document.querySelectorAll('.step[data-clip]').forEach(function(step){
+      /* .wash-block is included deliberately: owner UX item 2 collapsed three
+         near-duplicate knee-hop cards into ONE card carrying ONE video, with the
+         three angle checkboxes below it. The video therefore hangs off the block,
+         not off a .step -- and a selector that only knew about .step would leave
+         that clip unreachable, which is exactly how Batch 18 shipped 12 clips with
+         no play button. Data-driven over both. */
+      document.querySelectorAll('.step[data-clip], .wash-block[data-clip]').forEach(function(step){
         var f = step.getAttribute('data-clip').replace(/^.*\//,'');
         addClipBtn(step, f);
       });
