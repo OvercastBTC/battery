@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""
+battery-status - one cross-lane snapshot of the whole BATTERY workflow.
+
+Answers, in one command, the questions every check-in starts with:
+  who is live, what is unmerged, what is deployed, and what is waiting on a human.
+
+Deliberately FAST and READ-ONLY: it never runs the Playwright gate (minutes) and
+never writes anything. Gate state is a claim that has to be produced by running it,
+so this reports the last gate result RECORDED IN COMMS rather than inventing one --
+an unverified "green" is worse than no answer.
+"""
+import json, os, re, subprocess, sys
+
+HOME = os.path.expanduser("~")
+COMMS = os.path.join(HOME, "battery-comms.md")
+WORKTREES = [("LANE-A", os.path.join(HOME, "battery-laneA")),
+             ("LANE-E", os.path.join(HOME, "battery-laneE"))]
+
+
+def sh(args, cwd=None):
+    try:
+        r = subprocess.run(args, cwd=cwd, capture_output=True, text=True, timeout=15)
+        return r.stdout.strip()
+    except Exception:
+        return ""
+
+
+def rule(t):
+    print("\n" + t)
+    print("-" * max(len(t), 60))
+
+
+def main():
+    rule("LIVE SESSIONS")
+    roster = sh(["battery-lane", "roster"])
+    print(roster or "  (battery-lane unavailable)")
+
+    rule("WORKTREES")
+    for lane, wt in WORKTREES:
+        if not os.path.isdir(wt):
+            print(f"  {lane:<8} (missing: {wt})")
+            continue
+        br = sh(["git", "-C", wt, "branch", "--show-current"]) or "(detached)"
+        head = sh(["git", "-C", wt, "log", "--oneline", "-1"])
+        dirty = sh(["git", "-C", wt, "status", "--porcelain"])
+        tracked = [l for l in dirty.splitlines() if not l.startswith("??")]
+        print(f"  {lane:<8} {br:<26} {head[:60]}")
+        if tracked:
+            print(f"           ⚠ {len(tracked)} uncommitted tracked change(s)")
+
+    rule("UNMERGED -> master")
+    wt = WORKTREES[0][1]
+    out = sh(["git", "-C", wt, "log", "--oneline", "master..HEAD"])
+    if out:
+        for line in out.splitlines():
+            print("  " + line)
+        print(f"\n  {len(out.splitlines())} commit(s) waiting on Lane E.")
+    else:
+        print("  nothing — everything is merged.")
+
+    rule("DEPLOYED")
+    idx = os.path.join(WORKTREES[1][1], "index.html")
+    stamp = ""
+    if os.path.exists(idx):
+        with open(idx, errors="ignore") as f:
+            head = f.read(400000)
+        m = re.search(r"(\d\d\.\d\d\.\d\d\.\d+)", head)
+        stamp = m.group(1) if m else ""
+    print(f"  master stamp : {stamp or '(not found)'}")
+    print("  live URL     : https://overcastbtc.github.io/battery/")
+
+    rule("LAST GATE RESULT RECORDED IN COMMS")
+    # Never asserts a gate result it did not see. Reports the most recent CLAIM.
+    best = None
+    if os.path.exists(COMMS):
+        with open(COMMS, errors="ignore") as f:
+            for line in f:
+                m = re.search(r"(\d+)\s*(?:suites?|checks?)\s*/\s*(\d+)\s*(?:checks?|suites?)\s*/\s*(\d+)\s*fails?", line)
+                if m:
+                    best = line.strip()
+    print("  " + (best[:150] if best else "(none recorded)"))
+    print("  NOTE: this is the last CLAIM in comms, not a verification. Run the gate.")
+
+    rule("OPEN — WAITING ON A HUMAN")
+    items = []
+    if os.path.exists(COMMS):
+        with open(COMMS, errors="ignore") as f:
+            txt = f.read()
+        for pat, label in [
+            (r"URGENT|🚨", "urgent item posted in comms"),
+            (r"recovery-context chips", "owner: should recovery chips move the protein target?"),
+            (r"WASH_PHASES", "owner: Washington drill order"),
+        ]:
+            if re.search(pat, txt):
+                items.append(label)
+    for i in items or ["(none detected)"]:
+        print("  • " + i)
+    print("\n  (heuristic scan of comms — read the tail for the real state)")
+
+    rule("COMMS TAIL")
+    if os.path.exists(COMMS):
+        heads = [l.rstrip() for l in open(COMMS, errors="ignore") if l.startswith("### [")]
+        for h in heads[-4:]:
+            print("  " + h[:150])
+    print()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
