@@ -231,3 +231,135 @@ three need a single `selectedDate` concept threaded through the FUEL tracker;
 building them separately means doing that plumbing three times and getting three
 subtly different answers. Items 3, 4 and 6 are independent design questions and
 can be decided in any order.
+
+### FUEL/ARM history + day-selection — sharpened 2026-08-31
+
+Relayed by **DISPATCH** (owner-driven), originally posted to `battery-comms.md`
+because tracked-file writes are outside the DISPATCH scope and Lane A was
+unreachable. Folded in here with attribution, per that boundary working as
+designed. **Sharpening of items 1/2/5 above, not a new ask. Still QUEUED / NOT
+APPROVED.**
+
+**Every claim below re-verified by Lane A against `master`, not taken on relay.**
+
+**FINDING 1 — the scope widens to ARM, and ARM is AHEAD of FUEL.** ✅ verified.
+`saveDone()` (**5916**) does `document.querySelectorAll('.step.done')` across the
+*whole* ARM iframe with **no per-tab scoping**, writing one key. So Warm Up,
+J-Bands, Tube, PlyoCare, Long Toss, Washington, **Lifting**, Body and Recovery are
+already per-date under one format. `collectArmHistory()` (**6117**) scans **every**
+`arm-care-done-*` key in localStorage — unbounded, not a trailing week — so ARM's
+read-only history is already *more* complete than FUEL's 7-day card. The
+"everything else" half of the ask is therefore a **promotion of an existing
+surface** (read-only → tap-to-load-and-edit), not a new build.
+
+**FINDING 2 — the acceptance bar, in the owner's own terms.** ✅ recorded as such.
+The value is **reusing the existing quick-add / favourite / bundle / checkbox
+affordances against a selected past date**. A date-picker that only *views* a day
+and makes him retype has missed the requirement. Concretely: `addWater()`,
+`addEntry()`, bundle-tap and custom-item-tap on the FUEL side, and `toggleDone()`
+on the ARM side, must all resolve against `selectedDate` — not merely the display
+and target math around them.
+
+**Do the three open design calls block this?** No. ✅ verified — `fuel-goalsnap-<date>`
+(**11097**) freezes a day's computed target at log time, so later changes to the
+banking formula or the heavy/train mapping cannot retroactively move what a past
+day reads as hit/miss. Storage-and-routing plumbing underneath; independent of
+those three.
+
+**⚠ LANE A ADDITION — A TRAP NEITHER ENTRY FLAGGED. The two iframes use
+INCOMPATIBLE date-key formats.**
+
+| | Builder | Produces |
+|---|---|---|
+| ARM | `getTodayKey()` **5876** — `${m+1}-${d}`, **no padding** | `arm-care-done-2026-8-31` |
+| FUEL | `todayKey()` — `padStart(2,'0')` | `2026-08-31` |
+
+A single shared `selectedDate` string **cannot** be handed to both sides. Worse,
+the failure is seasonal: it only diverges for single-digit months or days, so an
+implementation tested in, say, mid-October passes and then silently reads the
+wrong key every day from November 1st to the 9th. This is **already known and
+worked around once** — the sticker cross-store reader carries an explicit
+"NON-padded to match the host's key builder" comment — which proves it is a live
+hazard rather than a theoretical one.
+
+**Implication for whoever builds this:** `selectedDate` must be a DATE VALUE with
+a per-side key builder, never a pre-formatted string passed across the seam. Pick
+that shape first; it is the difference between one plumbing job and a bug that
+surfaces months later.
+
+---
+
+## 26.09.01 — Lane A autonomous run: lane identity + continuous arm flow
+
+Owner handed Lane A an autonomous run ("keep iterating until done... don't allow
+my lack of input to block you"), with Dispatch as the escalation path.
+
+### 1. Durable lane identity — `battery-lane` (4cdd441, f01bd3c)
+
+**Problem, owner's words:** *"dispatch is having some issues with who is what lane
+when the sessions resume, apparently the bacona-* identifier changes."* True: the
+session label is auto-generated and changes on resume, so Dispatch had to keep
+asking "are you Lane A?" and inferring — and inference is where the errors came from.
+
+**Solution:** derive everything derivable; store only what is not. Liveness, socket
+addresses, uuids and models are recomputed from the process table on every call and
+never written down, so a crashed session cannot leave a stale claim behind. The only
+stored fact is `uuid → lane` in `~/battery-lanes.json` (machine-local, untracked).
+
+The durable key is the **session uuid** from `--resume=<uuid>` in the session's own
+argv. Unlike the label it survives resume, compaction and restart — it is what the
+transcript file and the scratchpad directory are both named after.
+
+A `SessionStart` hook (`battery-lane hook`, user-level `~/.claude/settings.json`)
+**tells** each session its lane at startup, closing the last gap: a session that
+does not know to ask. Verified end-to-end — a fresh `claude -p` correctly reported
+its own status and DISPATCH's socket, data existing nowhere but the hook's output.
+
+Documented in CLAUDE.md §6. Tool versioned at `tools/battery-lane`.
+
+### 2. The arm sequence as ONE continuous page (d35bd58)
+
+**This is NOT the host's Flow Mode.** E8 shipped and was audited DONE, and it IS
+done — but `flowSteps()` walks whole STREAMS in a modal and its own comment concedes
+it has no per-exercise visibility. The owner's repeated request was physical layout.
+Dispatch caught the conflation; verified in source before acting on it.
+
+**The order was wrong, and the app already knew it.** The Tube page's Protocol card
+(`:2271`) says *"When: immediately after dynamic warmup, before J-Bands"*; the Plyo
+page says *"The J-Band routine MUST come first"*. But the markup was authored
+J-Bands-first and the tab strip inherited that. Only one page ever rendered, so
+nothing surfaced the contradiction. `FLOW_ORDER` is now the single source of truth
+for tab order, DOM order and scroll order — reversing it is a one-line edit.
+
+**UN-HIDE, NOT FLATTEN — the load-bearing constraint.** Every completion predicate
+resolves group/optional/lift via `.closest('.page')`, and `tabGroup()` falls back to
+`'arm'` on an empty id. Flattening the wrappers would silently reclassify every step
+into the arm stream and corrupt the readiness ring **with no error and no failing
+test** — nothing else in the gate reads real counts out of the ARM DOM; all four
+consumers of `bat-counts` fabricate the payload via postMessage. That gap is still
+open and worth a suite of its own.
+
+### Three things caught only because they were checked, not assumed
+
+1. **A false green.** The layout-order assertion passed while the ARM iframe was
+   hidden — every `getBoundingClientRect()` returned 0, and a stable sort over
+   zeros returns the expected order no matter what. The suite now asserts the frame
+   is laid out *before* trusting the order.
+2. **A contradiction the tests could not see.** The "Where this sits in the day"
+   card numbered J-Bands **2** while its section chip read **3**, because the card
+   omitted the Tube entirely. Found in a screenshot, with the suite green. Card
+   rewritten; agreement now asserted.
+3. **A spy fighting itself.** The scroll-spy called `scrollIntoView` on the active
+   tab; the strip is `position:sticky`, so that scrolled the DOCUMENT back to the
+   top — a scroll to 4407 snapped back to 548. The strip is now scrolled by hand.
+   (IntersectionObserver was tried first and measured useless here: sections are
+   thousands of px tall, ratio never leaves ~0, and it reported the same section
+   across three callbacks and a 3900px scroll.)
+
+**Gate: 339 checks / 26 suites / 0 fails.** `arm-flow.test.mjs` adds 16 checks and
+**skips cleanly when `FLOW_ORDER` is absent**, so it cannot red master for another
+lane before this merges.
+
+### Still blocked on a human
+Lane E is not running. The Firefox icon work is correctly routed there and cannot
+ship until the owner starts that session.

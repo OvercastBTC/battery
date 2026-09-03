@@ -581,6 +581,40 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   }
   .page.active { display: block; }
 
+  /* ===== FLOW — the arm-care sequence as ONE continuous page =====
+     Sections keep their own .page wrappers. That is load-bearing, not cosmetic:
+     every completion predicate in this iframe resolves group / optional / lift
+     through .closest('.page'), and tabGroup() falls back to 'arm' on an empty id,
+     so flattening the wrappers would silently reclassify every step into the arm
+     stream and corrupt the readiness ring with no error and no failing test.
+     Flow therefore only UN-HIDES the sections together; it never restructures. */
+  .flow-on .page.flow { display: block; }
+  .flow-on .page.flow + .page.flow {
+    border-top: 1px solid var(--line);
+    margin-top: 12px;
+  }
+  .flow-step {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 24px; height: 24px; padding: 0 7px; margin-right: 9px;
+    border-radius: 12px; background: var(--gold); color: var(--ink);
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 12px; font-weight: 800; vertical-align: middle;
+  }
+  .flow-jump {
+    display: flex; align-items: center; gap: 9px;
+    margin: 18px 0 2px; padding-top: 14px;
+    border-top: 1px dashed var(--line);
+  }
+  .flow-jump button {
+    flex: 1; padding: 11px 12px; border-radius: 11px;
+    background: var(--steel); border: 1px solid var(--gold);
+    color: var(--gold-bright); cursor: pointer;
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 12px; letter-spacing: 1px; font-weight: 700;
+  }
+  .flow-jump button:active { background: var(--steel-2); }
+  .flow-jump button.flow-end { border-color: var(--green); color: var(--green); }
+
   .page h2 {
     font-family: 'Georgia', serif;
     font-size: 22px;
@@ -1528,10 +1562,19 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       <span class=&quot;badge gold&quot;>Order</span>
     </div>
     <ul>
+      <!-- These numbers MUST match the FLOW_ORDER chips on each section heading.
+           They did not before: this card jumped straight from the warm-up to
+           J-Bands and never mentioned the Shoulder Tube, so the card called
+           J-Bands step 2 while the section itself is step 3. Nothing caught it
+           because the two never appeared on screen together until the sequence
+           was laid out continuously. arm-flow.test.mjs now asserts they agree. -->
       <li><b>1 · Dynamic warm-up</b> — below. Always, before anything physical.</li>
-      <li><b>2 · J-Bands</b> — the arm-care stack. Near-universal, even on a rest day.</li>
-      <li><b>3 · The work</b> — throwing, drills, hitting, or the weight room.</li>
-      <li><b>4 · Static stretching</b> — below, <i>after</i> the work while you are still warm.</li>
+      <li><b>2 · Shoulder Tube</b> — ~40s of cuff activation, immediately after the warm-up and <i>before</i> the bands.</li>
+      <li><b>3 · J-Bands</b> — the arm-care stack. Near-universal, even on a rest day.</li>
+      <li><b>4 · PlyoCare</b> — only if you are throwing, and never cold: the bands come first.</li>
+      <li><b>5 · Long Toss</b> — the throwing itself.</li>
+      <li><b>6 · The rest of the work</b> — drills, hitting, or the weight room.</li>
+      <li><b>7 · Static stretching</b> — below, <i>after</i> the work while you are still warm.</li>
     </ul>
     <div class=&quot;cue&quot;>Rest day? Dynamic + J-Bands is still worth it. Skip the static block if you did nothing to recover from.</div>
   </div>
@@ -1911,26 +1954,6 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     <div class=&quot;cue&quot;>Your checkmarks count just like the pros' — check them off and watch the shelf. ⭐</div>
   </div>
 
-  <div class=&quot;card gold&quot; style=&quot;margin-top:8px&quot;>
-    <div class=&quot;card-head&quot;>
-      <div class=&quot;card-title&quot;>▶ Jaeger Routine Demos</div>
-      <span class=&quot;badge gold&quot;>Official</span>
-    </div>
-    <p style=&quot;font-size:12px;color:var(--dim);margin:6px 0 10px&quot;>Alan Jaeger's own demos of the routine below — the one Bauer's done since age 12. Tap a play button to watch that exercise.</p>
-    <div style=&quot;display:flex;flex-wrap:wrap;gap:6px&quot;>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jbj-overhead.mp4')&quot;>▶ 1 · Over-the-head Ext</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jbj-side.mp4')&quot;>▶ 2 · Side Ext</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jbj-diagonal.mp4')&quot;>▶ 3 · Diagonal Ext</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jbj-fwdfly.mp4')&quot;>▶ 4 · Forward Flies</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jbj-revfly.mp4')&quot;>▶ 5 · Reverse Flies</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jbj-ir-hip.mp4')&quot;>▶ 6 · Internal Rotation</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jbj-er-hip.mp4')&quot;>▶ 7 · External Rotation</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jbj-ir-shoulder.mp4')&quot;>▶ 8 · Elevated Int Rot</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jbj-er-shoulder.mp4')&quot;>▶ 10 · Elevated Ext Rot</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jbj-throwing.mp4')&quot;>▶ 11 · Reverse Throwing</button>
-      <button class=&quot;clip-btn&quot; onclick=&quot;openClip('jbj-fwdthrow.mp4')&quot;>▶ 11 · Forward Throwing</button>
-    </div>
-  </div>
 
   <div class=&quot;card gold&quot;>
     <div class=&quot;card-head&quot;>
@@ -2031,7 +2054,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;j6&quot; data-clip=&quot;clips/jband-ir.mp4&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;j6&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -2094,7 +2117,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       </div>
     </li>
 
-    <li class=&quot;step&quot; data-ex=&quot;j10&quot; data-clip=&quot;clips/jband-9090er.mp4&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;j10&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
         <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
@@ -5593,7 +5616,12 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     ['long','Long Toss'], ['washington','Infield Drills'],
     ['fieldwork','Field Work'], ['lifting','Lifting'], ['recovery','Recovery']
   ];
-  function setDayKey(){ return new Date().toISOString().slice(0,10); }
+  /* Local, not UTC: on a UTC-behind timezone the old toISOString() form rolled the
+     day over in the early evening, so a set toggled ON in the afternoon reset
+     itself before bedtime. One-time cost of the change is that a toggle set during
+     today's stale window falls back to its saved default, which is the intended
+     resting state anyway. */
+  function setDayKey(){ return armLocalDay(); }
   function setDefOn(k){ return storeGet('arm-care-setdef-'+k,'1') !== '0'; }
   function setOn(k){
     var v = storeGet('arm-care-set-'+k+'-'+setDayKey(), '');
@@ -5784,13 +5812,177 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   }
   window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof postCounts==='function') postCounts(); } });
 
+  /* ===== ARM FLOW — the sequence as ONE continuous page =====
+     Owner's ask, restated: warm-up, tube, J-Bands and plyo should physically lay
+     out in the order you actually perform them, so you can scroll straight through
+     instead of hopping between tabs. The tab strip stays, demoted to jump-anchors.
+
+     This is NOT the existing Flow Mode (host, startFlow/flowSteps). That walks whole
+     STREAMS in a modal -- 'Arm care: 3 left' then a tab switch -- and its own comment
+     says it has no per-exercise visibility. Different feature; this one is about the
+     physical order of the work.
+
+     FLOW_ORDER is the single source of truth for the sequence, and correcting it is
+     deliberate. The app already states this order in its own copy: the Tube page's
+     Protocol card says 'When: immediately after dynamic warmup, before J-Bands', and
+     the Plyo page says 'The J-Band routine MUST come first'. But the markup was
+     authored J-Bands-first and the tab strip inherited that, so BOTH contradicted the
+     protocol card. Nothing ever surfaced it, because only one page rendered at a time.
+     Laying the sections out continuously makes the contradiction visible, so tab order,
+     DOM order and scroll order are all now driven from this one array.
+     Reversing the sequence is a one-line edit here; nothing else knows the order. */
+  const FLOW_ORDER = ['warmup', 'tube', 'jbands', 'plyo', 'long'];
+  const FLOW_LABEL = { warmup: 'Dynamic Warm-Up', tube: 'Shoulder Tube',
+                       jbands: 'J-Bands', plyo: 'PlyoCare', long: 'Long Toss' };
+  function isFlowTab(t) { return FLOW_ORDER.indexOf(t) !== -1; }
+
+  /* Put the flow tabs and the flow sections into FLOW_ORDER, in place. Reordering
+     nodes is safe here where flattening them would not be: the wrappers survive, so
+     .closest('.page') keeps resolving, and `pages` is a static NodeList that holds
+     the same elements regardless of their order. */
+  /* ARM has TWO .wrap elements -- a header wrap and the page container -- so
+     querySelector('.wrap') silently returns the header one and flow-on lands where
+     no .page can see it. Resolve the container from a page instead of by class. */
+  function flowHost() {
+    var pg = document.getElementById('page-' + FLOW_ORDER[0]);
+    return pg ? pg.parentNode : null;
+  }
+
+  function reorderInto(parent, nodes) {
+    if (!nodes.length) return;
+    var kids = Array.prototype.slice.call(parent.children);
+    var anchor = nodes.reduce(function (a, b) {
+      return kids.indexOf(a) < kids.indexOf(b) ? a : b;
+    });
+    var mark = document.createComment('flow');
+    parent.insertBefore(mark, anchor);
+    nodes.forEach(function (n) { parent.insertBefore(n, mark); });
+    parent.removeChild(mark);
+  }
+
+  function buildFlow() {
+    var nav = document.querySelector('nav.tabs');
+    if (nav) {
+      reorderInto(nav, FLOW_ORDER
+        .map(function (k) { return nav.querySelector('.tab[data-tab=' + k + ']'); })
+        .filter(Boolean));
+    }
+    var pgs = FLOW_ORDER
+      .map(function (k) { return document.getElementById('page-' + k); })
+      .filter(Boolean);
+    if (pgs.length && pgs[0].parentNode) reorderInto(pgs[0].parentNode, pgs);
+
+    FLOW_ORDER.forEach(function (k, i) {
+      var pg = document.getElementById('page-' + k);
+      if (!pg) return;
+      pg.classList.add('flow');
+      var h = pg.querySelector('h2');
+      if (h && !h.querySelector('.flow-step')) {
+        var chip = document.createElement('span');
+        chip.className = 'flow-step';
+        chip.textContent = String(i + 1);
+        h.insertBefore(chip, h.firstChild);
+      }
+      // A 'next' control at the foot of each section, so the sequence is walkable
+      // without going back up to the tab strip. Built with createElement rather
+      // than innerHTML: this file is an iframe srcdoc, where one literal double
+      // quote silently truncates the whole document.
+      if (!pg.querySelector('.flow-jump')) {
+        var bar = document.createElement('div');
+        bar.className = 'flow-jump';
+        var b = document.createElement('button');
+        var nxt = FLOW_ORDER[i + 1];
+        if (nxt) {
+          b.textContent = 'NEXT · ' + (FLOW_LABEL[nxt] || nxt).toUpperCase() + ' ↓';
+          b.addEventListener('click', function () { switchTab(nxt); });
+        } else {
+          b.textContent = 'END OF THE ARM SEQUENCE ✓';
+          b.className = 'flow-end';
+          b.addEventListener('click', function () { switchTab(FLOW_ORDER[0]); });
+        }
+        bar.appendChild(b);
+        pg.appendChild(bar);
+      }
+    });
+  }
+
+  /* Scroll a section under the sticky tab strip rather than under the viewport top,
+     otherwise the heading lands behind the nav and reads as the wrong section. */
+  function flowScrollTo(tabName, smooth) {
+    var pg = document.getElementById('page-' + tabName);
+    if (!pg) return;
+    var nav = document.querySelector('nav.tabs');
+    var off = nav ? nav.getBoundingClientRect().height : 0;
+    var y = pg.getBoundingClientRect().top + window.pageYOffset - off - 8;
+    window.scrollTo({ top: Math.max(0, y), behavior: smooth ? 'smooth' : 'auto' });
+  }
+
+  /* Scroll-spy: as you scroll the continuous page, the tab strip follows you.
+     Without this the highlighted tab lies about where you are the moment you scroll,
+     which on a continuous page is worse than no highlight at all.
+
+     Deliberately a scroll listener and NOT an IntersectionObserver. IO was tried
+     first and does not work here: these sections are thousands of pixels tall, far
+     larger than any sensible root band, so the intersection RATIO stays near zero
+     and the observer kept reporting the first section as the intersecting one no
+     matter where the page was scrolled to. Measured, not assumed -- the observer
+     fired three times across a 540->4407 scroll and never once changed its answer.
+     Picking the last section whose top has crossed the strip is exact and cheap. */
+  var flowSpyOn = false, flowTick = null;
+  function flowSpyScroll() {
+    if (flowTick) return;                       // one measure per frame, not per event
+    flowTick = requestAnimationFrame(function () {
+      flowTick = null;
+      var host = flowHost();
+      if (!host || !host.classList.contains('flow-on')) return;
+      var nav = document.querySelector('nav.tabs');
+      var line = (nav ? nav.getBoundingClientRect().height : 0) + 24;
+      var cur = FLOW_ORDER[0];
+      FLOW_ORDER.forEach(function (k) {
+        var pg = document.getElementById('page-' + k);
+        if (pg && pg.getBoundingClientRect().top <= line) cur = k;
+      });
+      var on = document.querySelector('.tab.active');
+      if (on && on.dataset.tab === cur) return;  // nothing changed; do not thrash
+      tabs.forEach(function (t) { t.classList.toggle('active', t.dataset.tab === cur); });
+      // Keep the active tab in view by scrolling the STRIP horizontally, by hand.
+      // Do NOT use scrollIntoView here: the strip is position:sticky, so asking the
+      // browser to reveal a tab scrolls the DOCUMENT back to the top, which re-fires
+      // this handler and lands you on the first section again. That is not a theory --
+      // it is what happened: a scroll to 4407 snapped straight back to 548 and the
+      // active tab never left 'warmup'.
+      var now = document.querySelector('.tab.active');
+      if (now && nav) {
+        var want = now.offsetLeft - (nav.clientWidth - now.offsetWidth) / 2;
+        nav.scrollLeft = Math.max(0, want);
+      }
+    });
+  }
+  function startFlowSpy() {
+    if (flowSpyOn) return;
+    flowSpyOn = true;
+    window.addEventListener('scroll', flowSpyScroll, { passive: true });
+  }
+
   function switchTab(tabName) {
+    var flow = isFlowTab(tabName);
+    var host = flowHost();
+    if (host) host.classList.toggle('flow-on', flow);
     tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+    // In flow mode the five sections are shown by the .flow-on CSS rule, so .active
+    // keeps its original meaning -- exactly one page, the one the tab strip points at.
     pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + tabName));
-    // Re-apply the PLYO youth gate on every page show (reads live host tier)
+    // Re-apply the PLYO youth gate on every page show (reads live host tier). This
+    // matters MORE in flow mode, not less: plyo is now on screen whenever any flow
+    // section is, so a missed gate here would be a §4.3 youth exposure.
     if (typeof gatePlyoYouth === 'function') gatePlyoYouth();
-    // Reset scroll to top of page area, NOT all the way to top — keeps header visible context
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    if (flow) {
+      startFlowSpy();
+      flowScrollTo(tabName, false);
+    } else {
+      // Reset scroll to top of page area, NOT all the way to top — keeps header visible context
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
     // Render read-only history on demand
     if (tabName === 'history') renderArmHistory();
     // Persist last tab (global + per-group so each bottom tab remembers its own page)
@@ -5892,9 +6084,43 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   }
 
   /* ===== CHECKBOX COMPLETION ===== */
-  function getTodayKey() {
-    const d = new Date();
-    return `arm-care-done-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  /* THE ONE PLACE an arm-care completion key is built. Every reader and every writer
+     must come through here, and it takes a DATE so any day can be addressed -- not
+     just today.
+
+     The format is deliberately NOT zero-padded ('2026-9-1', never '2026-09-01').
+     That is a compatibility contract with data already on real devices, not a
+     preference: changing it orphans every existing user's history. Note FUEL uses
+     the OPPOSITE convention (zero-padded), and ARM's own feelKey() pads too, so a
+     date STRING must never be passed across those boundaries -- pass a Date and let
+     each side build its own key.
+
+     This helper exists because the convention drifting was not hypothetical. The
+     streak-milestone loop below built its own key inline, with BOTH the wrong prefix
+     ('arm-care-' instead of 'arm-care-done-') AND the wrong padding, so it read a key
+     nothing has ever written. Verified against a seeded run: ten consecutive fully
+     completed days produced a streak of 0, meaning the 3/7/14/30-day awards could
+     never fire at all. One builder, so that cannot recur. */
+  function armDoneKey(d) {
+    const x = d || new Date();
+    return `arm-care-done-${x.getFullYear()}-${x.getMonth()+1}-${x.getDate()}`;
+  }
+  function getTodayKey() { return armDoneKey(); }
+
+  /* Local-time YYYY-MM-DD, zero-padded — byte-identical to FUEL's todayKey().
+     Use this for ANY key that has to line up with the FUEL side, and never
+     new Date().toISOString().slice(0,10).
+
+     toISOString() is UTC. It LOOKS like the right format and is wrong for part of
+     every day: west of UTC it rolls over in the evening, east of UTC it is already
+     a day ahead. Measured — under Pacific/Kiritimati the UTC form returned
+     2026-09-01 while FUEL had written 2026-09-02, so the cross-store read simply
+     missed. For this app's own users that window is every evening after UTC
+     midnight, which is exactly when a kid logs the day's last water and checks
+     the sticker shelf. */
+  function armLocalDay(d) {
+    const x = d || new Date();
+    return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
   }
 
   function loadDone() {
@@ -6089,12 +6315,16 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 
   function updateStreakOnCheck() {
     const lastDate = storeGet('arm-care-last-date', '');
-    const today = new Date();
-    const todayStr = today.toISOString().slice(0,10);
+    /* Local, not UTC. These two were toISOString(), which is self-consistent but puts
+       the day boundary at UTC midnight -- 5pm local on the US west coast. So working
+       out both before and after that line counted as TWO days: the afternoon stamped
+       today, the evening saw UTC's tomorrow, matched it against yesterday, and
+       incremented again. The streak inflated by one for every split session. */
+    const todayStr = armLocalDay();
     if (lastDate === todayStr) return;
     let streak = parseInt(storeGet('arm-care-streak', '0'), 10) || 0;
     const y = new Date(); y.setDate(y.getDate() - 1);
-    const yStr = y.toISOString().slice(0,10);
+    const yStr = armLocalDay(y);
     if (lastDate === yStr || lastDate === '') {
       streak++;
     } else {
@@ -6210,6 +6440,9 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   if (storeGet('arm-care-collapsed', '0') === '1') {
     document.body.classList.add('controls-collapsed');
   }
+  // Build the continuous arm-care flow BEFORE restoring the tab, so the restored
+  // tab lands on already-ordered, already-decorated sections.
+  buildFlow();
   // Restore last tab
   const lastTab = storeGet('arm-care-last-tab', 'overview');
   switchTab(lastTab);
@@ -6538,7 +6771,10 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     function isYouth(){ return document.body.classList.contains('youth'); }
     function load(){ try{ return JSON.parse(localStorage.getItem('arm-care-stickers')||'[]') || []; }catch(e){ return []; } }
     function save(a){ try{ localStorage.setItem('arm-care-stickers', JSON.stringify(a)); }catch(e){} }
-    function dayStr(){ return new Date().toISOString().slice(0,10); }
+    /* was new Date().toISOString().slice(0,10) -- UTC, so it disagreed with the
+       LOCAL day FUEL writes for part of every day and the cross-store sticker
+       reads below silently missed. */
+    function dayStr(){ return armLocalDay(); }
     function renderShelf(){
       var grid = document.getElementById('sticker-grid'); if(!grid) return;
       var earned = load();
@@ -6617,12 +6853,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 
      Values: 3 great / 2 ok / 1 sore. Never a number on the kid's screen.
      §4.3-clean: no macros, no load ratios, no product content -- it is a feeling. */
-  function feelKey(d){
-    var x = d || new Date();
-    return 'arm-care-feel-' + x.getFullYear() + '-'
-      + String(x.getMonth()+1).padStart(2,'0') + '-'
-      + String(x.getDate()).padStart(2,'0');
-  }
+  function feelKey(d){ return 'arm-care-feel-' + armLocalDay(d); }
   window.setArmFeel = function(v){
     try{ localStorage.setItem(feelKey(), String(v)); }catch(e){}
     renderArmFeel();
@@ -6733,8 +6964,10 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
         var st = 0;
         for(var n=0; n<400; n++){
           var dd = new Date(); dd.setDate(dd.getDate() - n);
-          var kk = dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');
-          var rec = localStorage.getItem('arm-care-' + kk);
+          /* was: localStorage.getItem('arm-care-' + <zero-padded date>) -- a key this
+             app has never written, so the streak was always 0 and no milestone award
+             could ever fire. Goes through the single builder now. */
+          var rec = localStorage.getItem(armDoneKey(dd));
           if(rec && rec !== '[]') st++;
           else { if(n === 0) continue; break; }   /* today not done yet != streak broken */
         }
@@ -10405,12 +10638,26 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     return `${h}:${m}${ampm}`;
   }
 
-  function loadEntries() {
-    const raw = storeGet('fuel-entries-' + todayKey(), '[]');
+  /* THE day ledger accessors. Both take an OPTIONAL date key so any day can be read
+     or written, and both default to today, so all 26 existing call sites keep their
+     exact present behaviour -- this parameter is additive, not a migration.
+
+     The key is a FUEL-shaped key (zero-padded local, from todayKey()). Never accept a
+     date string built on the ARM side: ARM's completion keys are deliberately
+     UNPADDED, and the two conventions are byte-incompatible. If you need the ledger
+     for a date the ARM side chose, pass a Date through todayKey()-equivalent
+     formatting on THIS side, or the read silently returns an empty day.
+
+     Everything that touches fuel-entries- must come through here. It previously did
+     not: batteryEditDay carried a private entriesFor()/save() pair that hit
+     localStorage directly, bypassing storeGet/storeSet and their error handling, so
+     the app had two independent write paths to the same store that could drift. */
+  function loadEntries(dateKey) {
+    const raw = storeGet('fuel-entries-' + (dateKey || todayKey()), '[]');
     try { return JSON.parse(raw) || []; } catch (e) { return []; }
   }
-  function saveEntries(arr) {
-    storeSet('fuel-entries-' + todayKey(), JSON.stringify(arr));
+  function saveEntries(arr, dateKey) {
+    storeSet('fuel-entries-' + (dateKey || todayKey()), JSON.stringify(arr));
   }
 
   function addEntry(type, amount, label, electrolyteUnits) {
@@ -12878,8 +13125,12 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
         modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
         document.body.appendChild(modal);
       }
-      function entriesFor(k){try{return JSON.parse(localStorage.getItem('fuel-entries-'+k)||'[]');}catch(e){return[];}}
-      function save(k,arr){localStorage.setItem('fuel-entries-'+k,JSON.stringify(arr));}
+      /* These were a private second write path onto fuel-entries-, hitting
+         localStorage directly and bypassing storeGet/storeSet. Now thin aliases over
+         the one pair of accessors, so the day editor and the tracker cannot drift
+         apart -- and so date-scoped work has a single place to change. */
+      function entriesFor(k){ return loadEntries(k); }
+      function save(k,arr){ saveEntries(arr,k); }
       function esc(s){return String(s==null?'':s).replace(/'/g,'').replace(/&quot;/g,'');}
       function render(){
         const arr=entriesFor(key).filter(e=>!e.shakeWater);

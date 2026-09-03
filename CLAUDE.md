@@ -63,7 +63,7 @@ A youth-tier profile must **never** see: supplement / stimulant / dosing / quant
 ## 5. How to Test
 
 Test harness (authoritative): `~/battery-tests/run.sh`
-Runs the **full Playwright gate (24 suites as of .90)** against the current `index.html` — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. Originals: `iframe-render`, `arm-history`, `persistence`, `export-scope`, `unified-export`, `import-roundtrip`, `profile-mgmt`, `youth-fuel-gate`, `today-view`, `e7-host`, `fuel-dual-credit`; added since: `icon-gauge`, `flow-mode`, `clip-playback`, `iframe-modal`, `demo-data`, `arm-guardian`, `consistency`, `week-report`, `icon-nudge`, `storage-warn`, `toast`, `fuel-bundles`, `recovery-boost`.
+Runs the **full Playwright gate (28 suites / 350 checks as of 26.09.01)** against the current `index.html` — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. Originals: `iframe-render`, `arm-history`, `persistence`, `export-scope`, `unified-export`, `import-roundtrip`, `profile-mgmt`, `youth-fuel-gate`, `today-view`, `e7-host`, `fuel-dual-credit`; added since: `icon-gauge`, `flow-mode`, `clip-playback`, `iframe-modal`, `demo-data`, `arm-guardian`, `consistency`, `week-report`, `icon-nudge`, `storage-warn`, `toast`, `fuel-bundles`, `recovery-boost`.
 
 `node --check` on the host `<script>` block is a useful quick check, but **it does not catch srcdoc breakage** (HTML encoding masks truncation from the parser). The Playwright gate is authoritative for all iframe edits.
 
@@ -139,6 +139,74 @@ Dispatch session flagged them unprompted. **A relay that forgets is worse than n
 relay, because everyone assumes the message landed.** The relay's defining
 obligation is durability, not routing.
 
+### Who is what lane right now — `battery-lane`
+
+**Never guess a session's lane, and never ask it to self-report from memory.**
+Run the tool. It is on `PATH` at `~/.local/bin/battery-lane`.
+
+```
+battery-lane roster      # every live session: lane, pid, model, uuid, socket
+battery-lane whoami      # this session's own lane + message address
+battery-lane addr LANE-E # a lane's socket path, for SendMessage
+battery-lane claim LANE-A   # bind THIS session to a lane (once per session)
+battery-lane set <uuid> LANE-E   # bind another session
+```
+
+**Why this exists.** The `bacona-*` session label is auto-generated and **changes
+on resume**, so Dispatch repeatedly had to ask "are you Lane A?" and infer the
+answer from context. Inference is where the mistakes came from, and a wrong guess
+routes work into the wrong worktree — the same class of failure §6 already
+describes for the Lane B / Lane E tangle.
+
+**The design rule: derive everything that can be derived; store only what cannot.**
+
+| Fact | Where it comes from |
+|---|---|
+| which sessions are alive | `/tmp/cc-socks/<pid>.sock` + a live PID — recomputed every call |
+| a session's message address | that socket path |
+| a session's **stable id** | the `--resume=<uuid>` flag in its own argv |
+| a session's model | the `--model` flag in its own argv |
+| **uuid → lane** | `~/battery-lanes.json` — the *only* stored fact |
+
+The session **uuid** is the durable key. Unlike the `bacona-*` label it survives
+resume, compaction and restart — it is the identity of the *conversation*, and it
+is what both the transcript file and the scratchpad directory are named after.
+Bind a lane to it once and it stays bound.
+
+**Liveness is never stored**, so a crashed session cannot leave a stale claim
+behind asserting it is still Lane E. That was the whole defect.
+
+**Three guards are enforced, matching the rules above:**
+- `DISPATCH` is refused a worktree — it owns none, per §6 rule 1.
+- A lane is refused another lane's worktree (`LANE-E` cannot claim `battery-laneA`).
+- A lane is singular: binding it to a new uuid **retires** the previous holder
+  rather than leaving two live claimants.
+
+`~/battery-lanes.json` is machine-local and **not in git** — it describes sessions
+on this Mac, which no other machine can observe. Cloud Lane D has no socket here
+and so never appears in the roster; that is correct, not a gap.
+
+**A session is TOLD its lane at startup.** A `SessionStart` hook runs
+`battery-lane hook` and injects the answer into context, so a resumed session
+never has to infer what it is — inference was the whole problem. Installed at
+**user level** in `~/.claude/settings.json`, deliberately **not** in the repo's
+`.claude/`, which is git-tracked and public.
+
+Verified end-to-end: a fresh session with no prior knowledge correctly reported
+both its own (unclaimed) status and DISPATCH's socket address — data that exists
+nowhere except the hook's output.
+
+Two traps worth knowing if you ever touch this:
+- Hooks **merge** across settings files rather than overriding by precedence, so a
+  second install double-injects. `battery-lane hook` is registered once, and the
+  installer checks for an existing entry before adding one.
+- The SessionStart payload field carrying the trigger is **`source`**, not
+  `start_reason` — the published docs summary has that name wrong. The stable id
+  arrives as `session_id`.
+
+The hook stays **silent** for any session whose cwd is unrelated to BATTERY, so
+installing it user-wide does not spam every other project on the machine.
+
 ## 7. postMessage Seam + Data-Model Invariants
 
 ### Message shapes (change both sides in lockstep)
@@ -151,6 +219,15 @@ obligation is durability, not routing.
 | host → iframe | `{type:'bat-poll'}` | ARM: `postCounts()`; FUEL: `refreshProgress()` |
 | FUEL → host | `{type:'bat-fuel', water, protein, tWater, tProtein, day, runway}` | today totals. `runway:{state:'none'|'active'|'now', time?}` is additive — pre-training eat/drink window status, surfaced read-only on TODAY. |
 | host → FUEL | `{type:'bat-plan', day}` | plan-v2: sent whenever TODAY's plan flags change. Mapping (host `syncFuelDayFromPlan()`): all streams off → `'rest'`; `lift` on → `'train'`; arm+drills+body all on → `'train'`; otherwise nothing is sent. FUEL's `handlePlanSync()` auto-applies `'rest'` only on an untouched day; any other value is a dismissible nudge — an athlete's manual day-type choice is never overwritten. |
+
+> ⚠️ **THIS ROW DISAGREES WITH THE CODE — do not trust it until someone decides which is right.**
+> The doc says *"an athlete's manual day-type choice is never overwritten"*. `handlePlanSync()`
+> (`index.html:10586`) has no such guard: after rejecting an unknown day and a day that already
+> matches, it calls `commitDays(...)` **unconditionally**. There is no untouched-day check, no
+> nudge and nothing dismissible. So a manual day-type choice IS overwritten whenever the host
+> emits `bat-plan`. Either the doc describes intent that was never implemented, or the code
+> regressed away from it — **I could not tell which from the code alone, so I changed neither.**
+> Whoever resolves it should fix the loser, not quietly delete this note.
 
 ### Data-model invariants
 
