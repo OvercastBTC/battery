@@ -6335,6 +6335,24 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   function renderLiftLog(){
     var host = document.getElementById('liftlog-card');
     if(!host) return;
+    /* §4.3 STRUCTURAL GATE. The card already sits inside .youth-hide, and Lane E
+       confirmed the inputs are genuinely unreachable for a youth profile -- 0x0,
+       offsetParent null. But they EXISTED in the DOM, hidden by a class, and their
+       reviewer had a real moment of doubt before proving it was not.
+
+       For a child-safety boundary that is the wrong shape. CSS is presentational and
+       one dropped class, one stylesheet that fails to apply, or one future refactor
+       that reparents this card turns a hidden weight input into a visible one. So the
+       card is not RENDERED for youth at all: no picker, no reps field, no weight
+       field, nothing to un-hide. The guarantee is now structural rather than
+       cosmetic, and the suite asserts the inputs do not EXIST rather than that they
+       are not visible. */
+    /* Reads the class directly. isYouth() exists but is CLOSED OVER in the sticker
+       block, so `typeof isYouth === 'function'` is FALSE here and a guard written
+       that way is silently inert -- it was, until the suite asserted the inputs do
+       not EXIST rather than that they are not visible, and caught it. Same scope
+       trap that made armLocalDay unreachable from a test earlier this week. */
+    if(document.body.classList.contains('youth')){ host.textContent = ''; return; }
     var rows = loadLiftLog();
     var cat = liftCatalogue();
     var nameOf = {}; cat.forEach(function(c){ nameOf[c.id] = c.name; });
