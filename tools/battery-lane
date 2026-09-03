@@ -303,6 +303,91 @@ def cmd_addr(a):
 
 
 
+
+COMMS = os.path.expanduser("~/battery-comms.md")
+
+
+def comms_posts():
+    """Every post in the comms log, newest last: (line_no, header)."""
+    out = []
+    try:
+        with open(COMMS, errors="ignore") as f:
+            for i, line in enumerate(f, 1):
+                if line.startswith("### ["):
+                    out.append((i, line.rstrip()))
+    except Exception:
+        pass
+    return out
+
+
+def _addressed_to(header_and_body, lane):
+    """A post is MINE if it @-mentions my lane, or mentions no lane at all.
+
+    Unaddressed posts count deliberately. The failure this exists to prevent was a
+    post nobody was tagged in quietly ageing out over two check-in cycles -- filtering
+    to explicit mentions only would have reproduced exactly that.
+    """
+    t = header_and_body.upper()
+    me = lane.upper().replace("LANE-", "LANE.?")
+    if re.search(r"@" + me, t):
+        return True
+    return not re.search(r"@LANE.?[A-E]\b", t)
+
+
+def cmd_inbox(a):
+    reg = load()
+    uuid = my_uuid() or ""
+    row = reg.get(uuid, {})
+    lane = row.get("lane", "")
+    if not lane or lane.startswith("RETIRED"):
+        print("this session has no lane bound; run: battery-lane claim <LANE>", file=sys.stderr)
+        return 1
+    cursor = int(row.get("comms_cursor", 0))
+    posts = comms_posts()
+    try:
+        body = open(COMMS, errors="ignore").read().split("\n")
+    except Exception:
+        body = []
+
+    unread = []
+    for idx, (ln, head) in enumerate(posts):
+        if ln <= cursor:
+            continue
+        end = posts[idx + 1][0] - 1 if idx + 1 < len(posts) else len(body)
+        chunk = "\n".join(body[ln - 1:end])
+        if a.all or _addressed_to(chunk, lane):
+            unread.append((ln, head))
+
+    if a.json:
+        print(json.dumps({"lane": lane, "cursor": cursor,
+                          "unread": [{"line": l, "header": h} for l, h in unread]}, indent=2))
+        return 0
+    if not unread:
+        print(f"{lane}: comms inbox clear (cursor at line {cursor} of {len(body)}).")
+        return 0
+    print(f"{lane}: {len(unread)} UNREAD comms post(s) — read before you post a status.\n")
+    for ln, h in unread:
+        print(f"  :{ln}  {h[:130]}")
+    print(f"\n  read them:  sed -n '{unread[0][0]},$p' {COMMS}")
+    print( "  then mark:  battery-lane read")
+    return 0
+
+
+def cmd_read(a):
+    reg = load()
+    uuid = my_uuid() or ""
+    if uuid not in reg:
+        print("this session has no lane bound.", file=sys.stderr)
+        return 1
+    posts = comms_posts()
+    last = posts[-1][0] if posts else 0
+    reg[uuid]["comms_cursor"] = last
+    reg[uuid]["updated"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    save(reg)
+    print(f"marked comms read up to line {last}.")
+    return 0
+
+
 def cmd_hook(a):
     """SessionStart hook: tell the session what lane it is, at startup.
 
@@ -347,6 +432,17 @@ def cmd_hook(a):
         lines.append("  Other live sessions right now:")
         for r in others:
             lines.append(f"    {r['lane']:<10} {r['socket']}")
+    # The whole point of the hook: a resuming session is TOLD what it missed, rather
+    # than having to remember to look. A Dispatch post aged out over two check-in
+    # cycles because nothing surfaced it.
+    try:
+        posts = comms_posts()
+        cur = int(row.get("comms_cursor", 0))
+        n = len([1 for ln, _ in posts if ln > cur])
+        if n:
+            lines.append(f"  ** {n} UNREAD comms post(s). Run `battery-lane inbox` BEFORE posting any status. **")
+    except Exception:
+        pass
     lines.append("  Never guess another session's lane -- run `battery-lane roster`.")
 
     print(json.dumps({"hookSpecificOutput": {
@@ -377,6 +473,9 @@ def main():
     f = sub.add_parser("forget"); f.add_argument("uuid"); f.set_defaults(fn=cmd_forget)
     d = sub.add_parser("addr"); d.add_argument("lane"); d.set_defaults(fn=cmd_addr)
     sub.add_parser("hook").set_defaults(fn=cmd_hook)
+    ib = sub.add_parser("inbox"); ib.add_argument("--all", action="store_true")
+    ib.set_defaults(fn=cmd_inbox)
+    sub.add_parser("read").set_defaults(fn=cmd_read)
 
     a = p.parse_args()
     if not getattr(a, "fn", None):

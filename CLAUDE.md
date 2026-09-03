@@ -213,6 +213,20 @@ behind asserting it is still Lane E. That was the whole defect.
 on this Mac, which no other machine can observe. Cloud Lane D has no socket here
 and so never appears in the roster; that is correct, not a gap.
 
+**A session is TOLD what it MISSED at startup, too.** `battery-lane inbox` lists
+comms posts since this lane last marked itself caught up; `battery-lane read`
+advances the cursor. The SessionStart hook prints the unread count.
+
+This exists because writing to comms is not the same as reading it. On 2026-09-03
+Lane A posted a standing check-in listing two questions as *waiting on the owner*
+that the owner had **already answered in comms** — and a third Dispatch item aged
+out over two full check-in cycles. Every one of those posts was sitting in the file
+the whole time. **Read your inbox before you post a status.**
+
+Unaddressed posts count as yours deliberately: the item that went stale was one
+nobody was tagged in, so filtering to explicit `@LANE-A` mentions would reproduce
+the exact failure.
+
 **A session is TOLD its lane at startup.** A `SessionStart` hook runs
 `battery-lane hook` and injects the answer into context, so a resumed session
 never has to infer what it is — inference was the whole problem. Installed at
