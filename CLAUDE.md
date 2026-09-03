@@ -248,14 +248,21 @@ installing it user-wide does not spam every other project on the machine.
 | host → FUEL | `{type:'bat-editday', date}` | Open FUEL's day editor on `date`. **`date` MUST be a FUEL-shaped key** — zero-padded local `YYYY-MM-DD`, i.e. what `todayKey()` produces. ARM's completion keys are deliberately UNPADDED and the two are byte-incompatible, so an ARM-shaped key would open an EMPTY day instead of failing. The handler therefore **validates and refuses** rather than trusting the sender. Exists so the host's read-only *This Week in Review* card can become clickable **without growing a second day editor** — FUEL already owns a working one, reachable from every weekly bar row and history row. Host sends; FUEL opens. |
 | host → FUEL | `{type:'bat-plan', day}` | plan-v2: sent whenever TODAY's plan flags change. Mapping (host `syncFuelDayFromPlan()`): all streams off → `'rest'`; `lift` on → `'train'`; arm+drills+body all on → `'train'`; otherwise nothing is sent. FUEL's `handlePlanSync()` auto-applies `'rest'` only on an untouched day; any other value is a dismissible nudge — an athlete's manual day-type choice is never overwritten. |
 
-> ⚠️ **THIS ROW DISAGREES WITH THE CODE — do not trust it until someone decides which is right.**
-> The doc says *"an athlete's manual day-type choice is never overwritten"*. `handlePlanSync()`
-> (`index.html:10586`) has no such guard: after rejecting an unknown day and a day that already
-> matches, it calls `commitDays(...)` **unconditionally**. There is no untouched-day check, no
-> nudge and nothing dismissible. So a manual day-type choice IS overwritten whenever the host
-> emits `bat-plan`. Either the doc describes intent that was never implemented, or the code
-> regressed away from it — **I could not tell which from the code alone, so I changed neither.**
-> Whoever resolves it should fix the loser, not quietly delete this note.
+> ✅ **RESOLVED 2026-09-03 — the DOC was stale, the code is correct. Do not "restore" the old behaviour.**
+> This row used to promise *"an athlete's manual day-type choice is never overwritten"*, which
+> contradicted `handlePlanSync()` (`index.html:10973`) committing unconditionally. The answer is in
+> the comment directly above that function: on **2026-08-18** the untouched-day special case, the
+> dismissible nudge and the per-day mute key were **deliberately deleted**, because HOME became the
+> single source of truth for the day type. That reconciliation layer *"was where all three of this
+> month's silent-failure bugs lived"* — the dead rest auto-apply, the dropped TRAVEL modifier on
+> nudge-accept, and `setActivePlan('full')` persisting an all-off plan. **One control, no layer.**
+> The unconditional commit is the design, not a regression. Modifiers still survive: HOME never
+> emits `travel`, so a travel day stays a travel day across a day-type change.
+>
+> **Consequence for anyone adding a signal here:** do not reintroduce a nudge or a
+> "suggest, don't overwrite" layer. That is the exact shape that was removed. A new signal belongs
+> in `syncFuelDayFromPlan()` (host, `index.html:16057`), which already resolves `game` and `heavy`
+> ahead of the stream flags, so the emitted day stays a single decision made in one place.
 
 ### Data-model invariants
 

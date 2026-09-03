@@ -6332,6 +6332,51 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     return out;
   }
 
+  /* ===== LIFT INTENSITY SIGNAL (backlog item 6) =====
+     Reads a day's logged sets and says how hard the lifting actually was, so the
+     day type can be derived from what happened rather than from a checkbox.
+
+     WHO DECIDES: not this function. The host resolves the day type in
+     syncFuelDayFromPlan(), which already settles `game` and `heavy` ahead of the
+     stream flags. This only reports a FACT about the log; the host chooses what to
+     do with it. That division is deliberate -- on 2026-08-18 the reconciliation
+     layer between two day-type controls was deleted precisely because it was where
+     three silent-failure bugs lived, and HOME became the single source of truth.
+     Adding a second decider here would rebuild exactly what was removed.
+
+     THE RULE, and the one judgement call in it: a set of 6 reps or fewer marks a
+     heavy day -- that is the owner's rule. I added the requirement that the set also
+     carry WEIGHT. Five bodyweight pull-ups are 5 reps and are not a heavy lifting
+     day, and treating them as one would raise the athlete's protein and water
+     targets off a set of chin-ups. If that is not wanted, drop the w > 0 test; it is
+     one clause and it is called out here so it is a decision rather than a surprise.
+
+     Callable from the host as f.contentWindow.liftIntensityFor(key), same-origin,
+     the way FUEL already reaches parent.readPitchLog(). */
+  function liftIntensityFor(dateKey){
+    var rows;
+    try { rows = JSON.parse(storeGet('arm-care-liftlog-' + (dateKey || armLocalDay()), '[]')) || []; }
+    catch(e){ rows = []; }
+    var sets = 0, heaviestReps = null, topWeight = 0, weightedLowRep = false;
+    rows.forEach(function(r){
+      (r && r.sets ? r.sets : []).forEach(function(st){
+        var n = +st.reps || 0, w = +st.weight || 0;
+        if(n <= 0) return;
+        sets++;
+        if(heaviestReps === null || n < heaviestReps) heaviestReps = n;
+        if(w > topWeight) topWeight = w;
+        if(n <= 6 && w > 0) weightedLowRep = true;
+      });
+    });
+    return {
+      sets: sets,
+      heaviestReps: heaviestReps,          // fewest reps in any set = the hardest one
+      topWeight: topWeight,
+      intensity: sets === 0 ? null : (weightedLowRep ? 'heavy' : 'train')
+    };
+  }
+  window.liftIntensityFor = liftIntensityFor;
+
   function renderLiftLog(){
     var host = document.getElementById('liftlog-card');
     if(!host) return;
