@@ -4921,11 +4921,75 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
         <div class=&quot;step-reps&quot;>1–2 × 25 each</div>
       </div>
       <div class=&quot;step-detail&quot;>
-        <p>Your ladder: crunches → regular/decline sit-ups → side crunches (elbow, bench or floor) → toe-touch-to-pushup walkouts.</p>
+        <p>Your ladder, now broken out below so each rung can be ticked and logged on its own: <b>Crunch (isometric hold)</b> &rarr; <b>Decline Bench Assisted Sit-Up</b> &rarr; <b>Side Crunch</b>, plus toe-touch-to-pushup walkouts. Tick this entry for the block as a whole; the individual rungs are bonus.</p>
         <em>Good base — but pair it with the rotational block below; flexion alone doesn't throw or swing.</em>
       </div>
     </li>
 
+    <!-- Item 5: these four were already in the routine, but three of them existed only
+         as PROSE inside the Ab Progression entry -- crunches, regular/decline sit-ups,
+         side crunches. Prose cannot be ticked, and it cannot be logged either --
+         the lifting log builds its picker from .step[data-ex], so a movement buried in
+         a paragraph is invisible to it. Promoted to real entries, marked .opt so they
+         count as bonus rather than inflating the required ratio: they are VARIANTS
+         within a block the athlete already owes, not four new obligations. The parent
+         Ab Progression entry is left untouched so no existing history is orphaned. -->
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-crunch-iso&quot; data-sub=&quot;flexion&quot; data-mg=&quot;core&quot; data-eq=&quot;bw&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Crunch · isometric hold</div>
+          <div class=&quot;step-target&quot;>Anterior Core · Time Under Tension</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 20–30 sec</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Curl up until the shoulder blades clear the floor, then <b>stop and hold there</b> — do not rock. Ribs down, breathe shallow through the hold. Come down slowly rather than dropping.</p>
+        <em>The hold is the point. A fast crunch is mostly hip flexor; holding the top keeps the load on the abs where you want it.</em>
+      </div>
+    </li>
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-decline-situp&quot; data-sub=&quot;flexion&quot; data-mg=&quot;core&quot; data-eq=&quot;bench&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Decline Bench Assisted Sit-Up</div>
+          <div class=&quot;step-target&quot;>Anterior Core · Full Range</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10–15</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Feet hooked on a decline bench. <b>Assisted</b> means you use a light pull on the bench or a partner’s hand to get through the sticking point — the goal is full range with control, not a rep grind. Lower under control for a slow count.</p>
+        <em>The decline adds range the floor cannot. Assistance is what keeps that range honest instead of turning it into a hip-flexor yank.</em>
+      </div>
+    </li>
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-side-crunch&quot; data-sub=&quot;lateral&quot; data-mg=&quot;core&quot; data-eq=&quot;bw&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Side Crunch</div>
+          <div class=&quot;step-target&quot;>Obliques · Lateral Flexion</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 15 / side</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>On the elbow, on a bench or the floor, hips stacked. Crunch the ribcage <b>toward the hip on the same side</b> — a short range, not a big swing. Same reps both sides even if one feels easier.</p>
+        <em>Throwers get lopsided. Doing both sides to the WEAK side’s number is what keeps this from widening the gap.</em>
+      </div>
+    </li>
+    <li class=&quot;step opt&quot; data-ex=&quot;lift-side-plank-dip&quot; data-sub=&quot;lateral&quot; data-mg=&quot;core&quot; data-eq=&quot;bw&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Side Plank Hip Dip</div>
+          <div class=&quot;step-target&quot;>Lateral Chain · Anti-Lateral-Flexion</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3 × 10–12 / side</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Side plank on the elbow, body in one line. Lower the hip toward the floor under control, then drive it back up to the line and a touch past. Shoulder stacked over the elbow throughout.</p>
+        <em>The side plank alone is a hold; the dip makes it a lift. This is the one genuinely NEW movement here — the rest were already prescribed in text.</em>
+      </div>
+    </li>
     <li class=&quot;step&quot; data-ex=&quot;lift-rotcore&quot; data-sub=&quot;antirot&quot; data-mg=&quot;core&quot; data-eq=&quot;band&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
@@ -6295,7 +6359,8 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     bis:[['long','Long head · elbow behind'],['short','Short head · elbow in front'],['brach','Brachialis and forearm']],
     tris:[['long','Long head · overhead'],['lateral','Lateral head · pushdown'],['press','Compound press']],
     legs:[['quad','Quad'],['ham','Hamstring · knee and hip'],['glute','Glute · single-leg'],['calf','Calf']],
-    core:[['antiext','Anti-extension'],['antirot','Anti-rotation']]
+    core:[['antiext','Anti-extension'],['flexion','Flexion \u00b7 the ab ladder'],
+          ['lateral','Lateral \u00b7 side chain'],['antirot','Anti-rotation']]
   };
   /* ===== FREE-FORM LIFTING LOG (backlog item 4) =====
      The lifting page could only ever record THAT a lift happened, never how much.
