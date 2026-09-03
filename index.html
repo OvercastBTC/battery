@@ -11366,7 +11366,8 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     {id:'soups-and-stews',t:'Soups &amp; stews'},
     {id:'proteins-and-eggs',t:'Proteins &amp; eggs'},
     {id:'dairy-and-snacks',t:'Dairy &amp; snacks'},
-    {id:'nuts-and-seeds',t:'Nuts &amp; seeds'}
+    {id:'nuts-and-seeds',t:'Nuts &amp; seeds'},
+    {id:'sides-and-fast-food',t:'Sides &amp; fast food'}
   ];
   const FUEL_ITEMS = [
     /* PR #16 (Lane D, owner-reviewed): switched daily driver from Thorne to
@@ -11425,7 +11426,22 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     {id:'sunflower-seeds-1oz',g:'nuts-and-seeds',p:6,w:0,l:'Sunflower seeds 1oz',n:'Sunflower seeds · 1oz'},
     {id:'almonds-1oz',g:'nuts-and-seeds',p:7,w:0,l:'Almonds 1oz',n:'Almonds · 1oz (~23)'},
     {id:'peanuts-1oz',g:'nuts-and-seeds',p:7,w:0,l:'Peanuts 1oz',n:'Peanuts · 1oz'},
-    {id:'cashews-1oz',g:'nuts-and-seeds',p:5,w:0,l:'Cashews 1oz',n:'Cashews · 1oz (~18)'}
+    {id:'cashews-1oz',g:'nuts-and-seeds',p:5,w:0,l:'Cashews 1oz',n:'Cashews · 1oz (~18)'},
+    /* ITEM 9 -- the two the owner actually eats and could not log. Frequency
+       tracking was the other half of this item and ALREADY EXISTS: _favMostUsed()
+       scans every fuel-entries- day and ranks by label+type+amount, so once an item
+       is in this catalogue it earns its place on the strip by being used. It could
+       not do that for food it had no way to record.
+
+       PROTEIN FIGURES ARE ROUNDED DOWN, on purpose. These are common reference
+       values, not a measurement of the specific slice in front of you, and the two
+       directions of error are not equally safe: under-crediting means the athlete
+       eats slightly more to hit the target, over-crediting means they stop short
+       believing they got there. For a protein goal, round down.
+
+       w:0 -- neither carries meaningful water. */
+    {id:'pizza-slice-lg-pepperoni',g:'sides-and-fast-food',p:13,w:0,l:'Pizza Slice Lg Pepperoni',n:'Pizza slice \u00b7 large, pepperoni'},
+    {id:'fries',g:'sides-and-fast-food',p:4,w:0,l:'Fries',n:'Fries \u00b7 regular serving'}
   ];
   /* user-added items live here; merged at render so they are indistinguishable
      from built-ins except that they can be removed */
