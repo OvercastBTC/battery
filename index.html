@@ -10021,6 +10021,28 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     if(d.type==='bat-nav' &amp;&amp; d.tab){ switchTab(d.tab); }
     else if(d.type==='bat-poll'){ if(typeof refreshProgress==='function') refreshProgress(); }
     else if(d.type==='bat-plan'){ if(typeof handlePlanSync==='function') handlePlanSync(d); }
+     /* bat-editday {date}: open the day editor on a specific day.
+       The host's This Week in Review card is a read-only summary with no click
+       affordance, and making it clickable is host-shell scope. FUEL already OWNS a
+       working past-day editor -- every weekly bar row and history row opens it -- so
+       the host does not need one of its own and must not grow a second. This handler
+       is the iframe half of that seam; the host only has to send.
+
+       The date MUST be a FUEL-shaped key: zero-padded local YYYY-MM-DD, exactly what
+       todayKey() produces. ARM's completion keys are deliberately UNPADDED and the
+       two are byte-incompatible, so an ARM-shaped key would silently open an EMPTY
+       day rather than fail. Hence it validates instead of trusting the sender: a
+       malformed key is refused loudly here, rather than showing the athlete a blank
+       day and inviting them to fix it by re-entering food that is already logged. */
+    else if(d.type==='bat-editday'){
+      const k = d.date;
+      if(typeof k !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(k)){
+        console.warn('bat-editday: refusing a non FUEL-shaped date key:', k,
+                     '(expected zero-padded YYYY-MM-DD, e.g. 2026-09-02)');
+        return;
+      }
+      if(typeof batteryEditDay === 'function') batteryEditDay(k);
+    }
   });
 
   /* ===== COLLAPSE TOGGLE ===== */
