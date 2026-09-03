@@ -4691,7 +4691,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   </div>
 </div>
 
-<!-- ============== HISTORY (read-only) ============== -->
+<!-- ============== HISTORY (page is uncheckable; days edit via armEditDay modal) ============== -->
 <!-- ============== LIFTING (US-2.8, owner routine + programming notes) ============== -->
 <div class=&quot;page&quot; id=&quot;page-lifting&quot;>
   <h2>Lifting</h2>
@@ -5459,7 +5459,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   </div>
 
   <h2>History</h2>
-  <p class=&quot;lede&quot;>Your completed arm-care days, most recent first. Read-only &mdash; tap any day to see which exercises you logged.</p>
+  <p class=&quot;lede&quot;>Your completed arm-care days, most recent first. Tap a day to see what you logged, or <b>Edit This Day</b> to fix a mis-tap or add something you forgot to tick.</p>
   <div id=&quot;arm-hist-summary&quot; class=&quot;card blue&quot;></div>
   <div id=&quot;arm-hist-list&quot;></div>
 </div>
@@ -6368,7 +6368,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     updateCounter();
   }
 
-  /* ===== HISTORY (read-only render of arm-care-done-* day keys) ===== */
+  /* ===== HISTORY (renders arm-care-done-* day keys; edits go through armEditDay) ===== */
   function buildExNameMap() {
     const map = {};
     document.querySelectorAll('.step').forEach(s => {
