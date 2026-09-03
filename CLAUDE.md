@@ -69,6 +69,33 @@ Runs the **full Playwright gate (28 suites / 350 checks as of 26.09.01)** agains
 
 Run order: `node --check` first (fast), then `~/battery-tests/run.sh` (definitive).
 
+### Shared-suite feature guards must be PER-CHECK, not per-file
+
+`~/battery-tests/` is **shared by every lane**, so a suite there runs against
+`master` as well as against the branch it was written for. A suite covering an
+unshipped feature therefore needs a guard — but the obvious guard is wrong.
+
+**A file-level "is the feature present?" skip cannot describe a feature that lands
+in pieces.** That is not hypothetical: on 2026-09-02 `fuel-dayledger.test.mjs`
+guarded on the date parameter, which merged, while the `bat-editday` handler it
+also asserted was still on a branch. The suite sailed past its own skip and red
+Lane E's release gate for a feature that had nothing to do with the release.
+
+Rules, all three earned:
+
+1. **Guard each check against the thing that check needs**, not against the file's
+   headline feature. Skip the two assertions that need the missing half; run the
+   rest. A postMessage handler cannot be feature-detected from the page — probe the
+   served source for the marker instead.
+2. **A guard must never go quiet on a RENAME.** Skipping when a feature is absent
+   from an older build is correct; skipping because someone renamed the thing you
+   guard is how the only suite covering a trap silently passes during the very
+   refactor that introduced it. Detect the difference and **fail loudly** on a
+   rename, naming the fix.
+3. **Never ship a release with a known-red suite.** "One documented known failure"
+   is a precedent that gets expensive immediately — the next red is waved through by
+   comparison. Fix the guard or hold the commit.
+
 ### Multi-lane gating — run from an ISOLATED copy
 
 `~/battery-tests/` is SHARED across local lanes (A and E) and `run.sh` stages the build to `app-fixed.html` **in its own dir**, so two lanes gating at once clobber each other's staged file (and browser). Gate from a private copy:

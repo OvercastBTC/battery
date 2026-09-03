@@ -615,6 +615,17 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   .flow-jump button:active { background: var(--steel-2); }
   .flow-jump button.flow-end { border-color: var(--green); color: var(--green); }
 
+  /* History day cards: EDIT is a separate explicit control so that tapping a day to
+     LOOK at it never opens an editor. */
+  .hist-edit {
+    margin-top: 10px; width: 100%; padding: 9px 12px; border-radius: 9px;
+    background: transparent; border: 1px solid var(--line-bright);
+    color: var(--dim); cursor: pointer;
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 11px; letter-spacing: 1.5px; font-weight: 700;
+  }
+  .hist-edit:active { background: var(--steel-2); color: var(--gold-bright); border-color: var(--gold); }
+
   .page h2 {
     font-family: 'Georgia', serif;
     font-size: 22px;
@@ -6127,8 +6138,15 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     const today = getTodayKey();
     const data = storeGet(today, '');
     const set = new Set(data ? data.split(',') : []);
+    /* SYNC, not merely add. This only ever added .done, which was fine while the sole
+       caller was boot against a fresh DOM -- nothing could be stale. The past-day
+       editor calls it again after a change, and an add-only pass leaves a REMOVED
+       exercise still ticked on screen while storage says otherwise: the modal and the
+       checklist would disagree until reload. toggle() makes the DOM match the store
+       exactly, which is what the function always claimed to do. At boot the false
+       branch is a no-op, so the original caller is unaffected. */
     document.querySelectorAll('.step').forEach(step => {
-      if (set.has(step.dataset.ex)) step.classList.add('done');
+      step.classList.toggle('done', set.has(step.dataset.ex));
     });
     updateCounter();
   }
@@ -6383,6 +6401,140 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     if (el) el.style.display = (el.style.display === 'none') ? 'block' : 'none';
   }
 
+  /* ===== PAST-DAY EDITOR =====
+     Backlog item 3: History was read-only, so a mis-tap yesterday was permanent and
+     a session you forgot to tick could never be recorded.
+
+     Deliberately a MODAL over the day's key, not a mode that reloads a past day into
+     the live checklist. Repurposing the checklist would mean postCounts() reporting a
+     PAST day's totals to the host, and the host drives the readiness ring off those --
+     so the ring would quietly show the wrong day's progress while looking perfectly
+     normal. A modal cannot do that. It also mirrors FUEL's batteryEditDay, so both
+     iframes edit the past the same way, and it leaves the History PAGE itself
+     read-only, which arm-history.test.mjs asserts on purpose.
+
+     Rows are built with createElement rather than innerHTML: this is an iframe
+     srcdoc, where one literal double quote silently truncates the whole document. */
+  function armEditDay(dayKey){
+    const nameMap = buildExNameMap();
+    let ids = (storeGet(dayKey, '') || '').split(',').filter(Boolean);
+    const isToday = dayKey === getTodayKey();
+
+    const persist = () => {
+      if (ids.length) storeSet(dayKey, ids.join(','));
+      else { try { localStorage.removeItem(dayKey); } catch (e) {} }
+      // Today is also the LIVE day: push the change into the checklist and the host,
+      // or the modal and the page disagree until reload.
+      if (isToday) {
+        try { loadDone(); updateCounter(); postCounts(); } catch (e) {}
+      }
+      renderArmHistory();
+    };
+
+    let modal = document.getElementById('arm-dayedit');
+    if (modal) modal.remove();
+    modal = document.createElement('div');
+    modal.id = 'arm-dayedit';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:9998;background:#000a;'
+      + 'display:flex;align-items:flex-end;justify-content:center';
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+
+    const sheet = document.createElement('div');
+    sheet.style.cssText = 'background:var(--steel);border:1px solid var(--line);'
+      + 'border-radius:14px 14px 0 0;width:100%;max-width:820px;max-height:80vh;'
+      + 'overflow:auto;padding:16px 16px 24px';
+    modal.appendChild(sheet);
+
+    const draw = () => {
+      sheet.textContent = '';
+      const m = dayKey.match(/^arm-care-done-(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      const dt = m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+
+      const head = document.createElement('div');
+      head.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px';
+      const h = document.createElement('div');
+      h.style.cssText = 'font-family:Georgia,serif;font-size:19px;font-weight:900;color:var(--bone)';
+      h.textContent = dt
+        ? dt.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric', year:'numeric' })
+        : dayKey;
+      const close = document.createElement('button');
+      close.textContent = 'DONE';
+      close.style.cssText = 'padding:8px 14px;border-radius:10px;background:var(--gold);'
+        + 'border:0;color:var(--ink);font-weight:800;font-size:12px;letter-spacing:1px;cursor:pointer';
+      close.addEventListener('click', () => modal.remove());
+      head.appendChild(h); head.appendChild(close);
+      sheet.appendChild(head);
+
+      const sub = document.createElement('div');
+      sub.style.cssText = 'font-size:12px;color:var(--dim);margin-bottom:12px';
+      sub.textContent = isToday
+        ? 'Today. Changes here also update the live checklist.'
+        : ids.length + ' logged. Remove a mis-tap, or add something you forgot to tick.';
+      sheet.appendChild(sub);
+
+      if (!ids.length) {
+        const none = document.createElement('div');
+        none.style.cssText = 'font-size:13px;color:var(--dim);padding:10px 0';
+        none.textContent = 'Nothing logged for this day.';
+        sheet.appendChild(none);
+      }
+      ids.forEach(id => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 0;'
+          + 'border-bottom:1px solid var(--line)';
+        const nm = document.createElement('div');
+        nm.style.cssText = 'flex:1;font-size:13px;color:var(--bone)';
+        nm.textContent = nameMap[id] || id;
+        const del = document.createElement('button');
+        del.setAttribute('aria-label', 'Remove ' + (nameMap[id] || id));
+        del.textContent = '\u00d7';
+        del.style.cssText = 'width:30px;height:30px;border-radius:8px;background:transparent;'
+          + 'border:1px solid var(--blood);color:var(--blood);font-size:17px;line-height:1;cursor:pointer';
+        del.addEventListener('click', () => {
+          ids = ids.filter(x => x !== id);
+          persist(); draw();
+        });
+        row.appendChild(nm); row.appendChild(del);
+        sheet.appendChild(row);
+      });
+
+      // Add-back control: everything in the catalogue this day does not already have.
+      const missing = Object.keys(nameMap).filter(k => ids.indexOf(k) === -1).sort(
+        (a, b) => (nameMap[a] || a).localeCompare(nameMap[b] || b));
+      if (missing.length) {
+        const bar = document.createElement('div');
+        bar.style.cssText = 'display:flex;gap:8px;margin-top:14px';
+        const sel = document.createElement('select');
+        sel.style.cssText = 'flex:1;min-width:0;padding:10px;border-radius:10px;'
+          + 'background:var(--ink);color:var(--bone);border:1px solid var(--line);font-size:13px';
+        const ph = document.createElement('option');
+        ph.value = ''; ph.textContent = 'Add an exercise you forgot...';
+        sel.appendChild(ph);
+        missing.forEach(k => {
+          const o = document.createElement('option');
+          o.value = k; o.textContent = nameMap[k] || k;
+          sel.appendChild(o);
+        });
+        const add = document.createElement('button');
+        add.textContent = 'ADD';
+        add.style.cssText = 'padding:10px 16px;border-radius:10px;background:var(--steel-2);'
+          + 'border:1px solid var(--gold);color:var(--gold-bright);font-weight:700;'
+          + 'font-size:12px;letter-spacing:1px;cursor:pointer';
+        add.addEventListener('click', () => {
+          if (!sel.value) return;
+          if (ids.indexOf(sel.value) === -1) ids.push(sel.value);
+          persist(); draw();
+        });
+        bar.appendChild(sel); bar.appendChild(add);
+        sheet.appendChild(bar);
+      }
+    };
+
+    draw();
+    document.body.appendChild(modal);
+  }
+  window.armEditDay = armEditDay;
+
   function renderArmHistory() {
     const listEl = document.getElementById('arm-hist-list');
     const sumEl = document.getElementById('arm-hist-summary');
@@ -6396,7 +6548,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       const streak = parseInt(storeGet('arm-care-streak', '0'), 10) || 0;
       const allTime = parseInt(storeGet('arm-care-total', '0'), 10) || 0;
       sumEl.innerHTML =
-        `<div class='card-head'><div class='card-title'>Summary</div><span class='badge blue'>Read-Only</span></div>`
+        `<div class='card-head'><div class='card-title'>Summary</div><span class='badge blue'>Editable</span></div>`
         + `<p><b>${totalDays}</b> day${totalDays === 1 ? '' : 's'} logged &middot; <b>${totalEx}</b> exercise check-ins &middot; current streak <b>${streak}</b> &middot; all-time taps <b>${allTime}</b></p>`;
     }
 
@@ -6408,9 +6560,14 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     const fmt = (dt) => dt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
     listEl.innerHTML = days.map((d, idx) => {
       const detail = d.ids.map(id => `<li>${nameMap[id] || id}</li>`).join('');
-      return `<div class='card' style='cursor:pointer' onclick='toggleHistDay(${idx})'>`
-        + `<div class='card-head'><div class='card-title'>${fmt(d.date)}</div><span class='badge blue'>${d.ids.length} done</span></div>`
+      // The card still expands read-only on tap; EDIT is a separate explicit control,
+      // so nobody opens an editor by trying to look at a day.
+      return `<div class='card'>`
+        + `<div class='card-head' style='cursor:pointer' onclick='toggleHistDay(${idx})'>`
+        + `<div class='card-title'>${fmt(d.date)}</div>`
+        + `<span class='badge blue'>${d.ids.length} done</span></div>`
         + `<ul class='hist-detail' id='hist-detail-${idx}' style='display:none;margin-top:8px'>${detail}</ul>`
+        + `<button class='hist-edit' onclick='armEditDay(&#39;${d.key}&#39;)'>EDIT THIS DAY</button>`
         + `</div>`;
     }).join('');
   }
