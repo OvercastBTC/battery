@@ -627,6 +627,36 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   }
   .hist-edit:active { background: var(--steel-2); color: var(--gold-bright); border-color: var(--gold); }
 
+  /* ----- free-form lifting log ----- */
+  .lift-form { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+  .lift-form select {
+    flex: 1 1 100%; min-width: 0; padding: 10px; border-radius: 10px;
+    background: var(--ink); color: var(--bone); border: 1px solid var(--line); font-size: 13px;
+  }
+  .lift-form input {
+    flex: 1 1 0; min-width: 62px; padding: 10px; border-radius: 10px; text-align: center;
+    background: var(--ink); color: var(--bone); border: 1px solid var(--line);
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace; font-size: 14px;
+  }
+  .lift-add {
+    flex: 0 0 auto; padding: 10px 16px; border-radius: 10px;
+    background: var(--steel-2); border: 1px solid var(--gold); color: var(--gold-bright);
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 12px; letter-spacing: 1px; font-weight: 700; cursor: pointer;
+  }
+  .lift-add:active { background: var(--gold); color: var(--ink); }
+  .lift-set {
+    display: inline-block; padding: 5px 9px; border-radius: 8px;
+    background: var(--steel-2); border: 1px solid var(--line-bright); color: var(--bone);
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace; font-size: 12px; cursor: pointer;
+  }
+  .lift-set:active { border-color: var(--blood); color: var(--blood); }
+  .lift-x {
+    width: 28px; height: 28px; border-radius: 8px; background: transparent;
+    border: 1px solid var(--blood); color: var(--blood);
+    font-size: 16px; line-height: 1; cursor: pointer;
+  }
+
   .page h2 {
     font-family: 'Georgia', serif;
     font-size: 22px;
@@ -4716,6 +4746,10 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   <div class=&quot;split-day&quot; id=&quot;split-day&quot;></div>
   <div class=&quot;split-note&quot; id=&quot;split-note&quot;></div>
 
+  <!-- Free-form lifting log (backlog item 4). Inside .youth-hide by construction:
+       the whole weight-room block is adult-only per §4.3. -->
+  <div id=&quot;liftlog-card&quot; class=&quot;card&quot;></div>
+
   <div class=&quot;card gold&quot;>
     <div class=&quot;card-head&quot;>
       <div class=&quot;card-title&quot;>How to read this page</div>
@@ -5997,6 +6031,9 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     }
     // Render read-only history on demand
     if (tabName === 'history') renderArmHistory();
+    // The lifting log reads storage, so rebuild it on show rather than only at boot --
+    // otherwise a set logged, then a tab switch away and back, shows a stale card.
+    if (tabName === 'lifting' && typeof renderLiftLog === 'function') renderLiftLog();
     // Persist last tab (global + per-group so each bottom tab remembers its own page)
     storeSet('arm-care-last-tab', tabName);
     storeSet('arm-care-last-tab-' + tabGroup(tabName), tabName);
@@ -6252,6 +6289,150 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     legs:[['quad','Quad'],['ham','Hamstring · knee and hip'],['glute','Glute · single-leg'],['calf','Calf']],
     core:[['antiext','Anti-extension'],['antirot','Anti-rotation']]
   };
+  /* ===== FREE-FORM LIFTING LOG (backlog item 4) =====
+     The lifting page could only ever record THAT a lift happened, never how much.
+     This logs actual sets -- exercise, reps, weight -- so the work is reviewable and
+     so item 6 (reclassifying a day as Heavy from its hardest set) has real data to
+     read instead of a checkbox.
+
+     KEY FORMAT: zero-padded local, via armLocalDay(). Note this deliberately does NOT
+     match arm-care-done-, which is UNPADDED. That is not sloppiness -- the unpadded
+     completion format is a compatibility contract with data already on real devices
+     and cannot be changed, whereas this key is NEW, so it gets the format the rest of
+     the app (FUEL, the host, feel, stickers) already uses. Anything reading both must
+     build each key with its own helper and never reuse a formatted string.
+
+     §4.3: lives inside .youth-hide with the rest of the weight room. Youth never see
+     a weight input, and nothing here is rendered for them. */
+  function liftLogKey(d){ return 'arm-care-liftlog-' + armLocalDay(d); }
+  function loadLiftLog(d){
+    try { return JSON.parse(storeGet(liftLogKey(d), '[]')) || []; } catch(e){ return []; }
+  }
+  function saveLiftLog(rows, d){ storeSet(liftLogKey(d), JSON.stringify(rows || [])); }
+
+  /* Every lifting exercise on the page, by id -> display name. Read from the DOM so
+     it can never drift from the catalogue: adding a lift to the markup adds it to the
+     picker with no second list to maintain. */
+  function liftCatalogue(){
+    var out = [];
+    document.querySelectorAll('#page-lifting .step[data-ex]').forEach(function(st){
+      var id = st.getAttribute('data-ex');
+      var nm = st.querySelector('.step-name');
+      out.push({ id: id, name: nm ? nm.textContent.trim().replace(/\s+/g,' ') : id });
+    });
+    out.sort(function(a,b){ return a.name.localeCompare(b.name); });
+    return out;
+  }
+
+  function renderLiftLog(){
+    var host = document.getElementById('liftlog-card');
+    if(!host) return;
+    var rows = loadLiftLog();
+    var cat = liftCatalogue();
+    var nameOf = {}; cat.forEach(function(c){ nameOf[c.id] = c.name; });
+    host.textContent = '';
+
+    var head = document.createElement('div');
+    head.className = 'card-head';
+    var t = document.createElement('div'); t.className = 'card-title'; t.textContent = 'Today’s lifting log';
+    var badge = document.createElement('span'); badge.className = 'badge gold';
+    var totalSets = rows.reduce(function(n,r){ return n + (r.sets ? r.sets.length : 0); }, 0);
+    badge.textContent = totalSets ? (totalSets + (totalSets===1?' set':' sets')) : 'Empty';
+    head.appendChild(t); head.appendChild(badge);
+    host.appendChild(head);
+
+    if(!rows.length){
+      var p0 = document.createElement('p');
+      p0.style.cssText = 'font-size:12px;color:var(--dim);margin:6px 0 12px';
+      p0.textContent = 'Nothing logged yet. Pick a lift and record your sets — reps and weight.';
+      host.appendChild(p0);
+    }
+
+    rows.forEach(function(r, ri){
+      var block = document.createElement('div');
+      block.style.cssText = 'padding:9px 0;border-bottom:1px solid var(--line)';
+      var hd = document.createElement('div');
+      hd.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:5px';
+      var nm = document.createElement('div');
+      nm.style.cssText = 'flex:1;font-size:13px;font-weight:700;color:var(--bone)';
+      nm.textContent = nameOf[r.ex] || r.ex;
+      var del = document.createElement('button');
+      del.className = 'lift-x'; del.textContent = '×';
+      del.setAttribute('aria-label', 'Remove ' + (nameOf[r.ex] || r.ex));
+      del.addEventListener('click', function(){
+        rows.splice(ri,1); saveLiftLog(rows); renderLiftLog();
+      });
+      hd.appendChild(nm); hd.appendChild(del);
+      block.appendChild(hd);
+
+      var setWrap = document.createElement('div');
+      setWrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px';
+      (r.sets||[]).forEach(function(st, si){
+        var chip = document.createElement('span');
+        chip.className = 'lift-set';
+        chip.textContent = st.reps + ' × ' + (st.weight ? st.weight + ' lb' : 'BW');
+        chip.title = 'Tap to remove this set';
+        chip.addEventListener('click', function(){
+          r.sets.splice(si,1);
+          if(!r.sets.length) rows.splice(rows.indexOf(r),1);
+          saveLiftLog(rows); renderLiftLog();
+        });
+        setWrap.appendChild(chip);
+      });
+      block.appendChild(setWrap);
+      host.appendChild(block);
+    });
+
+    // --- entry row ---
+    var form = document.createElement('div');
+    form.className = 'lift-form';
+    var sel = document.createElement('select');
+    sel.id = 'liftlog-ex';
+    var ph = document.createElement('option'); ph.value=''; ph.textContent='Choose a lift…';
+    sel.appendChild(ph);
+    cat.forEach(function(c){
+      var o = document.createElement('option'); o.value=c.id; o.textContent=c.name; sel.appendChild(o);
+    });
+    var reps = document.createElement('input');
+    reps.type='number'; reps.min='1'; reps.inputMode='numeric';
+    reps.id='liftlog-reps'; reps.placeholder='reps';
+    var wt = document.createElement('input');
+    wt.type='number'; wt.min='0'; wt.inputMode='numeric';
+    wt.id='liftlog-wt'; wt.placeholder='lb';
+    var add = document.createElement('button');
+    add.className='lift-add'; add.textContent='ADD SET';
+    add.addEventListener('click', function(){
+      var ex = sel.value, n = parseInt(reps.value,10);
+      if(!ex || !(n > 0)){
+        // Refuse rather than silently record a meaningless set.
+        sel.style.borderColor = ex ? '' : 'var(--blood)';
+        reps.style.borderColor = (n > 0) ? '' : 'var(--blood)';
+        return;
+      }
+      sel.style.borderColor=''; reps.style.borderColor='';
+      var w = parseInt(wt.value,10); if(!(w >= 0)) w = 0;
+      var cur = loadLiftLog();
+      var row = null;
+      for(var i=0;i<cur.length;i++){ if(cur[i].ex===ex){ row=cur[i]; break; } }
+      if(!row){ row={ex:ex,sets:[]}; cur.push(row); }
+      row.sets.push({reps:n, weight:w});
+      saveLiftLog(cur);
+      reps.value=''; wt.value='';
+      renderLiftLog();
+      // keep the same lift selected: sets come in clusters
+      var again = document.getElementById('liftlog-ex'); if(again) again.value = ex;
+      var r2 = document.getElementById('liftlog-reps'); if(r2) r2.focus();
+    });
+    form.appendChild(sel); form.appendChild(reps); form.appendChild(wt); form.appendChild(add);
+    host.appendChild(form);
+
+    var hint = document.createElement('div');
+    hint.style.cssText='font-size:11px;color:var(--faint);margin-top:8px';
+    hint.textContent='Leave weight blank for bodyweight. Tap a set to remove it.';
+    host.appendChild(hint);
+  }
+  window.renderLiftLog = renderLiftLog;
+
   function renderLiftGroups(){
     var list = document.querySelector('#page-lifting .steplist');
     if(!list) return;
@@ -6601,6 +6782,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   // Build the continuous arm-care flow BEFORE restoring the tab, so the restored
   // tab lands on already-ordered, already-decorated sections.
   buildFlow();
+  try { renderLiftLog(); } catch (e) {}
   // Restore last tab
   const lastTab = storeGet('arm-care-last-tab', 'overview');
   switchTab(lastTab);
