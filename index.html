@@ -10639,12 +10639,26 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     return `${h}:${m}${ampm}`;
   }
 
-  function loadEntries() {
-    const raw = storeGet('fuel-entries-' + todayKey(), '[]');
+  /* THE day ledger accessors. Both take an OPTIONAL date key so any day can be read
+     or written, and both default to today, so all 26 existing call sites keep their
+     exact present behaviour -- this parameter is additive, not a migration.
+
+     The key is a FUEL-shaped key (zero-padded local, from todayKey()). Never accept a
+     date string built on the ARM side: ARM's completion keys are deliberately
+     UNPADDED, and the two conventions are byte-incompatible. If you need the ledger
+     for a date the ARM side chose, pass a Date through todayKey()-equivalent
+     formatting on THIS side, or the read silently returns an empty day.
+
+     Everything that touches fuel-entries- must come through here. It previously did
+     not: batteryEditDay carried a private entriesFor()/save() pair that hit
+     localStorage directly, bypassing storeGet/storeSet and their error handling, so
+     the app had two independent write paths to the same store that could drift. */
+  function loadEntries(dateKey) {
+    const raw = storeGet('fuel-entries-' + (dateKey || todayKey()), '[]');
     try { return JSON.parse(raw) || []; } catch (e) { return []; }
   }
-  function saveEntries(arr) {
-    storeSet('fuel-entries-' + todayKey(), JSON.stringify(arr));
+  function saveEntries(arr, dateKey) {
+    storeSet('fuel-entries-' + (dateKey || todayKey()), JSON.stringify(arr));
   }
 
   function addEntry(type, amount, label, electrolyteUnits) {
@@ -13112,8 +13126,12 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
         modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
         document.body.appendChild(modal);
       }
-      function entriesFor(k){try{return JSON.parse(localStorage.getItem('fuel-entries-'+k)||'[]');}catch(e){return[];}}
-      function save(k,arr){localStorage.setItem('fuel-entries-'+k,JSON.stringify(arr));}
+      /* These were a private second write path onto fuel-entries-, hitting
+         localStorage directly and bypassing storeGet/storeSet. Now thin aliases over
+         the one pair of accessors, so the day editor and the tracker cannot drift
+         apart -- and so date-scoped work has a single place to change. */
+      function entriesFor(k){ return loadEntries(k); }
+      function save(k,arr){ saveEntries(arr,k); }
       function esc(s){return String(s==null?'':s).replace(/'/g,'').replace(/&quot;/g,'');}
       function render(){
         const arr=entriesFor(key).filter(e=>!e.shakeWater);
