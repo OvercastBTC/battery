@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PROBE">
+<meta name="theme-color" content="#0d1117">
+<link rel="apple-touch-icon" sizes="180x180" href="../icon-180.png">
+<link rel="manifest" href="probe.webmanifest">
+<title>BATTERY PWA probe</title>
+<style>
+  :root{--ink:#0d1117;--bone:#e6edf3;--gold:#d4a017;--line:#30363d;--green:#3fb950;--red:#da3633}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--ink);color:var(--bone);
+    font:13px/1.5 'SF Mono',ui-monospace,Menlo,monospace}
+  /* Deliberately mirrors BATTERY's own hostbar geometry so the numbers transfer. */
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;
+    padding:calc(env(safe-area-inset-top) + 9px) 14px 9px;
+    background:#161b22;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:10px}
+  #bar .gear{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;
+    flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:15px}
+  #bar h1{margin:0;font-size:15px;letter-spacing:3px;font-weight:800;flex:1}
+  /* Same 54px the real app uses for host views. If content hides under the bar
+     here too, the 54px constant is wrong -- that is the whole point of this page. */
+  main{padding:calc(env(safe-area-inset-top) + 54px) 14px calc(env(safe-area-inset-bottom) + 70px)}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:5px 0;
+    border-bottom:1px solid #21262d}
+  .k{color:#8b949e}
+  .v{color:var(--gold);font-weight:700;text-align:right;word-break:break-all}
+  .v.ok{color:var(--green)} .v.bad{color:var(--red)}
+  h2{font-size:11px;letter-spacing:2px;color:#8b949e;margin:22px 0 6px;font-weight:700}
+  #ruler{position:fixed;top:0;left:0;width:100%;pointer-events:none;z-index:9}
+  #ruler .band{position:absolute;left:0;right:0;background:rgba(212,160,23,.22);
+    border-bottom:1px dashed var(--gold)}
+  #firstline{background:#161b22;border:1px solid var(--gold);border-radius:8px;
+    padding:8px 10px;margin-bottom:14px}
+  footer{position:fixed;bottom:0;left:0;right:0;background:#161b22;
+    border-top:1px solid var(--line);padding:10px 14px;
+    padding-bottom:calc(10px + env(safe-area-inset-bottom));text-align:center;font-size:11px}
+</style>
+</head>
+<body>
+<div id="ruler"><div class="band" id="band"></div></div>
+<div id="bar"><h1>PROBE</h1><div class="gear">*</div></div>
+<main>
+  <div id="firstline">&#9650; If you can read this ENTIRE line unclipped, the top
+  offset is correct. If it is sliced or hidden, it is wrong.</div>
+  <h2>MODE</h2><div id="mode"></div>
+  <h2>SAFE AREA INSETS (measured, not declared)</h2><div id="insets"></div>
+  <h2>GEOMETRY</h2><div id="geom"></div>
+  <h2>HEADER MATH</h2><div id="math"></div>
+  <h2>AGENT</h2><div id="agent"></div>
+</main>
+<footer>bottom bar &mdash; should sit above the home indicator, not under it</footer>
+<script>
+/* Measure insets with real probe elements: env() in a CSS calc can be read back
+   only by measuring something sized with it. Same technique BATTERY's own
+   fitViewport() shim uses for the bottom inset. */
+function probe(side){
+  var p=document.createElement('div');
+  p.style.cssText='position:fixed;left:0;top:0;width:1px;visibility:hidden;'+
+    'pointer-events:none;height:env(safe-area-inset-'+side+',0px)';
+  document.body.appendChild(p);
+  var v=p.offsetHeight; p.parentNode.removeChild(p); return v;
+}
+function row(k,v,cls){return '<div class="row"><span class="k">'+k+
+  '</span><span class="v '+(cls||'')+'">'+v+'</span></div>';}
+function render(){
+  var standaloneNav = (window.navigator.standalone===true);
+  var standaloneMQ = !!(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
+  var stand = standaloneNav||standaloneMQ;
+  document.getElementById('mode').innerHTML =
+    row('navigator.standalone', String(window.navigator.standalone), standaloneNav?'ok':'')+
+    row('display-mode:standalone', String(standaloneMQ), standaloneMQ?'ok':'')+
+    row('VERDICT', stand?'INSTALLED PWA':'IN BROWSER', stand?'ok':'bad');
+
+  var t=probe('top'), r=probe('right'), b=probe('bottom'), l=probe('left');
+  var notched = Math.max(screen.width,screen.height)>=812;
+  document.getElementById('insets').innerHTML =
+    row('inset-top',    t+'px', (stand&&notched&&t===0)?'bad':'ok')+
+    row('inset-right',  r+'px')+
+    row('inset-bottom', b+'px', (stand&&notched&&b===0)?'bad':'ok')+
+    row('inset-left',   l+'px')+
+    (stand&&notched&&t===0 ? row('!! inset-top is 0 on a notched device in standalone',
+      'THIS IS THE BUG','bad') : '')+
+    (stand&&notched&&b===0 ? row('!! inset-bottom is 0 (known WebKit bug)',
+      'shim needed','bad') : '');
+
+  var vv=window.visualViewport;
+  document.getElementById('geom').innerHTML =
+    row('screen', screen.width+' x '+screen.height)+
+    row('window.inner', window.innerWidth+' x '+window.innerHeight)+
+    row('visualViewport', vv?(Math.round(vv.width)+' x '+Math.round(vv.height)):'n/a')+
+    row('devicePixelRatio', window.devicePixelRatio)+
+    row('notched (>=812)', String(notched));
+
+  /* The number that matters: does the 54px constant clear the real bar? */
+  var bar=document.getElementById('bar');
+  var barH=Math.round(bar.getBoundingClientRect().height);
+  var need=barH-t;               // the constant the app SHOULD be using
+  document.getElementById('math').innerHTML =
+    row('measured bar height', barH+'px')+
+    row('minus inset-top', need+'px')+
+    row('app uses (host views)', '54px', need<=54?'ok':'bad')+
+    row('app uses (iframes)',    '52px', need<=52?'ok':'bad')+
+    (need>52 ? row('iframe underlap', (need-52)+'px too little','bad') : '')+
+    (need>54 ? row('host view underlap', (need-54)+'px too little','bad') : '');
+  var band=document.getElementById('band');
+  band.style.top='0px'; band.style.height=barH+'px';
+
+  document.getElementById('agent').innerHTML = row('UA', navigator.userAgent);
+}
+render();
+/* env() is not reliably ready at load in a WKWebView PWA (WebKit bug 191872),
+   so re-render on the same burst schedule the real app uses. */
+[0,100,250,500,900,1500,2500].forEach(function(ms){setTimeout(render,ms);});
+window.addEventListener('resize',render);
+window.addEventListener('orientationchange',function(){setTimeout(render,250);});
+window.addEventListener('pageshow',render);
+if(window.visualViewport)window.visualViewport.addEventListener('resize',render);
+</script>
+</body>
+</html>
