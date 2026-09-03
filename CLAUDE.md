@@ -234,6 +234,38 @@ Two traps worth knowing if you ever touch this:
 The hook stays **silent** for any session whose cwd is unrelated to BATTERY, so
 installing it user-wide does not spam every other project on the machine.
 
+## 6.5 iCloud is not a filesystem — verify before you trust it
+
+**A file that lives only in iCloud cannot be read, and it will not tell you so.**
+
+iCloud evicts file contents to save disk and leaves a dataless placeholder behind.
+From a sandboxed tool session the failure is *silent in both directions*:
+
+- `brctl download` **returns success while materialising nothing**;
+- the real (non-dot) path **does not exist to `stat`**, so a plain existence check
+  reports absence rather than "evicted".
+
+Both look like ordinary results. Neither looks like an error.
+
+**Standing rules:**
+
+1. **Keep a file genuinely local while you are working on it.** `~/Downloads` is
+   fine. Move it to `0.5 Baseball` to archive *after* the derived artifact is
+   committed. Archiving first is what breaks it — this is written from a real
+   incident: advice given on 2026-08-28 to archive sources first made them
+   unreadable, and was corrected on 2026-08-29.
+2. **Never treat "the file is in iCloud" as "the file is backed up and available."**
+   Those are different claims. Availability has to be *demonstrated* — read the
+   first bytes, check a non-zero size — not inferred from a listing.
+3. **Never report a backup as verified on the strength of a command's exit code.**
+   Exit 0 from a sync tool means the request was accepted, not that data exists at
+   the other end. If you cannot show the content, say the check was inconclusive.
+
+Rule 3 generalises past iCloud: it is the same failure class as the blob-URL service
+worker that "registered" successfully for months without ever installing, and the
+streak loop that read a key nothing had ever written. **An instrument that cannot
+return a negative has not confirmed anything.**
+
 ## 7. postMessage Seam + Data-Model Invariants
 
 ### Message shapes (change both sides in lockstep)
