@@ -26,16 +26,10 @@ wires the buttons.
 - [ ] `bi-lunge-twist.mp4` — 04 Walking Lunges with Twist
 - [ ] `bi-catch-footwork.mp4` — 05 Catch-Play with Footwork Pattern
 
-## TB12 Band Work (9)
-- [ ] `tb-row.mp4` — 01 Banded Standing Row
-- [ ] `tb-pushup.mp4` — 02 Banded Push-Up
-- [ ] `tb-oblique.mp4` — 03 Banded Oblique Rotation
-- [ ] `tb-deadlift.mp4` — 04 Banded Deadlift
-- [ ] `tb-curl.mp4` — 05 Banded Bicep Curl
-- [ ] `tb-tricep.mp4` — 06 Banded Tricep Extension
-- [ ] `tb-decel-lunge.mp4` — 07 Decelerating Lunge
-- [ ] `tb-shoulder-press.mp4` — 08 Banded Standing Shoulder Press
-- [ ] `tb-xband-squat.mp4` — 09 X-Band Squat
+## TB12 Band Work — REMOVED per owner directive (26.09.03)
+**Ignore. Do not pursue.** Owner instruction: remove all TB12 mentions.
+Recorded rather than silently deleted so nobody re-derives it later and wonders
+where it went. The live section was removed from `index.html` the same day.
 
 ## Dynamic Warmup (6)
 - [ ] `fd-leg-swings.mp4` — 01 Leg Swings (Fwd/Back + Side/Side)
@@ -67,7 +61,6 @@ wires the buttons.
 
 - **Shoulder Tube:** Replay Baseball Institute "Shoulder Tube Series" <https://youtu.be/wdzV-oXLcR0> · Oates Specialties (official maker, Short) <https://youtu.be/C4Q3U8Qd5fg> — ⚠ neither labeled "4-plane"
 - **Washington drills:** MLB.com OFFICIAL "Washington & Moncada fielding drills" <https://www.mlb.com/video/washington-and-moncada-work-on-fielding-drills> (link-only) · Northern Baseball Training <https://youtu.be/D8UMUqw5B7I> (unofficial)
-- **TB12 bands:** official TB12 Sports "2-Band Home Workout" <https://youtu.be/xY7gEwk6Fz8> (⚠ full-body, not shoulder-specific) · channel <https://www.youtube.com/@TB12Sports>
 - **Dynamic warmup:** BYoung PT <https://youtu.be/N-kfCjoz7Hg> · Jaime Baseball Academy <https://youtu.be/4JIle7nXlPQ>
 - **Thrower stretches:** Select Medical "Throwers Ten" <https://youtu.be/TOQH95Tm8Yo> (canonical; ⚠ strengthening-leaning) · Cody Baker <https://youtu.be/7DN3GtOX5i0>
 - **Jaeger #9/#12:** official <https://jaegersports.com/j-bands-exercises-baseball-workout> + @jaegersports socials (wrist-cuff clip → #12) · third-party <https://youtu.be/2sudrYkjVK8> · <https://youtu.be/cvs2Q3pm1QM> (label unofficial)
@@ -155,8 +148,7 @@ cut still needs a human to scrub the footage.
   Dailymotion clip with no usable description. If footage like that exists it is
   most likely on LMB/NPB broadcast feeds or Japanese-language channels, which is
   where the owner's own searching would beat mine.
-- **TB12 band work (9)** — unchanged from round 1: the only official TB12 source
-  is a full-body home workout, not the shoulder-specific series these 9 need.
+- **TB12 band work — REMOVED per owner directive (26.09.03). Ignore; do not pursue.**
 
 ### Copyright posture — unchanged, and it matters more now
 Repo default is **LINK/EMBED only**. Re-hosting is the owner's per-clip call
