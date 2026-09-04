@@ -388,6 +388,78 @@ def cmd_read(a):
     return 0
 
 
+
+MAILDIR = os.path.expanduser("~/battery-mail")
+
+
+def _mbox(lane):
+    return os.path.join(MAILDIR, lane.upper().replace("/", "_") + ".md")
+
+
+def cmd_msg(a):
+    """Send a DURABLE, ADDRESSED message to a lane.
+
+    Exists because SendMessage vanished from both Lane A's and Dispatch's toolsets
+    mid-session, and sockets die on every restart anyway. A file does not.
+
+    Deliberately NOT a socket: this must keep working when the messaging tool is
+    gone, when the recipient is not running, and from the networked PC over SSH --
+    all three of which have actually happened.
+    """
+    reg = load()
+    me = reg.get(my_uuid() or "", {}).get("lane") or os.environ.get("BATTERY_FROM") or "UNKNOWN"
+    lane = a.lane.upper()
+    body = a.text
+    if body == "-":
+        body = sys.stdin.read()
+    if not body.strip():
+        print("refusing to send an empty message.", file=sys.stderr)
+        return 1
+    os.makedirs(MAILDIR, exist_ok=True)
+    stamp = time.strftime("%Y-%m-%d %H:%M:%S")
+    with open(_mbox(lane), "a") as f:
+        f.write(f"\n## [{stamp}] from {me}\n\n{body.rstrip()}\n")
+    print(f"delivered to {lane} ({_mbox(lane)})")
+    return 0
+
+
+def _mail_unread(lane, cursor):
+    """Messages in this lane's mailbox after the stored byte cursor."""
+    box = _mbox(lane)
+    if not os.path.exists(box):
+        return 0, "", 0
+    size = os.path.getsize(box)
+    if cursor >= size:
+        return 0, "", size
+    with open(box, errors="ignore") as f:
+        f.seek(cursor)
+        new = f.read()
+    return new.count("\n## ["), new, size
+
+
+def cmd_mail(a):
+    reg = load()
+    uuid = my_uuid() or ""
+    row = reg.get(uuid, {})
+    lane = row.get("lane", "")
+    if not lane:
+        print("no lane bound; run: battery-lane claim <LANE>", file=sys.stderr)
+        return 1
+    n, new, size = _mail_unread(lane, int(row.get("mail_cursor", 0)))
+    if not n:
+        print(f"{lane}: no new mail.")
+        return 0
+    print(new.rstrip() + "\n")
+    if not a.peek:
+        reg[uuid]["mail_cursor"] = size
+        reg[uuid]["updated"] = time.strftime("%Y-%m-%d %H:%M:%S")
+        save(reg)
+        print(f"-- {n} message(s), marked read --")
+    else:
+        print(f"-- {n} message(s), NOT marked read (--peek) --")
+    return 0
+
+
 def cmd_hook(a):
     """SessionStart hook: tell the session what lane it is, at startup.
 
@@ -436,6 +508,12 @@ def cmd_hook(a):
     # than having to remember to look. A Dispatch post aged out over two check-in
     # cycles because nothing surfaced it.
     try:
+        mn, _, _ = _mail_unread(lane, int(row.get("mail_cursor", 0)))
+        if mn:
+            lines.append(f"  ** {mn} unread DIRECT message(s). Run `battery-lane mail`. **")
+    except Exception:
+        pass
+    try:
         posts = comms_posts()
         cur = int(row.get("comms_cursor", 0))
         n = len([1 for ln, _ in posts if ln > cur])
@@ -476,6 +554,10 @@ def main():
     ib = sub.add_parser("inbox"); ib.add_argument("--all", action="store_true")
     ib.set_defaults(fn=cmd_inbox)
     sub.add_parser("read").set_defaults(fn=cmd_read)
+    mg = sub.add_parser("msg"); mg.add_argument("lane"); mg.add_argument("text")
+    mg.set_defaults(fn=cmd_msg)
+    ml = sub.add_parser("mail"); ml.add_argument("--peek", action="store_true")
+    ml.set_defaults(fn=cmd_mail)
 
     a = p.parse_args()
     if not getattr(a, "fn", None):
