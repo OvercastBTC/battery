@@ -3507,20 +3507,6 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
         <em>He calls the finished version painting a picture: one continuous line rather than a set of separate movements stapled together.</em>
       </div>
     </li>
-    <li class=&quot;step&quot; data-ex=&quot;w11&quot; data-clip=&quot;clips/wash-fungo.mp4&quot; data-track=&quot;full&quot;>
-      <div class=&quot;step-row&quot;>
-        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
-        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
-          <div class=&quot;step-name&quot;>11 · Fungo Feeds · Feet Moving</div>
-          <div class=&quot;step-target&quot;>Live Off The Bat</div>
-        </div>
-        <div class=&quot;step-reps&quot;>3-4 min</div>
-      </div>
-      <div class=&quot;step-detail&quot;>
-        <p>Off the fungo now, not hand-fed. Keep your feet moving right up until you are ready to catch it. Live contact changes the timing enough that hand-fed reps alone will not prepare you.</p>
-        <em>The first drill on this page where the ball behaves the way it will in a game.</em>
-      </div>
-    </li>
     <li class=&quot;step&quot; data-ex=&quot;w12&quot; data-clip=&quot;clips/wash-crossover.mp4&quot; data-track=&quot;full&quot;>
       <div class=&quot;step-row&quot;>
         <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
@@ -3536,6 +3522,20 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       </div>
     </li>
 
+<li class=&quot;step&quot; data-ex=&quot;w11&quot; data-clip=&quot;clips/wash-fungo.mp4&quot; data-track=&quot;full&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>11 · Fungo Feeds · Feet Moving</div>
+          <div class=&quot;step-target&quot;>Live Off The Bat</div>
+        </div>
+        <div class=&quot;step-reps&quot;>3-4 min</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Off the fungo now, not hand-fed. Keep your feet moving right up until you are ready to catch it. Live contact changes the timing enough that hand-fed reps alone will not prepare you.</p>
+        <em>The first drill on this page where the ball behaves the way it will in a game.</em>
+      </div>
+    </li>
   </ul>
 
   <h3 style=&quot;color: var(--bone);&quot;>Position-Specific Adaptations</h3>
@@ -6484,7 +6484,20 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     ['w4',  'Standing \u00b7 still hand-fed'],
     ['w7',  'Reading the hop \u00b7 deliberate direction'],
     ['w9',  'On the move \u00b7 never from a standstill'],
-    ['w11', 'Live \u00b7 off the bat, at range']
+    /* w11 is the ONLY bat-fed drill in the whole progression -- 12 of 13 are
+       hand-fed. It gets its own terminal phase so the feed change is visible, and
+       w12 (hand-fed movement work) was moved above it so this phase contains only
+       the drill it names. The label used to cover both and claimed a live
+       bat feed over a hand-fed drill.
+
+       The owner's observed pattern from the source footage is kneel-hand ->
+       stand-hand -> kneel-bat -> stand-bat. THE APP CANNOT EXPRESS THAT: there is
+       no kneeling bat-fed drill and no second standing bat-fed drill to point at.
+       Encoding it anyway would render two empty phase headers, which is precisely
+       the bug the Simple-track pass already produced once. Representing it properly
+       needs NEW DRILLS sourced, not a reordering -- flagged to him rather than
+       faked. */
+    ['w11', 'Off the bat \u00b7 the one live-feed drill']
   ];
   function buildWashPhases(){
     document.querySelectorAll('#page-washington .wash-phase').forEach(function(h){ h.remove(); });
