@@ -152,7 +152,10 @@ def my_uuid():
     if pid is None:
         pid = os.getppid()
     m = re.search(r"--resume[= ]([0-9a-f-]{36})", argv_of(pid))
-    return m.group(1) if m else None
+    if m:
+        return m.group(1)
+    # Fresh session: no --resume. Fall back to what the SessionStart hook recorded.
+    return _recall_uuid()
 
 
 def my_socket():
@@ -207,8 +210,12 @@ def cmd_whoami(a):
         print(json.dumps(info, indent=2))
         return 0
     if not u:
-        print("could not determine this session's uuid (no --resume in argv; fresh session?)")
-        print("run: battery-lane claim <LANE>   once a uuid exists, or set BATTERY_SESSION_UUID")
+        print("could not determine this session's uuid.")
+        print("A fresh session (plain `claude`, no --resume) has no uuid in its argv.")
+        print("The SessionStart hook normally records it -- if it did not run, the usual")
+        print("cause is battery-lane not being on the hook shell's PATH. Check that")
+        print("~/.claude/settings.json invokes it by ABSOLUTE path, then start a new session.")
+        print("Manual override:  BATTERY_SESSION_UUID=<uuid> battery-lane claim <LANE>")
         return 1
     print(f"lane     : {info['lane']}")
     print(f"uuid     : {u}")
@@ -390,6 +397,44 @@ def cmd_read(a):
 
 
 MAILDIR = os.path.expanduser("~/battery-mail")
+SESSDIR = os.path.expanduser("~/.battery-sessions")
+
+
+def _claude_pid():
+    """This session's claude PID, from the socket env var it always exports."""
+    sock = os.environ.get("CLAUDE_CODE_MESSAGING_SOCKET", "")
+    base = os.path.basename(sock)
+    if base.endswith(".sock"):
+        try:
+            return int(base[:-5])
+        except ValueError:
+            pass
+    return os.getppid()
+
+
+def _remember_uuid(uuid):
+    """Record pid -> uuid so a FRESH session can identify itself later.
+
+    A brand-new session (plain `claude`, no --resume) has no uuid anywhere in its
+    own argv, so whoami/claim used to fail outright with "uuid is undeterminable".
+    The SessionStart hook IS handed session_id on stdin, so it writes it here and
+    everything downstream can read it back. Precise, not a heuristic guess at
+    which transcript is ours."""
+    try:
+        os.makedirs(SESSDIR, exist_ok=True)
+        with open(os.path.join(SESSDIR, str(_claude_pid())), "w") as f:
+            f.write(uuid)
+    except Exception:
+        pass
+
+
+def _recall_uuid():
+    try:
+        with open(os.path.join(SESSDIR, str(_claude_pid()))) as f:
+            v = f.read().strip()
+        return v if re.fullmatch(r"[0-9a-f-]{36}", v) else None
+    except Exception:
+        return None
 
 
 def _mbox(lane):
@@ -478,6 +523,8 @@ def cmd_hook(a):
         payload = {}
     uuid = payload.get("session_id") or ""
     cwd = payload.get("cwd") or ""
+    if uuid:
+        _remember_uuid(uuid)      # fixes identification for FRESH sessions
     reg = load()
     row = reg.get(uuid, {})
 
