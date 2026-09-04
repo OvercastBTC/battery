@@ -129,6 +129,62 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 
 `laneA/*` branches are visible in Lane E's worktree without pushing (shared `.git`).
 
+### Lane M — the networked PC (media / clips)
+
+Owner's Beelink, `am06.local`. Formalized 2026-09-04 on owner directive.
+
+**Scope — YES:** sourcing and vetting clip assets · cutting and encoding to the
+`TODO-CLIPS.md` standard · adding files to `clips/` · the embed-timestamp config
+(external video ID + start/end seconds) · holding the source archive · disk-heavy
+overflow.
+
+**Scope — NO:** `index.html`. Iframe JS, button wiring, step markup, UI slots.
+That is Lane A's. The boundary is mechanical, not territorial — one writer per
+worktree is this project's oldest load-bearing rule.
+
+**✅ THE EMBED CARVE-OUT IS ACCEPTED.** Where the embed slot and timestamp
+plumbing ALREADY EXIST and the only missing thing is *which video and which
+seconds*, Lane M fills that in directly — no round-trip through Lane A.
+
+Reasoning, since the owner left the call to Lane A: that is **data, not code**,
+and it is the same kind of data as the clip files Lane M already owns. Lane M has
+the source video locally and Lane A does not, so a mandatory round-trip would put
+the slower, less-informed party in the path of the thing the better-informed party
+can simply see. It does **not** extend to creating slots, wiring, or touching
+iframe JS.
+
+**The condition that makes it safe:** the embed config must be **gate-validated**
+— every entry resolves to a well-formed ID with `start < end`. Structural errors
+must fail the gate rather than ship. A *content* error (right video, wrong moment)
+is only catchable by watching it, which is exactly what Lane M is positioned to do
+and Lane A is not.
+
+**Setup: CLONE, do not worktree.** Git worktrees need real filesystem access to
+`.git`; doing that across a network is how indexes get corrupted, and the damage
+would be shared. Branch namespace `laneM/*`, push to the Mac, **never to
+`master`** — Lane E is the sole release engineer.
+
+**Environment constraints, measured 2026-09-04 — do not assume parity with the Mac:**
+native Windows 11 · **no Python** (Store stub only) · no general-purpose WSL
+distro · node v24 (Mac has v20) · Playwright browsers not installed · default SSH
+shell is `cmd.exe`, so `ssh host 'a; b; c'` does **not** chain. Git Bash at
+`C:\Program Files\Git\bin\bash.exe` is the POSIX-shaped target.
+
+**Consequence: Lane M cannot run the gate.** `run.sh` is bash, Playwright has no
+browsers there, and `battery-lane` is Python. This does not block clip work, which
+needs ffmpeg — but "Lane M has a worktree" would be a weaker claim than it sounds,
+so it clones and Lane A or Lane E gates what it produces.
+
+**Comms:** `battery-lane` is host-local by construction and **cannot see Lane M** —
+it will never appear as live in `roster`, which says so rather than guessing.
+Reach it by SSH; it reaches us by SSH'ing into the Mac and running the Mac's copy:
+
+```bash
+ssh bacona@<mac> '~/.local/bin/battery-lane msg LANE-A "text"'
+```
+
+Use the **absolute path** — a non-interactive shell has no `~/.local/bin` on `PATH`.
+
 ### Session Dispatch — NOT A LANE
 
 The layer that routes requests between the owner and whichever Claude Code

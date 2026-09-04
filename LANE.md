@@ -208,23 +208,35 @@ it existed only in a chat transcript. **Written down here on arrival** — a bac
 that lives in a transcript is a backlog that dies. Every anchor below was
 re-verified against current `master` by Lane A, not taken on relay.
 
-**⚠ NOTHING HERE IS APPROVED.** The owner has not signed off an implementation
-approach on any of these. Do not start building from this list; it is a record,
-not a work order.
+**✅ ALL SIX WERE SUBSEQUENTLY APPROVED AND BUILT.** This table was written when
+they were open design questions and stayed stale for two days after they shipped —
+Dispatch's 2026-09-04 audit correctly flagged the staleness, then concluded from
+comms that the WORK was missing. It was not. Build evidence lives in git, not in
+comms: a lane that ships without posting a matching status leaves no trace here.
 
-| # | Item | Verified state |
+**Audit this table with the artifact, not the archive:**
+```bash
+git log --oneline --all --grep=<thing>
+git show master:index.html | grep -c <marker>
+```
+
+| # | Item | State — verified against `master`, not recalled |
 |---|---|---|
-| 1 | **Tap a day / dropdown to load that date into the live FUEL tracker for editing** | `loadEntries()` (10403) and `saveEntries()` (10407) are hardcoded to `todayKey()` with no date parameter. **28 call sites** (18 load / 10 save). `getTotalsForDate()` already reads any date, so per-date *storage* exists — what is missing is a selected-date concept in the live tracker. |
-| 2 | **Demote "This Week in Review"** from a passive dot-grid into that same editable-history / day-picker surface | depends entirely on #1 |
-| 3 | **Protein-banking SURPLUS direction lacks grounding** | `bankAdj()` negative clamp at **10136**. Shortfall-carries-forward has cumulative-intake support; a literal *surplus* giveback does not, and may fight `recoveryBoost()`'s floor. **This is my own Batch 8 design and the concern is fair** — I built the symmetric case because it was tidy, not because evidence asked for it. |
-| 4 | **Rest vs. recovery day** | `recoveryBoost()` (**9913**) already floors protein after hard training, but it is **invisible** under the plain "Rest" label; `fuel-recovery-<date>` is a separate inert tag that never touches targets. Two mechanisms, one of them silent. |
-| 5 | **Free-form / custom lifting-log entry + editable per-date lift history** | Lifting has **no** equivalent to FUEL's `fuel-items-custom` (grep: 2 refs for fuel, **0** for lifting). Should share ONE selected-date mechanism with #1 rather than being built twice. |
-| 6 | **Heavy vs Train** | `syncFuelDayFromPlan()` (**15403**): Heavy is driven *entirely* by yesterday's throwing load. **Lifting today maps to `train`** — identical to a full arm+drills+body day with no lifting at all. Owner says that does not match his mental model; wants a design call. |
+| 1 | **Tap a day / dropdown to load that date for editing** | ✅ **DONE** — `be2ef7f`. Per-date ledger; `batteryEditDay` (FUEL) and `armEditDay` (ARM) both present on master. |
+| 2 | **Demote "This Week in Review" into that editable surface** | ⚠️ **HALF DONE** — the `bat-editday` seam ships (3 refs on master), but `renderWeekCard()` has **zero** editor references: its rows are still not clickable. **Host half, Lane E's.** |
+| 3 | **Protein-banking surplus direction lacks grounding** | ✅ **DONE** — `6626fe9`. Debit and credit are deliberately asymmetric: a miss carries in FULL, a surplus gives back only a QUARTER. My own Batch 8 symmetry was the bug; it manufactured under-eating days out of good ones. |
+| 4 | **Rest vs recovery day** | ✅ **DONE** — `6626fe9` + `d4672d1`. `recoveryBoost()`'s floor is now visible, enforced against the CREDIT direction only, and `fuel-recovery-<date>` chips move the target (owner's explicit override of the ACSM/ISSN citation; highest-selected, not cumulative). |
+| 5 | **Free-form lifting log + editable per-date lift history** | ✅ **DONE** — `4435006`. `liftLogKey()` on master; per-set reps/weight; picker derived from the page's own steps so it cannot drift. |
+| 6 | **Heavy vs Train** | ⚠️ **HALF DONE** — `db4f4ef`. `liftIntensityFor()` ships the rule (≤6 reps **and weighted**; bodyweight never reads heavy). The host clause is **NOT** shipped: `syncFuelDayFromPlan()` still has only `trainedHardYesterday`, no `liftedHeavyToday`. **Host half, Lane E's.** |
 
-**⚠ TRANSCRIPTION TO CONFIRM WITH THE OWNER BEFORE ANY SCOPING:** one phrase came
-through as *"heavy… and the lake"* and is believed to be *"and the like"*. **Only
-the owner can confirm what he said** — nobody should infer scope from a guess at
-a misheard word.
+**Still genuinely open, and both are Lane E's host half — not Lane A's:** item 2's
+clickable week card, and item 6's `syncFuelDayFromPlan()` clause.
+
+**Resolved and needing no owner ratification:** the "rotational hip thrust"
+naming question. `lift-rotcore` already existed and already offers med-ball
+throws, wood-choppers and rotational twists; the real DB Hip Thrust (glutes) and
+that entry appear to have been conflated into an imagined third exercise. Nothing
+shipped under a guessed name.
 
 **Sequencing note from Lane A:** items 1, 2 and 5 are one feature, not three. All
 three need a single `selectedDate` concept threaded through the FUEL tracker;

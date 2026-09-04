@@ -178,6 +178,18 @@ def decorate(reg, s):
     return s
 
 
+def remote_lanes(reg):
+    """Lanes on other machines. Keyed by name, NOT by session uuid, because a
+    remote session's uuid and liveness are both unobservable from here -- the
+    roster reads /tmp/cc-socks and nothing else. Recording a uuid we cannot verify
+    would be a fact we made up."""
+    out = []
+    for k, v in reg.items():
+        if k.startswith("remote:"):
+            out.append(v)
+    return sorted(out, key=lambda r: r.get("lane", ""))
+
+
 def cmd_roster(a):
     reg = load()
     rows = [decorate(reg, s) for s in sessions()]
@@ -194,6 +206,14 @@ def cmd_roster(a):
         mark = " <- you" if r["uuid"] and r["uuid"] == me else ""
         print(f"{r['lane']:<10} {r['pid']:>7}  {r['model']:<18} "
               f"{(r['uuid'] or '(fresh session, no --resume)'):<38} {r['socket']}{mark}")
+    rem = remote_lanes(reg)
+    if rem:
+        print()
+        print("REMOTE LANES (another machine -- liveness NOT observable from here)")
+        for r in rem:
+            print(f"  {r.get('lane',''):<10} host={r.get('host','?'):<16} {r.get('note','')[:60]}")
+            print(f"             reach: {r.get('reach','(none recorded)')}")
+
     unclaimed = [r for r in rows if r["lane"] == "UNCLAIMED"]
     if unclaimed:
         print()
@@ -299,8 +319,32 @@ def cmd_forget(a):
     return 1
 
 
+def cmd_remote(a):
+    """Register a lane that lives on another machine."""
+    reg = load()
+    lane = a.lane.upper()
+    key = "remote:" + lane
+    prev = reg.get(key, {})
+    reg[key] = {
+        "lane": lane, "host": a.host, "remote": True,
+        "note": a.note or prev.get("note", ""),
+        "reach": a.reach or prev.get("reach", ""),
+        "first_seen": prev.get("first_seen") or time.strftime("%Y-%m-%d %H:%M:%S"),
+        "updated": time.strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    save(reg)
+    print(f"registered REMOTE lane {lane} on {a.host}")
+    print("note: it will never show as live in `roster` -- liveness is not observable")
+    print("      across machines, and the roster will say so rather than guess.")
+    return 0
+
+
 def cmd_addr(a):
     want, reg = a.lane.upper(), load()
+    r = reg.get("remote:" + want)
+    if r:
+        print(r.get("reach") or f"(remote lane on {r.get('host','?')}; no reach recorded)")
+        return 0
     for s in sessions():
         if s["uuid"] and reg.get(s["uuid"], {}).get("lane") == want:
             print(s["socket"])
@@ -601,6 +645,9 @@ def main():
     ib = sub.add_parser("inbox"); ib.add_argument("--all", action="store_true")
     ib.set_defaults(fn=cmd_inbox)
     sub.add_parser("read").set_defaults(fn=cmd_read)
+    rm = sub.add_parser("remote"); rm.add_argument("lane"); rm.add_argument("host")
+    rm.add_argument("-n", "--note", default=""); rm.add_argument("-r", "--reach", default="")
+    rm.set_defaults(fn=cmd_remote)
     mg = sub.add_parser("msg"); mg.add_argument("lane"); mg.add_argument("text")
     mg.set_defaults(fn=cmd_msg)
     ml = sub.add_parser("mail"); ml.add_argument("--peek", action="store_true")
