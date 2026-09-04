@@ -10809,6 +10809,30 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     } else {
       _recoveryFloorP = 0;
     }
+    /* OWNER OVERRIDE 2026-09-03: the recovery-context chips now MOVE the target.
+       His words, paraphrased: recovering from whatever should affect the daily values.
+
+       This deliberately overrides the cited position a few lines of this file used
+       to rest on -- that daily protein is not modality-specific (ACSM/AND/DC 2016,
+       ISSN 2017). I declined to make that change on my own and asked; he made the
+       call. Recording that here so the next person to read the citation does not
+       assume the override was an oversight and quietly revert it.
+
+       HIGHEST SELECTED, NOT CUMULATIVE, and the reason is not just that per-tag
+       weights would be invented. It is that `sore` IS NOT A WORKLOAD -- it is a
+       symptom. Summing a symptom with two workloads and calling the total a dose is
+       category-confused. Threw AND lifted is also not twice the recovery need; it
+       is one fact, that the day was hard. So each tag names the day-type the work
+       WOULD have been, and the floor is the highest of those. That also keeps the
+       manual path agreeing with recoveryBoost(), which already floors hard-throw and
+       hard-lift to the same number regardless of which fired. */
+    if (window.BATTERY_TIER === 'adult') {
+      const mf = manualRecoveryFloor(T);
+      if (mf > _recoveryFloorP) _recoveryFloorP = mf;
+      ['rest', 'light'].forEach(k => {
+        if (T[k] && T[k].protein < _recoveryFloorP) T[k].protein = _recoveryFloorP;
+      });
+    }
     DAY_TARGETS = T;
 
     return {
@@ -11079,6 +11103,27 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
      recovery-day protein should HOLD rather than drop (MPS elevated ~24-48h).
      §4.3: the 'lift' option carries .qa-adult so youth never sees a weight-room
      prompt, and youth is filtered again in code below (belt and suspenders). ===== */
+  /* Each recovery-context tag names the day-type the work WOULD have been, so the
+     floor it implies is that day-type's own protein target rather than a number
+     invented for this feature. `sore` sits lowest on purpose: it is a symptom
+     reported without a named workload, which is a weaker signal than a named lift or throw.
+
+     Reads T (the targets being rebuilt) rather than DAY_TARGETS, because this runs
+     DURING recomputeDayTargets() and the live copy has not been swapped in yet --
+     using the stale one would floor against last profile's numbers. */
+  const REC_FLOOR_DAY = { sore: 'light', throw: 'train', lift: 'train', game: 'game' };
+  function manualRecoveryFloor(T){
+    let best = 0;
+    try {
+      loadRecFrom().forEach(function(tag){
+        const d = REC_FLOOR_DAY[tag];
+        const t = d && (T || DAY_TARGETS)[d];
+        if (t && t.protein > best) best = t.protein;
+      });
+    } catch (e) {}
+    return best;
+  }
+
   function loadRecFrom(){
     const raw = storeGet('fuel-recovery-' + todayKey(), '');
     return new Set(raw ? raw.split(',').filter(Boolean) : []);
