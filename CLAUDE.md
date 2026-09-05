@@ -153,11 +153,32 @@ the slower, less-informed party in the path of the thing the better-informed par
 can simply see. It does **not** extend to creating slots, wiring, or touching
 iframe JS.
 
-**The condition that makes it safe:** the embed config must be **gate-validated**
-— every entry resolves to a well-formed ID with `start < end`. Structural errors
-must fail the gate rather than ship. A *content* error (right video, wrong moment)
-is only catchable by watching it, which is exactly what Lane M is positioned to do
-and Lane A is not.
+**The condition that makes it safe — ✅ SHIPPED, `clip-config.test.mjs`.** The
+embed config is **gate-validated**: well-formed 11-char video ID, `start` and `end`
+finite with `start < end`, no duplicate keys. Structural errors fail the gate
+rather than ship. A *content* error (right video, wrong moment) is only catchable
+by watching it, which is exactly what Lane M is positioned to do and Lane A is not
+— the gate does not pretend otherwise.
+
+The agreed anchor is `var CLIP_EMBED=[`, rows as `[key, videoId, startSec, endSec]`
+or `{key,id,start,end}` — either shape validates. **It does not exist yet**; until
+it does the suite prints that it verified nothing rather than a checkmark, because
+a silent skip is how a suite goes green for a reason unrelated to what it claims.
+
+**The same suite guards what Lane M edits TODAY**, which matters more right now:
+`CLIP_SOURCE` and `OFFICIAL_DEMOS` are matched **first-match-wins by prefix**
+(`name.indexOf(P) === 0`), so **array order is load-bearing**. Add a prefix above
+another that extends it as a string and the lower row becomes unreachable — its
+clips silently take the wrong credit. `fw-1b-` is the live example: any future
+general `fw-` row placed above it breaks Freeman's attribution with no error. The
+suite also asserts every clip referenced in markup resolves to a credit, since the
+credit is supposed to be unconditional (79/79 today).
+
+Every assertion is negative-controlled by `clip-config.negctl.mjs` — 12 mutations,
+each required to go red, plus a positive control. Its first draft caught the
+shadowing check as **inert**: it asserted `'gi-'` shadows `'gi1-'`, which reads
+right and is false (`'gi1-'` has no dash in third position). Run the negctl after
+touching either file.
 
 **Setup: CLONE, do not worktree.** Git worktrees need real filesystem access to
 `.git`; doing that across a network is how indexes get corrupted, and the damage
