@@ -173,6 +173,26 @@ const referenced = new Set();
 for (const m of src.matchAll(/openClip\(\s*['"]([^'"]+\.mp4)['"]\s*\)/gi)) referenced.add(m[1]);
 for (const m of src.matchAll(/data-clip=(?:&quot;|")clips\/([^&"']+\.mp4)/gi)) referenced.add(m[1]);
 
+// THE THIRD REFERENCE CHANNEL, and the reason this file previously undercounted.
+// injectClipButtons() also builds buttons from the WANTED wish-list map
+// (`w2:'wash-knee-forehand'` -> openClip('wash-knee-forehand.mp4')), so a clip can
+// be fully reachable without ever appearing in an openClip() call or a data-clip
+// attribute. Missing this channel is what made two shipped, playable clips get
+// reported as "referenced nowhere" orphans.
+//
+// These are held SEPARATE from `referenced` on purpose. WANTED is a wish-list: most
+// of its entries name files that do not exist yet, so demanding a CLIP_SOURCE credit
+// for them would fail on every unrecorded clip and say nothing true. Casing, though,
+// applies the moment the file lands — and the whole point of the casing rule is that
+// nothing catches a bad name until production.
+const wished = new Set();
+const wantedBlock = src.match(/var WANTED\s*=\s*\{[\s\S]*?\}/);
+log(wantedBlock !== null, 'WANTED wish-list map located');
+if (wantedBlock) {
+  for (const m of wantedBlock[0].matchAll(/:\s*'([^']+)'/g)) wished.add(m[1] + '.mp4');
+  log(wished.size > 0, `WANTED names ${wished.size} wish-list clips`);
+}
+
 log(referenced.size > 0, `found ${referenced.size} clip references in markup`);
 
 // CASE SENSITIVITY. Nothing between the producer and the deploy catches this:
@@ -182,9 +202,9 @@ log(referenced.size > 0, `found ${referenced.size} clip references in markup`);
 // in production. All 82 files in clips/ are lowercase today by convention; this
 // makes the convention enforceable, which matters now that a second machine with
 // different filename habits produces them.
-const badCase = [...referenced].filter(n => !/^[a-z0-9._-]+\.mp4$/.test(n)).sort();
+const badCase = [...referenced, ...wished].filter(n => !/^[a-z0-9._-]+\.mp4$/.test(n)).sort();
 log(badCase.length === 0,
-    `every clip reference is lowercase (case-sensitive deploy host)` +
+    `every clip name is lowercase, incl. wish-list (case-sensitive deploy host)` +
     (badCase.length ? ` — ${badCase.join(', ')}` : ''));
 
 if (CLIP_SOURCE && referenced.size) {

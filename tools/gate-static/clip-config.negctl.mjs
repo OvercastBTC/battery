@@ -77,6 +77,16 @@ const CASES = [
    s => s.replace("openClip('jbj-overhead.mp4')", "openClip('jbj-Overhead.MP4')"),
    'lowercase'],
 
+  // The WANTED map is a THIRD way a clip becomes reachable, and missing it is what
+  // made two shipped, playable clips get misreported as unreferenced orphans.
+  ['an uppercase name in the WANTED wish-list map',
+   s => s.replace("w2:'wash-knee-forehand'", "w2:'Wash-Knee-Forehand'"),
+   'lowercase'],
+
+  ['the WANTED map going missing entirely',
+   s => s.replace('var WANTED={', 'var WANTED_RENAMED={'),
+   'WANTED wish-list map located'],
+
   // ---- forward-looking: the embed-timestamp assertions --------------------
   ['CLIP_EMBED with start >= end  (THE PROMISED ASSERTION)',
    () => withEmbed("    ['jbj-overhead', 'MeNseDHe5gc', 120, 95]"),
@@ -107,8 +117,14 @@ const POSITIVE = ['a well-formed CLIP_EMBED still PASSES',
 
 function run() {
   try {
+    // Set BOTH, and delete nothing by accident: clip-config prefers BATTERY_APP over
+    // CLIP_CONFIG_APP, so passing only the latter let an inherited BATTERY_APP from
+    // the caller's shell win — and every mutation silently ran against the REAL,
+    // unmutated file. Ten assertions reported themselves inert in one run because of
+    // it. A harness that points the subject at the wrong input fails exactly like a
+    // broken assertion, which is why it took a negative control to see it.
     const out = execFileSync(process.execPath, [path.join(HERE, 'clip-config.test.mjs')],
-      { env: { ...process.env, CLIP_CONFIG_APP: TMP }, encoding: 'utf8' });
+      { env: { ...process.env, BATTERY_APP: TMP, CLIP_CONFIG_APP: TMP }, encoding: 'utf8' });
     return { red: false, out };
   } catch (e) {
     return { red: true, out: (e.stdout || '') + (e.stderr || '') };
