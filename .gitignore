@@ -3,3 +3,8 @@
 # so it does not need to be committed. Keep it ignored so neither agent can
 # accidentally `git add .` it into the public repo.)
 HANDOFF.md
+
+# clip-config.negctl.mjs writes a deliberately CORRUPTED copy of index.html here
+# while proving each assertion can fail, and deletes it on success. If it crashes
+# mid-run the file survives -- never let a mutated build be committed by accident.
+tools/gate-static/app-negctl.html

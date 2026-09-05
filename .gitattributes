@@ -1,0 +1,19 @@
+# Git for Windows installs with core.autocrlf=true, and Lane M is native Windows.
+# Without this file, its clone checks out index.html (~1MB, one line region per
+# iframe srcdoc) as CRLF. Committing through git normally converts back to LF, so
+# the common path survives -- but this setup moves files by scp/rsync/SSH heredoc
+# too, and any of those lands CRLF in the repo and produces a whole-file diff that
+# Lane E, as sole release engineer, then has to merge. Pin it explicitly rather
+# than depending on every machine's git config being right.
+* text=auto eol=lf
+
+# Clip media must never be line-ending-converted. Git's NUL-byte heuristic already
+# classifies these binary, but the app's whole media pipeline runs across two
+# operating systems now, so state it rather than rely on detection.
+*.mp4  binary
+*.png  binary
+*.ico  binary
+
+# Keep the shell entry point LF even if a future .gitattributes generalises: a
+# CRLF shebang line makes the script unrunnable with a confusing "bad interpreter".
+*.sh   text eol=lf

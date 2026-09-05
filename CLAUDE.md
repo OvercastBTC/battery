@@ -191,10 +191,36 @@ distro · node v24 (Mac has v20) · Playwright browsers not installed · default
 shell is `cmd.exe`, so `ssh host 'a; b; c'` does **not** chain. Git Bash at
 `C:\Program Files\Git\bin\bash.exe` is the POSIX-shaped target.
 
-**Consequence: Lane M cannot run the gate.** `run.sh` is bash, Playwright has no
-browsers there, and `battery-lane` is Python. This does not block clip work, which
-needs ffmpeg — but "Lane M has a worktree" would be a weaker claim than it sounds,
-so it clones and Lane A or Lane E gates what it produces.
+**Lane M cannot run the FULL gate** — `run.sh` drives Playwright, which has no
+browsers there, and `battery-lane` is Python. So it clones rather than taking a
+worktree, and the Mac runs the behavioural suites on everything it produces.
+
+**⚠ CORRECTION (26.09.04): "Lane M cannot run the gate" was stated flatly here and
+in comms, and it was too broad in the one place it mattered.** The two suites that
+guard exactly what Lane M writes — `srcdoc-integrity` and `clip-config` — import
+only `node:fs` / `node:path` / `node:url`. No Playwright, no python, no npm install,
+nothing v20-specific. Lane M has node v24 and Git Bash, so it **can** run them.
+
+That distinction is load-bearing, not pedantic. The hard boundary further down this
+file is **"do not add a writer that cannot gate"**, and its stated reason is §3's
+srcdoc footgun. The embed carve-out makes Lane M a writer of `index.html` — the
+tables live *inside* the ARM iframe's `srcdoc`. Under the flat reading, the
+carve-out quietly violated that boundary. Under the correct one it doesn't, because
+Lane M gates the footgun itself before pushing:
+
+```bash
+bash tools/gate-static/gate-static.sh          # in Git Bash, gates ./index.html
+```
+
+**Run it before every push that touches `index.html`.** It catches srcdoc
+truncation, malformed `CLIP_SOURCE`/`OFFICIAL_DEMOS`/`CLIP_EMBED`, prefix
+shadowing, and uncredited or uppercase clip references. It proves **nothing**
+behavioural — no rendering, boot, persistence or youth-gate checks. Say *"static
+gate passed"*, never *"gate passed"*.
+
+The suites live in `tools/gate-static/` **in the repo**, not in `~/battery-tests`,
+so Lane M's clone gets them and the Mac's `run.sh` invokes the same copy — one
+source, no drift between what Lane M checks and what the Mac checks.
 
 **Comms:** `battery-lane` is host-local by construction and **cannot see Lane M** —
 it will never appear as live in `roster`, which says so rather than guessing.
@@ -205,6 +231,18 @@ ssh bacona@<mac> '~/.local/bin/battery-lane msg LANE-A "text"'
 ```
 
 Use the **absolute path** — a non-interactive shell has no `~/.local/bin` on `PATH`.
+
+**⚠ That form is Git Bash only.** It was written without checking, and `cmd.exe` —
+Lane M's *default* SSH shell, recorded three paragraphs up — does not treat `'` as
+a quoting character at all, so the literal quotes get passed through and the remote
+command is mis-split. This is Lane M's only durable channel back to us, so the
+failure would be the kind you notice by hearing nothing. **Run comms from Git Bash**,
+where the line above works verbatim. If you must send from `cmd.exe`, swap the
+quoting — outer double, inner escaped:
+
+```
+ssh bacona@<mac> "~/.local/bin/battery-lane msg LANE-A \"text\""
+```
 
 ### Session Dispatch — NOT A LANE
 

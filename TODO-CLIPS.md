@@ -386,6 +386,26 @@ is fine) *while it is being cut*, then move it to `0.5 Baseball` to archive once
 the clips are committed. Archiving first is what breaks it. This corrects the
 advice given on 2026-08-28, which caused exactly that.
 
+**⚠ The paragraphs above describe the Mac, and cutting moved to @LANE-M (native
+Windows) on 26.09.04.** The *rule* survives the move — cut from a genuinely local
+file, archive afterwards — because it is about sync-on-demand placeholders, which
+iCloud for Windows also uses. The *mechanics* do not:
+
+| Mac | Lane M (Windows) |
+|---|---|
+| `~/Downloads` | `C:\Users\bacona\Downloads` |
+| iCloud Drive → `0.5 Baseball` | `C:\Users\bacona\iCloudDrive\0.5 Baseball` |
+| `brctl download` (reports success, materialises nothing) | no `brctl`; use File Explorer's **Always keep on this device**, then confirm the on-disk size is non-zero |
+
+**Verify materialisation by size, not by the file appearing to exist** — that is the
+transferable lesson from the `brctl` failure, and it is the check that works on both
+machines. A placeholder stats fine and reads as empty.
+
+Note also that some archive filenames here contain spaces and a non-ASCII ellipsis
+(see the entry at ~:210). `cmd.exe` does not default to a UTF-8 codepage, so an SSH
+one-liner referencing those names mangles them — another reason to drive clip work
+from Git Bash.
+
 ## SF Giants series — the rest of it, all oEmbed-verified (for the 2B/SS/3B build)
 The `wash-*` teaching (arrow, direct line, don't-slide-up, feet moving) is
 position-agnostic, so these mostly reinforce rather than replace what is already cut.
@@ -492,12 +512,28 @@ unit — not yet branched or implemented.
 **(a) now, (b) for future cuts.** The ~96MB already in `clips/` stays as-is; every
 NEW cut from here uses the lower-bitrate profile below.
 
-```
+```bash
 ffmpeg -ss <IN> -to <OUT> -i <SOURCE> \
   -vf "scale=640:-2,fps=24" \
   -c:v libx264 -crf 32 -preset veryfast -pix_fmt yuv420p \
   -c:a aac -b:a 64k -ac 1 -movflags +faststart clips/<name>.mp4
 ```
+
+**⚠ The block above is POSIX-shell only — it does not run in `cmd.exe` or
+PowerShell.** Those use `^` and a backtick respectively for line continuation, not
+`\`, so a paste terminates after line 1: no `-c:v`, no `-vf`, no output path, and
+ffmpeg fails on a missing output file. This matters because @LANE-M (native Windows)
+now owns encoding, and this is the one recipe its whole scope depends on. **Cut
+clips from Git Bash**, where it works verbatim. Single-line form for any other
+shell — identical flags, no continuations:
+
+```
+ffmpeg -ss <IN> -to <OUT> -i <SOURCE> -vf "scale=640:-2,fps=24" -c:v libx264 -crf 32 -preset veryfast -pix_fmt yuv420p -c:a aac -b:a 64k -ac 1 -movflags +faststart clips/<name>.mp4
+```
+
+**Filenames must be lowercase** — `[a-z0-9._-]+.mp4`. Both NTFS and APFS are
+case-insensitive, so `Wash-Foo.MP4` resolves on either authoring machine and 404s
+only on the case-sensitive deploy host. `clip-config.test.mjs` now enforces it.
 
 **Measured, not assumed — and correcting an overstatement.** I told the owner
 crf32 would "roughly halve" the files. It does not. Re-encoding two shipped clips
