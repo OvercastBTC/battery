@@ -39,10 +39,13 @@
   host DATA `<select>`). Now derived from the dated `arm-care-pitchlog` (`lastThrowState()`),
   read-only in FUEL with a "Log an outing ›" link back to the host; the dead host `<select>` (the
   last remaining writer, confirmed unread) was deleted the same release.
-- **Pitching-mechanics clips — merged.** `clips/bauer-pitch-hipfire.mp4` + `bauer-pitch-gloveside.mp4`.
-  Owner reviewed and approved the copyright question directly (re-host as committed, no re-source
-  requirement). **Nav placement is still open** — no pitching surface exists yet in the app; not a
-  merge blocker, just undecided when the clips actually get wired up.
+- **Pitching-mechanics clips — merged; nav placement RESOLVED 26.09.06.** `clips/bauer-pitch-hipfire.mp4`
+  + `bauer-pitch-gloveside.mp4`. Owner approved the copyright question directly (re-host as committed,
+  no re-source requirement) and has now **approved a pitching tab as a direction, under `drills`**,
+  closing the three-week nav question. Scope, the `TAB_GROUPS` entry and the required-vs-optional ring
+  call are recorded under *Pitching tab* below — **`data-optional="1"`, decided before it ships**,
+  because `de2edd4` is the record of what happens when that call is made after. Youth exposure is
+  **not** cleared yet; four §4.3 content questions are with @LANE-M.
 - **Queued next:** items 5 (youth: "Kole today" card, pips, arm-feel faces, green accent) and 6
   (FUEL tabs 10→4, deliberately last — §9 flags it as the highest youth-gate blast radius despite
   being the smallest change). Owner said not to wait out the full observation week. C.1
@@ -271,6 +274,88 @@ and makes him retype has missed the requirement. Concretely: `addWater()`,
 `addEntry()`, bundle-tap and custom-item-tap on the FUEL side, and `toggleDone()`
 on the ARM side, must all resolve against `selectedDate` — not merely the display
 and target math around them.
+
+#### ✅ THE ACCEPTANCE TEST, in test form — owner's own words, 26.09.06
+
+FINDING 2 above states the bar as prose. The owner has now restated it three times
+and asked specifically for **test form**, because prose can be re-read as "a viewer
+would satisfy this" and a viewer does not. This is the exact wording relayed by
+DISPATCH; treat it as the definition of done, not a suggestion:
+
+> 1. Tap a past day's pip in the mini-strip
+> 2. → FUEL tracker shows **that date** selected
+> 3. → add an item using an **EXISTING quick-add button**
+> 4. → verify it writes to **the selected past date's** storage key, **not today's**
+> 5. → verify **today's own totals are unchanged**
+
+Steps 3–5 are the ones that fail a viewer implementation, and step 5 is the one that
+fails a half-done `selectedDate` thread — a build that writes to the right key but
+leaves a cached "today" total on screen passes 4 and still ships the bug.
+
+**THE COMPONENT, verified against `master` — not taken on relay.** This is the FUEL
+trackers **`#mini-strip` pip row**, and it is a *third* surface, distinct from both
+LANE.md item 1 (`batteryEditDay`/`armEditDay`, built but never wired here) and item 2
+(`renderWeekCard()`, Lane E's host half):
+
+| thing | where | state |
+|---|---|---|
+| `.mini-strip` CSS | `index.html:8137` (mobile `:8168`) | — |
+| markup | `index.html:9415` | `title="Last 7 days · both goals hit = filled"` |
+| `refreshMiniStrip()` | `index.html:12845` | called from `:12225`, `:13881` |
+| the pip itself | `index.html:12857` | **hover `title` only — zero click handler** ✅ verified |
+
+The pip template already computes `lbl.date` for its tooltip, so the date needed to
+select a day is present at render time; the missing piece is a handler, not data.
+
+**Phasing is the owner's:** 7-day strip first, full history second. That keeps the
+first slice small — the strip is 7 known dates, so it does not need the history-picker
+question answered to ship.
+
+**Open design call (2.1), MINE to decide, for the history phase only:** extend the
+weekly tab, or a dropdown + calendar showing tier colours. Noting against option (b)
+that **FINDING 2 is itself the argument** — a calendar that only navigates is the
+view-only date-picker the owner has now rejected three times. Whichever is chosen has
+to land on the tracker with its affordances live, not on a summary.
+
+### Pitching tab — APPROVED as a direction (owner, 26.09.06) · scope + the ring call
+
+Resolves the nav question that kept the two cleared Bauer clips dark for three weeks.
+**First slice is those two clips only, not a curriculum** (owner's scoping, not mine).
+
+**DECISION 1 — bucket: `drills`.** `TAB_GROUPS` (`index.html:5495`) gains
+`pitching:'drills'`. The owner said "part of drills" and that is also the right
+engineering answer: a fourth top-level group would change the `bat-counts` seam
+(`{arm, drills, body, lift}`), which is a cross-lane contract change requiring Lane E
+to move in lockstep — disproportionate for a two-clip first slice. The existing
+comment scopes DRILLS as "Washington position/fielding drills"; that comment gets
+widened rather than a new bucket invented.
+
+**DECISION 2 — `data-optional="1"`. FLAGGED EARLY, AS ASKED, AND THIS IS THE ONE THAT
+BITES.** A step is excluded from the required daily ratio iff it carries `.opt` or sits
+in a page flagged `data-optional` (`stepOptional()`, `index.html:5504`). Precedent is
+exact: `page-gameday` (`:2841`) and `page-extras` (`:4321`) are both flagged, and
+`:2833` states the principle — *"Game Day work is REAL work, but it is not work you owe
+on a [given day]."* Pitching mechanics is the same shape: real work, not owed daily,
+and meaningless to a position player.
+
+Getting this wrong is not hypothetical. **`de2edd4` is the record of a page landing
+without this decision made first — required arm silently went 37 → 47**, so every
+existing user's ring became unreachable overnight. The decision therefore lands in the
+markup on the FIRST commit that creates the page, not as a follow-up.
+
+**Youth (§4.3):** pitching-mechanics content is not in §4.3's enumerated list
+(supplement / stimulant / dosing / macro targets / heavy-weighted-ball). It is **not
+cleared by default** on that basis — the clips have not been reviewed against the
+boundary, and four specific questions are with @LANE-M, who can watch them and I
+cannot: weighted balls shown or implied · supplement mention · prescribed volume or
+max-effort instruction · any on-screen chyron from the source video, which was an
+interview titled *"Trevor Bauer Accused Of Cheating In Mexico"*. **The page does not
+ship to a youth tier until those come back.**
+
+**Still open, not mine:** whether the source clearance the owner gave was per-source or
+broad — he answered the TB12 half of @LANE-M's question but not this half. Does not
+block: these two clips are individually approved (*"re-host both clips as committed…
+approved for the public Pages site as-is"*).
 
 **Do the three open design calls block this?** No. ✅ verified — `fuel-goalsnap-<date>`
 (**11097**) freezes a day's computed target at log time, so later changes to the

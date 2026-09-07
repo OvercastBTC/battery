@@ -401,6 +401,7 @@ def cmd_inbox(a):
         body = []
 
     unread = []
+    others = []          # past the cursor, but addressed to a DIFFERENT lane
     for idx, (ln, head) in enumerate(posts):
         if ln <= cursor:
             continue
@@ -408,13 +409,38 @@ def cmd_inbox(a):
         chunk = "\n".join(body[ln - 1:end])
         if a.all or _addressed_to(chunk, lane):
             unread.append((ln, head))
+        else:
+            others.append((ln, head))
 
     if a.json:
         print(json.dumps({"lane": lane, "cursor": cursor,
-                          "unread": [{"line": l, "header": h} for l, h in unread]}, indent=2))
+                          "unread": [{"line": l, "header": h} for l, h in unread],
+                          "addressed_elsewhere": [{"line": l, "header": h} for l, h in others]},
+                         indent=2))
         return 0
     if not unread:
-        print(f"{lane}: comms inbox clear (cursor at line {cursor} of {len(body)}).")
+        # NEVER say "clear" while posts sit past the cursor. Reported by Lane E on
+        # 26.09.06: this printed "comms inbox clear (cursor at line 3589 of 3626)"
+        # while THREE posts sat past that cursor, addressed to Lane A. The filter was
+        # right -- they genuinely were not Lane E's -- but the WORD was wrong, and it
+        # is the word people act on. "Clear" reads as "you are caught up", so the only
+        # thing standing between a lane and a missed post was noticing the raw tail.
+        #
+        # That is this project's own documented failure class: an instrument giving a
+        # clean negative it cannot actually justify. The whole reason this subcommand
+        # exists is that writing to comms is not the same as reading it -- a reader
+        # that under-reports is worse than none, because it converts "I should check"
+        # into "the tool said I am fine."
+        if others:
+            print(f"{lane}: nothing addressed to you, but {len(others)} newer post(s) "
+                  f"exist past your cursor (addressed to other lanes):")
+            for ln, h in others[-5:]:
+                print(f"  :{ln}  {h[:120]}")
+            print(f"\n  see them:   battery-lane inbox --all")
+            print( "  mark read:  battery-lane read")
+        else:
+            print(f"{lane}: comms inbox clear — no posts past line {cursor} "
+                  f"(of {len(body)}) at all.")
         return 0
     print(f"{lane}: {len(unread)} UNREAD comms post(s) — read before you post a status.\n")
     for ln, h in unread:
