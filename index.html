@@ -6456,8 +6456,22 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     hint.style.cssText='font-size:11px;color:var(--faint);margin-top:8px';
     hint.textContent='Leave weight blank for bodyweight. Tap a set to remove it.';
     host.appendChild(hint);
+    syncLiftLogDone();
   }
   window.renderLiftLog = renderLiftLog;
+
+  function syncLiftLogDone(){
+    var rows = loadLiftLog();
+    var logged = {};
+    rows.forEach(function(r){ if(r.sets && r.sets.length) logged[r.ex] = true; });
+    var changed = false;
+    document.querySelectorAll('#page-lifting .step[data-ex]').forEach(function(step){
+      if(logged[step.dataset.ex] && !step.classList.contains('done')){
+        step.classList.add('done'); changed = true;
+      }
+    });
+    if(changed){ saveDone(); updateCounter(); renderSequence(); }
+  }
 
   /* ===== WASHINGTON PHASE HEADERS (owner UX item 1) =====
      The owner's complaint was that the core progression looked like it was ordered
