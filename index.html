@@ -8179,9 +8179,26 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     background: var(--ink);
     border: 1px solid var(--line);
     position: relative;
-    cursor: help;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: border-color .15s, box-shadow .15s;
   }
   .pip.today { border-color: var(--blue); }
+  .pip.selected { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+  .selected-banner {
+    display: none;
+    background: var(--gold-bg, #d4a01722);
+    border: 1px solid var(--gold);
+    border-radius: 9px;
+    padding: 7px 12px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--gold-bright, #d4a017);
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .selected-banner.visible { display: flex; }
   .pip-fill {
     position: absolute;
     bottom: 0; left: 0; right: 0;
@@ -9462,9 +9479,14 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       </div>
     </div>
 
+    <div class=&quot;selected-banner&quot; id=&quot;selected-banner&quot;>
+      <span id=&quot;selected-label&quot;>Viewing: —</span>
+      <button onclick=&quot;window._clearSelectedDate()&quot; style=&quot;background:none;border:1px solid var(--gold);color:var(--gold);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;white-space:nowrap&quot;>↩ Today</button>
+    </div>
+
     <div class=&quot;progress-row trk-prot&quot;>
       <div class=&quot;progress-label&quot;>
-        <span class=&quot;name&quot;><b class=&quot;qa-adult&quot;>Protein</b><b class=&quot;youth-fuel-only&quot;>Food</b> · today</span>
+        <span class=&quot;name&quot;><b class=&quot;qa-adult&quot;>Protein</b><b class=&quot;youth-fuel-only&quot;>Food</b> · <span id=&quot;progress-day-label&quot;>today</span></span>
         <span class=&quot;vals&quot; id=&quot;protein-vals&quot;>
           <span class=&quot;cur&quot; id=&quot;protein-cur&quot;>0</span><span class=&quot;div&quot;>/</span><span class=&quot;goal&quot; id=&quot;protein-goal&quot;>180g</span>
           <span class=&quot;pct&quot; id=&quot;protein-pct&quot;>0%</span>
@@ -11308,9 +11330,39 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     return `${h}:${m}${ampm}`;
   }
 
+  var _selectedDate = null;
+  function activeKey() { return _selectedDate || todayKey(); }
+  function entryTime() { return _selectedDate ? '—' : nowTimeStr(); }
+
+  function _selectDate(dateKey) {
+    _selectedDate = (dateKey === todayKey()) ? null : dateKey;
+    refreshProgress();
+    refreshLog();
+    _renderSelectedBanner();
+  }
+  window._clearSelectedDate = function() { _selectDate(todayKey()); };
+
+  function _renderSelectedBanner() {
+    var banner = document.getElementById('selected-banner');
+    var label = document.getElementById('selected-label');
+    var dayLabel = document.getElementById('progress-day-label');
+    if (!banner) return;
+    if (_selectedDate) {
+      var parts = _selectedDate.split('-');
+      var display = (+parts[1]) + '/' + (+parts[2]);
+      banner.classList.add('visible');
+      if (label) label.textContent = 'Viewing: ' + display;
+      if (dayLabel) dayLabel.textContent = display;
+    } else {
+      banner.classList.remove('visible');
+      if (dayLabel) dayLabel.textContent = 'today';
+    }
+  }
+
   /* THE day ledger accessors. Both take an OPTIONAL date key so any day can be read
-     or written, and both default to today, so all 26 existing call sites keep their
-     exact present behaviour -- this parameter is additive, not a migration.
+     or written, and both default to activeKey() (which resolves to the pip-strip
+     selection or today), so all existing call sites automatically operate on the
+     selected date. The bat-fuel host message always reports today explicitly.
 
      The key is a FUEL-shaped key (zero-padded local, from todayKey()). Never accept a
      date string built on the ARM side: ARM's completion keys are deliberately
@@ -11323,20 +11375,20 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
      localStorage directly, bypassing storeGet/storeSet and their error handling, so
      the app had two independent write paths to the same store that could drift. */
   function loadEntries(dateKey) {
-    const raw = storeGet('fuel-entries-' + (dateKey || todayKey()), '[]');
+    const raw = storeGet('fuel-entries-' + (dateKey || activeKey()), '[]');
     try { return JSON.parse(raw) || []; } catch (e) { return []; }
   }
   function saveEntries(arr, dateKey) {
-    storeSet('fuel-entries-' + (dateKey || todayKey()), JSON.stringify(arr));
+    storeSet('fuel-entries-' + (dateKey || activeKey()), JSON.stringify(arr));
   }
 
   function addEntry(type, amount, label, electrolyteUnits) {
     obsBump('fuelLog');
-    _stampGoalSnapshot(todayKey());
+    _stampGoalSnapshot(activeKey());
     const entries = loadEntries();
     entries.push({
       id: Date.now() + Math.random(),
-      t: nowTimeStr(),
+      t: entryTime(),
       type, amount, label,
       // e = electrolyte stick equivalents (number, e.g. 1, 0.5, 0). Boolean preserved as 1 for legacy.
       e: typeof electrolyteUnits === 'number' ? electrolyteUnits : (electrolyteUnits ? 1 : 0)
@@ -11395,7 +11447,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       const entries = loadEntries();
       entries.push({
         id: Date.now() + Math.random() + 0.001,
-        t: nowTimeStr(),
+        t: entryTime(),
         type: 'electrolyte',
         amount: eu,
         label, e: eu,
@@ -11414,10 +11466,11 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 
   // Mix-in only: electrolytes, no water. For Liquid IV / LMNT sticks poured into a container.
   function addMixIn(label, electrolyteUnits) {
+    _stampGoalSnapshot(activeKey());
     const entries = loadEntries();
     entries.push({
       id: Date.now() + Math.random(),
-      t: nowTimeStr(),
+      t: entryTime(),
       type: 'electrolyte',
       amount: electrolyteUnits,
       label,
@@ -11456,8 +11509,9 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 
   // Combo: protein shake in a container — logs BOTH protein and water in one tap.
   function addShake(proteinG, waterOz, label) {
+    _stampGoalSnapshot(activeKey());
     const entries = loadEntries();
-    const ts = nowTimeStr();
+    const ts = entryTime();
     const shakeId = Date.now() + '-' + Math.floor(Math.random() * 9999);
     entries.push({ id: Date.now() + Math.random(),       t: ts, type: 'protein', amount: proteinG, label, e: 0, shakeId });
     entries.push({ id: Date.now() + Math.random() + 1,  t: ts, type: 'water',   amount: waterOz,  label, e: 0, shakeWater: true, shakeId });
@@ -11469,8 +11523,9 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 
   // Shake + mix-in: protein + water + electrolytes in one tap
   function addShakeWithElec(proteinG, waterOz, label, elecUnits) {
+    _stampGoalSnapshot(activeKey());
     const entries = loadEntries();
-    const ts = nowTimeStr();
+    const ts = entryTime();
     const shakeId = Date.now() + '-' + Math.floor(Math.random() * 9999);
     entries.push({ id: Date.now() + Math.random(),      t: ts, type: 'protein',    amount: proteinG,  label, e: 0, shakeId });
     entries.push({ id: Date.now() + Math.random() + 1, t: ts, type: 'water',       amount: waterOz,   label, e: elecUnits, shakeWater: true, shakeId });
@@ -12281,7 +12336,8 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
       }catch(e){ return {state:'none'}; }
     }
     const runway=getRunwayStatus();
-    try { parent.postMessage({ type:'bat-fuel', water:Math.round(tot.water), protein:Math.round(tot.protein), tWater:t.water, tProtein:t.protein, day:t.label, runway:runway }, '*'); } catch (e) {}
+    var hostTot = _selectedDate ? getTotalsForDate(todayKey()) : tot;
+    try { parent.postMessage({ type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:t.water, tProtein:t.protein, day:t.label, runway:runway }, '*'); } catch (e) {}
 
     // Also refresh mini stats / strip / weekly / suggestions each time
     refreshMiniStrip();
@@ -12911,16 +12967,27 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     for (let i = 6; i >= 0; i--) {
       const d = classifyDay(i);
       const lbl = dayLabelForOffset(i);
+      const dk = dateKeyForOffset(i);
       const today = (i === 0);
+      const sel = (dk === _selectedDate);
       const fillPct = Math.min(100, Math.max(d.pPct, d.wPct) * 100);
       let cls = '';
       if (d.tier === 'both') cls = 'both';
       else if (d.tier === 'partial') cls = 'partial';
-      html += `<div class=&quot;pip${today ? ' today' : ''}&quot; title=&quot;${lbl.dayName} ${lbl.date} · P ${Math.round(d.pPct*100)}% · W ${Math.round(d.wPct*100)}%&quot;>
+      html += `<div class=&quot;pip${today ? ' today' : ''}${sel ? ' selected' : ''}&quot; data-date=&quot;${dk}&quot; title=&quot;${lbl.dayName} ${lbl.date} · P ${Math.round(d.pPct*100)}% · W ${Math.round(d.wPct*100)}%&quot;>
         <div class=&quot;pip-fill ${cls}&quot; style=&quot;height:${fillPct}%&quot;></div>
       </div>`;
     }
     strip.innerHTML = html;
+    if (!strip._hasClickHandler) {
+      strip.addEventListener('click', function(e) {
+        var pip = e.target.closest('.pip');
+        if (!pip) return;
+        var dk = pip.getAttribute('data-date');
+        if (dk) _selectDate(dk);
+      });
+      strip._hasClickHandler = true;
+    }
   }
 
   function refreshMiniStats() {
