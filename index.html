@@ -152,6 +152,11 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
    (toggleAllSections()) instead of being permanently visible -- same five
    pills, same nav, direct reach without changing the plan, just not taking
    up above-the-fold space by default. */
+#section-back{display:none;position:fixed;left:0;right:0;z-index:61;top:calc(env(safe-area-inset-top,0px) + 53px);padding:8px 14px;background:var(--ink);border-bottom:1px solid var(--line);font-size:12px;letter-spacing:.5px}
+#section-back.on{display:flex;align-items:center;gap:8px}
+#section-back .sb-arrow{color:var(--gold);font-size:16px;cursor:pointer;padding:4px 8px 4px 0}
+#section-back .sb-label{font-family:"SF Mono",monospace;color:var(--bone);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+#stage.has-breadcrumb{padding-top:46px}
 #today-section-menu{display:none;gap:6px;margin:10px 0}
 #today-section-menu.open{display:flex}
 .sec-pill{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px;border-radius:12px;background:#161b22;border:1px solid var(--line);color:var(--dim);cursor:pointer}
@@ -192,9 +197,10 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 #tabbar button.todo .ico::after{content:none}
 #install{position:fixed;left:14px;right:14px;bottom:70px;z-index:70;display:none;background:var(--steel);border:1px solid var(--gold);border-radius:13px;padding:13px 15px;font-size:12px;line-height:1.5;box-shadow:0 10px 30px #00000060}
 #install b{color:var(--goldb)}#install .x{position:absolute;top:8px;right:11px;color:var(--dim);cursor:pointer;font-size:16px}
-#bmodal{display:none;position:fixed;inset:0;z-index:300;background:rgba(13,17,23,.88);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px}
+#bmodal{display:none;position:fixed;inset:0;z-index:300;background:rgba(13,17,23,.6);backdrop-filter:blur(3px);align-items:flex-end;justify-content:center;padding:0}
 #bmodal.on{display:flex}
-#bmodal .bm-card{width:100%;max-width:340px;background:var(--steel);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 18px 50px #000a}
+#bmodal .bm-card{width:100%;max-width:420px;background:var(--steel);border:1px solid var(--line);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + max(env(safe-area-inset-bottom),var(--sab,0px)));box-shadow:0 -10px 40px #000a;animation:bm-up .22s ease-out}
+@keyframes bm-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
 #bmodal .bm-card.danger{border-color:var(--blood)}
 #bmodal h3{font-size:16px;margin:0 0 8px}
 #bmodal .bm-body{font-size:13px;color:var(--dim);line-height:1.55;margin-bottom:14px}
@@ -874,9 +880,13 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     font-family: 'Courier New', monospace;
     font-size: 10px;
     letter-spacing: 0.08em;
-    color: var(--gold);
+    color: #f0b832;
     text-transform: uppercase;
-    margin-top: 3px;
+    margin-top: 4px;
+    background: rgba(212,160,23,.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
   }
   .step-reps {
     font-family: 'Courier New', monospace;
@@ -8292,7 +8302,18 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     display: flex;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
+    user-select: none;
   }
+  .qa-subgroup-label::before {
+    content: '▾';
+    font-size: 8px;
+    color: var(--faint);
+    margin-right: 6px;
+    flex-shrink: 0;
+    transition: transform .2s;
+  }
+  .qa-subgroup-label.qa-collapsed::before { transform: rotate(-90deg); }
   .qa-info-toggle {
     color: var(--blue);
     cursor: pointer;
@@ -11413,6 +11434,23 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     if (!el) return;
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
   }
+
+  // Collapsible quick-add sub-groups: click a label to fold/unfold its content
+  document.addEventListener('click', function(e) {
+    var lbl = e.target.closest('.qa-subgroup-label');
+    if (!lbl) return;
+    // don't collapse if they clicked the (?) info toggle
+    if (e.target.closest('.qa-info-toggle')) return;
+    lbl.classList.toggle('qa-collapsed');
+    var collapsed = lbl.classList.contains('qa-collapsed');
+    var sib = lbl.nextElementSibling;
+    while (sib &amp;&amp; !sib.classList.contains('qa-subgroup-label') &amp;&amp; !sib.classList.contains('quickadd-section-title') &amp;&amp; !sib.classList.contains('custom-add-form')) {
+      if (sib.classList.contains('qa-grid') || sib.classList.contains('qa-mixin-info') || sib.classList.contains('est-row') || sib.classList.contains('est-preview') || sib.classList.contains('caf-row')) {
+        sib.style.display = collapsed ? 'none' : '';
+      }
+      sib = sib.nextElementSibling;
+    }
+  });
 
   function addProtein(g, label) { addEntry('protein', g, label, 0); }
 
@@ -14595,6 +14633,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     </g></symbol>
 <symbol id="bi-fuel" viewBox="0 0 128 128"><polygon points="68.00,44.00 80.00,44.00 68.00,64.00 80.00,64.00 60.00,89.00 66.00,68.00 52.00,68.00" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/></symbol>
 </defs></svg>
+<div id="section-back"><span class="sb-arrow" onclick="go('today')">←</span><span class="sb-label" id="sb-label"></span></div>
 <div id="tabbar">
 <button class="on" data-v="today" onclick="go('today')"><span class="ico"><svg viewBox="0 0 100 100" style="width:26px;height:26px;display:block"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg></span><span class="lb">HOME</span></button>
 <button data-v="fuel" onclick="go('fuel')"><span class="ico"><span class="rad" data-v="fuel"><svg class="rad-svg" viewBox="0 0 36 36"><circle class="rad-trk" cx="18" cy="18" r="14"/><circle class="rad-trk" cx="18" cy="18" r="10"/><circle class="rad-prg" cx="18" cy="18" r="14"/><circle class="rad-prg2" cx="18" cy="18" r="10"/></svg><span class="rad-ico"><svg viewBox="0 0 24 24"><use href="#bi-fuel"/></svg></span></span></span><span class="lb">FUEL</span></button>
@@ -15016,6 +15055,9 @@ function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(
  document.getElementById('view-data').classList.toggle('on',v==='data');
  document.getElementById('view-today').classList.toggle('on',v==='today');
  document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ var sb=document.getElementById('section-back'),sbl=document.getElementById('sb-label');
+ var secNames={arm:'Arm Care',drills:'Drills',body:'Body Stack',game:'Game Day',data:'Settings'};
+ if(sb){var isSub=!!secNames[v];sb.classList.toggle('on',isSub);if(sbl&&isSub)sbl.textContent=secNames[v];var stg=document.getElementById('stage');if(stg)stg.classList.toggle('has-breadcrumb',isSub);}
  if(armish){try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:((v==='drills'||v==='body')?v:'arm')},'*');}catch(e){}}
  if(v==='game'){buildGameDay();buildOutlook();batPoll();}if(v==='data'){renderDataView();}if(v==='today'){renderToday();batPoll();}
  // observation-week instrument (design review §7), host half: FUEL's own obsBump()
@@ -16549,12 +16591,12 @@ function renderToday(){
     function bar(label,ico,done,total,color,tab){
       var pct=total>0?Math.min(100,Math.round(done/total*100)):0;
       var full=total>0&&done>=total;
-      // owner request: every row here IS a link to that section — now that arm/
-      // drills/body/game no longer live in the tabbar, this chevron is the
-      // primary way in, so it needs to read as tappable, not just be tappable.
-      return '<div onclick="go(\''+tab+'\')" style="cursor:pointer;margin:10px 0">'+
+      var untouched=total>0&&done===0;
+      var lblCol=untouched?'var(--bone)':'var(--dim)';
+      var lblWt=untouched?';font-weight:700':'';
+      return '<div onclick="go(\''+tab+'\')" style="cursor:pointer;margin:6px 0;padding:9px 10px;border-radius:9px;border-left:3px solid '+(full?'var(--green)':color)+';background:'+(untouched?'rgba(255,255,255,.025)':'transparent')+(full?';opacity:.55':'')+'">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:3px">'+
-        '<span style="color:var(--dim);letter-spacing:1px;display:inline-flex;align-items:center">'+batIcon(pct,color)+label+'</span>'+
+        '<span style="color:'+lblCol+';letter-spacing:1px;display:inline-flex;align-items:center'+lblWt+'">'+batIcon(pct,color)+label+'</span>'+
         '<span style="display:flex;align-items:center;gap:6px"><span style="font-family:\'SF Mono\',monospace;color:'+(full?'var(--green)':'var(--bone)')+'">'+done+'/'+total+'</span><span style="color:var(--faint)">›</span></span></div>'+
         '<div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden"><div style="width:'+pct+'%;height:100%;border-radius:3px;background:'+(full?'var(--green)':color)+'"></div></div></div>';
     }
@@ -16570,10 +16612,11 @@ function renderToday(){
       // the existing LIFT quick-icon, not a plain go() value (lifting is a
       // sub-tab of the ARM iframe's 'body' group, not its own top-level view).
       if(plan.lift&&!youth){var lf=_batCounts.lift||{done:0,total:0};if(lf.total>0){
-        var lpct=Math.min(100,Math.round(lf.done/lf.total*100)),lfull=lf.done>=lf.total;
-        rows+='<div onclick="goTab(\'body\',\'lifting\')" style="cursor:pointer;margin:10px 0">'+
+        var lpct=Math.min(100,Math.round(lf.done/lf.total*100)),lfull=lf.done>=lf.total,lunt=lf.total>0&&lf.done===0;
+        var llCol=lunt?'var(--bone)':'var(--dim)',llWt=lunt?';font-weight:700':'';
+        rows+='<div onclick="goTab(\'body\',\'lifting\')" style="cursor:pointer;margin:6px 0;padding:9px 10px;border-radius:9px;border-left:3px solid '+(lfull?'var(--green)':'#e0a339')+';background:'+(lunt?'rgba(255,255,255,.025)':'transparent')+(lfull?';opacity:.55':'')+'">' +
           '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:3px">'+
-          '<span style="color:var(--dim);letter-spacing:1px;display:inline-flex;align-items:center">'+batIcon(lpct,'#e0a339')+'LIFT</span>'+
+          '<span style="color:'+llCol+';letter-spacing:1px;display:inline-flex;align-items:center'+llWt+'">'+batIcon(lpct,'#e0a339')+'LIFT</span>'+
           '<span style="display:flex;align-items:center;gap:6px"><span style="font-family:\'SF Mono\',monospace;color:'+(lfull?'var(--green)':'var(--bone)')+'">'+lf.done+'/'+lf.total+'</span><span style="color:var(--faint)">›</span></span></div>'+
           '<div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden"><div style="width:'+lpct+'%;height:100%;border-radius:3px;background:'+(lfull?'var(--green)':'#e0a339')+'"></div></div></div>';
       }}
