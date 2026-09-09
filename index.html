@@ -6276,12 +6276,14 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   /* Every lifting exercise on the page, by id -> display name. Read from the DOM so
      it can never drift from the catalogue: adding a lift to the markup adds it to the
      picker with no second list to maintain. */
+  var MG_LABELS = {chest:'Chest',back:'Back',shoulders:'Shoulders',bis:'Biceps',tris:'Triceps',legs:'Legs',core:'Core'};
   function liftCatalogue(){
     var out = [];
     document.querySelectorAll('#page-lifting .step[data-ex]').forEach(function(st){
       var id = st.getAttribute('data-ex');
       var nm = st.querySelector('.step-name');
-      out.push({ id: id, name: nm ? nm.textContent.trim().replace(/\s+/g,' ') : id });
+      var mg = st.getAttribute('data-mg') || '';
+      out.push({ id: id, name: nm ? nm.textContent.trim().replace(/\s+/g,' ') : id, mg: mg });
     });
     out.sort(function(a,b){ return a.name.localeCompare(b.name); });
     return out;
@@ -6416,8 +6418,15 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     sel.id = 'liftlog-ex';
     var ph = document.createElement('option'); ph.value=''; ph.textContent='Choose a lift…';
     sel.appendChild(ph);
-    cat.forEach(function(c){
-      var o = document.createElement('option'); o.value=c.id; o.textContent=c.name; sel.appendChild(o);
+    var groups = {};
+    cat.forEach(function(c){ var g = c.mg || 'other'; if(!groups[g]) groups[g]=[]; groups[g].push(c); });
+    var mgOrder = ['chest','back','shoulders','bis','tris','legs','core'];
+    mgOrder.forEach(function(mg){
+      if(!groups[mg]) return;
+      var og = document.createElement('optgroup');
+      og.label = MG_LABELS[mg] || mg;
+      groups[mg].forEach(function(c){ var o=document.createElement('option'); o.value=c.id; o.textContent=c.name; og.appendChild(o); });
+      sel.appendChild(og);
     });
     var reps = document.createElement('input');
     reps.type='number'; reps.min='1'; reps.inputMode='numeric';
