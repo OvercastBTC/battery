@@ -15688,18 +15688,18 @@ function renderWeekCard(){
   // 7-day dot grid: arm / water / protein rows
   var DOW=['Su','Mo','Tu','We','Th','Fr','Sa'],today2=new Date();today2.setHours(0,0,0,0);
   var ws2=new Date(today2);ws2.setDate(today2.getDate()-6);
-  var dayLabels=[];
-  for(var i=0;i<7;i++){var di=new Date(ws2);di.setDate(ws2.getDate()+i);dayLabels.push(DOW[di.getDay()]);}
-  var dot=function(h,col){return '<span style="color:'+(h?col:'#2d333b')+';font-size:13px">'+(h?'●':'○')+'</span>';};
+  var dayLabels=[],dateKeys=[];
+  for(var i=0;i<7;i++){var di=new Date(ws2);di.setDate(ws2.getDate()+i);dayLabels.push(DOW[di.getDay()]);dateKeys.push(di.getFullYear()+'-'+pad(di.getMonth()+1)+'-'+pad(di.getDate()));}
+  var dot=function(h,col,dk){return '<span onclick="openDayEditor(\''+dk+'\')" style="cursor:pointer;color:'+(h?col:'#2d333b')+';font-size:13px">'+(h?'●':'○')+'</span>';};
   var cc=function(n){return n>=5?'var(--green)':n>=3?'var(--goldb)':'var(--dim)';};
   var dotRow=function(lbl,dots,n,col){
     return '<div style="display:flex;align-items:center;gap:3px;margin-bottom:3px">'+
       '<span style="font-size:9px;color:var(--faint);letter-spacing:.5px;width:34px;font-family:\'SF Mono\',monospace">'+lbl+'</span>'+
-      '<span style="display:flex;gap:2px;flex:1">'+dots.map(function(h){return dot(h,col);}).join('')+'</span>'+
+      '<span style="display:flex;gap:2px;flex:1">'+dots.map(function(h,i){return dot(h,col,dateKeys[i]);}).join('')+'</span>'+
       '<span style="font-size:10px;color:'+cc(n)+';font-family:\'SF Mono\',monospace;min-width:26px;text-align:right">'+n+'/7</span>'+
       '</div>';
   };
-  var hdrCells=dayLabels.map(function(l){return '<span style="font-size:9px;color:var(--faint);width:13px;text-align:center;display:inline-block">'+l+'</span>';}).join('');
+  var hdrCells=dayLabels.map(function(l,i){return '<span onclick="openDayEditor(\''+dateKeys[i]+'\')" style="cursor:pointer;font-size:9px;color:var(--faint);width:13px;text-align:center;display:inline-block">'+l+'</span>';}).join('');
   html+='<div style="border-top:1px solid var(--line);padding-top:9px;margin-bottom:10px">'+
     '<div style="display:flex;align-items:center;gap:3px;margin-bottom:4px">'+
       '<span style="width:34px"></span>'+
@@ -15724,6 +15724,13 @@ function renderWeekCard(){
   body.innerHTML=html;
 }
 window.renderWeekCard=renderWeekCard;
+function openDayEditor(dateKey){
+  try{
+    var f=document.getElementById('f-fuel');
+    if(f&&f.contentWindow)f.contentWindow.postMessage({type:'bat-editday',date:dateKey},'*');
+  }catch(e){}
+}
+window.openDayEditor=openDayEditor;
 window.batteryExportAll=batteryExportAll; window.batteryImportAll=batteryImportAll; window.renderDataView=renderDataView; window.batteryCollectAll=batteryCollectAll;
 
 /* GAME DAY */
@@ -16337,6 +16344,15 @@ function trainedHardYesterday(){
     return pitchRestDays(age,outing.p)>=1;
   }catch(e){ return false; }
 }
+function liftedHeavyToday(){
+  try{
+    if(profileTier(profile)==='youth')return false;
+    var f=document.getElementById('f-arm');
+    if(!f||!f.contentWindow||!f.contentWindow.liftIntensityFor)return false;
+    var r=f.contentWindow.liftIntensityFor(todayPlanKey());
+    return r&&r.intensity==='heavy';
+  }catch(e){return false;}
+}
 function syncFuelDayFromPlan(flags){
   // Lane A ruling (Issue #2, 2026-08-13): the old mapping wasn't total -- 6 of
   // 16 stream combos fell through to "send nothing," stranding FUEL on Rest
@@ -16354,6 +16370,7 @@ function syncFuelDayFromPlan(flags){
   var day;
   if(todayGameEvent())day='game';
   else if(trainedHardYesterday())day='heavy';
+  else if(liftedHeavyToday())day='heavy';
   else if(PLAN_STREAMS.every(function(k){return !flags[k];}))day='rest';
   else if(flags.lift)day='train';
   else if(flags.arm&&flags.drills&&flags.body)day='train';
