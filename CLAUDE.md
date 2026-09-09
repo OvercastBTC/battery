@@ -185,15 +185,35 @@ touching either file.
 would be shared. Branch namespace `laneM/*`, push to the Mac, **never to
 `master`** — Lane E is the sole release engineer.
 
-**Environment constraints, measured 2026-09-04 — do not assume parity with the Mac:**
-native Windows 11 · **no Python** (Store stub only) · no general-purpose WSL
-distro · node v24 (Mac has v20) · Playwright browsers not installed · default SSH
-shell is `cmd.exe`, so `ssh host 'a; b; c'` does **not** chain. Git Bash at
+**Environment constraints — re-verified over SSH from the Mac 2026-09-09, not taken
+from a report.** Do not assume parity with the Mac:
+native Windows 11 · no general-purpose WSL distro · node **v24.11.0** (Mac has v20)
+· `gh` **2.100.0 — now present**, the earlier "not installed" is stale · Playwright
+browsers still not installed · default SSH shell is `cmd.exe`, so
+`ssh host 'a; b; c'` does **not** chain. Git Bash at
 `C:\Program Files\Git\bin\bash.exe` is the POSIX-shaped target.
 
-**Lane M cannot run the FULL gate** — `run.sh` drives Playwright, which has no
-browsers there, and `battery-lane` is Python. So it clones rather than taking a
-worktree, and the Mac runs the behavioural suites on everything it produces.
+**⚠ TWO REMOTE-EXECUTION TRAPS, both measured, both silent:**
+
+1. **`python3` still fails over SSH, even though Python IS installed.** Lane M
+   fixed it on 26.09.08 with `alias python3=...` in `~/.bashrc`. That fix is real
+   *and interactive-only*: **bash does not expand aliases in non-interactive
+   shells**, and `.bashrc` is not sourced for `-lc`. So it works in Lane M's own
+   terminal and fails for every script, SSH command and automated wake-up — the
+   worst shape of fix, because the person who made it tests it where it works.
+   Verified: `ssh am06 "python3 -V"` and `bash.exe -lc "python3 -V"` both still hit
+   the Microsoft Store stub. **Real interpreters, both confirmed non-interactively:**
+   `/c/Users/bacona/AppData/Local/Programs/Python/Python313/python.exe` (3.13.15)
+   and the `py` launcher (3.14.2). Use a full path or `py`, never bare `python3`.
+2. **Bare `bash` on that machine is WSL's shim, not Git Bash.** `ssh am06 'bash -lc
+   "..."'` returns `execvpe(/bin/bash) failed` because WSL has no distro installed.
+   Always use the full `C:\Program Files\Git\bin\bash.exe` path.
+
+**Lane M cannot run the FULL gate** — `run.sh` drives Playwright, and the browser
+binaries are still absent there. (`battery-lane` being Python is *no longer* the
+blocker it was, but it runs on the Mac anyway — see Comms below.) So Lane M clones
+rather than taking a worktree, and the Mac runs the behavioural suites on
+everything it produces.
 
 **⚠ CORRECTION (26.09.04): "Lane M cannot run the gate" was stated flatly here and
 in comms, and it was too broad in the one place it mattered.** The two suites that
@@ -243,6 +263,21 @@ quoting — outer double, inner escaped:
 ```
 ssh bacona@<mac> "~/.local/bin/battery-lane msg LANE-A \"text\""
 ```
+
+**Name yourself — a remote lane cannot be identified automatically.** `msg` resolves
+the sender from this Mac's session registry, and an SSH shell has no Claude session,
+so Lane M's 26.09.08 message arrived stamped **`from UNKNOWN`**. Fixed 26.09.09: pass
+`--from`, or export it once.
+
+```
+battery-lane msg --from LANE-M LANE-A "text"
+export BATTERY_FROM=LANE-M        # better: put this in ~/.bashrc on the Beelink
+```
+
+Delivery is never blocked over this — losing a message is worse than an
+unattributed one — but it now warns and records the SSH source IP, because an
+unattributed post in a coordination channel is exactly the *who said this*
+ambiguity the whole lane-identity system exists to remove.
 
 ### Session Dispatch — NOT A LANE
 
