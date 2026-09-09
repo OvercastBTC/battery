@@ -522,7 +522,27 @@ def cmd_msg(a):
     all three of which have actually happened.
     """
     reg = load()
-    me = reg.get(my_uuid() or "", {}).get("lane") or os.environ.get("BATTERY_FROM") or "UNKNOWN"
+    # Sender resolution, in order: an explicit --from, this session's own registry
+    # binding, then BATTERY_FROM. A REMOTE lane has none of the first two -- it SSHes
+    # in and runs this from a shell with no Claude session -- so Lane M's 26.09.08
+    # message arrived stamped "from UNKNOWN". Delivery is never blocked over this
+    # (losing a message is worse than an unattributed one), but an unattributed post
+    # in a coordination channel is precisely the "who said this" ambiguity the whole
+    # lane-identity system exists to remove, so it warns and records the SSH origin.
+    me = (getattr(a, "sender", None)
+          or reg.get(my_uuid() or "", {}).get("lane")
+          or os.environ.get("BATTERY_FROM"))
+    if me:
+        me = me.upper()
+    else:
+        origin = os.environ.get("SSH_CONNECTION", "").split(" ")
+        via = f" (ssh from {origin[0]})" if origin and origin[0] else ""
+        me = "UNKNOWN" + via
+        print("warning: cannot identify the sender, delivering as "
+              f"'{me}'.\n"
+              "  fix: battery-lane msg --from LANE-M <lane> \"...\"\n"
+              "  or:  export BATTERY_FROM=LANE-M   (add to ~/.bashrc on a remote lane)",
+              file=sys.stderr)
     lane = a.lane.upper()
     body = a.text
     if body == "-":
@@ -675,6 +695,9 @@ def main():
     rm.add_argument("-n", "--note", default=""); rm.add_argument("-r", "--reach", default="")
     rm.set_defaults(fn=cmd_remote)
     mg = sub.add_parser("msg"); mg.add_argument("lane"); mg.add_argument("text")
+    # A remote lane (Lane M) has no session binding here, so it must name itself.
+    mg.add_argument("--from", dest="sender", default=None,
+                    help="sender lane, for remote senders with no local session binding")
     mg.set_defaults(fn=cmd_msg)
     ml = sub.add_parser("mail"); ml.add_argument("--peek", action="store_true")
     ml.set_defaults(fn=cmd_mail)
