@@ -232,14 +232,14 @@ git show master:index.html | grep -c <marker>
 | # | Item | State — verified against `master`, not recalled |
 |---|---|---|
 | 1 | **Tap a day / dropdown to load that date for editing** | ✅ **DONE** — `be2ef7f`. Per-date ledger; `batteryEditDay` (FUEL) and `armEditDay` (ARM) both present on master. |
-| 2 | **Demote "This Week in Review" into that editable surface** | ⚠️ **HALF DONE** — the `bat-editday` seam ships (3 refs on master), but `renderWeekCard()` has **zero** editor references: its rows are still not clickable. **Host half, Lane E's.** |
+| 2 | **Demote "This Week in Review" into that editable surface** | ✅ **DONE** — `91c968c`. `renderWeekCard()` dots and day-header labels now call `openDayEditor(dateKey)` which posts `bat-editday` to the FUEL iframe. Both halves shipped. |
 | 3 | **Protein-banking surplus direction lacks grounding** | ✅ **DONE** — `6626fe9`. Debit and credit are deliberately asymmetric: a miss carries in FULL, a surplus gives back only a QUARTER. My own Batch 8 symmetry was the bug; it manufactured under-eating days out of good ones. |
 | 4 | **Rest vs recovery day** | ✅ **DONE** — `6626fe9` + `d4672d1`. `recoveryBoost()`'s floor is now visible, enforced against the CREDIT direction only, and `fuel-recovery-<date>` chips move the target (owner's explicit override of the ACSM/ISSN citation; highest-selected, not cumulative). |
 | 5 | **Free-form lifting log + editable per-date lift history** | ✅ **DONE** — `4435006`. `liftLogKey()` on master; per-set reps/weight; picker derived from the page's own steps so it cannot drift. |
-| 6 | **Heavy vs Train** | ⚠️ **HALF DONE** — `db4f4ef`. `liftIntensityFor()` ships the rule (≤6 reps **and weighted**; bodyweight never reads heavy). The host clause is **NOT** shipped: `syncFuelDayFromPlan()` still has only `trainedHardYesterday`, no `liftedHeavyToday`. **Host half, Lane E's.** |
+| 6 | **Heavy vs Train** | ✅ **DONE** — `91c968c`. `liftedHeavyToday()` queries ARM iframe's `liftIntensityFor(todayPlanKey())` and feeds into `syncFuelDayFromPlan()` as a new `else if` clause after `trainedHardYesterday`. Youth-gated. Both halves shipped. |
 
-**Still genuinely open, and both are Lane E's host half — not Lane A's:** item 2's
-clickable week card, and item 6's `syncFuelDayFromPlan()` clause.
+**All six items are now DONE.** Items 2 and 6 (Lane E's host half) shipped in `91c968c`
+(32-suite gate green on AM06). No open FUEL-stack items remain.
 
 **Resolved and needing no owner ratification:** the "rotational hip thrust"
 naming question. `lift-rotcore` already existed and already offers med-ball
