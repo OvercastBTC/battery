@@ -131,7 +131,7 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 
 ### Lane M — the networked PC (media / clips)
 
-Owner's Beelink, `am06.local`. Formalized 2026-09-04 on owner directive.
+Owner's AM06 PC, `am06.local`. Formalized 2026-09-04 on owner directive.
 
 **Scope — YES:** sourcing and vetting clip assets · cutting and encoding to the
 `TODO-CLIPS.md` standard · adding files to `clips/` · the embed-timestamp config
@@ -271,7 +271,7 @@ so Lane M's 26.09.08 message arrived stamped **`from UNKNOWN`**. Fixed 26.09.09:
 
 ```
 battery-lane msg --from LANE-M LANE-A "text"
-export BATTERY_FROM=LANE-M        # better: put this in ~/.bashrc on the Beelink
+export BATTERY_FROM=LANE-M        # better: put this in ~/.bashrc on AM06
 ```
 
 Delivery is never blocked over this — losing a message is worse than an
