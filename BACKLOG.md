@@ -150,10 +150,10 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 **Context:** `addEntry()` at line 11290 calls `_stampGoalSnapshot(todayKey())` with hardcoded `todayKey()`. Will stamp wrong day the moment selectedDate is threaded through. Must change to `_stampGoalSnapshot(activeKey())`.
 **Status:** SHIPPED — all four call sites already use `activeKey()` (shipped with pip-strip, 88ba2d8).
 
-### REQ-030: Pip-strip tap should open day editor → IMPLEMENTED (q/split-monolith)
+### REQ-030: Pip-strip tap should open day editor → SHIPPED (4dbe82e)
 **Source:** Owner testing 2026-09-12 — "when I touch a pip, I would expect [the editor] to happen"
 **Context:** Tapping a pip only called `_selectDate(dk)` (changed the tracker view). User expected it to also open `batteryEditDay(dk)`. Selected-banner already shows "Viewing: 9/6 ↩ Today" when a non-today date is selected.
-**Status:** IMPLEMENTED — pip click handler now calls both `_selectDate(dk)` and `batteryEditDay(dk)` in fuel.html:5444.
+**Status:** SHIPPED — pip click handler calls both `_selectDate(dk)` and `batteryEditDay(dk)` in fuel.html:5444. Deployed 26.09.12.120.
 
 ### REQ-024: Firefox icon final art
 **Source:** Owner — "iOS metal, modern, badass"
@@ -170,16 +170,16 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 
 ## PLANNED
 
-### PLAN-001: selectedDate pip-strip
+### PLAN-001: selectedDate pip-strip → SHIPPED (88ba2d8, deployed 26.09.12.120)
 **Source:** Owner directive via Dispatch (LANE.md §256-324), restated 3x with 5-step acceptance test
 **Lane:** A
 **What:** 7 mini-strip pips to switch FUEL tracker between days. All write operations use `activeKey()`. `bat-fuel` host message always reports today's real totals.
 **Architecture:** `activeKey()` returns `_selectedDate || todayKey()`. Changing `loadEntries`/`saveEntries` default threads selection through all 26+ call sites automatically.
 **Connections:** Foundation for full history phase (design call 2.1 — extend weekly tab vs dropdown+calendar).
 
-### PLAN-002: Pitching tab first slice
+### PLAN-002: Pitching tab first slice → SHIPPED (ad37ebe + 4dbe82e, deployed 26.09.12.120)
 **Source:** Owner directive (LANE.md §326-338), approved 2026-09-06
-**Lane:** A (queued behind pip-strip)
+**Lane:** A
 **What:** First cut of Pitching section. Two Bauer clips only, not a curriculum. Bucket: `drills` (TAB_GROUPS gains `pitching:'drills'`). `data-optional="1"` flagged for owner decision.
 **Connections:** Resolves nav question that kept cleared Bauer clips dark for 3 weeks. Pitching is not universal — optional flag matters.
 
@@ -249,6 +249,15 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 **ARM stack:** Continuous ARM page (d35bd58), ARM date-key fix (a53cf89), Lifting log (4435006), Past-day ARM editing (8ebdfd9), Lift intensity signal (1b05455), Ab ladder loggable (3c0b1aa), Washington phase labels (f9bdb07), Knee-hop corrected (d744ad1), Slow-motion per clip (1bcf07c), Recovery real steps (9b4b2b1), TB12 removed (ec3d04d), Jaeger demo removed (3641acf), bat-fed drill phase fix (ac125fd), Game Day ring fix (de2edd4), Youth weight-input guard (4218a9b), Firefox iOS icon (92de94f), SW real URL fix (1c7667a)
 **Host shell:** Daily Readiness ring (.21), 7-day dot grid week card (b06bb76), bat-editday seam (5fbcb95), Protein icon + banking bug (PR#20/6423b25), SW caching/PWA (1c7667a)
 **Tooling:** battery-lane CLI (4cdd441+f01bd3c), SessionStart hook (f01bd3c), battery-lane msg/mail (26740ae), Comms inbox (ddbd19a), battery-status snapshot (cc04bea), Remote-lane attribution (ac89051), Session identity via UUID (ac89051)
+
+### SHIP-split: Monolith → split build (eabdf1b + 4dbe82e, 26.09.12.120)
+- **Architecture:** Extracted ARM and FUEL srcdoc iframes into `arm.html` and `fuel.html`, loaded via `src=` instead of `srcdoc=`
+- **Eliminates:** §3 double-quote footgun entirely — no more escaping rules
+- **Boot:** `localStorage.setItem('battery-boot-tier')` replaces `window.BATTERY_TIER` injection
+- **Includes:** Pip-strip tap-to-edit (REQ-030), Pitching tab (PLAN-002), BODY 0/0 fix (REQ-003), RESET DAY confirm (REQ-004), Profile Delete guard (REQ-005)
+- **Static gates:** Dual-mode support for both monolith and split builds
+- **Gate:** 33 suites, all green on AM06 (Playwright 1.63.0)
+- **Docs:** ADR-001-split-monolith.md, APP-SPEC.md added
 
 ### SHIP-prior: Lane A branches (5)
 - selectedDate-pip-strip (88ba2d8) — 7-day pip strip for FUEL date switching
