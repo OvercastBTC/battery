@@ -1495,6 +1495,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
   <button class=&quot;tab&quot; data-tab=&quot;gameday&quot;>Game Day</button>
   <button class=&quot;tab&quot; data-tab=&quot;washington&quot;>Wash Drills</button>
   <button class=&quot;tab&quot; data-tab=&quot;fieldwork&quot;>Field Work</button>
+  <button class=&quot;tab&quot; data-tab=&quot;pitching&quot;>Pitching</button>
   <button class=&quot;tab&quot; data-tab=&quot;recovery&quot;>Recovery</button>
   <button class=&quot;tab&quot; data-tab=&quot;schedule&quot;>Schedule</button>
   <button class=&quot;tab&quot; data-tab=&quot;sources&quot;>Sources</button>
@@ -4007,6 +4008,53 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 </div>
 
 
+<!-- ============== PITCHING (drills group, data-optional) ============== -->
+<div class=&quot;page&quot; id=&quot;page-pitching&quot; data-optional=&quot;1&quot;>
+  <h2>Pitching</h2>
+  <p class=&quot;lede&quot;>Two mechanics clips from Trevor Bauer — hip-fire sequencing and glove-side finish. Not a curriculum; just the two drills the owner cleared for the app.</p>
+
+  <div class=&quot;card blue&quot;>
+    <div class=&quot;card-head&quot;>
+      <div class=&quot;card-title&quot;>Optional — not owed daily</div>
+      <span class=&quot;badge blue&quot;>Optional</span>
+    </div>
+    <p style=&quot;font-size:12px;color:var(--dim);margin:6px 0 0&quot;>Pitching mechanics work is real work, but it is not something you owe on a given day. Checking these counts as +bonus and never gates the arm-care ratio.</p>
+  </div>
+
+  <h3 style=&quot;margin-top:18px&quot;>Mechanics drills</h3>
+  <ul class=&quot;steplist&quot;>
+    <li class=&quot;step&quot; data-ex=&quot;pitch-hipfire&quot; data-clip=&quot;clips/bauer-pitch-hipfire.mp4&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Hip-Fire Sequencing</div>
+          <div class=&quot;step-target&quot;>Rotational timing · Hip lead</div>
+        </div>
+        <div class=&quot;step-reps&quot;>Watch + drill</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Hips fire first; the arm is a passenger until foot strike. This drill isolates the rotational sequence — hips open, trunk follows, arm lags behind. The goal is timing, not effort.</p>
+        <button class=&quot;clip-btn&quot; onclick=&quot;openClip('bauer-pitch-hipfire.mp4')&quot;>▶ Demo clip · 0:53</button>
+      </div>
+    </li>
+    <li class=&quot;step&quot; data-ex=&quot;pitch-gloveside&quot; data-clip=&quot;clips/bauer-pitch-gloveside.mp4&quot;>
+      <div class=&quot;step-row&quot;>
+        <div class=&quot;check&quot; onclick=&quot;toggleDone(this)&quot;></div>
+        <div class=&quot;step-text&quot; onclick=&quot;toggleOpen(this)&quot;>
+          <div class=&quot;step-name&quot;>Glove-Side Finish</div>
+          <div class=&quot;step-target&quot;>Scap retraction · Glove stop</div>
+        </div>
+        <div class=&quot;step-reps&quot;>Watch + drill</div>
+      </div>
+      <div class=&quot;step-detail&quot;>
+        <p>Hips rotate around a stable axis — scap retracted, glove arm stops outside the line to the plate. The glove is the handle of the whip: when it stops, everything above it accelerates. Dowel-in-ground and walking drills to groove the pattern.</p>
+        <button class=&quot;clip-btn&quot; onclick=&quot;openClip('bauer-pitch-gloveside.mp4')&quot;>▶ Demo clip · 2:03</button>
+      </div>
+    </li>
+  </ul>
+</div>
+
+
 <!-- ============== RECOVERY ============== -->
 <div class=&quot;page&quot; id=&quot;page-recovery&quot;>
   <h2>Recovery</h2>
@@ -5497,12 +5545,12 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
      THIS one iframe. The host postMessages which GROUP to show. We filter the internal tab
      strip and relabel the title, and the daily counter reflects only the active group.
      ARM = throwing-arm protocol (J-Bands, tube, plyo, long toss, schedule).
-     DRILLS = Washington position/fielding drills.
+     DRILLS = Washington position/fielding drills + pitching mechanics.
      BODY = whole-body care (recovery, flexibility, daily extras).
      COMPLETION IS ONE SHARED STORE keyed by data-ex (arm-care-done-*): an exercise is
      recorded once no matter which group surfaces it. If a drill ever needs to live in
      both contexts, give it the SAME data-ex and it stays in sync automatically. */
-  const TAB_GROUPS = { washington:'drills', fieldwork:'drills', recovery:'body', extras:'body', lifting:'body', warmup:'arm' };
+  const TAB_GROUPS = { washington:'drills', fieldwork:'drills', pitching:'drills', recovery:'body', extras:'body', lifting:'body', warmup:'arm' };
   function tabGroup(id){ return TAB_GROUPS[id] || 'arm'; }
   let activeGroup = 'arm';
   function stepGroup(step){
@@ -7140,7 +7188,8 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
     ['jbj-',     'Jaeger Sports — J-Bands Exercises', 'https://jaegersports.com/j-bands-exercises-baseball-workout'],
     ['fw-1b-',   'Freddie Freeman — First Base Defensive Drills', 'https://youtu.be/3juKYF0SoHE'],
     ['bauer-gd-','Trevor Bauer — Game Day Warmup Routine (Baseball 401)', 'https://youtu.be/MeNseDHe5gc'],
-    ['plyo-',    'Trevor Bauer — Daily Weighted Ball Routine (Baseball 401)', 'https://youtu.be/VIDd2yMSSnY']
+    ['plyo-',    'Trevor Bauer — Daily Weighted Ball Routine (Baseball 401)', 'https://youtu.be/VIDd2yMSSnY'],
+    ['bauer-pitch-','Trevor Bauer — Pitching Mechanics (Mexico vlog)', 'https://www.youtube.com/@trevorbauer']
   ];
   function sourceFor(name){
     for(var i=0;i<CLIP_SOURCE.length;i++){ if(name.indexOf(CLIP_SOURCE[i][0])===0) return CLIP_SOURCE[i]; }
