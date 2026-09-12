@@ -10,7 +10,7 @@
    CLAUDE.md), same discipline as the icon files -- this is a real file, not
    a template literal computed at runtime, so the string below must be
    edited by hand or script on each deploy. */
-const CACHE = 'battery-v119';
+const CACHE = 'battery-v120';
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil((async () => {
   const ks = await caches.keys();

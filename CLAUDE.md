@@ -16,13 +16,15 @@ Baseball arm-care + nutrition/hydration tracker (profiles: adult / youth).
 
 ## 2. Architecture
 
-One host HTML shell containing **two srcdoc iframes** (NOT `src=`), sharing the parent origin + localStorage.
+**Split build (as of `q/split-monolith` branch):** three files — `index.html` (host shell, ~2 700 lines), `arm.html` (ARM iframe), `fuel.html` (FUEL iframe). Iframes use `src=`, NOT `srcdoc=`. All three share the parent origin + localStorage (same-origin, no CORS).
 
-| iframe | id | title | line range (verify by reading — shift as file grows) |
-|--------|-----|-------|------------------------------------------------------|
-| ARM | `#f-arm` | Arm Care | first `srcdoc=` → first `"></iframe>` |
-| FUEL | `#f-fuel` | Fuel Stack | second `srcdoc=` → second `"></iframe>` |
-| Host `<script>` | — | shell logic | after the second `"></iframe>` → EOF |
+| File | iframe id | title | Notes |
+|------|-----------|-------|-------|
+| `arm.html` | `#f-arm` | Arm Care | Standalone HTML document loaded via `src="arm.html"` |
+| `fuel.html` | `#f-fuel` | Fuel Stack | Standalone HTML document loaded via `src="fuel.html"` |
+| `index.html` | — | host shell | Nav, profiles, scoreboard, postMessage routing, SW registration |
+
+**Boot:** host writes `localStorage.setItem('battery-boot-tier', tier)` before iframes load; iframes read it synchronously on boot (§4.3 youth safety). `reloadFrames()` writes the tier then calls `location.reload()` on each iframe.
 
 ARM iframe covers arm-care drills, body, and PlyoCare content.
 FUEL iframe covers nutrition/hydration tracker.
@@ -31,7 +33,14 @@ Host shell owns nav, profiles, scoreboard, postMessage routing, SW registration.
 SW cache name: `battery-v<NN>` (bump on every deploy) — read the live value out of `index.html`, don't trust a number written here.
 Version stamp: `#ver-stamp`, format `YY.MM.DD.NN` — read the live value out of `index.html`.
 
-## 3. THE srcdoc Footgun — READ THIS FIRST
+## 3. THE srcdoc Footgun — HISTORICAL (eliminated by split)
+
+**The split build (§2) eliminates this class of bug entirely.** With `src=` iframes loading standalone HTML documents, double-quotes are just double-quotes — no escaping required.
+
+The section below is retained for reference in case a monolith build is ever encountered in git history or an older branch.
+
+<details>
+<summary>Historical: srcdoc escaping rules (monolith build only)</summary>
 
 **A literal double-quote (`"`) anywhere inside a `srcdoc="..."` attribute silently truncates the entire iframe.** Every function defined after it becomes `undefined`. There is NO console error, NO page error — the iframe simply stops at the truncation point. `node --check` on the extracted script does NOT catch it (HTML decoding masks it). Only the Playwright gate (which loads the real iframe) catches it.
 
@@ -48,13 +57,15 @@ Version stamp: `#ver-stamp`, format `YY.MM.DD.NN` — read the live value out of
 
 After each `srcdoc="`, scan forward: the **first literal `"`** in the file should be the closing `"></iframe>`. Any earlier `"` is the bug. Run the Playwright gate to confirm.
 
+</details>
+
 ## 4. Youth Safety Gate (§4.3 — child-safety boundary)
 
 A youth-tier profile must **never** see: supplement / stimulant / dosing / quantified macro targets / heavy-weighted-ball content.
 
 **Mechanisms in place:**
 
-- Host injects `window.BATTERY_TIER` (`'youth'` | `'adult'`) into iframes; toggles `body.youth` on the host.
+- Host writes `localStorage.setItem('battery-boot-tier', tier)` before iframes load; iframes read it synchronously on boot. Host also toggles `body.youth` on itself.
 - FUEL iframe: sets `body.fuel-youth`; CSS hides `.qa-adult` elements (Liquid IV, LMNT, Thorne, Core Power quick-adds + Overview/Protein/Hydration/Products tabs). `switchTab()` youth guard blocks nav to those tabs.
 - ARM/PlyoCare: `.plyo-heavy` is gated behind `body.youth` (`display:none`); a light-catch/play-only note is shown instead.
 
@@ -475,6 +486,14 @@ return a negative has not confirmed anything.**
 - Migrations must be one-time idempotent guards. Plan-v2 example: `battery-plan-<date>` used to store a single preset string (full/throwing/hitting/lift/rest); `getActivePlan()` migrates a legacy string value to the new `{arm,drills,body,lift}` JSON flag object the first time it's read, then rewrites it as JSON so migration only runs once per date key.
 
 ## 8. Coordination Pointers
+
+### Inter-Lane Comms — READ THIS
+
+@.claude/COMMS.md
+
+Complete reference for how to reach any lane from any machine: CCD send_message
+(AM06-local), battery-lane CLI (Mac), SSH wakeup, mailbox. Session IDs, topology
+diagram, rules. **Every lane reads this file.**
 
 | File | Purpose |
 |------|---------|

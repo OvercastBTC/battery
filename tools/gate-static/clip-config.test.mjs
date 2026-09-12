@@ -52,7 +52,22 @@ const log = (ok, m) => { pass = pass && ok; console.log(`  ${ok?'✓':'✗'} ${m
 const note = (m) => console.log(`  · ${m}`);
 
 console.log('CLIP CONFIG');
-const src = fs.readFileSync(APP, 'utf8');
+const appSrc = fs.readFileSync(APP, 'utf8');
+// Split build: clip tables live in arm.html, not index.html
+const isSplit = appSrc.includes('src="arm.html"') && !appSrc.includes('srcdoc="');
+let src;
+if (isSplit) {
+  const armPath = path.join(path.dirname(APP), 'arm.html');
+  if (!fs.existsSync(armPath)) {
+    log(false, 'split build detected but arm.html not found alongside ' + APP);
+    console.log('\nCLIP CONFIG: FAIL');
+    process.exit(1);
+  }
+  src = fs.readFileSync(armPath, 'utf8');
+  note('split build detected — reading clip config from arm.html');
+} else {
+  src = appSrc;
+}
 
 // ---------------------------------------------------------------------------
 // Locate the tables. A rename must FAIL here, not skip quietly — a skip-guard
