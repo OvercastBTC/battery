@@ -54,7 +54,7 @@ const note = (m) => console.log(`  · ${m}`);
 console.log('CLIP CONFIG');
 const appSrc = fs.readFileSync(APP, 'utf8');
 // Split build: clip tables live in arm.html, not index.html
-const isSplit = appSrc.includes('src="arm.html"') && !appSrc.includes('srcdoc="');
+const isSplit = (appSrc.includes('src="arm.html') || appSrc.includes("'arm.html")) && !appSrc.includes('srcdoc="');
 let src;
 if (isSplit) {
   const armPath = path.join(path.dirname(APP), 'arm.html');

@@ -25,19 +25,21 @@ if (bom !== null) { console.log('\nSRCDOC INTEGRITY: FAIL'); process.exit(1); }
 
 const src = fs.readFileSync(APP, 'utf8');
 
-// Detect build shape
-const isSplit = src.includes('src="arm.html"') && src.includes('src="fuel.html"');
+// Detect build shape — src= can be in the iframe tag OR set by script
+const hasSrcAttr = src.includes('src="arm.html') && src.includes('src="fuel.html');
+const hasSrcScript = src.includes("'arm.html") && src.includes("'fuel.html");
+const isSplit = (hasSrcAttr || hasSrcScript) && !src.includes('srcdoc="');
 const isMonolith = src.includes('srcdoc="');
 
 if (isSplit) {
-  console.log('  [split build detected — checking src= iframes]');
+  console.log(`  [split build detected — ${hasSrcAttr ? 'src= in markup' : 'src set by script'}]`);
   const appDir = path.dirname(APP);
   for (const [id, file] of [['f-arm', 'arm.html'], ['f-fuel', 'fuel.html']]) {
     const iframeTag = src.includes(`id="${id}"`);
     log(iframeTag, `${id}: iframe tag present`);
 
-    const srcAttr = src.includes(`src="${file}"`);
-    log(srcAttr, `${id}: uses src="${file}"`);
+    const refersToFile = src.includes(`src="${file}`) || src.includes(`'${file}`);
+    log(refersToFile, `${id}: references ${file}`);
 
     const filePath = path.join(appDir, file);
     const exists = fs.existsSync(filePath);
