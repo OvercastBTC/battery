@@ -614,3 +614,56 @@ owner decision on whether PFP deserves its own block, sourced properly.
 
 *Recording the negative result so nobody re-checks this file: the rule was applied,
 the content was found, the call not to ship was deliberate.*
+
+---
+
+## Bauer mechanics + drills — CUT 2026-09-14, cut-not-wired (no UI surface yet)
+
+Source files all downloaded to `battery-video-work/_sources/` and archived to `iCloud 0.5 Baseball/_sources/`.
+VTT-sourced timestamps throughout. All clips in `battery-laneM/clips/` + `iCloud 0.5 Baseball/`.
+Branch: `laneM/recov-clips-req015`.
+
+### Hip/Shoulder Separation (KVno6crh5u8)
+- [x] `bauer-mech-hipsep-spring.mp4` — 2:31–3:30 (59s, 883KB) — tendon spring + energy transfer
+
+### Arm Mechanics — Upper Half (atzlM1lMLhU)
+- [x] `bauer-mech-armspiral.mp4` — 1:47–2:35 (48s, 666KB) — SCAP retraction → arm spiral
+
+### 5 Drills to Throw Harder (3BtSi8c3evM)
+- [x] `bauer-drill-pulldown.mp4` — 4:40–5:10 (30s, 426KB) — pull-down block leg drill
+- [x] `bauer-drill-clockdrill.mp4` — 5:08–6:10 (62s, 989KB) — clock drill 4:30-position run-rotate-throw
+
+### Pregame Warmup Routine (mhmj5AfX0K0)
+- [x] `bauer-warmup-3phase.mp4` — 0:47–2:00 (73s, 990KB) — 3-phase warmup overview
+
+---
+
+## Bauer strategy — tunneling — CUT 2026-09-14, cut-not-wired
+
+Source: `WHZUmOm2A2A` "Tunneling Pitches | Tips with Trev Ep 16" (12:18, 33MB)
+VTT-sourced. Whiteboard/diagram-heavy — all cuts contain whiteboard animation.
+
+- [x] `bauer-strat-tunnel-def.mp4` — 0:37–2:36 (119s, 1.7MB) — definition + tree/branch analogy
+- [x] `bauer-strat-tunnel-vert.mp4` — 2:43–6:06 (203s, 2.9MB) — vertical FB/curve bad-vs-good tunnel example
+- [x] `bauer-strat-tunnel-horz.mp4` — 6:39–8:20 (101s, 1.4MB) — horizontal FB/slider + hitter deception
+
+---
+
+## Bauer pitch design — CUT 2026-09-14, cut-not-wired
+
+Source: `UmSMSEdyNVU` "Trevor Bauer Pitch Design" (18min, 209MB)
+VTT-sourced. Close-up grip/hand footage + on-screen angle diagrams.
+
+- [x] `bauer-design-spin-theory.mp4` — 0:00–1:54 (114s, 1.8MB) — spin axis theory; why wrist manipulation fails
+- [x] `bauer-design-cutter-axis.mp4` — 2:47–4:16 (89s, 1.4MB) — cutter spin axis visual demo
+- [x] `bauer-design-curve-spin.mp4` — 11:51–13:16 (85s, 1.2MB) — curveball front spin mechanics
+
+---
+
+## Bauer command training — CUT 2026-09-14, cut-not-wired
+
+Source: `qtgtQFihXZw` "Trevor Bauer's Command Training Program | Baseball 401" (7:23, 145MB)
+VTT-sourced. On-field with targets + app tracking setup.
+
+- [x] `bauer-cmd-targets.mp4` — 2:15–3:19 (64s, 2.0MB) — 9" target methodology; progressive shrink protocol
+- [x] `bauer-cmd-session.mp4` — 5:11–7:23 (132s, 2.6MB) — session protocol: announce pitch→throw→mark hit/miss
