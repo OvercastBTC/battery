@@ -5,11 +5,14 @@ Owner's recording wish-list. Everything cuttable from existing footage has been 
 recorded; hand files to Lane A (`clips/<name>.mp4`, ~15–60s, portrait OK) and Lane A
 wires the buttons.
 
-## Shoulder Tube (4) — suggest one continuous take, cut per plane
-- [ ] `tube-forward.mp4` — 01 Forward Plane
-- [ ] `tube-lateral.mp4` — 02 Lateral Plane
-- [ ] `tube-overhead.mp4` — 03 Overhead
-- [ ] `tube-throwing.mp4` — 04 Throwing Position
+## Shoulder Tube (4) — CUT 2026-09-14, needs Lane A wiring
+Source: `-WomBkIThhU` (Bauer official "Shoulder Tube Routine", 4:18)
+Timestamps from frame sampling (15s intervals) — scrub to verify plane transitions before wiring.
+- [x] `tube-overhead.mp4`  — 01 Overhead          0:10–0:48 (38s, 680KB)
+- [x] `tube-forward.mp4`   — 02 Forward Plane      0:48–1:18 (30s, 536KB)
+- [x] `tube-lateral.mp4`   — 03 Lateral Plane      1:18–2:10 (52s, 953KB)
+- [x] `tube-throwing.mp4`  — 04 Throwing Position  2:10–3:12 (62s, 1.1MB)
+All 4 in `battery-laneM/clips/` + archived to iCloud `0.5 Baseball/`. Branch: `laneM/recov-clips-req015`.
 
 ## Washington Drills (6)
 - [ ] `wash-knee-center.mp4` — 01 Knee Short Hops, Center
