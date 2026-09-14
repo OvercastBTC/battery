@@ -667,3 +667,28 @@ VTT-sourced. On-field with targets + app tracking setup.
 
 - [x] `bauer-cmd-targets.mp4` — 2:15–3:19 (64s, 2.0MB) — 9" target methodology; progressive shrink protocol
 - [x] `bauer-cmd-session.mp4` — 5:11–7:23 (132s, 2.6MB) — session protocol: announce pitch→throw→mark hit/miss
+
+---
+
+## Bauer recovery science — CUT 2026-09-14, cut-not-wired (slots into existing arm.html recovery section)
+
+Source files all downloaded + in iCloud 0.5 Baseball/_sources/.
+
+### Z3QJxLaPBDI "What's BEST For RECOVERY After Pitching?" (Short, 3:00)
+- [x] `bauer-recov-protocol.mp4` — 0:00–2:59 (179s, 2.2MB) — night-of isometrics + Marc Pro + next-day 120-135bpm circuit
+
+### ZmvAiQZOpqY "Post-Game Recovery Secrets | Tips w/Trev Ep 30" (8:29)
+- [x] `bauer-recov-no-ice.mp4` — 0:07–5:00 (293s, 4.4MB) — ice/heat stressor framework; why pros skip icing after starts
+
+### KMvdWv0wwno "Do FLUSH RUNS Really Help With Recovery?" (11:29)
+- [x] `bauer-recov-flush.mp4` — 0:07–3:00 (173s, 2.7MB) — lactic acid myth debunked; what flush runs actually do
+
+### vZfqllOlPbM "How to SPEED UP Muscle Recovery | Tips with Trev Ep 24" (8:14)
+- [x] `bauer-recov-marcpro.mp4` — 0:00–4:00 (240s, 3.7MB) — Marc Pro device: elbow pad placement + passive recovery
+
+### DMbuo9b6ZIo "Arm Pain | Tips With Trev Ep 34" (14:29)
+- [x] `bauer-recov-armtype.mp4` — 0:10–3:30 (200s, 3.5MB) — arm discomfort taxonomy: tightness vs fatigue vs soreness vs pain
+
+### BnUcxXcOiE8 "Heel Connection | Tips w/Trev Ep 33" (13:28) — SKIPPED
+Debate/analysis video arguing heel connection is a bad coaching cue. No instructional demo.
+Skip unless BATTERY adds a "mechanics analysis" or "myth-busting" section.
