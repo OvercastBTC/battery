@@ -692,3 +692,16 @@ Source files all downloaded + in iCloud 0.5 Baseball/_sources/.
 ### BnUcxXcOiE8 "Heel Connection | Tips w/Trev Ep 33" (13:28) — SKIPPED
 Debate/analysis video arguing heel connection is a bad coaching cue. No instructional demo.
 Skip unless BATTERY adds a "mechanics analysis" or "myth-busting" section.
+
+### S03UqySwcXA "Bauer Bullpen Recovery Routine" (2:31)
+- [x] `bauer-recov-bullpen.mp4` — 0:00–2:31 (151s, 2.0MB) — post-bullpen overcoming eccentrics + forearm isometrics
+
+---
+
+## Bauer pregame warmup detail — CUT 2026-09-14 (additions to bauer-warmup-3phase)
+
+Source: `mhmj5AfX0K0` "Preparing For a Start | Tips with Trev Ep 9" (5:27, 37MB)
+bauer-warmup-3phase.mp4 (0:47–2:00) already committed. These cover phases 2+3 in detail.
+
+- [x] `bauer-warmup-activ.mp4`    — 2:02–3:17 (75s, 1.1MB) — activation: J-bands/shoulder tube/cuff weights/pails+rails
+- [x] `bauer-warmup-specific.mp4` — 3:17–5:01 (104s, 1.6MB) — activity-specific: weighted ball reverse throws + Driveline drills
