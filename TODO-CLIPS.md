@@ -764,16 +764,16 @@ New pitch introduction (sweeper). Key moments:
 - **1:42–1:46** — "cutter just off the plate out of the same tunnel" — explicit tunnel language
 - **2:07–2:10** — "thought I'd go out of that up and in fastball tunnel with a splitter" — FB tunnel → splitter execution
 
-### Clip candidates (Ducks) — to cut once videos downloaded
-| Clip name | Source | Timestamps | Content |
-|-----------|--------|-----------|---------|
-| `ducks-seq-tunnel-read.mp4` | LTgyXmpI2Go | 1:33–3:20 | Hitter tunnel reading + dead zone cutter + up/down tunnel management |
-| `ducks-seq-first-pitch.mp4` | iV1lkqk-IVQ | 1:41–2:20 | First pitch philosophy + cutter→splitter opener |
-| `ducks-seq-splitter-tree.mp4` | SSVDpWbxVdQ | 1:17–1:35 | Reading off-speed tendencies → splitter → curveball |
-| `ducks-seq-new-pitch.mp4` | ADmcDpu9vNw | 1:18–1:50 | Cutter/sweeper/curve tree, new pitch insertion |
-| `ducks-seq-fb-tunnel-up.mp4` | -LlMgGbGZZU | 2:07–2:15 | Fastball up-in tunnel → splitter execution |
+### Clip candidates (Ducks) — CUT 2026-09-14, cut-not-wired
+| Clip name | Source | Timestamps | Content | Status |
+|-----------|--------|-----------|---------|--------|
+| `ducks-seq-tunnel-read.mp4` | LTgyXmpI2Go | 1:33–3:20 | Hitter tunnel reading + dead zone cutter + up/down tunnel management | ✅ CUT 2.5MB |
+| `ducks-seq-first-pitch.mp4` | iV1lkqk-IVQ | 1:41–2:20 | First pitch philosophy + cutter→splitter opener | ✅ CUT 761KB |
+| `ducks-seq-splitter-tree.mp4` | SSVDpWbxVdQ | 1:17–1:35 | Reading off-speed tendencies → splitter → curveball | ✅ CUT 526KB |
+| `ducks-seq-new-pitch.mp4` | ADmcDpu9vNw | 1:18–1:50 | Cutter/sweeper/curve tree, new pitch insertion | ✅ CUT 984KB |
+| `ducks-seq-fb-tunnel-up.mp4` | -LlMgGbGZZU | 2:07–2:15 | Fastball up-in tunnel → splitter execution | ⏳ source not yet downloaded |
 
-**Download priority:** LTgyXmpI2Go first (no-hitter, richest tunnel content), then iV1lkqk-IVQ, SSVDpWbxVdQ.
+All 4 downloaded Ducks clips in `battery-laneM/clips/`. Branch: `laneM/recov-clips-req015`.
 
 ---
 
@@ -793,8 +793,8 @@ VTT scan (348 keyword hits) found additional content not previously cataloged:
   - "If you execute this drill correctly, it's going to help with your velocity and command"
   - **NOTE:** This is real instructional content — Bauer demonstrates a specific drill. Cut this.
 
-**Proposed new clip:**
-- `jp2-drill-posturesquat.mp4` — 6:26–7:22 (~56s) — preset posture squat drill for command/velocity
+**Clip — CUT 2026-09-14:**
+- [x] `jp2-drill-posturesquat.mp4` — 6:26–7:22 (~56s) — preset posture squat drill for command/velocity (1.4MB, cut-not-wired)
 
 ### bDKnEWl8eSs — "I Faced Japan's Strikeout King (He Taunted Me)" (38:17) — VTT 389 hits
 VTT highlights:
@@ -816,9 +816,9 @@ VTT highlights (transcript-first — narrated game breakdown):
 - Full game breakdown with tunnel → pitch sequences throughout
 - **NOTE:** One of the richest Japan pitch-sequence videos. Download for clipping.
 
-**Proposed clips:**
-- `jp-seq-splitter-tunnel.mp4` — zKz4RmeIP10 ~1:04–1:20 — fastball sets tunnel → curveball
-- `jp-seq-same-sequence.mp4` — zKz4RmeIP10 ~1:38–2:00 — deliberate sequence repetition analysis
+**Proposed clips (zKz4RmeIP10 downloaded 2026-09-14, 79MB, ready to cut):**
+- [ ] `jp-seq-splitter-tunnel.mp4` — zKz4RmeIP10 ~1:04–1:20 — fastball sets tunnel → curveball
+- [ ] `jp-seq-same-sequence.mp4` — zKz4RmeIP10 ~1:38–2:00 — deliberate sequence repetition analysis
 
 ### X0dLL4uYivE — "My First Game In Japan Broke Records" (17:54) — VTT 61 hits
 - **0:27–0:51** — "full game day warm-up: hot tub → weighted balls → shoulder tube → long toss → pregame bullpen → showtime" — complete game-day sequence
@@ -849,9 +849,9 @@ VTT scans show 220–838 keyword hits per video.
 - 637 hits total — full-game breakdown throughout 52 minutes
 - **NOTE:** Best Mexico pitch sequence video. Download for clipping.
 
-**Proposed clips:**
-- `mx-seq-fb-cutter-tunnel.mp4` — WZtCcI7v4pA ~1:18–1:30 — explicit FB/cutter same-tunnel execution
-- `mx-seq-three-pitch-tree.mp4` — WZtCcI7v4pA ~1:41–2:00 — FB → cutter → curveball/splitter tree
+**Clips — CUT 2026-09-14:**
+- [x] `mx-seq-fb-cutter-tunnel.mp4` — WZtCcI7v4pA ~1:18–1:30 — explicit FB/cutter same-tunnel execution (311KB, cut-not-wired)
+- [x] `mx-seq-three-pitch-tree.mp4` — WZtCcI7v4pA ~1:41–2:00 — FB → cutter → curveball/splitter tree (631KB, cut-not-wired)
 
 ### SLuY7YqJDFU — "I Faced Mexico's Most Dangerous Hitter" (53:05) — VTT 673 hits
 - **1:38–1:42** — "that was the nastiest splitter I've ever [thrown]" — splitter quality assessment
@@ -895,23 +895,23 @@ VTT confirms 292 keyword hits are scattered through 31 minutes — no single den
 
 | ID | Series | Title | Duration | VTT | MP4 |
 |----|--------|-------|----------|-----|-----|
-| iV1lkqk-IVQ | Ducks | I Pitched In The U.S. After 5 Years | 50:21 | ✅ | ❌ |
-| LTgyXmpI2Go | Ducks | I Threw A No Hitter, A Breakdown | 50:20 | ✅ | ❌ |
-| SSVDpWbxVdQ | Ducks | My 10 Strikeout Game Got Heated | 49:06 | ✅ | ❌ |
+| iV1lkqk-IVQ | Ducks | I Pitched In The U.S. After 5 Years | 50:21 | ✅ | ✅ 145MB (360p) |
+| LTgyXmpI2Go | Ducks | I Threw A No Hitter, A Breakdown | 50:20 | ✅ | ✅ 215MB (360p) |
+| SSVDpWbxVdQ | Ducks | My 10 Strikeout Game Got Heated | 49:06 | ✅ | ✅ 205MB (360p) |
 | V8gW0dj_s-A | Ducks | I Got Signed After This Start | 36:13 | ✅ | ❌ |
 | eKCyoudbw9g | Ducks | They Took Away My Best Pitches | 53:57 | ✅ | ❌ |
-| ADmcDpu9vNw | Ducks | I Threw My Brand New Pitch | 44:47 | ✅ | ❌ |
+| ADmcDpu9vNw | Ducks | I Threw My Brand New Pitch | 44:47 | ✅ | ✅ 184MB (360p) |
 | -LlMgGbGZZU | Ducks | I Struck Out 15 And Got Pulled | 54:25 | ✅ | ❌ |
-| Q65LYjUEpHg | Japan | Home Run Champion | 40:59 | ✅ | ✅ (local) |
+| Q65LYjUEpHg | Japan | Home Run Champion | 40:59 | ✅ | ✅ 108MB (360p) |
 | bDKnEWl8eSs | Japan | Strikeout King | 38:17 | ✅ | ❌ |
-| zKz4RmeIP10 | Japan | First Start Almost Perfect | 35:56 | ✅ | ❌ |
+| zKz4RmeIP10 | Japan | First Start Almost Perfect | 35:56 | ✅ | ✅ 79MB (360p) |
 | X0dLL4uYivE | Japan | First Game Broke Records | 17:54 | ✅ | ❌ |
 | p_VMkZUJOkI | Japan | Rejoined Team Japan | 25:15 | ✅ | ❌ |
 | gRZ8MkZ97lk | Japan | Preparing to Face Best Pitcher | 17:10 | ✅ | ❌ |
 | CdMJXC9IsmA | Japan | MLB vs Japanese All-Star | 23:43 | ✅ | ❌ |
 | KyFBxnS4ZUw | Japan | Friends NOT Prepared | 20:55 | ✅ | ❌ |
 | vL0vSQNAQwI | Japan | Arriving at Brand New Team | 28:14 | ✅ | ❌ |
-| WZtCcI7v4pA | Mexico | Most Dangerous Hitters | 52:17 | ✅ | ❌ |
+| WZtCcI7v4pA | Mexico | Most Dangerous Hitters | 52:17 | ✅ | ✅ 197MB (360p) |
 | SLuY7YqJDFU | Mexico | Most Dangerous Hitter | 53:05 | ✅ | ❌ |
 | SVDr-eucaeM | Mexico | Most Stacked Team | 58:51 | ✅ | ❌ |
 | IYLhuLHI2BM | Mexico | Risked Getting Suspended | 34:46 | ✅ | ❌ |
@@ -925,9 +925,6 @@ VTT confirms 292 keyword hits are scattered through 31 minutes — no single den
 | FB3UWwTY8ps | Mexico | Almost Missed First Start | 26:42 | ✅ | ❌ |
 | ZnhEGzpEd5g | Mexico | Broke Strikeout Record | 41:55 | ⚠ partial | ❌ |
 
-**Download queue (by priority):**
-1. LTgyXmpI2Go (Ducks no-hitter, 50min)
-2. WZtCcI7v4pA (Mexico dangerous hitters, 52min)
-3. zKz4RmeIP10 (Japan first start, 36min)
-4. iV1lkqk-IVQ (Ducks first US start, 50min)
-5. bDKnEWl8eSs (Japan strikeout king, 38min)
+**Note:** All 360p downloads via android client extractor (YouTube 429 blocks web client; android bypasses it at 360p only — no 720p available while rate limited). 360p is sufficient for clip encode (standard profile scales to 640 wide).
+
+**Download queue (remaining):** V8gW0dj_s-A, eKCyoudbw9g, -LlMgGbGZZU, bDKnEWl8eSs, X0dLL4uYivE (Japan/Ducks with clip candidates or pending scan)
