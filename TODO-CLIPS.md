@@ -924,7 +924,7 @@ VTT confirms 292 keyword hits are scattered through 31 minutes — no single den
 | 1WDJhcdqMvY | Mexico | Joined New Team | 29:06 | ✅ | ❌ |
 | FB3UWwTY8ps | Mexico | Almost Missed First Start | 26:42 | ✅ | ❌ |
 | ZnhEGzpEd5g | Mexico | Broke Strikeout Record | 41:55 | ⚠ partial | ❌ |
-| pBT9ZhxTJ5c | Other | I Encountered A Rogue Umpire | 1:03:12 | ❌ blocked | ⏳ owner dl |
+| pBT9ZhxTJ5c | Other | I Encountered A Rogue Umpire | 1:03:12 | ✅ local | ✅ 3 clips cut |
 
 **Note:** All 360p downloads via android client extractor (YouTube 429 blocks web client; android bypasses it at 360p only — no 720p available while rate limited). 360p is sufficient for clip encode (standard profile scales to 640 wide).
 
@@ -936,36 +936,35 @@ VTT confirms 292 keyword hits are scattered through 31 minutes — no single den
 
 ---
 
-## "I Encountered A Rogue Umpire" — pBT9ZhxTJ5c — PENDING EXERCISE SCAN
+## "I Encountered A Rogue Umpire" — pBT9ZhxTJ5c — SCAN COMPLETE 2026-09-14
 
 **Video ID:** `pBT9ZhxTJ5c`
-**Duration:** ~1:03:12 (confirmed via channel search)
-**Status:** ⏳ VTT + MP4 blocked by YouTube bot-check. Owner downloading to phone.
-**Drop target:** `iCloudDrive/0.5 Baseball/_sources/` — once dropped, Lane M will pick up and scan.
+**Duration:** 1:03:12
+**Source:** `iCloudDrive/0.5 Baseball/sources/I Encountered A Rogue Umpire.mp4` (1295MB, already local)
+**Status:** ✅ SCANNED + CLIPS CUT — committed to `laneM/recov-clips-req015`
 
-**Owner confirmed content includes:**
-- Plyoball routine (some plyoball routine stuff)
-- Static stretches ("static 45s" = static stretches in app's Warm Up tab, steps 07–17b)
-- Exercise content that maps to the BATTERY app exercise list
+**Scan method:** Embedded subtitle extraction (301KB VTT, covers last 3 min only — vlog format).
+Applied frames-first rule: 42-frame overview at 90s intervals + dense sampling at 15s/5s intervals
+across 3 exercise zones identified from overview.
 
-**4App exercise list to scan for (arm.html step-name inventory):**
+**Exercise zones found (frame scan results):**
 
-| Tab | Exercises to find |
-|-----|-------------------|
-| Dynamic Warmup | Leg Swings, Arm Circles, Walking Lunge+Twist, High Knees+Butt Kicks, Hip Circles, Side-Lying T-Spine |
-| Static Stretches | Sleeper Stretch ⭐, Couch Stretch, 90/90 Hip Stretch, Shoulder Cross-Body, Wrist Flexor, Calf/Ankle Dorsiflexion |
-| J-Bands (12) | Over-the-head Forearm Extensions, Scarecrow, External Rotation, Internal Rotation, Diagonal Up/Down, etc. |
-| Shoulder Tube (4) | Overhead, Forward Plane, Lateral Plane, Throwing Position |
-| PlyoCare (10) | Kneeling Reverse Throw ⭐, Spiral Drill ⭐, Reverse+Spiral, Standing Sequence, Stomp Sequence, Hop-Step (Javelin Step), Drop-Step Pickoffs, Drop Drill, Step-Behind w/ Arm Swing, Mound/Stretch Throws |
-| Recovery | Foam Rolling, Eccentrics, Isometrics, Arm care post-start routine |
+| Zone | Timestamps | Content | Clip status |
+|------|-----------|---------|------------|
+| Day 2 pregame | 14:00–14:45 | "DAY TWO - 3 DAYS UNTIL NEXT START" title + team high knees dynamic warmup on warning track | ✅ CUT |
+| Indoor tunnel plyoball | 15:15–16:30 | **"HUMPTY DRILL"** on-screen label — indoor tunnel, 4APF pink 0.5 LB ball, lunge/receive position; + ball selection explanation (all hand sizes); + outdoor concrete corridor wall throws | ✅ CUT |
+| Gym lifting | 35:30–38:00 | Green-wall gym (power rack), barbell deadlifts, seated floor work, stability ball visible | ✅ CUT |
 
-**Scan plan (once VTT or MP4 available):**
-- VTT-first scan with full exercise keyword regex (plyo|plyocare|reverse.?throw|spiral|drop.?step|stomp|javelin|j.?band|shoulder.?tube|foam.?roll|sleeper|couch.?stretch|90.?90|hip.?circle|t.?spine|cuff.?weight|static|stretch|warm.?up.?routine|arm.?care|eccentr|isometr)
-- Also apply frames-first rule (this is a vlog that may show visual exercise content without narrating it)
-- Cut clips for any exercise that matches an app step-name — priority: static stretches + plyocare exercises (user confirmed present)
+**NOT FOUND as demonstrable clips:**
+- Static stretches (Sleeper, Couch, 90/90, Cross-Body, Wrist Flexor, Calf/Ankle): incidental team pregame background — not demonstrated for camera, no isolated hold visible
+- J-Bands: not present
+- Shoulder Tube: not present
+- Named PlyoCare exercises (Kneeling Reverse Throw, Spiral Drill, etc.): the Humpty Drill is plyoball work but uses their own terminology, not standard 4App step-names
 
-**Clip naming convention (pending scan):**
-- `ru-plyo-<exercise>.mp4` — PlyoCare exercises
-- `ru-static-<exercise>.mp4` — Static stretches
-- `ru-warmup-<exercise>.mp4` — Dynamic warmup exercises
-- `ru-jband-<exercise>.mp4` — J-Band exercises (if demonstrated)
+**Clips cut (all 3 in `battery-laneM/clips/`, committed to branch):**
+
+| Clip | Source IN | Source OUT | Size | Maps to |
+|------|-----------|-----------|------|---------|
+| `ru-warmup-highknees.mp4` | 14:05 | 14:35 | 1.0MB | Dynamic Warmup — High Knees + Butt Kicks |
+| `ru-plyo-humpty.mp4` | 15:15 | 16:30 | 1.9MB | PlyoCare — Humpty Drill (indoor tunnel + ball selection + outdoor wall throws) |
+| `ru-gym-deadlift.mp4` | 35:30 | 38:00 | 3.0MB | Gym lifting — deadlifts (no current BATTERY app slot) |
