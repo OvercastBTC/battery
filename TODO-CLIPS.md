@@ -924,7 +924,48 @@ VTT confirms 292 keyword hits are scattered through 31 minutes — no single den
 | 1WDJhcdqMvY | Mexico | Joined New Team | 29:06 | ✅ | ❌ |
 | FB3UWwTY8ps | Mexico | Almost Missed First Start | 26:42 | ✅ | ❌ |
 | ZnhEGzpEd5g | Mexico | Broke Strikeout Record | 41:55 | ⚠ partial | ❌ |
+| pBT9ZhxTJ5c | Other | I Encountered A Rogue Umpire | 1:03:12 | ❌ blocked | ⏳ owner dl |
 
 **Note:** All 360p downloads via android client extractor (YouTube 429 blocks web client; android bypasses it at 360p only — no 720p available while rate limited). 360p is sufficient for clip encode (standard profile scales to 640 wide).
 
-**Download queue (remaining):** V8gW0dj_s-A, eKCyoudbw9g, -LlMgGbGZZU, bDKnEWl8eSs, X0dLL4uYivE (Japan/Ducks with clip candidates or pending scan)
+**⚠ YouTube BOT-CHECK block (2026-09-14):** Rate limit escalated from 429 to full bot-detection ("Sign in to confirm you're not a bot") — android, web_embedded, and web_safari clients all blocked. No further yt-dlp downloads until cookies are passed (`--cookies-from-browser`) or owner downloads manually. iCloud path for manual drops: `iCloudDrive/0.5 Baseball/_sources/`.
+
+**Exercise keyword scan results (V8gW0dj_s-A, eKCyoudbw9g, -LlMgGbGZZU):** Scanned 2026-09-14 with full exercise keyword set (plyo/j-band/shoulder tube/foam roll/sleeper/couch/90-90/etc.). **0 hits each** — confirmed game-breakdown only, no exercise/warmup/stretch content. MP4s not needed for exercise purposes; only needed for clip candidates already identified in the VTT catalog above (`ducks-seq-fb-tunnel-up` from -LlMgGbGZZU).
+
+**Download queue (remaining):** -LlMgGbGZZU (for ducks-seq-fb-tunnel-up clip), bDKnEWl8eSs (bullpen protocol), X0dLL4uYivE (game-day warmup sequence); V8gW0dj_s-A and eKCyoudbw9g lower priority (no exercise content, clip candidates already cut from same video). pBT9ZhxTJ5c (rogue umpire) — owner downloading on phone.
+
+---
+
+## "I Encountered A Rogue Umpire" — pBT9ZhxTJ5c — PENDING EXERCISE SCAN
+
+**Video ID:** `pBT9ZhxTJ5c`
+**Duration:** ~1:03:12 (confirmed via channel search)
+**Status:** ⏳ VTT + MP4 blocked by YouTube bot-check. Owner downloading to phone.
+**Drop target:** `iCloudDrive/0.5 Baseball/_sources/` — once dropped, Lane M will pick up and scan.
+
+**Owner confirmed content includes:**
+- Plyoball routine (some plyoball routine stuff)
+- Static stretches ("static 45s" = static stretches in app's Warm Up tab, steps 07–17b)
+- Exercise content that maps to the BATTERY app exercise list
+
+**4App exercise list to scan for (arm.html step-name inventory):**
+
+| Tab | Exercises to find |
+|-----|-------------------|
+| Dynamic Warmup | Leg Swings, Arm Circles, Walking Lunge+Twist, High Knees+Butt Kicks, Hip Circles, Side-Lying T-Spine |
+| Static Stretches | Sleeper Stretch ⭐, Couch Stretch, 90/90 Hip Stretch, Shoulder Cross-Body, Wrist Flexor, Calf/Ankle Dorsiflexion |
+| J-Bands (12) | Over-the-head Forearm Extensions, Scarecrow, External Rotation, Internal Rotation, Diagonal Up/Down, etc. |
+| Shoulder Tube (4) | Overhead, Forward Plane, Lateral Plane, Throwing Position |
+| PlyoCare (10) | Kneeling Reverse Throw ⭐, Spiral Drill ⭐, Reverse+Spiral, Standing Sequence, Stomp Sequence, Hop-Step (Javelin Step), Drop-Step Pickoffs, Drop Drill, Step-Behind w/ Arm Swing, Mound/Stretch Throws |
+| Recovery | Foam Rolling, Eccentrics, Isometrics, Arm care post-start routine |
+
+**Scan plan (once VTT or MP4 available):**
+- VTT-first scan with full exercise keyword regex (plyo|plyocare|reverse.?throw|spiral|drop.?step|stomp|javelin|j.?band|shoulder.?tube|foam.?roll|sleeper|couch.?stretch|90.?90|hip.?circle|t.?spine|cuff.?weight|static|stretch|warm.?up.?routine|arm.?care|eccentr|isometr)
+- Also apply frames-first rule (this is a vlog that may show visual exercise content without narrating it)
+- Cut clips for any exercise that matches an app step-name — priority: static stretches + plyocare exercises (user confirmed present)
+
+**Clip naming convention (pending scan):**
+- `ru-plyo-<exercise>.mp4` — PlyoCare exercises
+- `ru-static-<exercise>.mp4` — Static stretches
+- `ru-warmup-<exercise>.mp4` — Dynamic warmup exercises
+- `ru-jband-<exercise>.mp4` — J-Band exercises (if demonstrated)
