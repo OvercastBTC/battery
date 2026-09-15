@@ -677,6 +677,83 @@
     .pip { width: 100%; max-width: 38px; }
   }
 
+  .month-cal {
+    margin-bottom: 12px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 10px;
+    background: var(--steel);
+  }
+  .month-cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .month-cal-nav button {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--bone);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .month-cal-nav button:hover { border-color: var(--gold); color: var(--gold); }
+  .month-cal-label {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bone);
+    letter-spacing: 0.5px;
+  }
+  .month-cal-hdr {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    color: var(--dim);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .month-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    background: var(--ink);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .cal-day.today { border-color: var(--blue); }
+  .cal-day.selected { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+  .cal-day.other { opacity: 0.25; cursor: default; }
+  .cal-day.future { opacity: 0.4; }
+  .cal-day-fill {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    border-radius: 0 0 3px 3px;
+  }
+  .cal-day-fill.both { background: var(--green); }
+  .cal-day-fill.partial { background: var(--gold); }
+  .cal-day-fill.low { background: var(--line-bright); }
+  .cal-day-num {
+    position: relative;
+    z-index: 1;
+  }
+
   .progress-row {
     margin-bottom: 14px;
   }
@@ -1934,6 +2011,18 @@
       <div class="mini-strip" id="mini-strip" title="Last 7 days · both goals hit = filled">
         <!-- 7 day pips injected here -->
       </div>
+    </div>
+
+    <div class="month-cal" id="month-cal">
+      <div class="month-cal-nav">
+        <button onclick="_calPrev()">◀</button>
+        <span class="month-cal-label" id="cal-label"></span>
+        <button onclick="_calNext()">▶</button>
+      </div>
+      <div class="month-cal-hdr">
+        <span>SU</span><span>MO</span><span>TU</span><span>WE</span><span>TH</span><span>FR</span><span>SA</span>
+      </div>
+      <div class="month-cal-grid" id="cal-grid"></div>
     </div>
 
     <div class="selected-banner" id="selected-banner">
@@ -4798,6 +4887,7 @@
 
     // Also refresh mini stats / strip / weekly / suggestions each time
     refreshMiniStrip();
+    renderCalendar();
     refreshMiniStats();
     refreshWeekly();
     refreshSuggestions();
@@ -5449,6 +5539,99 @@
       strip._hasClickHandler = true;
     }
   }
+
+  /* ===== MONTH CALENDAR (PLAN-003) ===== */
+  var _calYear = new Date().getFullYear();
+  var _calMonth = new Date().getMonth();
+  var MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function classifyDateKey(dateKey) {
+    var parts = dateKey.split('-');
+    var d = new Date(+parts[0], +parts[1]-1, +parts[2]);
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var target = d;
+    var diff = Math.round((today - target) / 86400000);
+    var isToday = (diff === 0);
+    if (diff < 0) return { tier: 'future', pPct: 0, wPct: 0 };
+    var tot = getTotalsForDate(dateKey);
+    var goal = _goalForDate(dateKey, isToday);
+    if (tot.protein === 0 && tot.water === 0) return { tier: 'empty', pPct: 0, wPct: 0 };
+    var pPct = goal.protein > 0 ? tot.protein / goal.protein : 0;
+    var wPct = goal.water > 0 ? tot.water / goal.water : 0;
+    var trk = trackedAreas();
+    var pJ = trk.protein ? pPct : 1;
+    var wJ = trk.water ? wPct : 1;
+    var both = (pJ >= 1) && (wJ >= 1);
+    var partial = (pJ >= 0.8) && (wJ >= 0.8);
+    return { tier: both ? 'both' : (partial ? 'partial' : 'low'), pPct: pPct, wPct: wPct };
+  }
+
+  function renderCalendar() {
+    var label = document.getElementById('cal-label');
+    var grid = document.getElementById('cal-grid');
+    if (!label || !grid) return;
+    label.textContent = MONTH_NAMES[_calMonth] + ' ' + _calYear;
+    var first = new Date(_calYear, _calMonth, 1);
+    var startDow = first.getDay();
+    var daysInMonth = new Date(_calYear, _calMonth + 1, 0).getDate();
+    var todayStr = todayKey();
+    var html = '';
+    // leading blanks
+    for (var b = 0; b < startDow; b++) {
+      html += '<div class="cal-day other"></div>';
+    }
+    for (var d = 1; d <= daysInMonth; d++) {
+      var dk = _calYear + '-' + String(_calMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      var cls = classifyDateKey(dk);
+      var isToday = (dk === todayStr);
+      var isSel = (dk === _selectedDate);
+      var fillCls = '';
+      var fillPct = 0;
+      if (cls.tier === 'both') { fillCls = 'both'; fillPct = 100; }
+      else if (cls.tier === 'partial') { fillCls = 'partial'; fillPct = Math.min(100, Math.max(cls.pPct, cls.wPct) * 100); }
+      else if (cls.tier === 'low') { fillCls = 'low'; fillPct = Math.min(100, Math.max(cls.pPct, cls.wPct) * 100); }
+      var extra = '';
+      if (isToday) extra += ' today';
+      if (isSel) extra += ' selected';
+      if (cls.tier === 'future') extra += ' future';
+      html += '<div class="cal-day' + extra + '" data-date="' + dk + '">';
+      html += '<span class="cal-day-num">' + d + '</span>';
+      if (fillPct > 0) html += '<div class="cal-day-fill ' + fillCls + '" style="height:' + fillPct + '%"></div>';
+      html += '</div>';
+    }
+    grid.innerHTML = html;
+    if (!grid._hasClickHandler) {
+      grid.addEventListener('click', function(e) {
+        var cell = e.target.closest('.cal-day');
+        if (!cell || cell.classList.contains('other') || cell.classList.contains('future')) return;
+        var dk = cell.getAttribute('data-date');
+        if (dk) {
+          _selectDate(dk);
+          if (typeof batteryEditDay === 'function') batteryEditDay(dk);
+        }
+      });
+      grid._hasClickHandler = true;
+    }
+    // clamp forward nav: don't go past current month
+    var now = new Date();
+    var nextBtn = document.querySelector('.month-cal-nav button:last-child');
+    if (nextBtn) {
+      nextBtn.disabled = (_calYear === now.getFullYear() && _calMonth >= now.getMonth()) ||
+                         (_calYear > now.getFullYear());
+      nextBtn.style.opacity = nextBtn.disabled ? '0.3' : '1';
+    }
+  }
+
+  function _calPrev() { _calMonth--; if (_calMonth < 0) { _calMonth = 11; _calYear--; } renderCalendar(); }
+  function _calNext() {
+    var now = new Date();
+    if (_calYear === now.getFullYear() && _calMonth >= now.getMonth()) return;
+    if (_calYear > now.getFullYear()) return;
+    _calMonth++; if (_calMonth > 11) { _calMonth = 0; _calYear++; } renderCalendar();
+  }
+  window._calPrev = _calPrev;
+  window._calNext = _calNext;
 
   function refreshMiniStats() {
     let pSum = 0, wSum = 0, count = 0;
@@ -6468,6 +6651,7 @@
         if(window.batteryRenderHist)window.batteryRenderHist();
         if(typeof refreshProgress==='function')refreshProgress();
         if(typeof refreshMiniStrip==='function')refreshMiniStrip();
+        if(typeof renderCalendar==='function')renderCalendar();
         if(typeof refreshLog==='function')refreshLog();
         if(window.batteryRenderVerdict)window.batteryRenderVerdict();
       }

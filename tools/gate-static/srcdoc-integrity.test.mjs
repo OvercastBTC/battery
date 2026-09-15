@@ -26,7 +26,8 @@ if (bom !== null) { console.log('\nSRCDOC INTEGRITY: FAIL'); process.exit(1); }
 const src = fs.readFileSync(APP, 'utf8');
 
 // Detect build shape
-const isSplit = src.includes('src="arm.html"') && src.includes('src="fuel.html"');
+const isSplit = (src.includes('src="arm.html"') || src.includes("src='arm.html")) &&
+                (src.includes('src="fuel.html"') || src.includes("src='fuel.html"));
 const isMonolith = src.includes('srcdoc="');
 
 if (isSplit) {
@@ -36,8 +37,8 @@ if (isSplit) {
     const iframeTag = src.includes(`id="${id}"`);
     log(iframeTag, `${id}: iframe tag present`);
 
-    const srcAttr = src.includes(`src="${file}"`);
-    log(srcAttr, `${id}: uses src="${file}"`);
+    const srcAttr = src.includes(`src="${file}"`) || src.includes(`src='${file}`);
+    log(srcAttr, `${id}: references ${file}`);
 
     const filePath = path.join(appDir, file);
     const exists = fs.existsSync(filePath);
