@@ -771,7 +771,7 @@ New pitch introduction (sweeper). Key moments:
 | `ducks-seq-first-pitch.mp4` | iV1lkqk-IVQ | 1:41–2:20 | First pitch philosophy + cutter→splitter opener | ✅ CUT 761KB |
 | `ducks-seq-splitter-tree.mp4` | SSVDpWbxVdQ | 1:17–1:35 | Reading off-speed tendencies → splitter → curveball | ✅ CUT 526KB |
 | `ducks-seq-new-pitch.mp4` | ADmcDpu9vNw | 1:18–1:50 | Cutter/sweeper/curve tree, new pitch insertion | ✅ CUT 984KB |
-| `ducks-seq-fb-tunnel-up.mp4` | -LlMgGbGZZU | 2:07–2:15 | Fastball up-in tunnel → splitter execution | ⏳ source not yet downloaded |
+| `ducks-seq-fb-tunnel-up.mp4` | -LlMgGbGZZU | 2:07–2:15 | Fastball up-in tunnel → splitter execution | ✅ CUT 179KB |
 
 All 4 downloaded Ducks clips in `battery-laneM/clips/`. Branch: `laneM/recov-clips-req015`.
 
@@ -901,7 +901,7 @@ VTT confirms 292 keyword hits are scattered through 31 minutes — no single den
 | V8gW0dj_s-A | Ducks | I Got Signed After This Start | 36:13 | ✅ | ❌ |
 | eKCyoudbw9g | Ducks | They Took Away My Best Pitches | 53:57 | ✅ | ❌ |
 | ADmcDpu9vNw | Ducks | I Threw My Brand New Pitch | 44:47 | ✅ | ✅ 184MB (360p) |
-| -LlMgGbGZZU | Ducks | I Struck Out 15 And Got Pulled | 54:25 | ✅ | ❌ |
+| -LlMgGbGZZU | Ducks | I Struck Out 15 And Got Pulled | 54:25 | ✅ | ✅ section (2:00-2:20) |
 | Q65LYjUEpHg | Japan | Home Run Champion | 40:59 | ✅ | ✅ 108MB (360p) |
 | bDKnEWl8eSs | Japan | Strikeout King | 38:17 | ✅ | ❌ |
 | zKz4RmeIP10 | Japan | First Start Almost Perfect | 35:56 | ✅ | ✅ 79MB (360p) |
