@@ -705,3 +705,229 @@ bauer-warmup-3phase.mp4 (0:47–2:00) already committed. These cover phases 2+3 
 
 - [x] `bauer-warmup-activ.mp4`    — 2:02–3:17 (75s, 1.1MB) — activation: J-bands/shoulder tube/cuff weights/pails+rails
 - [x] `bauer-warmup-specific.mp4` — 3:17–5:01 (104s, 1.6MB) — activity-specific: weighted ball reverse throws + Driveline drills
+
+---
+
+## Long Island Ducks Breakdowns — CATALOGED 2026-09-14, VTTs downloaded, videos not yet downloaded
+
+**Playlist:** `PLIAmwQKhPrAQe8he9ZyQpyGQYWfoG79-i` — "2026 Long Island Ducks Breakdowns"
+**Content type:** Pitch-by-pitch game breakdown vlogs — Bauer narrates his approach, tunnel decisions,
+sequence logic, and pitch design adjustments in real time over game footage. Richest tunnel/sequence
+source in the catalog. VTT scans show 320–660 keyword hits per video.
+
+**VTT scrub method:** Transcript-first (these are instructional commentary over game video, not silent B-roll).
+
+### iV1lkqk-IVQ — "I Pitched In The U.S. After 5 Years" (50:21) — VTT 660 hits
+First Long Island Ducks start. Key moments from VTT:
+- **0:55–1:20** — warmup protocol: threw warm-ups after first pitch thrown (setup mistake), discusses routine order
+- **1:41–2:00** — "normally you throw a first pitch fastball coming out of the gate" — first-pitch philosophy
+- Pitch sequences throughout: fastball → cutter → splitter → curveball progressions
+- **NOTE:** Download for clipping. Best single-source for warmup order/protocol discussion.
+
+### LTgyXmpI2Go — "I Threw A No Hitter, A Breakdown" (50:20) — VTT 632 hits ⭐ HIGHEST VALUE
+Full no-hitter breakdown with explicit tunnel terminology. Key moments from VTT:
+- **1:33–1:44** — "he was triggering on an inside tunnel. He saw inside, he swung, ball went opposite way" — hitter tunnel read
+- **1:39–1:44** — "dead zone cutter" concept — cutter that looks inside but breaks back
+- **2:42–2:47** — "down I have cutter splitter going below the zone and I have free stuff at the top" — pitch tree from down tunnel
+- **3:10–3:20** — "up tunnel set" vs "down tunnel set" — explicit tunnel management language
+- **3:18–3:22** — "throwing two-seam open, fastball up and in open" — arm-side/glove-side mapping
+- Throughout: explicit tunnel decision logic for each AB
+- **NOTE:** Download immediately. Best tunnel analysis video in the catalog. 50+ minutes of breakdown.
+
+### SSVDpWbxVdQ — "My 10 Strikeout Game Got Heated" (49:06) — VTT 497 hits
+- **0:34–0:37** — "first pitch fastball right down the middle" — opener strategy
+- **1:17–1:32** — "go splitter down. They're definitely looking off speed." → "go curveball" — reading hitter tendencies
+- Fastball/splitter/curveball three-pitch tunnel sequences throughout
+- Confrontation/heated moment context in 2nd half
+
+### V8gW0dj_s-A — "I Got Signed After This Start" (36:13) — VTT 495 hits
+Post-suspension return start (context: this start led to independent league contract). Key moments:
+- **0:53–1:01** — "splitter going in, splitter going away" — splitter location variety
+- **1:18–1:22** — "threw cutter to the hands figuring he might pop it up, then used that tunnel up middle" — inside cutter → up-tunnel
+- Full pitch sequence breakdown throughout
+
+### eKCyoudbw9g — "They Took Away My Best Pitches" (53:57) — VTT 407 hits
+Pitch strategy under restriction (some pitches flagged/banned). Key moments:
+- **1:43–1:54** — "threw splitter because I'd thrown breaking balls first time, figured they'd be looking for breaking balls. Wanted to get splitter established" — cross-AB sequencing logic
+- **2:47–2:49** — "have to turn it on and throw harder on command" — velocity on demand discussion
+- Adjustment narrative throughout
+
+### ADmcDpu9vNw — "I Threw My Brand New Pitch" (44:47) — VTT 362 hits
+New pitch introduction (sweeper). Key moments:
+- **0:13–0:14** — "debuting some new pitches, all-time attendance record"
+- **1:18–1:45** — cutter → sweeper → curveball three-pitch sequence: "after he's early on the cutter, I went to the sweeper, and he auto took it. So I went [curveball]" — pitch tree execution
+- New pitch introduction narrative: how he developed it, how it fits the repertoire
+
+### -LlMgGbGZZU — "I Struck Out 15 And Got Pulled" (54:25) — VTT 320 hits
+15-K game despite being pulled early. Key moments:
+- **1:33–1:36** — "cutter in" first pitch, then breaking ball
+- **1:42–1:46** — "cutter just off the plate out of the same tunnel" — explicit tunnel language
+- **2:07–2:10** — "thought I'd go out of that up and in fastball tunnel with a splitter" — FB tunnel → splitter execution
+
+### Clip candidates (Ducks) — to cut once videos downloaded
+| Clip name | Source | Timestamps | Content |
+|-----------|--------|-----------|---------|
+| `ducks-seq-tunnel-read.mp4` | LTgyXmpI2Go | 1:33–3:20 | Hitter tunnel reading + dead zone cutter + up/down tunnel management |
+| `ducks-seq-first-pitch.mp4` | iV1lkqk-IVQ | 1:41–2:20 | First pitch philosophy + cutter→splitter opener |
+| `ducks-seq-splitter-tree.mp4` | SSVDpWbxVdQ | 1:17–1:35 | Reading off-speed tendencies → splitter → curveball |
+| `ducks-seq-new-pitch.mp4` | ADmcDpu9vNw | 1:18–1:50 | Cutter/sweeper/curve tree, new pitch insertion |
+| `ducks-seq-fb-tunnel-up.mp4` | -LlMgGbGZZU | 2:07–2:15 | Fastball up-in tunnel → splitter execution |
+
+**Download priority:** LTgyXmpI2Go first (no-hitter, richest tunnel content), then iV1lkqk-IVQ, SSVDpWbxVdQ.
+
+---
+
+## Japan game vlogs — CATALOGED 2026-09-14, VTTs downloaded
+
+**Source channel:** @BauerOutage, "2025 Japan Vlog" playlist (`PLIAmwQKhPrASKT64P4yiV52ewgoUNpUIf`)
+**Vlog rule applies:** frames-first for silent workout/warmup content; transcript-first for narrated game analysis.
+
+### Q65LYjUEpHg — "I Faced Japan's Home Run Champion" (40:59) — LOCAL MP4 + VTT
+Already-cut clips: jp1-* (gym workout 1:24–2:02, team stretch 18:06–18:34, foam roller 19:24–21:04)
+VTT scan (348 keyword hits) found additional content not previously cataloged:
+- **0:40–1:01** — "mechanics have been a little bit inefficient" — self-analysis of mechanical issues
+- **6:26–7:22** — **EMBEDDED DRILL: "preset posture squat drill"** — command/velocity drill
+  - "if your posture is being sold at the plate, it's probably affecting your command and velocity"
+  - "start with feet a little wider than shoulder width, set the posture you want to keep"
+  - Drill details: squat with preset posture, maintain through delivery
+  - "If you execute this drill correctly, it's going to help with your velocity and command"
+  - **NOTE:** This is real instructional content — Bauer demonstrates a specific drill. Cut this.
+
+**Proposed new clip:**
+- `jp2-drill-posturesquat.mp4` — 6:26–7:22 (~56s) — preset posture squat drill for command/velocity
+
+### bDKnEWl8eSs — "I Faced Japan's Strikeout King (He Taunted Me)" (38:17) — VTT 389 hits
+VTT highlights:
+- **1:24–1:25** — "body a little bit of recovery today before my bullpen tomorrow" — day-before protocol
+- **4:57–5:23** — "today is bullpen day. Goal for the pen today is throw strikes" — bullpen intent/planning
+- **5:39–5:41** — "heart rate is like double what it should be for the amount of warm up" — warmup undershoot self-assessment
+- **6:12–6:16** — "start with cutter away" → pitch execution in bullpen — bullpen pitch selection
+- **6:40–6:50** — "back door cutter" → splitter sequence in pen
+- Throughout: approach analysis vs strikeout king — adjusting to changed tendencies
+- **NOTE:** Download for bullpen protocol + pitch sequencing content. ~38 min.
+
+### zKz4RmeIP10 — "My First Start In Japan Was Almost Perfect" (35:56) — VTT 278 hits ⭐
+VTT highlights (transcript-first — narrated game breakdown):
+- **0:28–0:37** — "looking for: command sequencing, height of pitches, movement on my splitter" — pre-start goals
+- **0:45–0:59** — "tried to go splitter, getting that pitch going. Haven't had good depth to it" — splitter development
+- **1:04–1:09** — "set up a good tunnel for a curveball, though" → curveball execution after splitter tunnel
+- **1:25–1:38** — "really good splitter. Last one angled down. Splitter started a little above it" — splitter shape analysis
+- **1:38–1:47** — "exact same sequence as the first guy. Tried the exact same sequence again" — sequence repetition strategy
+- Full game breakdown with tunnel → pitch sequences throughout
+- **NOTE:** One of the richest Japan pitch-sequence videos. Download for clipping.
+
+**Proposed clips:**
+- `jp-seq-splitter-tunnel.mp4` — zKz4RmeIP10 ~1:04–1:20 — fastball sets tunnel → curveball
+- `jp-seq-same-sequence.mp4` — zKz4RmeIP10 ~1:38–2:00 — deliberate sequence repetition analysis
+
+### X0dLL4uYivE — "My First Game In Japan Broke Records" (17:54) — VTT 61 hits
+- **0:27–0:51** — "full game day warm-up: hot tub → weighted balls → shoulder tube → long toss → pregame bullpen → showtime" — complete game-day sequence
+- **1:05–1:10** — "cutter in to speed up, then slider chase" — sequence execution
+- **NOTE:** Short video (18 min). Good game-day warmup sequence catalog. Lower priority than bDKnEWl8eSs/zKz4RmeIP10.
+
+### bDKnEWl8eSs, p_VMkZUJOkI, CdMJXC9IsmA — Other Japan vlogs
+- `p_VMkZUJOkI` (Rejoined Team Japan, 25:15): 238 hits — "bullpen. Probably get two or three [innings]" — travel/reentry protocol. Frame-sample for visual workout content.
+- `CdMJXC9IsmA` (MLB vs Japanese All-Star, 23:43): 71 hits — "spin, you need the fastball to come off" — spin theory discussion; "get warmed up. We do have BP time" — pre-game protocol. Reference only.
+- `gRZ8MkZ97lk` (Preparing to Face Best Pitcher, 17:10): 75 hits — "throw harder. I think too much" + "movement though" — self-analysis vs ace. Short video, reference.
+
+**Japan download priority:** Q65LYjUEpHg (already local), zKz4RmeIP10 (download now), bDKnEWl8eSs (download).
+
+---
+
+## Mexico game vlogs — CATALOGED 2026-09-14, VTTs downloaded
+
+**13 videos total** on @BauerOutage covering 2023 Mexican League (LMB) season with Diablos Rojos del México.
+These are narrated game breakdown vlogs — transcript-first (Bauer narrates pitch selections).
+VTT scans show 220–838 keyword hits per video.
+
+### WZtCcI7v4pA — "I Faced Mexico's Most Dangerous Hitters" (52:17) — VTT 637 hits ⭐ HIGHEST MEXICO
+- **0:30–0:35** — "got to get fastballs in to the righties today. Be aggressive with the fastball. Speed them up and finish them" — game plan statement
+- **1:01–1:07** — "no sequence available, no tunnel available, so 2-0 I'm just trying to throw a strike" — tunnel constraints on 2-0
+- **1:11–1:13** — "cutter here" — pitch call
+- **1:18–1:26** — "well-executed middle-middle fastball that thankfully he didn't swing at, went cutter bottom of the zone. Shared the same tunnel. He was a little out in front" — FB/cutter tunnel execution explicit
+- **1:41–1:54** — "get a splitter rolling here early. Three fastballs and a cutter. Start off heater" → "curveball tunnel set up off of that. splitter down the way" — three-pitch tree from fastball
+- 637 hits total — full-game breakdown throughout 52 minutes
+- **NOTE:** Best Mexico pitch sequence video. Download for clipping.
+
+**Proposed clips:**
+- `mx-seq-fb-cutter-tunnel.mp4` — WZtCcI7v4pA ~1:18–1:30 — explicit FB/cutter same-tunnel execution
+- `mx-seq-three-pitch-tree.mp4` — WZtCcI7v4pA ~1:41–2:00 — FB → cutter → curveball/splitter tree
+
+### SLuY7YqJDFU — "I Faced Mexico's Most Dangerous Hitter" (53:05) — VTT 673 hits
+- **1:38–1:42** — "that was the nastiest splitter I've ever [thrown]" — splitter quality assessment
+- **1:39–1:47** — "used a lot of my curveball and my [splitter]" — pitch mix strategy
+- 673 hits throughout — similar depth to WZtCcI7v4pA
+
+### SVDr-eucaeM — "I Pitched Against Mexico's Most Stacked Team (MLB All-Stars + More)" (58:51) — VTT 475 hits
+- **1:24–1:30** — "execute perfect tunnel off of that. Cut her down and in" — explicit tunnel execution called out
+- **2:49–2:51** — "made an adjustment mid-season so my splitter is more controllable and [applicable against lefties]" — in-season pitch adjustment
+- **2:19–2:22** — "didn't bother me at all in warm-ups or pregame catch. But here on the third [inning]" — warmup vs game feel difference
+
+### IYLhuLHI2BM — "I Risked Getting Suspended To Save Our Season" (34:46) — VTT 538 hits
+- **0:57–1:00** — "command probably won't be quite as good" — pre-start honest assessment
+- **1:20–1:22** — "two fastballs, kind of over the [plate]" — pitch execution discussion
+- Emotional/stakes narrative around pitch sequences
+
+### 5MvQJOvxjCw — "I Rejoined My Team In Mexico" (57:36) — VTT 355 hits
+- **0:45–0:49** — "going to get to throw one bullpen in Oaxaca, which is at 5,500 [feet altitude]" — altitude adaptation bullpen
+- Travel reentry + altitude adaptation context throughout
+
+### z8Bu2g6FR5s — "Trevor Bauer Accused Of Cheating In Mexico" (31:07) — VTT 292 hits
+Previously scanned (frames-first). No new cuts beyond the existing `bauer-pitch-hipfire` + `bauer-pitch-gloveside` clips. Verdict stands: fielding B-roll is not worth cutting.
+VTT confirms 292 keyword hits are scattered through 31 minutes — no single dense instructional moment.
+
+### Other Mexico vlogs — lower priority
+| ID | Title | Duration | Hits | Notes |
+|----|-------|----------|------|-------|
+| VriiwxGed9c | Most Hated Team | 44:43 | 319 | bullpen walk-down commentary |
+| 9wc0ltGWqKA | Most Hated Team (Again) | 34:12 | 336 | throwing partner discussion |
+| -wgCpi81DdM | Second Start Set Records | 38:51 | 233 | command issues, next start prep |
+| jtbfEQZJS_4 | First Game In Mexico | 24:59 | 223 | pitch signs/catcher communication |
+| 1WDJhcdqMvY | Joined New Team | 29:06 | 227 | "in a tunnel or you want to dance" — tunnel mention |
+| FB3UWwTY8ps | Almost Missed First Start | 26:42 | 256 | "no exercise, no throwing" — travel disruption |
+| ZnhEGzpEd5g | Broke Strikeout Record | 41:55 | — | VTT download failed partially (curl reset), retry |
+
+**Mexico download priority:** WZtCcI7v4pA first (637 hits, explicit tunnel calls), then SLuY7YqJDFU, SVDr-eucaeM.
+
+---
+
+## VTT download status — 2026-09-14
+
+| ID | Series | Title | Duration | VTT | MP4 |
+|----|--------|-------|----------|-----|-----|
+| iV1lkqk-IVQ | Ducks | I Pitched In The U.S. After 5 Years | 50:21 | ✅ | ❌ |
+| LTgyXmpI2Go | Ducks | I Threw A No Hitter, A Breakdown | 50:20 | ✅ | ❌ |
+| SSVDpWbxVdQ | Ducks | My 10 Strikeout Game Got Heated | 49:06 | ✅ | ❌ |
+| V8gW0dj_s-A | Ducks | I Got Signed After This Start | 36:13 | ✅ | ❌ |
+| eKCyoudbw9g | Ducks | They Took Away My Best Pitches | 53:57 | ✅ | ❌ |
+| ADmcDpu9vNw | Ducks | I Threw My Brand New Pitch | 44:47 | ✅ | ❌ |
+| -LlMgGbGZZU | Ducks | I Struck Out 15 And Got Pulled | 54:25 | ✅ | ❌ |
+| Q65LYjUEpHg | Japan | Home Run Champion | 40:59 | ✅ | ✅ (local) |
+| bDKnEWl8eSs | Japan | Strikeout King | 38:17 | ✅ | ❌ |
+| zKz4RmeIP10 | Japan | First Start Almost Perfect | 35:56 | ✅ | ❌ |
+| X0dLL4uYivE | Japan | First Game Broke Records | 17:54 | ✅ | ❌ |
+| p_VMkZUJOkI | Japan | Rejoined Team Japan | 25:15 | ✅ | ❌ |
+| gRZ8MkZ97lk | Japan | Preparing to Face Best Pitcher | 17:10 | ✅ | ❌ |
+| CdMJXC9IsmA | Japan | MLB vs Japanese All-Star | 23:43 | ✅ | ❌ |
+| KyFBxnS4ZUw | Japan | Friends NOT Prepared | 20:55 | ✅ | ❌ |
+| vL0vSQNAQwI | Japan | Arriving at Brand New Team | 28:14 | ✅ | ❌ |
+| WZtCcI7v4pA | Mexico | Most Dangerous Hitters | 52:17 | ✅ | ❌ |
+| SLuY7YqJDFU | Mexico | Most Dangerous Hitter | 53:05 | ✅ | ❌ |
+| SVDr-eucaeM | Mexico | Most Stacked Team | 58:51 | ✅ | ❌ |
+| IYLhuLHI2BM | Mexico | Risked Getting Suspended | 34:46 | ✅ | ❌ |
+| 5MvQJOvxjCw | Mexico | Rejoined Team Mexico | 57:36 | ✅ | ❌ |
+| z8Bu2g6FR5s | Mexico | Accused of Cheating | 31:07 | ✅ | (scanned, no new cuts) |
+| VriiwxGed9c | Mexico | Most Hated Team | 44:43 | ✅ | ❌ |
+| 9wc0ltGWqKA | Mexico | Most Hated Team (Again) | 34:12 | ✅ | ❌ |
+| -wgCpi81DdM | Mexico | Second Start Set Records | 38:51 | ✅ | ❌ |
+| jtbfEQZJS_4 | Mexico | First Game In Mexico | 24:59 | ✅ | ❌ |
+| 1WDJhcdqMvY | Mexico | Joined New Team | 29:06 | ✅ | ❌ |
+| FB3UWwTY8ps | Mexico | Almost Missed First Start | 26:42 | ✅ | ❌ |
+| ZnhEGzpEd5g | Mexico | Broke Strikeout Record | 41:55 | ⚠ partial | ❌ |
+
+**Download queue (by priority):**
+1. LTgyXmpI2Go (Ducks no-hitter, 50min)
+2. WZtCcI7v4pA (Mexico dangerous hitters, 52min)
+3. zKz4RmeIP10 (Japan first start, 36min)
+4. iV1lkqk-IVQ (Ducks first US start, 50min)
+5. bDKnEWl8eSs (Japan strikeout king, 38min)
