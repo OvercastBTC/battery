@@ -107,9 +107,22 @@
   }
   .toggle-icon {
     display: inline-block;
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid currentColor;
     transition: transform 0.2s;
   }
   .toggle-icon.collapsed { transform: rotate(-90deg); }
+  .caret {
+    display: inline-block;
+    width: 0; height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    vertical-align: middle;
+    transition: transform 0.2s;
+  }
 
   h1.stencil {
     font-family: 'Courier New', monospace;
@@ -413,6 +426,13 @@
   .tab.active {
     color: var(--blue);
     border-bottom-color: var(--blue);
+  }
+  @media (max-width: 480px) {
+    .tab {
+      padding: 10px 8px;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
   }
 
   /* PAGES */
@@ -780,9 +800,12 @@
     user-select: none;
   }
   .qa-subgroup-label::before {
-    content: '▾';
-    font-size: 8px;
-    color: var(--faint);
+    content: '';
+    display: inline-block;
+    width: 0; height: 0;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid var(--faint);
     margin-right: 6px;
     flex-shrink: 0;
     transition: transform .2s;
@@ -1793,7 +1816,7 @@
         <div class="sub">Protein + Hydration</div>
       </div>
       <button class="collapse-toggle" id="collapse-btn" onclick="toggleControls()" aria-label="Toggle controls">
-        <span class="toggle-icon">▾</span>
+        <span class="toggle-icon"></span>
       </button>
     </div>
 
@@ -1911,7 +1934,7 @@
   <div class="card gold" id="ct-card" style="margin-bottom:12px">
     <div class="ct-head" onclick="toggleCT()" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer">
       <div class="card-title">Your computed targets</div>
-      <span id="ct-caret" style="color:var(--dim);font-size:13px">▾</span>
+      <span id="ct-caret" class="caret" style="color:var(--dim)"></span>
     </div>
     <div id="ct-slot" style="display:none;margin-top:10px"></div>
   </div>
@@ -2178,7 +2201,7 @@
         <div class="ptg-row"><span class="ptg-p" id="pt-travel-p">—</span><span class="ptg-w" id="pt-travel-w">—</span></div>
       </div>
     </div>
-    <button class="prof-details-toggle" onclick="toggleProfileDetails()">▾ How was this calculated?</button>
+    <button class="prof-details-toggle" onclick="toggleProfileDetails()"><span class="caret pdt-caret"></span> How was this calculated?</button>
     <div class="prof-details" id="prof-details" style="display:none">
       <div class="prof-details-row" id="pd-baseline">—</div>
       <div class="prof-details-row" id="pd-protein">—</div>
@@ -4560,7 +4583,7 @@
     if(!s) return;
     const open=s.style.display!=='none';
     s.style.display=open?'none':'block';
-    if(c) c.textContent=open?'▾':'▴';
+    if(c) c.style.transform=open?'':'rotate(180deg)';
   };
   if(document.readyState!=='loading') relocateCT();
   else document.addEventListener('DOMContentLoaded', relocateCT);
@@ -6082,10 +6105,14 @@
     if (!d) return;
     if (d.style.display === 'none') {
       d.style.display = 'block';
-      btn.textContent = '▴ Hide calculation';
+      var ca = btn.querySelector('.pdt-caret');
+      if(ca) ca.style.transform = 'rotate(180deg)';
+      btn.lastChild.textContent = ' Hide calculation';
     } else {
       d.style.display = 'none';
-      btn.textContent = '▾ How was this calculated?';
+      var ca = btn.querySelector('.pdt-caret');
+      if(ca) ca.style.transform = '';
+      btn.lastChild.textContent = ' How was this calculated?';
     }
   }
 
@@ -6344,7 +6371,7 @@
       }
       host.innerHTML='<div onclick="batteryToggleHist()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin:4px 0 8px">'+
         '<div style="font-size:11px;letter-spacing:1.5px;color:#8b949e;font-family:\'SF Mono\',monospace;text-transform:uppercase">Daily log · tap a day to edit</div>'+
-        '<span style="color:#8b949e;font-size:13px;transform:rotate('+(open?'0':'-90')+'deg);transition:.2s">▾</span></div>'+rows;
+        '<span class="caret" style="color:#8b949e;transform:rotate('+(open?'0':'-90')+'deg)"></span></div>'+rows;
     }
 
     /* ===== per-item day editor: named items + time editing (1.2, 1.3) ===== */
@@ -6956,7 +6983,7 @@
       // w rides along so pinning a shake/combo item from the menu keeps its
       // paired water credit (same invariant togglePinFromLog's other callers hold).
       item(f.manual?'☆ Unfavorite':'★ Favorite (pin)', function(){ try{ togglePinFromLog(f.type,f.amount,f.label,f.e,f.w); }catch(e){} });
-      if(f.manual){ item('◀ Move left', function(){ moveFav(f,-1); }); item('Move right ▶', function(){ moveFav(f,1); }); }
+      if(f.manual){ item('← Move left', function(){ moveFav(f,-1); }); item('Move right →', function(){ moveFav(f,1); }); }
       document.body.appendChild(menu);
     }
 
