@@ -816,9 +816,9 @@ VTT highlights (transcript-first — narrated game breakdown):
 - Full game breakdown with tunnel → pitch sequences throughout
 - **NOTE:** One of the richest Japan pitch-sequence videos. Download for clipping.
 
-**Proposed clips (zKz4RmeIP10 downloaded 2026-09-14, 79MB, ready to cut):**
-- [ ] `jp-seq-splitter-tunnel.mp4` — zKz4RmeIP10 ~1:04–1:20 — fastball sets tunnel → curveball
-- [ ] `jp-seq-same-sequence.mp4` — zKz4RmeIP10 ~1:38–2:00 — deliberate sequence repetition analysis
+**Clips — CUT 2026-09-14:**
+- [x] `jp-seq-splitter-tunnel.mp4` — zKz4RmeIP10 ~1:04–1:20 — fastball sets tunnel → curveball (261KB, cut-not-wired)
+- [x] `jp-seq-same-sequence.mp4` — zKz4RmeIP10 ~1:38–2:00 — deliberate sequence repetition strategy (577KB, cut-not-wired)
 
 ### X0dLL4uYivE — "My First Game In Japan Broke Records" (17:54) — VTT 61 hits
 - **0:27–0:51** — "full game day warm-up: hot tub → weighted balls → shoulder tube → long toss → pregame bullpen → showtime" — complete game-day sequence
