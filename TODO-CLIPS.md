@@ -903,9 +903,9 @@ VTT confirms 292 keyword hits are scattered through 31 minutes — no single den
 | ADmcDpu9vNw | Ducks | I Threw My Brand New Pitch | 44:47 | ✅ | ✅ 184MB (360p) |
 | -LlMgGbGZZU | Ducks | I Struck Out 15 And Got Pulled | 54:25 | ✅ | ✅ section (2:00-2:20) |
 | Q65LYjUEpHg | Japan | Home Run Champion | 40:59 | ✅ | ✅ 108MB (360p) |
-| bDKnEWl8eSs | Japan | Strikeout King | 38:17 | ✅ | ❌ |
+| bDKnEWl8eSs | Japan | Strikeout King | 38:17 | ✅ | ✅ 163MB — frame-scanned 2026-09-16: game-day K-counter vlog (10K, 9 innings) + indoor cage facility tour; NO drill clips — vlog/game diary only |
 | zKz4RmeIP10 | Japan | First Start Almost Perfect | 35:56 | ✅ | ✅ 79MB (360p) |
-| X0dLL4uYivE | Japan | First Game Broke Records | 17:54 | ✅ | ❌ |
+| X0dLL4uYivE | Japan | First Game Broke Records | 17:54 | ✅ | ✅ 68MB — frame-scanned 2026-09-16: Japan arrival vlog, hotel life, Command Logging app, media day, locker room; NO drill clips |
 | p_VMkZUJOkI | Japan | Rejoined Team Japan | 25:15 | ✅ | ❌ |
 | gRZ8MkZ97lk | Japan | Preparing to Face Best Pitcher | 17:10 | ✅ | ❌ |
 | CdMJXC9IsmA | Japan | MLB vs Japanese All-Star | 23:43 | ✅ | ❌ |
@@ -932,7 +932,7 @@ VTT confirms 292 keyword hits are scattered through 31 minutes — no single den
 
 **Exercise keyword scan results (V8gW0dj_s-A, eKCyoudbw9g, -LlMgGbGZZU):** Scanned 2026-09-14 with full exercise keyword set (plyo/j-band/shoulder tube/foam roll/sleeper/couch/90-90/etc.). **0 hits each** — confirmed game-breakdown only, no exercise/warmup/stretch content. MP4s not needed for exercise purposes; only needed for clip candidates already identified in the VTT catalog above (`ducks-seq-fb-tunnel-up` from -LlMgGbGZZU).
 
-**Download queue (remaining):** -LlMgGbGZZU (for ducks-seq-fb-tunnel-up clip), bDKnEWl8eSs (bullpen protocol), X0dLL4uYivE (game-day warmup sequence); V8gW0dj_s-A and eKCyoudbw9g lower priority (no exercise content, clip candidates already cut from same video). pBT9ZhxTJ5c (rogue umpire) — owner downloading on phone.
+**Download queue (remaining):** V8gW0dj_s-A and eKCyoudbw9g lower priority (no exercise content, clip candidates already identified from VTT). All other priority downloads complete: -LlMgGbGZZU ✅ (ducks-seq-fb-tunnel-up cut), bDKnEWl8eSs ✅ (frame-scanned 2026-09-16: no drill clips), X0dLL4uYivE ✅ (frame-scanned 2026-09-16: no drill clips), pBT9ZhxTJ5c ✅ (3 clips cut).
 
 ---
 
@@ -968,3 +968,40 @@ across 3 exercise zones identified from overview.
 | `ru-warmup-highknees.mp4` | 14:05 | 14:35 | 1.0MB | Dynamic Warmup — High Knees + Butt Kicks |
 | `ru-plyo-humpty.mp4` | 15:15 | 16:30 | 1.9MB | PlyoCare — Humpty Drill (indoor tunnel + ball selection + outdoor wall throws) |
 | `ru-gym-deadlift.mp4` | 35:30 | 38:00 | 3.0MB | Gym lifting — deadlifts (no current BATTERY app slot) |
+
+---
+
+## Catching clips — Coach Bougie / @yagoo.guy — 2026-09-16 (Q assignment)
+
+**Source:** YouTube Short `nGSWKIhTnoE` — "This is how catchers frame when pitchers miss their spot" — Coach Bougie (@catchingmadesimple) reacting to @yagoo.guy (Se One Park) pregame drill footage.
+**Downloaded:** `battery-video-work/_sources/nGSWKIhTnoE.mp4` (4.14MB, 58s) + `nGSWKIhTnoE.en.vtt` (1.65KB)
+
+### Content (VTT + frame scan 2026-09-16)
+Three continuous framing technique segments over @yagoo.guy pregame footage, with on-screen text labels and Bougie narration:
+
+| Time | On-screen label | Technique |
+|------|----------------|-----------|
+| 0:00–0:20 | "STEAL THIS MLB SHORT HOP RECEIVING PROGRESSION" / "HAVE A BENT ARM" | Preset stance → shoe (frame to ground), bent arm |
+| 0:20–0:32 | "NOW WE SWITCH STANCES TO" | Misfire: slide to side → catch back up (multiple reps) |
+| 0:32–0:55 | "HAVING SHARP ANGLES" | Right-knee-down for down-and-in pitch; animated angle overlay |
+
+**Bougie endorsement:** "if you guys don't follow this Yagu guy, you should definitely go do it — he posts these pregame clips all the time"
+
+**Source evaluation:** The Bougie Short IS the @yagoo.guy footage — Bougie narrates over yagoo.guy's clip. The Short is actually **better than the raw source** for BATTERY because:
+- On-screen technique labels at each segment
+- Bougie narration explains the progression
+- Already concisely edited (58s, three techniques in sequence)
+
+**Clip cut (2026-09-16):**
+| Clip | IN | OUT | Size | Maps to |
+|------|----|-----|------|---------|
+| `bougie-frame-preset-to-kneedown.mp4` | 0:01 | 0:57 | 2.74MB | Catching — framing: preset frame → misfire slide recovery → right-knee-down |
+
+✅ CUT + archived to iCloud 0.5 Baseball. Committed to `laneM/recov-clips-req015`.
+
+### @yagoo.guy Instagram survey — 2026-09-16
+- **Profile:** Se One Park (@yagoo.guy), 12.4K followers, MLB pregame catching drill clips
+- **yt-dlp:** Instagram user scraper broken (extractor marked as broken in yt-dlp)
+- **Browser survey:** Instagram requires login to view profile content — modal blocks unauthenticated access
+- **Status:** Survey blocked by Instagram auth wall. Owner to survey directly or use logged-in session.
+- **Known content from Bougie Short:** At least one MLB pregame framing drill progression video (preset → slide → knee-down) confirmed high quality. Bougie calls it "pregame clips all the time."
