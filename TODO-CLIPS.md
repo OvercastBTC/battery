@@ -1005,3 +1005,45 @@ Three continuous framing technique segments over @yagoo.guy pregame footage, wit
 - **Browser survey:** Instagram requires login to view profile content — modal blocks unauthenticated access
 - **Status:** Survey blocked by Instagram auth wall. Owner to survey directly or use logged-in session.
 - **Known content from Bougie Short:** At least one MLB pregame framing drill progression video (preset → slide → knee-down) confirmed high quality. Bougie calls it "pregame clips all the time."
+
+---
+
+## Coach Bougie Warmup Drills — klSzYHMSflI — FULL PIPELINE 2026-09-18
+
+**Source:** `klSzYHMSflI` — "My Favorite Catcher Warm Up Drills (Blocking + Receiving)"
+**Channel:** Catching Made Simple (Coach Bougie) @catchingmadesimple
+**Duration:** 16:51 | **Size:** 325MB | **Views:** 9.1K
+**Downloaded:** `battery-video-work/_sources/My Favorite Catcher Warm Up Drills (Blocking + Receiving) [klSzYHMSflI].mp4`
+**VTT:** `AppData/Local/Temp/claude/C--/.../bougie-warmup-klSzYHMSflI.en.vtt` (3665 lines, fully scanned)
+
+**Owner directive:** "M scrubs → review → divvy into drills → wired into BATTERY → gated → tested → shipped → pushed. 'The whole thing.'"
+**Owner note:** "definitely a drill and I think a plyoball routine"
+
+### Drill Structure (full VTT scan 2026-09-18)
+
+**RECEIVING SECTION (0:00–8:48):**
+- 0:00–0:18: Intro — "watch a current high school coach do some receiving blocking work"
+- 0:18–2:25: **Position 1→3→5 framework** — elbow drive to position 3, short hops with regular ball + heavy ball
+- 2:25–6:35: **Zone receiving** — vertical vs flat glove philosophy, scraping drill, in-air receiving, low/mid/high pitch zones, "elbow leads" principle
+- 6:35–8:48: **Decisions drill** — mixed zone (middle→outside→inside→anywhere), preset angles, eyes tracking, two-knee stable pregame drill
+
+**BLOCKING SECTION (8:48–16:51):**
+- 8:48–11:52: **Blocking basics** — square vs angle philosophy, stay-square principle, weakness analysis (RKD ball kicks to arm side)
+- 11:52–13:45: **Blocking progression** — regular baseball, dry reps, single knee moves, inchworms, "relax + watch ball," get hips back, triple threat → decisions drill
+- 13:45–16:35: **Block reads** — ball bouncing before plate (pop-up), stay down, spiked fastball paddle-block approach
+- 16:35–16:51: Outro
+
+**Note on plyoball content:** "Mallet" and "heavy baseball" training implements mentioned in receiving section. No standard PlyoCare/4-ounce plyoball routine — content is pure receiving/blocking mechanics. Owner's "plyoball routine" expectation may require a different source.
+
+### Clips Cut (all 6 — 2026-09-18)
+
+| Clip | IN | OUT | Size | Maps to |
+|------|----|-----|------|---------|
+| `bougie-recv-pos135.mp4` | 0:18 | 2:25 | 2.96 MB | Catching — receiving: position 1→3→5, elbow drive, short hops |
+| `bougie-recv-zones.mp4` | 2:25 | 6:35 | 5.26 MB | Catching — receiving: zone work (low/mid/high), scraping, vertical vs flat |
+| `bougie-recv-decisions.mp4` | 6:35 | 8:48 | 2.76 MB | Catching — receiving: decisions drill, mixed zone, preset angles |
+| `bougie-block-basics.mp4` | 8:48 | 11:52 | 3.54 MB | Catching — blocking: square vs angle, stay-square philosophy |
+| `bougie-block-progression.mp4` | 11:52 | 13:45 | 2.22 MB | Catching — blocking: single knee, dry reps, triple threat, hips back |
+| `bougie-block-reads.mp4` | 13:45 | 16:35 | 3.27 MB | Catching — blocking: reads, stay down, spiked fastball paddle |
+
+All 6 in `battery-laneM/clips/` + archived to iCloud `0.5 Baseball/`. Branch: `laneM/recov-clips-req015`.
