@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -25 350 440">
+  <title>CHT Monogram with Halo</title>
+  <defs>
+    <linearGradient id="halo" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFC107"/>
+      <stop offset="50%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#FFC107"/>
+    </linearGradient>
+  </defs>
+  <!-- Back arc of halo (behind logo) -->
+  <g transform="rotate(-12 175 8)">
+    <path d="M263 8A88 20 0 0 1 87 8" fill="none" stroke="url(#halo)" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <!-- Logo -->
+  <path fill="#ED1C24" fill-rule="evenodd" d="M52 0H298V48H350V100H330V165H350V245H330V310H350V362H298V410H52V362H0V310H20V245H0V165H20V100H0V48H52Z M58 54V189H158V54Z M192 54V189H292V54Z M58 221V356H158V221Z M192 221V356H292V221Z"/>
+  <!-- Front arc of halo (in front of logo) -->
+  <g transform="rotate(-12 175 8)">
+    <path d="M87 8A88 20 0 0 1 263 8" fill="none" stroke="url(#halo)" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>
