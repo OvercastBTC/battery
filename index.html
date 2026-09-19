@@ -212,13 +212,35 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 #bmodal .bm-btns button{flex:1;border-radius:10px;font-size:14px;font-weight:700;padding:12px;cursor:pointer;border:1px solid var(--line);background:var(--steel2);color:var(--bone)}
 #bmodal .bm-btns button.pri{background:var(--gold);border-color:var(--gold);color:var(--ink)}
 #bmodal .bm-btns button.dgr{background:var(--blood);border-color:var(--blood);color:#fff}
+#events-section{margin-top:12px}
+#events-section .ev-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+#events-section .ev-title{font-size:11px;letter-spacing:1.5px;color:var(--faint);text-transform:uppercase;font-family:"SF Mono",monospace}
+#events-section .ev-add-toggle{background:none;border:1px solid var(--gold);color:var(--goldb);font-size:10px;font-family:"SF Mono",monospace;letter-spacing:.5px;padding:4px 10px;border-radius:8px;cursor:pointer}
+#events-section .ev-form{display:none;background:#161b22;border:1px solid var(--line);border-radius:11px;padding:12px;margin-bottom:10px}
+#events-section .ev-form.open{display:block}
+#events-section .ev-form-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+#events-section .ev-form-row label{font-size:11px;color:var(--dim);width:44px;flex-shrink:0;letter-spacing:.5px}
+#events-section .ev-form-row select,#events-section .ev-form-row input{flex:1;background:var(--ink);border:1px solid var(--line);border-radius:8px;color:var(--bone);font-size:13px;padding:8px 10px;font-family:inherit}
+#events-section .ev-submit{width:100%;background:var(--gold);color:var(--ink);border:0;border-radius:8px;padding:9px;font-family:"SF Mono",monospace;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase}
+#events-section .ev-row{background:#161b22;border:1px solid var(--line);border-left:3px solid var(--gold);padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;border-radius:0 8px 8px 0}
+#events-section .ev-row.imminent{border-left-color:var(--blood)}
+#events-section .ev-row.today{border-left-color:var(--green);background:rgba(63,185,80,.04)}
+#events-section .ev-row.past{opacity:.45}
+#events-section .ev-when{font-family:"SF Mono",monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--goldb)}
+#events-section .ev-row.imminent .ev-when{color:var(--blood)}
+#events-section .ev-row.today .ev-when{color:var(--green)}
+#events-section .ev-row.past .ev-when{color:var(--dim)}
+#events-section .ev-type{font-size:12px;font-weight:700;color:var(--bone)}
+#events-section .ev-notes{font-size:10px;color:var(--dim);font-style:italic;margin-top:1px}
+#events-section .ev-del{background:none;border:1px solid var(--blood);color:var(--blood);padding:3px 7px;font-size:9px;font-family:"SF Mono",monospace;cursor:pointer;border-radius:4px;flex-shrink:0}
+#events-section .ev-empty{text-align:center;color:var(--dim);font-style:italic;font-size:11px;padding:14px;background:#161b22;border:1px dashed var(--line);border-radius:8px}
 </style></head><body>
 <script>/* §4.3 FAIL-SAFE BOOT: set the youth surface BEFORE the iframes below parse, so a youth never flashes adult content during the boot race. Defaults SAFE (youth) on any uncertainty; only an explicit tier:'adult' profile is treated as adult. */
 (function(){try{var id=localStorage.getItem('battery-profile');var ppl=JSON.parse(localStorage.getItem('battery-people')||'[]');var me=(id&&Array.isArray(ppl))?ppl.find(function(p){return p&&p.id===id;}):null;var isYouth=!(me&&me.tier==='adult');document.body.classList.toggle('youth',isYouth);localStorage.setItem('battery-boot-tier',isYouth?'youth':'adult');}catch(e){try{document.body.classList.add('youth');localStorage.setItem('battery-boot-tier','youth');}catch(_){}}})();
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.09.18.126</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.09.18.127</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -276,6 +298,16 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 <p id="sleep-sub" class="dmeta" style="margin:5px 0 0;font-size:10px"></p>
 <div id="sleep-trend" style="font-size:12px;color:var(--dim);line-height:1.5"></div>
 </div>
+<div id="events-section">
+<div class="ev-header"><span class="ev-title">Events</span><button class="ev-add-toggle" onclick="toggleEventForm()">+ Add</button></div>
+<div class="ev-form" id="ev-form">
+<div class="ev-form-row"><label>Type</label><select id="ev-type"><option value="game">Game</option><option value="bullpen">Bullpen</option><option value="bp">Batting practice</option><option value="lift">Lift / training</option><option value="long-toss">Long toss</option><option value="travel">Travel day</option><option value="coaching">Coaching</option><option value="other">Other</option></select></div>
+<div class="ev-form-row"><label>Date</label><input type="date" id="ev-date"></div>
+<div class="ev-form-row"><label>Notes</label><input type="text" id="ev-notes" placeholder="optional" maxlength="80"></div>
+<button class="ev-submit" onclick="addEventHost()">Add Event</button>
+</div>
+<div id="ev-list"></div>
+</div>
 </section>
 <section id="view-game">
 <div id="youth-banner">Youth mode — growth-based food protein + water, tuned for an active kid. No supplements or stimulants shown. Arm work is light/optional at this age.</div>
@@ -284,7 +316,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 <div id="arm-guardian"></div>
 <div id="season-card" style="display:none"></div>
 <div id="parent-corner" style="display:none"></div>
-<div class="gd-card gold"><h3>⚡ Game Day Fusion</h3><p>Pick a game from events (FUEL → Events) or set first pitch. BATTERY back-builds the prep — <span style="color:#ff6b68">arm (red)</span> + <span style="color:var(--goldb)">fuel (gold)</span>, one schedule.</p></div>
+<div class="gd-card gold"><h3>⚡ Game Day Fusion</h3><p>Pick a game from events (HOME → Events) or set first pitch. BATTERY back-builds the prep — <span style="color:#ff6b68">arm (red)</span> + <span style="color:var(--goldb)">fuel (gold)</span>, one schedule.</p></div>
 <div class="evpick"><label>Game</label><select id="gd-event"><option value="">— manual —</option></select></div>
 <div class="evpick"><label>Date</label><input type="date" id="gd-date"></div>
 <div class="evpick"><label>First Pitch</label><input type="time" id="gd-time" value="09:00"></div>
@@ -1532,6 +1564,53 @@ const DAYOF_YOUTH=[{off:120,tag:'fuel',what:"Breakfast: eggs/oatmeal + fruit + w
 const PRELOAD=[{d:2,tag:'fuel',what:"T-2: normal training day. Baseline. Sleep."},{d:1,tag:'fuel',what:"T-1: pre-load — protein +15%, water +20oz, 1 LMNT/Liquid IV."},{d:1,tag:'arm',what:"T-1: light arm-care only. No heavy bullpen. Mobility."}];
 const PRELOAD_YOUTH=[{d:1,tag:'fuel',what:"T-1: normal dinner, good hydration, early bedtime."}];
 function readEvents(){try{const r=localStorage.getItem('fuel-events');return r?JSON.parse(r):[];}catch(e){return[];}}
+function saveEvents(arr){try{localStorage.setItem('fuel-events',JSON.stringify(arr));}catch(e){}}
+var HOST_EVENT_TYPES={game:'Game',bullpen:'Bullpen',bp:'Batting practice',lift:'Lift / training','long-toss':'Long toss',travel:'Travel day',coaching:'Coaching',other:'Other'};
+function toggleEventForm(){var f=document.getElementById('ev-form');if(!f)return;f.classList.toggle('open');if(f.classList.contains('open')){var d=document.getElementById('ev-date');if(d&&!d.value){var n=new Date();function p2(v){return v<10?'0'+v:''+v;}d.value=n.getFullYear()+'-'+p2(n.getMonth()+1)+'-'+p2(n.getDate());}}}
+function addEventHost(){
+  var type=document.getElementById('ev-type').value;
+  var date=document.getElementById('ev-date').value;
+  var notes=(document.getElementById('ev-notes').value||'').trim();
+  if(!date){showToast('Pick a date',{icon:'📅'});return;}
+  var evs=readEvents();
+  evs.push({id:Date.now(),type:type,date:date,notes:notes});
+  saveEvents(evs);
+  document.getElementById('ev-notes').value='';
+  document.getElementById('ev-form').classList.remove('open');
+  renderEventsSection();
+  try{buildOutlook();buildGameDay();}catch(e){}
+  showToast((HOST_EVENT_TYPES[type]||type)+' added for '+date,{icon:'📅'});
+}
+function removeEventHost(id){
+  modalConfirm('Remove event','Remove this event?',{danger:true,okLabel:'Remove'}).then(function(ok){
+    if(!ok)return;
+    saveEvents(readEvents().filter(function(e){return e.id!==id;}));
+    renderEventsSection();
+    try{buildOutlook();buildGameDay();}catch(e){}
+  });
+}
+function eventDaysFromNow(dateStr){var t=new Date();t.setHours(0,0,0,0);var d=new Date(dateStr+'T00:00:00');return Math.round((d-t)/864e5);}
+function renderEventsSection(){
+  var sec=document.getElementById('events-section');if(!sec)return;
+  if(!profile){sec.style.display='none';return;}
+  sec.style.display='';
+  var list=document.getElementById('ev-list');if(!list)return;
+  var evs=readEvents().map(function(e){return Object.assign({},e,{daysOut:eventDaysFromNow(e.date)});}).sort(function(a,b){return a.daysOut-b.daysOut;});
+  var upcoming=evs.filter(function(e){return e.daysOut>=-1;});
+  if(upcoming.length===0){list.innerHTML='<div class="ev-empty">No events scheduled</div>';return;}
+  list.innerHTML=upcoming.map(function(e){
+    var cls='';var when='';
+    if(e.daysOut<0){cls='past';when=Math.abs(e.daysOut)+'d ago';}
+    else if(e.daysOut===0){cls='today';when='TODAY';}
+    else if(e.daysOut===1){cls='imminent';when='TOMORROW';}
+    else if(e.daysOut<=3){cls='imminent';when='IN '+e.daysOut+' DAYS';}
+    else{when=e.daysOut+'d out';}
+    var d=new Date(e.date+'T00:00:00');var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var niceDate=days[d.getDay()]+' '+(d.getMonth()+1)+'/'+d.getDate();
+    var label=HOST_EVENT_TYPES[e.type]||e.type;
+    return '<div class="ev-row '+cls+'"><div style="flex:1;min-width:0"><div class="ev-when">'+when+' · '+niceDate+'</div><div class="ev-type">'+escHtml(label)+'</div>'+(e.notes?'<div class="ev-notes">'+escHtml(e.notes)+'</div>':'')+'</div><button class="ev-del" onclick="removeEventHost('+e.id+')">✕</button></div>';
+  }).join('');
+}
 
 /* ===== 3-DAY OUTLOOK — forward plan fusing games + training + arm taper ===== */
 function readTrainDays(){try{return JSON.parse(localStorage.getItem('arm-care-traindays')||'[]');}catch(e){return[];}}
@@ -1625,7 +1704,7 @@ function buildGameDay(){
  out+='<h4 class="day">Game Day'+(isToday?'':' · '+base.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}))+' · first pitch '+fmt(base)+'</h4><div class="tl">';
  const times=dayof.map(p=>new Date(base.getTime()-p.off*60000));let ni=-1;for(let i=0;i<times.length;i++){if(times[i]>=now){ni=i;break}}
  dayof.forEach((p,i)=>{const t=times[i],diff=Math.round((t-now)/60000);let cd=!isToday?'':(diff>0?(diff>=60?'in '+Math.floor(diff/60)+'h '+diff%60+'m':'in '+diff+'m'):(diff>-6?'NOW':'done'));out+='<div class="ev '+p.tag+(isToday&&i===ni?' now':'')+'"><span class="time">'+fmt(t)+'</span><span class="tag '+p.tag+'">'+p.tag.toUpperCase()+'</span><div class="what">'+p.what+'</div><div class="cd">'+cd+'</div></div>';});
- out+='</div>';if(games.length===0)out+='<div class="gd-empty" style="margin-top:16px"><b>Tip:</b> add games in FUEL → Events; they appear here with auto pre-load.</div>';
+ out+='</div>';if(games.length===0)out+='<div class="gd-empty" style="margin-top:16px"><b>Tip:</b> add games on HOME (Events section); they appear here with auto pre-load.</div>';
  document.getElementById('gd-out').innerHTML=out;}
 document.getElementById('gd-time').addEventListener('input',buildGameDay);
 document.getElementById('gd-event').addEventListener('change',function(){var d=document.getElementById('gd-date'),s=document.getElementById('gd-event');if(d&&s.value)d.value=s.value;buildGameDay();});
@@ -2393,6 +2472,7 @@ function renderToday(){
   // next time _batFuel updates (Lane A review, PR #7).
   try{refreshGameDot();}catch(e){}
   try{renderSleepCard();}catch(e){}
+  try{renderEventsSection();}catch(e){}
   var note=document.getElementById('today-note');
   if(note){
     var msg='';
