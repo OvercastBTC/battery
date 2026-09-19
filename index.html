@@ -2134,6 +2134,18 @@ const PLAN_LEGACY_MAP={
   lift:{arm:true,drills:false,body:false,lift:true},
   rest:{arm:false,drills:false,body:true,lift:false}
 };
+const PLAN_PRESETS_DEFAULT={
+  lift:    {arm:true, drills:false,body:false,lift:true},
+  armcare: {arm:true, drills:true, body:true, lift:false},
+  recovery:{arm:false,drills:false,body:true, lift:false},
+  gameday: {arm:true, drills:true, body:false,lift:false},
+  fullsend:{arm:true, drills:true, body:true, lift:true}
+};
+const PLAN_PRESET_LABELS={lift:'Lift Day',armcare:'Arm Care',recovery:'Recovery',gameday:'Game Day',fullsend:'Full Send'};
+function getPlanPresets(){
+  try{var raw=localStorage.getItem('battery-plan-presets');if(raw){var p=JSON.parse(raw);if(p&&typeof p==='object'&&!Array.isArray(p))return p;}}catch(e){}
+  return PLAN_PRESETS_DEFAULT;
+}
 function todayPlanKey(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function flagsEqual(a,b){return PLAN_STREAMS.every(function(k){return !!a[k]===!!b[k];});}
 function getActivePlan(){
@@ -2291,8 +2303,14 @@ function togglePlanStream(k){
 function setPlanAll(on){
   setActivePlan(on?PLAN_ALL_ON:PLAN_REST);
 }
+function applyPreset(name){
+  var presets=getPlanPresets();
+  if(!Object.prototype.hasOwnProperty.call(presets,name))return;
+  setActivePlan(presets[name]);
+}
 window.setActivePlan=setActivePlan; window.togglePlanStream=togglePlanStream;
 window.setPlanAll=setPlanAll; window.PLAN_STREAMS=PLAN_STREAMS; window.getActivePlan=getActivePlan;
+window.applyPreset=applyPreset;
 
 function readinessScore(){
   var youth=profileTier(profile)==='youth';
@@ -2408,17 +2426,28 @@ function renderToday(){
   var planChipsEl=document.getElementById('today-plan-chips');
   if(planChipsEl){
     var activePlan=getActivePlan(), STREAM_LABELS={arm:'ARM',drills:'DRILLS',body:'RECOVERY',lift:'LIFT'};
+    var presets=getPlanPresets(), presetHtml='';
+    Object.keys(PLAN_PRESET_LABELS).forEach(function(name){
+      if(!Object.prototype.hasOwnProperty.call(presets,name))return;
+      var flags=presets[name];
+      if(youth&&flags.lift)return;
+      var youthFlags=youth?Object.assign({},flags,{lift:false}):flags;
+      var active=flagsEqual(activePlan,youthFlags);
+      presetHtml+='<button class="plan-chip'+(active?' active':'')+'" onclick="applyPreset(\''+name+'\')">'+PLAN_PRESET_LABELS[name]+'</button>';
+    });
     var pills=PLAN_STREAMS.filter(function(k){return k!=='lift'||!youth;}).map(function(k){
-      return '<button class="plan-chip'+(activePlan[k]?' active':'')+'" onclick="togglePlanStream(\''+k+'\')">'+STREAM_LABELS[k]+'</button>';
+      return '<button class="plan-chip'+(activePlan[k]?' active':'')+'" style="opacity:.6;font-size:10px" onclick="togglePlanStream(\''+k+'\')">'+STREAM_LABELS[k]+'</button>';
     }).join('');
     // §4.3: youth's getActivePlan() always forces lift:false, so compare against
     // a youth-aware "all on" (lift excluded) or Full could never show active for
     // a youth profile even with arm/drills/body all on (Copilot review, PR #10).
     var fullRef=youth?Object.assign({},PLAN_ALL_ON,{lift:false}):PLAN_ALL_ON;
     var isFull=flagsEqual(activePlan,fullRef), isRest=flagsEqual(activePlan,PLAN_REST);
-    var conv='<button class="plan-chip'+(isFull?' active':'')+'" style="opacity:.7" onclick="setPlanAll(true)">Full</button>'+
-      '<button class="plan-chip'+(isRest?' active':'')+'" style="opacity:.7" onclick="setPlanAll(false)">Rest</button>';
-    planChipsEl.innerHTML=pills+'<span style="width:1px;align-self:stretch;background:var(--line);margin:0 2px"></span>'+conv;
+    var conv='<button class="plan-chip'+(isFull?' active':'')+'" style="opacity:.6;font-size:10px" onclick="setPlanAll(true)">Full</button>'+
+      '<button class="plan-chip'+(isRest?' active':'')+'" style="opacity:.6;font-size:10px" onclick="setPlanAll(false)">Rest</button>';
+    planChipsEl.innerHTML=presetHtml+
+      '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;padding-top:4px;border-top:1px solid var(--line)">'+
+      pills+'<span style="width:1px;align-self:stretch;background:var(--line);margin:0 2px"></span>'+conv+'</div>';
   }
   var rowsEl=document.getElementById('today-rows');
   if(rowsEl){
