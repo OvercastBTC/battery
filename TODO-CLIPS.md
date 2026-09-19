@@ -543,6 +543,75 @@ Sources all from @catchingmadesimple in `C:\Users\bacona\AppData\Local\Temp\clau
 
 ---
 
+## Coach Bougie — Thumb Safety + Elbow Plane — CUT 2026-09-19 (this session)
+
+Sources downloaded to `battery-video-work/_sources/`, VTT-scanned.
+
+### LopjhL6LUOs — "The 2 reasons why catchers HURT THEIR THUMBS" (2:54, 11.9MB)
+Glove break-in + thumb strap position + thumb-dominant grip; outdoor practice footage
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `bougie-glove-thumbsafe.mp4` | 0:00–2:54 | 3.8MB | Full clip — glove setup + thumb strap + grip; direct injury-prevention teaching |
+
+**Maps to:** ARM → Catching tab (new slot, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-glove-` → LopjhL6LUOs added to arm.html
+
+### bRRz82O9V2I — "The #1 Throwing Mistake Catchers Make (and how to fix it)" (4:02, 61MB)
+Elbow plane fault diagnosis + escalator fix drill + lower body connection
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `bougie-throw-elbow-plane.mp4` | 0:00–4:02 | 6.1MB | Full clip — elbow below shoulder = bad; escalator drill; hip connection |
+
+**Maps to:** ARM → Catching tab (new slot, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-throw-` falls through to generic `bougie-` fallback (credits @catchingmadesimple)
+
+---
+
+## Coach Bougie — Rotation/Brace/Decide — CUT 2026-09-19 (this session)
+
+Sources already in `battery-video-work/_sources/`.
+
+### HHBtGMRu9UU — "Stop Leaning Forward: How Pro Catchers Unlock Rotation + Power" (7:55, 68MB)
+Two-drill progression: hop-hop-throw (back leg load), step-back hop transfer ("sticky back foot");
+Taylor breakthrough: "it just unlocked, I feel the hips turning, it's flipping"
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `bougie-throw-hops.mp4` | 0:53–2:15 | 1.6MB | Hop-hop-throw drill — back leg load, posterior hip cue |
+| `bougie-throw-stepback.mp4` | 2:16–3:15 | 1.3MB | Step-back hop transfer + "sticky back foot" + Taylor breakthrough moment |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-throw-` fallback (2 source videos share prefix — falls through to generic `bougie-`)
+
+### X419_BP_Ykc — "Why Every Catcher NEEDS This Simple Elbow Brace (actually)" (6:52, 150MB)
+Early arm extension problem + brace setup (120°, inside of arm, crease of elbow) + mallet scrape + short hop heavy ball drills
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `bougie-brace-setup.mp4` | 0:00–0:52 | 1.9MB | Problem framing + brace setup instructions (angle, position, crease alignment) |
+| `bougie-brace-drills.mp4` | 0:52–2:17 | 2.5MB | Mallet scrape + short hop heavy ball; "keep glove vertical, on pitch plane" |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-brace-` → X419_BP_Ykc added to arm.html
+
+### fvMOoCC1zUo — "Struggle to DECIDE when to Block vs Receive? Watch This" (9:02, 27.3MB)
+Game-speed decision drill: mixed pitches/arm angles, "minimize coaching, maximize competition, find the holes";
+Eyes coaching: "set eyes to low pitch, sphere of awareness" — when eyes are down and ball goes up = late
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `bougie-decide-intro.mp4` | 0:00–1:00 | 1.6MB | Concept framing + start of drill; "practice decisions at game speed" |
+| `bougie-decide-eyes.mp4` | 6:50–7:40 | 810KB | Eyes coaching — set low, sphere of awareness, catching high curveball |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-decide-` → fvMOoCC1zUo added to arm.html
+
+**Total new clips this session: 8** (2 prior + 6 new = bougie-glove-thumbsafe, bougie-throw-elbow-plane, bougie-throw-hops, bougie-throw-stepback, bougie-brace-setup, bougie-brace-drills, bougie-decide-intro, bougie-decide-eyes)
+
+---
+
 ## Japan/Ducks Sequence Clips — FIXED+COMPLETED 2026-09-18, commit 2108af1
 
 ### Japan — zKz4RmeIP10 "My First Start In Japan Was Almost Perfect" (iCloud, 79.2MB)
