@@ -571,7 +571,13 @@ Sources all from @catchingmadesimple in `C:\Users\bacona\AppData\Local\Temp\clau
 | `ducks-seq-fb-splitter-overlay.mp4` | 12:35–13:05 | 0.79MB | Called the K before at-bat; quick-pitch FB down middle → perfect tunnel → splitter swing-and-miss; "overlay them, difference is minimal, can't see it out of hand"; announcer: "right out of same tunnel as first pitch" |
 | `ducks-seq-twoseam-counter.mp4` | 26:25–26:57 | 0.71MB | Hitter reads the sweeper tunnel → counter: two-seamer off the plate with 16in horizontal movement (2× normal) darts back for corner strike; 8th K |
 
-**Branch: laneM/recov-clips-req015 — 59 clips total (commit pending)**
+### Additional Japan clip — background pass (2026-09-18, commit cb28b5e)
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `jp-seq-two-pitch-tunnel.mp4` | 2:16–2:45 | 0.5MB | Explicit two-pitch tunnel commentary: "last two pitch tunnel was really great" — describes 3-pitch sequence where last two share a tunnel from the hand but diverge at the plate |
+
+**Branch: laneM/recov-clips-req015 — 60 clips total (commit cb28b5e)**
 
 3. **Slow-mo passes for technique-critical clips.** Add a slowed-down (`setpts=2.0*PTS`,
    0.5x) cut alongside the normal-speed clip where the mechanic is hard to see at full
