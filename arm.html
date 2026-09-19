@@ -7473,6 +7473,21 @@
   function renderSplit(){
     var bar=document.getElementById('split-bar'); if(!bar) return;
     var pat=getSplit(), day=getSplitDay();
+    if(pat!=='all'){
+      var scRaw=localStorage.getItem('battery-lift-split-day');
+      if(scRaw!==null){
+        var sc=parseInt(scRaw,10);
+        if(!isNaN(sc)){
+          var la=parseInt(storeGet('arm-care-split-applied','-1'),10);
+          if(sc!==la){
+            var ds=SPLITS[pat].days;
+            day=ds[sc%ds.length][0];
+            storeSet('arm-care-liftday',day);
+            storeSet('arm-care-split-applied',String(sc));
+          }
+        }
+      }
+    }
     bar.querySelectorAll('.split-chip').forEach(function(c){ c.classList.toggle('on', c.dataset.split===pat); });
     var dayBox=document.getElementById('split-day'), note=document.getElementById('split-note');
     var groups=null;
