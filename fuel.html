@@ -240,8 +240,7 @@
   .day-chip[data-day="heavy"].active  { background: var(--d-heavy);  border-color: var(--d-heavy);  }
   .day-chip[data-day="game"].active   { background: var(--d-game);   border-color: var(--d-game);   }
   .day-chip[data-day="travel"].active { background: var(--d-travel); border-color: var(--d-travel); }
-  /* 1.1 surprise: game-on-the-calendar nudge */
-  .game-nudge {
+  .event-nudge {
     margin: 8px 0 0;
     padding: 9px 12px;
     border: 1px solid var(--d-game);
@@ -253,7 +252,7 @@
     gap: 8px;
     flex-wrap: wrap;
   }
-  .game-nudge button {
+  .event-nudge button {
     background: var(--d-game);
     border: 1px solid var(--d-game);
     color: #0d1117;
@@ -266,7 +265,7 @@
     border-radius: 999px;
     cursor: pointer;
   }
-  .game-nudge button.gn-dismiss {
+  .event-nudge button.en-dismiss {
     background: transparent;
     border-color: var(--dim);
     color: var(--dim);
@@ -1864,10 +1863,10 @@
         <!-- US-2.6: the REAL recovery status (Arm Guardian / Pitch Smart) so the Rest
              chip and the actual required-rest countdown can never silently disagree -->
         <div class="rest-status" id="rest-status" style="display:none"></div>
-        <div class="game-nudge" id="game-nudge" style="display:none">
-          <span>🎯 <b>Game on the calendar today.</b> Switch to GAME targets?</span>
-          <button onclick="applyGameNudge()">Set Game</button>
-          <button class="gn-dismiss" onclick="dismissGameNudge()">Not today</button>
+        <div class="event-nudge" id="event-nudge" style="display:none">
+          <span id="event-nudge-text"></span>
+          <button onclick="applyEventNudge()">Set it</button>
+          <button class="en-dismiss" onclick="dismissEventNudge()">Not today</button>
         </div>
       </div>
 
@@ -2385,7 +2384,8 @@
           <option value="lift">Lift / training session</option>
           <option value="long-toss">Long toss / arm care</option>
           <option value="travel">Travel day</option>
-          <option value="coaching">Coaching Kole (outdoor)</option>
+          <option value="practice">Practice (multi-activity)</option>
+          <option value="coaching">Coaching (outdoor)</option>
           <option value="other">Other high-output</option>
         </select>
       </div>
@@ -2395,7 +2395,14 @@
       </div>
       <div class="event-form-row">
         <label>Notes <span style="color:var(--dim);font-weight:400">(optional)</span></label>
-        <input type="text" id="event-notes" placeholder="e.g. 'Kole's Sunday game, 100° forecast'" maxlength="80" />
+        <input type="text" id="event-notes" placeholder="e.g. 'Sunday game, 100° forecast'" maxlength="80" />
+      </div>
+      <div id="practice-items" style="display:none;margin:6px 0 8px;padding:6px 0">
+        <label style="display:inline-flex;align-items:center;gap:4px;margin:3px 8px 3px 0;font-size:12px;cursor:pointer"><input type="checkbox" value="bullpen"> Bullpen</label>
+        <label style="display:inline-flex;align-items:center;gap:4px;margin:3px 8px 3px 0;font-size:12px;cursor:pointer"><input type="checkbox" value="bp"> Batting practice</label>
+        <label style="display:inline-flex;align-items:center;gap:4px;margin:3px 8px 3px 0;font-size:12px;cursor:pointer"><input type="checkbox" value="long-toss"> Long toss</label>
+        <label style="display:inline-flex;align-items:center;gap:4px;margin:3px 8px 3px 0;font-size:12px;cursor:pointer"><input type="checkbox" value="fielding"> Fielding</label>
+        <label style="display:inline-flex;align-items:center;gap:4px;margin:3px 8px 3px 0;font-size:12px;cursor:pointer"><input type="checkbox" value="conditioning"> Conditioning</label>
       </div>
       <button class="event-add-btn" onclick="addEvent()">+ Add event</button>
     </div>
@@ -2412,16 +2419,16 @@
 
   <h3>Sunday game · sample pre-load</h3>
   <div class="card blue">
-    <div class="card-head"><div class="card-title">If Kole has a Sunday game</div></div>
+    <div class="card-head"><div class="card-title">Sample pre-load timeline</div></div>
     <table class="data">
       <thead><tr><th>Day</th><th>Protein</th><th>Water</th><th>Focus</th></tr></thead>
       <tbody>
         <tr><td>Friday</td><td class="num">180g</td><td class="num-blue">200oz</td><td>Normal training-day. Set the baseline.</td></tr>
         <tr><td>Saturday (T-1)</td><td class="num">200g</td><td class="num-blue">220oz</td><td>Pre-load. Add 1 Liquid IV / LMNT.</td></tr>
-        <tr><td>Sunday AM</td><td class="num">50g</td><td class="num-blue">40oz</td><td>2 scoops Thorne or Core Power Elite + Yeti + 1 LIV by 9am.</td></tr>
+        <tr><td>Sunday AM</td><td class="num">50g</td><td class="num-blue">40oz</td><td>2 scoops Sports Research or Core Power Elite + Yeti + 1 LIV by 9am.</td></tr>
         <tr><td>Sunday pre-game</td><td class="num">+30g</td><td class="num-blue">+22oz</td><td>2hr before. Light carb (banana, toast) + Yeti.</td></tr>
         <tr><td>Sunday game</td><td class="num">0g</td><td class="num-blue">22–44oz</td><td>Sip Yeti / LMNT during. Skip protein mid-game.</td></tr>
-        <tr><td>Sunday post</td><td class="num">+40g</td><td class="num-blue">+30oz</td><td>2 scoops Thorne + Liquid IV within 60 min.</td></tr>
+        <tr><td>Sunday post</td><td class="num">+40g</td><td class="num-blue">+30oz</td><td>2 scoops Sports Research + Liquid IV within 60 min.</td></tr>
         <tr><td>Sunday total</td><td class="num">200g+</td><td class="num-blue">220oz+</td><td>Recovery-tier total.</td></tr>
       </tbody>
     </table>
@@ -3516,7 +3523,7 @@
     refreshTargets();
     refreshProgress();
     refreshSuggestions();
-    maybeGameNudge();
+    maybeEventNudge();
     renderRecFrom();
     obsBump('dayChange');
   }
@@ -3575,35 +3582,53 @@
     renderRecFrom();
   };
 
-  /* 1.1 surprise: if the calendar has a game TODAY and the GAME day-type isn't set,
-     offer a one-tap switch. Dismiss is remembered per day (fuel-gamenudge-<date>). */
-  function maybeGameNudge(){
-    const el = document.getElementById('game-nudge'); if(!el) return;
+  var _eventNudgeTarget = null;
+  function maybeEventNudge(){
+    const el = document.getElementById('event-nudge'); if(!el) return;
+    const txt = document.getElementById('event-nudge-text'); if(!txt) return;
     const key = todayKey();
-    let show = false;
-    try{
-      const hasGame = loadEvents().some(e => e.type==='game' && e.date===key);
-      const dismissed = storeGet('fuel-gamenudge-'+key,'') === '1';
-      show = hasGame && !activeDays.has('game') && !dismissed;
-    }catch(e){}
-    el.style.display = show ? 'flex' : 'none';
+    const dismissed = storeGet('fuel-eventnudge-'+key,'') === '1';
+    if (dismissed) { el.style.display = 'none'; _eventNudgeTarget = null; return; }
+    var todayEvents = loadEvents().filter(function(e){ return e.date === key; });
+    if (todayEvents.length === 0) { el.style.display = 'none'; _eventNudgeTarget = null; return; }
+    var actIdx = function(d){ return DAY_ACTIVITY.indexOf(d); };
+    var curLevel = 0;
+    activeDays.forEach(function(d){ var i = actIdx(d); if(i > curLevel) curLevel = i; });
+    var best = null; var bestLevel = curLevel;
+    var nudgeMap = { 'game':'game', 'bullpen':'heavy', 'travel':'travel' };
+    var medTypes = ['bp','lift','long-toss','coaching','other'];
+    todayEvents.forEach(function(e){
+      var suggest = nudgeMap[e.type];
+      if (!suggest && medTypes.indexOf(e.type) >= 0) suggest = 'train';
+      if (!suggest && e.type === 'practice') {
+        suggest = (e.items && e.items.indexOf('bullpen') >= 0) ? 'heavy' : 'train';
+      }
+      if (!suggest) return;
+      var sLevel = actIdx(suggest);
+      if (sLevel > bestLevel) { best = suggest; bestLevel = sLevel; }
+    });
+    if (!best) { el.style.display = 'none'; _eventNudgeTarget = null; return; }
+    _eventNudgeTarget = best;
+    var evLabel = todayEvents.length === 1
+      ? (EVENT_TYPES[todayEvents[0].type]||{label:todayEvents[0].type}).label
+      : todayEvents.length + ' events';
+    var dayLabel = best.charAt(0).toUpperCase() + best.slice(1);
+    txt.innerHTML = '🎯 <b>' + fEscHtml(evLabel) + ' today.</b> Switch to ' + dayLabel + ' targets?';
+    el.style.display = 'flex';
   }
-  function applyGameNudge(){
-    /* Third call site of the same pattern -- I converted the plan auto-apply and
-       nudge-accept but missed this one (caught by Lane E on .82). toggleDay()
-       only adds/removes, it does NOT enforce activity-level exclusivity, so an
-       athlete already on 'heavy' who tapped 'Set Game' ended up with
-       {heavy,game}: two mutually-exclusive activity types coexisting and a
-       target computed off both. Swap the activity type, keep modifiers. */
-    if(!activeDays.has('game')){
-      commitDays(Array.from(activeDays).filter(d => DAY_ACTIVITY.indexOf(d) < 0).concat(['game']));
+  function applyEventNudge(){
+    if (!_eventNudgeTarget) return;
+    if (!activeDays.has(_eventNudgeTarget)) {
+      commitDays(Array.from(activeDays).filter(function(d){ return DAY_ACTIVITY.indexOf(d) < 0; }).concat([_eventNudgeTarget]));
     }
-    storeSet('fuel-gamenudge-'+todayKey(),'1');
-    maybeGameNudge();
+    storeSet('fuel-eventnudge-'+todayKey(),'1');
+    _eventNudgeTarget = null;
+    maybeEventNudge();
   }
-  function dismissGameNudge(){
-    storeSet('fuel-gamenudge-'+todayKey(),'1');
-    maybeGameNudge();
+  function dismissEventNudge(){
+    storeSet('fuel-eventnudge-'+todayKey(),'1');
+    _eventNudgeTarget = null;
+    maybeEventNudge();
   }
 
   /* ===== plan-v2: HOME-plan → day-type sync receiver (host emits bat-plan). ===== */
@@ -5468,11 +5493,12 @@
   const EVENT_TYPES = {
     'game':       { label: 'Game (FMBL/league)', impact: 'high' },
     'bullpen':    { label: 'Bullpen',            impact: 'high' },
+    'practice':   { label: 'Practice',           impact: 'high' },
     'bp':         { label: 'Batting practice',   impact: 'med'  },
     'lift':       { label: 'Lift / training',    impact: 'med'  },
     'long-toss':  { label: 'Long toss / arm care', impact: 'med' },
     'travel':     { label: 'Travel day',         impact: 'low'  },
-    'coaching':   { label: 'Coaching Kole (outdoor)', impact: 'med' },
+    'coaching':   { label: 'Coaching (outdoor)', impact: 'med'  },
     'other':      { label: 'Other high-output',  impact: 'med'  }
   };
 
@@ -5481,14 +5507,27 @@
     const date = document.getElementById('event-date').value;
     const notes = document.getElementById('event-notes').value.trim();
     if (!date) { await uiAlert('Pick a date', 'Pick a date.'); return; }
+    const ev = { id: Date.now(), type, date, notes };
+    if (type === 'practice') {
+      const checks = document.querySelectorAll('#practice-items input[type=checkbox]:checked');
+      const items = Array.from(checks).map(c => c.value);
+      if (items.length === 0) { await uiAlert('Select activities', 'Pick at least one practice activity.'); return; }
+      ev.items = items;
+    }
     const events = loadEvents();
-    events.push({ id: Date.now(), type, date, notes });
+    events.push(ev);
     saveEvents(events);
     document.getElementById('event-notes').value = '';
+    if (type === 'practice') document.querySelectorAll('#practice-items input[type=checkbox]').forEach(c => { c.checked = false; });
     refreshEventsDisplay();
     refreshSuggestions();
-    maybeGameNudge();
+    maybeEventNudge();
   }
+
+  document.getElementById('event-type').addEventListener('change', function() {
+    var pi = document.getElementById('practice-items');
+    if (pi) pi.style.display = this.value === 'practice' ? '' : 'none';
+  });
 
   async function removeEvent(id) {
     if (!(await uiConfirm('Remove event', 'Remove this event?', true))) return;
@@ -5508,42 +5547,55 @@
   function refreshEventsDisplay() {
     const list = document.getElementById('events-list');
     if (!list) return;
-    const events = loadEvents()
-      .map(e => ({ ...e, daysOut: eventDaysFromNow(e.date) }))
-      .sort((a, b) => a.daysOut - b.daysOut);
+    var raw = loadEvents();
+    var purged = raw.filter(e => eventDaysFromNow(e.date) >= -30);
+    if (purged.length < raw.length) saveEvents(purged);
+    const events = purged.map(e => ({ ...e, daysOut: eventDaysFromNow(e.date) }));
+    const upcoming = events.filter(e => e.daysOut >= 0).sort((a, b) => a.daysOut - b.daysOut);
+    const past = events.filter(e => e.daysOut < 0).sort((a, b) => b.daysOut - a.daysOut);
     if (events.length === 0) {
       list.innerHTML = '<div class="empty-events">No events scheduled. Add a game, bullpen, or travel day above.</div>';
       return;
     }
-    list.innerHTML = events.map(e => {
+    function renderRow(e) {
       const et = EVENT_TYPES[e.type] || { label: e.type, impact: 'med' };
+      var label = et.label;
+      if (e.type === 'practice' && e.items && e.items.length) {
+        var names = e.items.map(function(k){ var m = {'bullpen':'Bullpen','bp':'BP','long-toss':'Long toss','fielding':'Fielding','conditioning':'Conditioning'}; return m[k]||k; });
+        label = 'Practice · ' + names.join(', ');
+      }
       let cls = '';
       let when = '';
       if (e.daysOut < 0) {
-        cls = 'past'; when = `${Math.abs(e.daysOut)}d ago`;
+        cls = 'past'; when = Math.abs(e.daysOut) + 'd ago';
       } else if (e.daysOut === 0) {
         cls = 'today'; when = 'TODAY';
       } else if (e.daysOut === 1) {
         cls = 'imminent'; when = 'TOMORROW';
       } else if (e.daysOut <= 3) {
-        cls = 'imminent'; when = `IN ${e.daysOut} DAYS`;
+        cls = 'imminent'; when = 'IN ' + e.daysOut + ' DAYS';
       } else {
-        when = `${e.daysOut}d out`;
+        when = e.daysOut + 'd out';
       }
-      const niceDate = (() => {
+      const niceDate = (function() {
         const d = new Date(e.date + 'T00:00:00');
         const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-        return `${days[d.getDay()]} ${d.getMonth()+1}/${d.getDate()}`;
+        return days[d.getDay()] + ' ' + (d.getMonth()+1) + '/' + d.getDate();
       })();
-      return `<div class="event-row ${cls}">
-        <div class="event-info">
-          <div class="event-when">${when} · ${niceDate}</div>
-          <div class="event-type">${et.label}</div>
-          ${e.notes ? `<div class="event-notes">"${fEscHtml(e.notes)}"</div>` : ''}
-        </div>
-        <button class="event-delete" onclick="removeEvent(${e.id})">✕</button>
-      </div>`;
-    }).join('');
+      return '<div class="event-row ' + cls + '">' +
+        '<div class="event-info">' +
+          '<div class="event-when">' + when + ' · ' + niceDate + '</div>' +
+          '<div class="event-type">' + fEscHtml(label) + '</div>' +
+          (e.notes ? '<div class="event-notes">"' + fEscHtml(e.notes) + '"</div>' : '') +
+        '</div>' +
+        '<button class="event-delete" onclick="removeEvent(' + e.id + ')">✕</button>' +
+      '</div>';
+    }
+    var html = upcoming.map(renderRow).join('');
+    if (past.length > 0) {
+      html += '<div style="margin-top:12px"><button class="event-past-toggle" onclick="var s=this.nextElementSibling;s.style.display=s.style.display===\'none\'?\'\':\'none\';this.textContent=s.style.display===\'none\'?\'Show past (\'+' + past.length + '+\')\':\'Hide past\'" style="background:transparent;border:1px solid var(--dim);color:var(--dim);font-family:\'Courier New\',monospace;font-size:10px;letter-spacing:0.05em;text-transform:uppercase;padding:4px 10px;border-radius:999px;cursor:pointer">Show past (' + past.length + ')</button><div style="display:none">' + past.map(renderRow).join('') + '</div></div>';
+    }
+    list.innerHTML = html;
   }
 
   /* ===== SUGGESTIONS ===== */
@@ -5605,18 +5657,18 @@
         opts.push('Eggs or a turkey sandwich');
         opts.push('String cheese + a handful of nuts');
       } else if (pGap >= 60) {
-        opts.push('2 scoops Thorne + chicken breast + Greek yogurt');
+        opts.push('2 scoops Sports Research + chicken breast + Greek yogurt');
         opts.push('Steak/fish dinner + Core Power Elite');
       } else if (pGap >= 40) {
-        opts.push('2 scoops Thorne (42g)');
+        opts.push('2 scoops Sports Research (50g)');
         opts.push('Core Power Elite (42g)');
         opts.push('6oz steak/fish (40g)');
       } else if (pGap >= 25) {
-        opts.push('1 scoop Thorne + Greek yogurt');
+        opts.push('1 scoop Sports Research + Greek yogurt');
         opts.push('Chicken breast 4oz (28g)');
-        opts.push('1 scoop Thorne (21g) + 2 eggs (12g)');
+        opts.push('1 scoop Sports Research (25g) + 2 eggs (12g)');
       } else if (pGap >= 15) {
-        opts.push('1 scoop Thorne (21g)');
+        opts.push('1 scoop Sports Research (25g)');
         opts.push('Greek yogurt cup (20g)');
         opts.push('Fairlife 8oz (13g) + bacon');
       } else {
@@ -6033,7 +6085,7 @@
     refreshLog();
     refreshSuggestions();
     refreshEventsDisplay();
-    maybeGameNudge();
+    maybeEventNudge();
   });
 
   /* ===== EXPORT / IMPORT (BATTERY data backup) ===== */
