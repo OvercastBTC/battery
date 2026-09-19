@@ -497,6 +497,82 @@ unit — not yet branched or implemented.
    matching what the footage actually shows. A single combined checkbox was
    considered and rejected — loses the ability to mark partial completion.
 
+---
+
+## Joe Zeller — Fosh Pitch — CUT 2026-09-18, commit 2108af1
+
+Source: `zeller-fosh-QoZNfXOATgc.mp4` (3.8MB, 70s, Joe Zeller @joezeller7)
+VTT scanned end-to-end (249 lines). Entire Short is instructional — one clip.
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `zeller-pitch-fosh.mp4` | 0:01–1:09 | 5.53MB | Fosh history (Boddicker/Gausman), grip, "trust it + throw like FB" |
+
+**Maps to:** ARM → Pitching tab, pitch design slot (alongside Bauer pitch design clips)
+**All archived to iCloud 0.5 Baseball/**
+
+---
+
+## Coach Bougie — Stance + Brickwall + Recv5 — CUT 2026-09-18, commit 2108af1
+
+Sources all from @catchingmadesimple in `C:\Users\bacona\AppData\Local\Temp\claude\C--\`
+
+### bougie-stance-MFbxm_j4N74.mp4 (45.3MB, 5:20)
+"When to use EACH Catching Stance" — Sign Stance vs Resting Stance selection framework
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `bougie-stance-types.mp4` | 0:01–5:18 | 7.05MB | Two-stance framework, outdoor field demo |
+
+### bougie-brickwall-7AnSFFQUJMM.mp4 (36.4MB, 6:05)
+"Brick Wall Blocker" — indoor studio + whiteboard, triangle diagram: Sloppy/Proper/Extended movement zones
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `bougie-block-brickwall.mp4` | 0:01–6:03 | 9.43MB | Brick wall concept, LKD/RKD diagram, movement framework |
+
+### bougie-receiving5-v8siJeI2WuU.mp4 (59.8MB, 4:22)
+"5 Best Receiving Drills" — outdoor field with youth catcher, coach kneeling
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `bougie-recv-drills5.mp4` | 0:01–4:20 | 8.79MB | 5 drills ~50s each, full session |
+
+**All 3 map to:** ARM → Catching tab
+**All archived to iCloud 0.5 Baseball/**
+
+---
+
+## Japan/Ducks Sequence Clips — FIXED+COMPLETED 2026-09-18, commit 2108af1
+
+### Japan — zKz4RmeIP10 "My First Start In Japan Was Almost Perfect" (iCloud, 79.2MB)
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `jp-seq-splitter-tunnel.mp4` | 0:40–1:22 | 0.82MB | Splitter attempts → curveball tunnel setup → sword; "set up a good tunnel" |
+| `jp-seq-same-sequence.mp4` | 1:33–2:05 | 0.72MB | "Exact same sequence as first lefty"; went back to splitter for swing-and-miss |
+
+### Ducks — LlMgGbGZZU (downloaded full 219.55MB, no --download-sections)
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `ducks-seq-fb-tunnel-up.mp4` | 2:47–3:31 | 1.22MB | Up-tunnel sequence (curve/FB/cutter/splitter all up), FB down for freeze K + explanation |
+
+**Note:** Prior session produced 0-byte output for ducks-seq-fb-tunnel-up — caused by using original timestamps against a --download-sections file (relative offset bug). Fixed this session by downloading full video and using direct timestamps.
+
+**All archived to iCloud 0.5 Baseball/**
+
+**Branch: laneM/recov-clips-req015 — 57 clips total (commit 2108af1)**
+
+### Additional Ducks clips — background pass (2026-09-18, commit TBD)
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `ducks-seq-fb-splitter-overlay.mp4` | 12:35–13:05 | 0.79MB | Called the K before at-bat; quick-pitch FB down middle → perfect tunnel → splitter swing-and-miss; "overlay them, difference is minimal, can't see it out of hand"; announcer: "right out of same tunnel as first pitch" |
+| `ducks-seq-twoseam-counter.mp4` | 26:25–26:57 | 0.71MB | Hitter reads the sweeper tunnel → counter: two-seamer off the plate with 16in horizontal movement (2× normal) darts back for corner strike; 8th K |
+
+**Branch: laneM/recov-clips-req015 — 59 clips total (commit pending)**
+
 3. **Slow-mo passes for technique-critical clips.** Add a slowed-down (`setpts=2.0*PTS`,
    0.5x) cut alongside the normal-speed clip where the mechanic is hard to see at full
    speed — candidates: backhand angle (`wash-knee-backhand`), glove-side lateral
