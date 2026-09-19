@@ -293,8 +293,8 @@
   .pace-line .onpace { color: var(--gold);  font-weight: 700; }
   /* 3.0 (owner): tracked-areas opt-out — untracked area's surfaces disappear;
      judgment functions substitute 'met' so streak/pips run on tracked areas only. */
-  body.fuel-noprot .trk-prot, body.fuel-noprot .quickadd-section.protein { display: none !important; }
-  body.fuel-nowater .trk-water, body.fuel-nowater .quickadd-section.water { display: none !important; }
+  body.fuel-noprot .trk-prot, body.fuel-noprot .quickadd-section.protein, body.fuel-noprot .qa-jump-protein { display: none !important; }
+  body.fuel-nowater .trk-water, body.fuel-nowater .quickadd-section.water, body.fuel-nowater .qa-jump-water { display: none !important; }
   .trk-chip { display:inline-block; padding:7px 14px; margin:4px 6px 0 0; border:1px solid var(--line-bright); border-radius:999px; font-size:12px; color:var(--dim); cursor:pointer; user-select:none; }
   .trk-chip.on { border-color: var(--green); color: var(--green); background: var(--green-dim); }
   .pace-wake { display: inline-flex; align-items: center; white-space: nowrap; }
@@ -825,6 +825,29 @@
   .bar-fill.protein { background: linear-gradient(90deg, var(--gold) 0%, var(--gold-bright) 100%); }
   .bar-fill.water { background: linear-gradient(90deg, var(--blue) 0%, #79b8ff 100%); }
   .bar-fill.over { background: linear-gradient(90deg, var(--green) 0%, #56d364 100%); }
+
+  /* REQ-009: compact quick-add entry point visible on TRACKER above the log */
+  .qa-jump {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .qa-jump button {
+    flex: 1;
+    padding: 10px 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--steel);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+  }
+  .qa-jump .qa-jump-water { color: var(--blue); border-color: var(--blue); }
+  .qa-jump .qa-jump-protein { color: var(--gold); border-color: var(--gold); }
 
   /* Quick-add button grids */
   .quickadd-section {
@@ -1976,6 +1999,10 @@
     <div class="status-row" id="status-row">
       <!-- dynamic flags injected here -->
     </div>
+    <div class="qa-jump">
+      <button class="qa-jump-water" onclick="document.querySelector('.quickadd-section.water').scrollIntoView({behavior:'smooth',block:'start'})">+ Water</button>
+      <button class="qa-jump-protein" onclick="document.querySelector('.quickadd-section.protein').scrollIntoView({behavior:'smooth',block:'start'})"><span class="qa-adult">+ Protein</span><span class="youth-fuel-only">+ Food</span></button>
+    </div>
   </div>
 
   <!-- SUGGESTIONS CARD: live-updating game plan for the rest of the day -->
@@ -2122,7 +2149,7 @@
       <button class="reset-btn" onclick="resetDay()">Reset Day</button>
     </div>
     <ul class="log-list" id="log-list">
-      <li class="log-empty">No entries yet. Tap a button above to start tracking.</li>
+      <li class="log-empty">No entries yet. Tap + Water or + Protein above to start.</li>
     </ul>
   </div>
 
@@ -4903,7 +4930,7 @@
       !(e.type === 'electrolyte' && e.bundled) && !e.shakeWater
     );
     if (entries.length === 0) {
-      list.innerHTML = '<li class="log-empty">No entries yet. Tap a button above to start tracking.</li>';
+      list.innerHTML = '<li class="log-empty">No entries yet. Tap + Water or + Protein above to start.</li>';
       return;
     }
     const sorted = [...entries].reverse();
