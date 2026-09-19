@@ -612,6 +612,29 @@ Eyes coaching: "set eyes to low pitch, sphere of awareness" — when eyes are do
 
 ---
 
+## Coach Bougie — Steal Strikes (MLB receiving techniques) — CUT 2026-09-19 (this session)
+
+Source: `_9UqmW4TS6o` "I Taught College Catchers How MLB Catchers Steal Strikes — Here's What Happened" (10:58, 204MB)
+Live session with 3 college catchers. VTT-scanned. 3-station drill (scrapes, mallet, paddle-flip heavy ball).
+
+### Key structure:
+- 0:00–0:43: Intro — MLB receiving techniques, Patrick Bailey/Kirk/Trevinho; 3-station overview
+- 1:44–2:57: Setup angle coaching + Rangers catching coach insight ("number one thing is setups")
+- 6:02–8:07: 5-position receiving breakdown (ground→scrape→bent arm catch→drive→flat finish) + physical demo
+- 8:08–9:25: Position 3→5 finishing screw drill + flip/dunk drill for high pitch
+- 9:24–10:47: Arm brace section (links to X419_BP_Ykc content)
+
+| Clip | Range | Size | Notes |
+|------|-------|------|-------|
+| `bougie-steal-setups.mp4` | 1:44–2:57 | 1.5MB | Setup angle + "catchers set up middle for inside pitch"; Rangers coach: "setups are #1" |
+| `bougie-steal-positions.mp4` | 6:02–8:07 | 2.8MB | 5-position receiving breakdown + "1-to-3 scrape" physical demo |
+| `bougie-steal-screw.mp4` | 8:08–9:25 | 1.7MB | "Belly button, screw it up" position 3→5 drill + flip/dunk for high pitch |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-steal-` → _9UqmW4TS6o added to arm.html
+
+---
+
 ## Japan/Ducks Sequence Clips — FIXED+COMPLETED 2026-09-18, commit 2108af1
 
 ### Japan — zKz4RmeIP10 "My First Start In Japan Was Almost Perfect" (iCloud, 79.2MB)
