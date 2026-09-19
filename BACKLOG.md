@@ -56,9 +56,10 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 **Context:** Most-used daily action (logging food/water) has no obvious entry point on TRACKER view. Says "Tap a button above" but no buttons visible.
 **Status:** SHIPPED — `.qa-jump` buttons (+ Water / + Protein) added after `#status-row` in fuel.html. Scroll-to shortcuts with opt-out gate support (noprot/nowater CSS). Deployed v130 (7f8dbfb, 2026-09-19).
 
-### REQ-010: FUEL day-type chips vs "Set on HOME" contradiction
+### REQ-010: FUEL day-type chips vs "Set on HOME" contradiction → SHIPPED (v133, 9dea8bd)
 **Source:** Design review P1 (2026-09-09)
 **Context:** FUEL renders interactive-looking day-type chips AND a "Set on HOME >" link. Contradictory — are chips interactive or read-only?
+**Status:** SHIPPED — CSS-only read-only treatment: `.day-chip.locked` opacity 0.6 + pointer-events:none, active locked chip stays opacity 1. Stale hover rules removed. Deployed v133 (9dea8bd, 2026-09-19).
 
 ### REQ-011: LIFT and BODY are separate HOME rows → same section
 **Source:** Design review P1 (2026-09-09)
@@ -99,7 +100,7 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 **Source:** Owner direction — "future pitching and catching ones"
 **Context:** A CATCHING section parallel to ARM CARE. Would include: stance selection (MFbxm_j4N74), blocking blueprint (7AnSFFQUJMM), pop time development (vC-ivPGeyOE, 3EODf3R4jXA), receiving/framing (_9UqmW4TS6o), warmup routine (klSzYHMSflI), arm health (X419_BP_Ykc, bRRz82O9V2I).
 **Connections:** Requires Lane A tab structure; Lane M has all source content (9 videos, 12 VTTs, content summaries).
-**Status:** PARTIALLY SHIPPED — Catching tab with B-1 through B-10 on master since v128. CLIP_SOURCE sub-prefixes shipped v130 (7f8dbfb). B-11 through B-28 (glove, throw, brace, decision, steal, pop time drills) pending v131. Youth gate (REQ-020) still open.
+**Status:** PARTIALLY SHIPPED — Catching tab with B-1→B-37 on master across v128–v132. B-1→B-10 (v128), sub-prefixes (v130, 7f8dbfb), B-11→B-32 glove/throw/brace/decision/steal/pop-time + Bailey pregame (v131, 805163e), B-33→B-37 rotation/throwing (v132, 283569e). Youth gate (REQ-020) still open.
 
 ### REQ-019: Pro pregame routine reference content
 **Source:** Lane M — Catching Made Simple channel survey
@@ -133,7 +134,7 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 
 ### REQ-026: Youth items 5+6 (Kole card + FUEL tabs reduction)
 **Source:** LANE.md queued items
-**Context:** Item 5: "Kole today" card with pips, arm-feel faces, green accent. Item 6: FUEL tabs 10→4 (highest youth-gate blast radius). Both queued behind current work.
+**Context:** Item 5: "Kole today" card with pips, arm-feel faces, green accent. Item 6: FUEL tabs reduction (was 9 tabs pre-audit, now 7 after v135 removed Overview+Schedule; youth target TBD). Both queued behind current work.
 **Status:** REQUEST.
 
 ### REQ-027: Game-day local notifications
