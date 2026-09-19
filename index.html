@@ -140,6 +140,16 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
    its own iframe document and isn't reachable from host markup. */
 .plan-chip{padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:#161b22;color:var(--dim);font-family:"SF Mono",monospace;font-size:11px;letter-spacing:.5px;cursor:pointer}
 .plan-chip.active{background:var(--gold);border-color:var(--gold);color:#0d1117;font-weight:700}
+.wk-sched-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.wk-sched-row:last-child{border-bottom:none}
+.wk-sched-row .wk-day{width:36px;font-size:11px;letter-spacing:1px;color:var(--dim);font-weight:700;flex-shrink:0}
+.wk-sched-row.wk-today .wk-day{color:var(--gold)}
+.wk-sched-row .wk-chips{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.wk-sched-row .wk-chip{padding:4px 8px;border-radius:14px;border:1px solid var(--line);background:#161b22;color:var(--dim);font-family:'SF Mono',monospace;font-size:9px;letter-spacing:.3px;cursor:pointer}
+.wk-sched-row .wk-chip.active{background:var(--gold);border-color:var(--gold);color:#0d1117;font-weight:700}
+.wk-sched-link{display:inline-block;margin-top:6px;font-size:10px;letter-spacing:.5px;color:var(--faint);cursor:pointer;text-decoration:none}
+.wk-sched-link:hover{color:var(--dim)}
+.wk-sched-link .wk-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-right:4px;vertical-align:middle}
 /* TODAY section-menu (.76, owner mock shots/home-v2-mock.png) — icon+label
    pills so ARM/DRILLS/BODY/LIFT/GAME stay reachable, now that they're off the
    persistent tabbar (PR #7). Pure nav, no live data — the #today-rows bars
@@ -240,7 +250,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.09.19.130</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.09.19.131</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -2146,6 +2156,73 @@ function getPlanPresets(){
   try{var raw=localStorage.getItem('battery-plan-presets');if(raw){var p=JSON.parse(raw);if(p&&typeof p==='object'&&!Array.isArray(p))return p;}}catch(e){}
   return PLAN_PRESETS_DEFAULT;
 }
+function getWeeklyTemplate(){
+  try{var raw=localStorage.getItem('battery-plan-weekly-template');if(raw){var t=JSON.parse(raw);if(t&&typeof t==='object'&&!Array.isArray(t))return t;}}catch(e){}
+  return null;
+}
+function setWeeklyTemplate(tpl){
+  if(!tpl||typeof tpl!=='object'||Array.isArray(tpl)){try{localStorage.removeItem('battery-plan-weekly-template');}catch(e){}try{renderToday();}catch(e){}return;}
+  var clean={};var presets=getPlanPresets();
+  Object.keys(tpl).forEach(function(k){if(Object.prototype.hasOwnProperty.call(presets,tpl[k]))clean[k]=tpl[k];});
+  if(!Object.keys(clean).length){try{localStorage.removeItem('battery-plan-weekly-template');}catch(e){}try{renderToday();}catch(e){}return;}
+  safeSet('battery-plan-weekly-template',JSON.stringify(clean));
+  try{renderToday();}catch(e){}
+}
+function hasTemplateForToday(){
+  var tpl=getWeeklyTemplate();if(!tpl)return false;
+  return Object.prototype.hasOwnProperty.call(tpl,String(new Date().getDay()));
+}
+function showWeeklySchedule(){
+  var host=document.getElementById('bmodal');if(!host)return;
+  var tpl=getWeeklyTemplate()||{};
+  var presets=getPlanPresets();
+  var youth=profileTier(profile)==='youth';
+  var today=new Date().getDay();
+  var DAY_ORDER=[1,2,3,4,5,6,0];
+  var DAY_NAMES={0:'SUN',1:'MON',2:'TUE',3:'WED',4:'THU',5:'FRI',6:'SAT'};
+  var html='<div class="bm-card" role="dialog" aria-modal="true">';
+  html+='<h3>Weekly Schedule</h3>';
+  html+='<div class="bm-body">Assign a preset to each day. Tapping a preset on HOME still overrides for that day.</div>';
+  DAY_ORDER.forEach(function(dow){
+    var isToday=dow===today;
+    html+='<div class="wk-sched-row'+(isToday?' wk-today':'')+'" data-dow="'+dow+'">';
+    html+='<div class="wk-day">'+DAY_NAMES[dow]+'</div>';
+    html+='<div class="wk-chips">';
+    Object.keys(PLAN_PRESET_LABELS).forEach(function(name){
+      if(!Object.prototype.hasOwnProperty.call(presets,name))return;
+      if(youth&&presets[name].lift)return;
+      var active=tpl[String(dow)]===name;
+      html+='<button class="wk-chip'+(active?' active':'')+'" data-dow="'+dow+'" data-preset="'+name+'">'+PLAN_PRESET_LABELS[name]+'</button>';
+    });
+    var noPreset=!tpl[String(dow)];
+    html+='<button class="wk-chip'+(noPreset?' active':'')+'" data-dow="'+dow+'" data-preset="">Default</button>';
+    html+='</div></div>';
+  });
+  html+='<div class="bm-btns"><button id="bm-cancel">Close</button><button id="bm-ok" class="pri">Clear All</button></div></div>';
+  host.innerHTML=html;host.classList.add('on');
+  host.onclick=function(e){
+    var chip=e.target.closest('.wk-chip');
+    if(chip){
+      var dow=chip.getAttribute('data-dow');
+      var preset=chip.getAttribute('data-preset');
+      if(preset)tpl[dow]=preset;else delete tpl[dow];
+      var row=chip.closest('.wk-sched-row');
+      if(row){row.querySelectorAll('.wk-chip').forEach(function(c){c.classList.remove('active');});chip.classList.add('active');}
+      setWeeklyTemplate(Object.keys(tpl).length?tpl:null);
+      return;
+    }
+    if(e.target===host){host.classList.remove('on');host.innerHTML='';document.removeEventListener('keydown',onKey);}
+  };
+  document.getElementById('bm-cancel').onclick=function(){host.classList.remove('on');host.innerHTML='';document.removeEventListener('keydown',onKey);};
+  document.getElementById('bm-ok').onclick=function(){
+    tpl={};host.querySelectorAll('.wk-chip.active').forEach(function(c){c.classList.remove('active');});
+    host.querySelectorAll('.wk-chip[data-preset=""]').forEach(function(c){c.classList.add('active');});
+    setWeeklyTemplate(null);
+  };
+  function onKey(e){if(e.key==='Escape'){host.classList.remove('on');host.innerHTML='';document.removeEventListener('keydown',onKey);}}
+  document.addEventListener('keydown',onKey);
+}
+window.showWeeklySchedule=showWeeklySchedule;
 function todayPlanKey(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function flagsEqual(a,b){return PLAN_STREAMS.every(function(k){return !!a[k]===!!b[k];});}
 function getActivePlan(){
@@ -2178,7 +2255,17 @@ function getActivePlan(){
   }catch(e){}
   // Array.isArray: typeof [] === 'object', so a stored '[]' slipped through and
   // yielded a silent all-off plan indistinguishable from a deliberate Rest day.
-  if(!flags||typeof flags!=='object'||Array.isArray(flags))flags=Object.assign({},PLAN_ALL_ON);
+  if(!flags||typeof flags!=='object'||Array.isArray(flags)){
+    var tpl=getWeeklyTemplate();
+    if(tpl){
+      var dow=String(new Date().getDay());
+      var tplPreset=tpl[dow];
+      var tplPresets=getPlanPresets();
+      if(tplPreset&&Object.prototype.hasOwnProperty.call(tplPresets,tplPreset)){
+        flags=Object.assign({},tplPresets[tplPreset]);
+      }else{flags=Object.assign({},PLAN_ALL_ON);}
+    }else{flags=Object.assign({},PLAN_ALL_ON);}
+  }
   var out={};
   PLAN_STREAMS.forEach(function(k){out[k]=!!flags[k];});
   // §4.3: youth never scores/sees LIFT even off a stale flag object. NOTE on the
@@ -2445,9 +2532,10 @@ function renderToday(){
     var isFull=flagsEqual(activePlan,fullRef), isRest=flagsEqual(activePlan,PLAN_REST);
     var conv='<button class="plan-chip'+(isFull?' active':'')+'" style="opacity:.6;font-size:10px" onclick="setPlanAll(true)">Full</button>'+
       '<button class="plan-chip'+(isRest?' active':'')+'" style="opacity:.6;font-size:10px" onclick="setPlanAll(false)">Rest</button>';
+    var schedLink='<div onclick="showWeeklySchedule()" class="wk-sched-link">'+(hasTemplateForToday()?'<span class="wk-dot"></span>':'')+'Weekly Schedule</div>';
     planChipsEl.innerHTML=presetHtml+
       '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;padding-top:4px;border-top:1px solid var(--line)">'+
-      pills+'<span style="width:1px;align-self:stretch;background:var(--line);margin:0 2px"></span>'+conv+'</div>';
+      pills+'<span style="width:1px;align-self:stretch;background:var(--line);margin:0 2px"></span>'+conv+'</div>'+schedLink;
   }
   var rowsEl=document.getElementById('today-rows');
   if(rowsEl){

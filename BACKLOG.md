@@ -51,9 +51,10 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 **Source:** Design review P1 (2026-09-09)
 **Context:** Data management buttons scattered across ARM CARE overview and FUEL WEEKLY. Users looking for backup/restore shouldn't need to search training sections.
 
-### REQ-009: FUEL quick-add needs visible entry point on TRACKER
+### REQ-009: FUEL quick-add needs visible entry point on TRACKER → SHIPPED (v130, 7f8dbfb)
 **Source:** Design review P1 (2026-09-09)
 **Context:** Most-used daily action (logging food/water) has no obvious entry point on TRACKER view. Says "Tap a button above" but no buttons visible.
+**Status:** SHIPPED — `.qa-jump` buttons (+ Water / + Protein) added after `#status-row` in fuel.html. Scroll-to shortcuts with opt-out gate support (noprot/nowater CSS). Deployed v130 (7f8dbfb, 2026-09-19).
 
 ### REQ-010: FUEL day-type chips vs "Set on HOME" contradiction
 **Source:** Design review P1 (2026-09-09)
@@ -94,11 +95,11 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 **Context:** Document which videos are used for what purpose. Fair use analysis for coaching content embedded in a paid app vs free app vs streaming within sessions.
 **Status:** REQUEST — needs owner decision before shipping clips publicly.
 
-### REQ-018: Catching section for BATTERY
+### REQ-018: Catching section for BATTERY — PARTIALLY SHIPPED
 **Source:** Owner direction — "future pitching and catching ones"
 **Context:** A CATCHING section parallel to ARM CARE. Would include: stance selection (MFbxm_j4N74), blocking blueprint (7AnSFFQUJMM), pop time development (vC-ivPGeyOE, 3EODf3R4jXA), receiving/framing (_9UqmW4TS6o), warmup routine (klSzYHMSflI), arm health (X419_BP_Ykc, bRRz82O9V2I).
 **Connections:** Requires Lane A tab structure; Lane M has all source content (9 videos, 12 VTTs, content summaries).
-**Status:** PLANNED (direction set, content sourced, not yet structured for app).
+**Status:** PARTIALLY SHIPPED — Catching tab with B-1 through B-10 on master since v128. CLIP_SOURCE sub-prefixes shipped v130 (7f8dbfb). B-11 through B-28 (glove, throw, brace, decision, steal, pop time drills) pending v131. Youth gate (REQ-020) still open.
 
 ### REQ-019: Pro pregame routine reference content
 **Source:** Lane M — Catching Made Simple channel survey
