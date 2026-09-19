@@ -5,11 +5,14 @@ Owner's recording wish-list. Everything cuttable from existing footage has been 
 recorded; hand files to Lane A (`clips/<name>.mp4`, ~15–60s, portrait OK) and Lane A
 wires the buttons.
 
-## Shoulder Tube (4) — suggest one continuous take, cut per plane
-- [ ] `tube-forward.mp4` — 01 Forward Plane
-- [ ] `tube-lateral.mp4` — 02 Lateral Plane
-- [ ] `tube-overhead.mp4` — 03 Overhead
-- [ ] `tube-throwing.mp4` — 04 Throwing Position
+## Shoulder Tube (4) — CUT 2026-09-14, needs Lane A wiring
+Source: `-WomBkIThhU` (Bauer official "Shoulder Tube Routine", 4:18)
+Timestamps from frame sampling (15s intervals) — scrub to verify plane transitions before wiring.
+- [x] `tube-overhead.mp4`  — 01 Overhead          0:10–0:48 (38s, 680KB)
+- [x] `tube-forward.mp4`   — 02 Forward Plane      0:48–1:18 (30s, 536KB)
+- [x] `tube-lateral.mp4`   — 03 Lateral Plane      1:18–2:10 (52s, 953KB)
+- [x] `tube-throwing.mp4`  — 04 Throwing Position  2:10–3:12 (62s, 1.1MB)
+All 4 in `battery-laneM/clips/` + archived to iCloud `0.5 Baseball/`. Branch: `laneM/recov-clips-req015`.
 
 ## Washington Drills (6)
 - [ ] `wash-knee-center.mp4` — 01 Knee Short Hops, Center
@@ -611,3 +614,436 @@ owner decision on whether PFP deserves its own block, sourced properly.
 
 *Recording the negative result so nobody re-checks this file: the rule was applied,
 the content was found, the call not to ship was deliberate.*
+
+---
+
+## Bauer mechanics + drills — CUT 2026-09-14, cut-not-wired (no UI surface yet)
+
+Source files all downloaded to `battery-video-work/_sources/` and archived to `iCloud 0.5 Baseball/_sources/`.
+VTT-sourced timestamps throughout. All clips in `battery-laneM/clips/` + `iCloud 0.5 Baseball/`.
+Branch: `laneM/recov-clips-req015`.
+
+### Hip/Shoulder Separation (KVno6crh5u8)
+- [x] `bauer-mech-hipsep-spring.mp4` — 2:31–3:30 (59s, 883KB) — tendon spring + energy transfer
+
+### Arm Mechanics — Upper Half (atzlM1lMLhU)
+- [x] `bauer-mech-armspiral.mp4` — 1:47–2:35 (48s, 666KB) — SCAP retraction → arm spiral
+
+### 5 Drills to Throw Harder (3BtSi8c3evM)
+- [x] `bauer-drill-pulldown.mp4` — 4:40–5:10 (30s, 426KB) — pull-down block leg drill
+- [x] `bauer-drill-clockdrill.mp4` — 5:08–6:10 (62s, 989KB) — clock drill 4:30-position run-rotate-throw
+
+### Pregame Warmup Routine (mhmj5AfX0K0)
+- [x] `bauer-warmup-3phase.mp4` — 0:47–2:00 (73s, 990KB) — 3-phase warmup overview
+
+---
+
+## Bauer strategy — tunneling — CUT 2026-09-14, cut-not-wired
+
+Source: `WHZUmOm2A2A` "Tunneling Pitches | Tips with Trev Ep 16" (12:18, 33MB)
+VTT-sourced. Whiteboard/diagram-heavy — all cuts contain whiteboard animation.
+
+- [x] `bauer-strat-tunnel-def.mp4` — 0:37–2:36 (119s, 1.7MB) — definition + tree/branch analogy
+- [x] `bauer-strat-tunnel-vert.mp4` — 2:43–6:06 (203s, 2.9MB) — vertical FB/curve bad-vs-good tunnel example
+- [x] `bauer-strat-tunnel-horz.mp4` — 6:39–8:20 (101s, 1.4MB) — horizontal FB/slider + hitter deception
+
+---
+
+## Bauer pitch design — CUT 2026-09-14, cut-not-wired
+
+Source: `UmSMSEdyNVU` "Trevor Bauer Pitch Design" (18min, 209MB)
+VTT-sourced. Close-up grip/hand footage + on-screen angle diagrams.
+
+- [x] `bauer-design-spin-theory.mp4` — 0:00–1:54 (114s, 1.8MB) — spin axis theory; why wrist manipulation fails
+- [x] `bauer-design-cutter-axis.mp4` — 2:47–4:16 (89s, 1.4MB) — cutter spin axis visual demo
+- [x] `bauer-design-curve-spin.mp4` — 11:51–13:16 (85s, 1.2MB) — curveball front spin mechanics
+
+---
+
+## Bauer command training — CUT 2026-09-14, cut-not-wired
+
+Source: `qtgtQFihXZw` "Trevor Bauer's Command Training Program | Baseball 401" (7:23, 145MB)
+VTT-sourced. On-field with targets + app tracking setup.
+
+- [x] `bauer-cmd-targets.mp4` — 2:15–3:19 (64s, 2.0MB) — 9" target methodology; progressive shrink protocol
+- [x] `bauer-cmd-session.mp4` — 5:11–7:23 (132s, 2.6MB) — session protocol: announce pitch→throw→mark hit/miss
+
+---
+
+## Bauer recovery science — CUT 2026-09-14, cut-not-wired (slots into existing arm.html recovery section)
+
+Source files all downloaded + in iCloud 0.5 Baseball/_sources/.
+
+### Z3QJxLaPBDI "What's BEST For RECOVERY After Pitching?" (Short, 3:00)
+- [x] `bauer-recov-protocol.mp4` — 0:00–2:59 (179s, 2.2MB) — night-of isometrics + Marc Pro + next-day 120-135bpm circuit
+
+### ZmvAiQZOpqY "Post-Game Recovery Secrets | Tips w/Trev Ep 30" (8:29)
+- [x] `bauer-recov-no-ice.mp4` — 0:07–5:00 (293s, 4.4MB) — ice/heat stressor framework; why pros skip icing after starts
+
+### KMvdWv0wwno "Do FLUSH RUNS Really Help With Recovery?" (11:29)
+- [x] `bauer-recov-flush.mp4` — 0:07–3:00 (173s, 2.7MB) — lactic acid myth debunked; what flush runs actually do
+
+### vZfqllOlPbM "How to SPEED UP Muscle Recovery | Tips with Trev Ep 24" (8:14)
+- [x] `bauer-recov-marcpro.mp4` — 0:00–4:00 (240s, 3.7MB) — Marc Pro device: elbow pad placement + passive recovery
+
+### DMbuo9b6ZIo "Arm Pain | Tips With Trev Ep 34" (14:29)
+- [x] `bauer-recov-armtype.mp4` — 0:10–3:30 (200s, 3.5MB) — arm discomfort taxonomy: tightness vs fatigue vs soreness vs pain
+
+### BnUcxXcOiE8 "Heel Connection | Tips w/Trev Ep 33" (13:28) — SKIPPED
+Debate/analysis video arguing heel connection is a bad coaching cue. No instructional demo.
+Skip unless BATTERY adds a "mechanics analysis" or "myth-busting" section.
+
+### S03UqySwcXA "Bauer Bullpen Recovery Routine" (2:31)
+- [x] `bauer-recov-bullpen.mp4` — 0:00–2:31 (151s, 2.0MB) — post-bullpen overcoming eccentrics + forearm isometrics
+
+---
+
+## Bauer pregame warmup detail — CUT 2026-09-14 (additions to bauer-warmup-3phase)
+
+Source: `mhmj5AfX0K0` "Preparing For a Start | Tips with Trev Ep 9" (5:27, 37MB)
+bauer-warmup-3phase.mp4 (0:47–2:00) already committed. These cover phases 2+3 in detail.
+
+- [x] `bauer-warmup-activ.mp4`    — 2:02–3:17 (75s, 1.1MB) — activation: J-bands/shoulder tube/cuff weights/pails+rails
+- [x] `bauer-warmup-specific.mp4` — 3:17–5:01 (104s, 1.6MB) — activity-specific: weighted ball reverse throws + Driveline drills
+
+---
+
+## Long Island Ducks Breakdowns — CATALOGED 2026-09-14, VTTs downloaded, videos not yet downloaded
+
+**Playlist:** `PLIAmwQKhPrAQe8he9ZyQpyGQYWfoG79-i` — "2026 Long Island Ducks Breakdowns"
+**Content type:** Pitch-by-pitch game breakdown vlogs — Bauer narrates his approach, tunnel decisions,
+sequence logic, and pitch design adjustments in real time over game footage. Richest tunnel/sequence
+source in the catalog. VTT scans show 320–660 keyword hits per video.
+
+**VTT scrub method:** Transcript-first (these are instructional commentary over game video, not silent B-roll).
+
+### iV1lkqk-IVQ — "I Pitched In The U.S. After 5 Years" (50:21) — VTT 660 hits
+First Long Island Ducks start. Key moments from VTT:
+- **0:55–1:20** — warmup protocol: threw warm-ups after first pitch thrown (setup mistake), discusses routine order
+- **1:41–2:00** — "normally you throw a first pitch fastball coming out of the gate" — first-pitch philosophy
+- Pitch sequences throughout: fastball → cutter → splitter → curveball progressions
+- **NOTE:** Download for clipping. Best single-source for warmup order/protocol discussion.
+
+### LTgyXmpI2Go — "I Threw A No Hitter, A Breakdown" (50:20) — VTT 632 hits ⭐ HIGHEST VALUE
+Full no-hitter breakdown with explicit tunnel terminology. Key moments from VTT:
+- **1:33–1:44** — "he was triggering on an inside tunnel. He saw inside, he swung, ball went opposite way" — hitter tunnel read
+- **1:39–1:44** — "dead zone cutter" concept — cutter that looks inside but breaks back
+- **2:42–2:47** — "down I have cutter splitter going below the zone and I have free stuff at the top" — pitch tree from down tunnel
+- **3:10–3:20** — "up tunnel set" vs "down tunnel set" — explicit tunnel management language
+- **3:18–3:22** — "throwing two-seam open, fastball up and in open" — arm-side/glove-side mapping
+- Throughout: explicit tunnel decision logic for each AB
+- **NOTE:** Download immediately. Best tunnel analysis video in the catalog. 50+ minutes of breakdown.
+
+### SSVDpWbxVdQ — "My 10 Strikeout Game Got Heated" (49:06) — VTT 497 hits
+- **0:34–0:37** — "first pitch fastball right down the middle" — opener strategy
+- **1:17–1:32** — "go splitter down. They're definitely looking off speed." → "go curveball" — reading hitter tendencies
+- Fastball/splitter/curveball three-pitch tunnel sequences throughout
+- Confrontation/heated moment context in 2nd half
+
+### V8gW0dj_s-A — "I Got Signed After This Start" (36:13) — VTT 495 hits
+Post-suspension return start (context: this start led to independent league contract). Key moments:
+- **0:53–1:01** — "splitter going in, splitter going away" — splitter location variety
+- **1:18–1:22** — "threw cutter to the hands figuring he might pop it up, then used that tunnel up middle" — inside cutter → up-tunnel
+- Full pitch sequence breakdown throughout
+
+### eKCyoudbw9g — "They Took Away My Best Pitches" (53:57) — VTT 407 hits
+Pitch strategy under restriction (some pitches flagged/banned). Key moments:
+- **1:43–1:54** — "threw splitter because I'd thrown breaking balls first time, figured they'd be looking for breaking balls. Wanted to get splitter established" — cross-AB sequencing logic
+- **2:47–2:49** — "have to turn it on and throw harder on command" — velocity on demand discussion
+- Adjustment narrative throughout
+
+### ADmcDpu9vNw — "I Threw My Brand New Pitch" (44:47) — VTT 362 hits
+New pitch introduction (sweeper). Key moments:
+- **0:13–0:14** — "debuting some new pitches, all-time attendance record"
+- **1:18–1:45** — cutter → sweeper → curveball three-pitch sequence: "after he's early on the cutter, I went to the sweeper, and he auto took it. So I went [curveball]" — pitch tree execution
+- New pitch introduction narrative: how he developed it, how it fits the repertoire
+
+### -LlMgGbGZZU — "I Struck Out 15 And Got Pulled" (54:25) — VTT 320 hits
+15-K game despite being pulled early. Key moments:
+- **1:33–1:36** — "cutter in" first pitch, then breaking ball
+- **1:42–1:46** — "cutter just off the plate out of the same tunnel" — explicit tunnel language
+- **2:07–2:10** — "thought I'd go out of that up and in fastball tunnel with a splitter" — FB tunnel → splitter execution
+
+### Clip candidates (Ducks) — CUT 2026-09-14, cut-not-wired
+| Clip name | Source | Timestamps | Content | Status |
+|-----------|--------|-----------|---------|--------|
+| `ducks-seq-tunnel-read.mp4` | LTgyXmpI2Go | 1:33–3:20 | Hitter tunnel reading + dead zone cutter + up/down tunnel management | ✅ CUT 2.5MB |
+| `ducks-seq-first-pitch.mp4` | iV1lkqk-IVQ | 1:41–2:20 | First pitch philosophy + cutter→splitter opener | ✅ CUT 761KB |
+| `ducks-seq-splitter-tree.mp4` | SSVDpWbxVdQ | 1:17–1:35 | Reading off-speed tendencies → splitter → curveball | ✅ CUT 526KB |
+| `ducks-seq-new-pitch.mp4` | ADmcDpu9vNw | 1:18–1:50 | Cutter/sweeper/curve tree, new pitch insertion | ✅ CUT 984KB |
+| `ducks-seq-fb-tunnel-up.mp4` | -LlMgGbGZZU | 2:07–2:15 | Fastball up-in tunnel → splitter execution | ✅ CUT 179KB |
+
+All 4 downloaded Ducks clips in `battery-laneM/clips/`. Branch: `laneM/recov-clips-req015`.
+
+---
+
+## Japan game vlogs — CATALOGED 2026-09-14, VTTs downloaded
+
+**Source channel:** @BauerOutage, "2025 Japan Vlog" playlist (`PLIAmwQKhPrASKT64P4yiV52ewgoUNpUIf`)
+**Vlog rule applies:** frames-first for silent workout/warmup content; transcript-first for narrated game analysis.
+
+### Q65LYjUEpHg — "I Faced Japan's Home Run Champion" (40:59) — LOCAL MP4 + VTT
+Already-cut clips: jp1-* (gym workout 1:24–2:02, team stretch 18:06–18:34, foam roller 19:24–21:04)
+VTT scan (348 keyword hits) found additional content not previously cataloged:
+- **0:40–1:01** — "mechanics have been a little bit inefficient" — self-analysis of mechanical issues
+- **6:26–7:22** — **EMBEDDED DRILL: "preset posture squat drill"** — command/velocity drill
+  - "if your posture is being sold at the plate, it's probably affecting your command and velocity"
+  - "start with feet a little wider than shoulder width, set the posture you want to keep"
+  - Drill details: squat with preset posture, maintain through delivery
+  - "If you execute this drill correctly, it's going to help with your velocity and command"
+  - **NOTE:** This is real instructional content — Bauer demonstrates a specific drill. Cut this.
+
+**Clip — CUT 2026-09-14:**
+- [x] `jp2-drill-posturesquat.mp4` — 6:26–7:22 (~56s) — preset posture squat drill for command/velocity (1.4MB, cut-not-wired)
+
+### bDKnEWl8eSs — "I Faced Japan's Strikeout King (He Taunted Me)" (38:17) — VTT 389 hits
+VTT highlights:
+- **1:24–1:25** — "body a little bit of recovery today before my bullpen tomorrow" — day-before protocol
+- **4:57–5:23** — "today is bullpen day. Goal for the pen today is throw strikes" — bullpen intent/planning
+- **5:39–5:41** — "heart rate is like double what it should be for the amount of warm up" — warmup undershoot self-assessment
+- **6:12–6:16** — "start with cutter away" → pitch execution in bullpen — bullpen pitch selection
+- **6:40–6:50** — "back door cutter" → splitter sequence in pen
+- Throughout: approach analysis vs strikeout king — adjusting to changed tendencies
+- **NOTE:** Download for bullpen protocol + pitch sequencing content. ~38 min.
+
+### zKz4RmeIP10 — "My First Start In Japan Was Almost Perfect" (35:56) — VTT 278 hits ⭐
+VTT highlights (transcript-first — narrated game breakdown):
+- **0:28–0:37** — "looking for: command sequencing, height of pitches, movement on my splitter" — pre-start goals
+- **0:45–0:59** — "tried to go splitter, getting that pitch going. Haven't had good depth to it" — splitter development
+- **1:04–1:09** — "set up a good tunnel for a curveball, though" → curveball execution after splitter tunnel
+- **1:25–1:38** — "really good splitter. Last one angled down. Splitter started a little above it" — splitter shape analysis
+- **1:38–1:47** — "exact same sequence as the first guy. Tried the exact same sequence again" — sequence repetition strategy
+- Full game breakdown with tunnel → pitch sequences throughout
+- **NOTE:** One of the richest Japan pitch-sequence videos. Download for clipping.
+
+**Clips — CUT 2026-09-14:**
+- [x] `jp-seq-splitter-tunnel.mp4` — zKz4RmeIP10 ~1:04–1:20 — fastball sets tunnel → curveball (261KB, cut-not-wired)
+- [x] `jp-seq-same-sequence.mp4` — zKz4RmeIP10 ~1:38–2:00 — deliberate sequence repetition strategy (577KB, cut-not-wired)
+
+### X0dLL4uYivE — "My First Game In Japan Broke Records" (17:54) — VTT 61 hits
+- **0:27–0:51** — "full game day warm-up: hot tub → weighted balls → shoulder tube → long toss → pregame bullpen → showtime" — complete game-day sequence
+- **1:05–1:10** — "cutter in to speed up, then slider chase" — sequence execution
+- **NOTE:** Short video (18 min). Good game-day warmup sequence catalog. Lower priority than bDKnEWl8eSs/zKz4RmeIP10.
+
+### bDKnEWl8eSs, p_VMkZUJOkI, CdMJXC9IsmA — Other Japan vlogs
+- `p_VMkZUJOkI` (Rejoined Team Japan, 25:15): 238 hits — "bullpen. Probably get two or three [innings]" — travel/reentry protocol. Frame-sample for visual workout content.
+- `CdMJXC9IsmA` (MLB vs Japanese All-Star, 23:43): 71 hits — "spin, you need the fastball to come off" — spin theory discussion; "get warmed up. We do have BP time" — pre-game protocol. Reference only.
+- `gRZ8MkZ97lk` (Preparing to Face Best Pitcher, 17:10): 75 hits — "throw harder. I think too much" + "movement though" — self-analysis vs ace. Short video, reference.
+
+**Japan download priority:** Q65LYjUEpHg (already local), zKz4RmeIP10 (download now), bDKnEWl8eSs (download).
+
+---
+
+## Mexico game vlogs — CATALOGED 2026-09-14, VTTs downloaded
+
+**13 videos total** on @BauerOutage covering 2023 Mexican League (LMB) season with Diablos Rojos del México.
+These are narrated game breakdown vlogs — transcript-first (Bauer narrates pitch selections).
+VTT scans show 220–838 keyword hits per video.
+
+### WZtCcI7v4pA — "I Faced Mexico's Most Dangerous Hitters" (52:17) — VTT 637 hits ⭐ HIGHEST MEXICO
+- **0:30–0:35** — "got to get fastballs in to the righties today. Be aggressive with the fastball. Speed them up and finish them" — game plan statement
+- **1:01–1:07** — "no sequence available, no tunnel available, so 2-0 I'm just trying to throw a strike" — tunnel constraints on 2-0
+- **1:11–1:13** — "cutter here" — pitch call
+- **1:18–1:26** — "well-executed middle-middle fastball that thankfully he didn't swing at, went cutter bottom of the zone. Shared the same tunnel. He was a little out in front" — FB/cutter tunnel execution explicit
+- **1:41–1:54** — "get a splitter rolling here early. Three fastballs and a cutter. Start off heater" → "curveball tunnel set up off of that. splitter down the way" — three-pitch tree from fastball
+- 637 hits total — full-game breakdown throughout 52 minutes
+- **NOTE:** Best Mexico pitch sequence video. Download for clipping.
+
+**Clips — CUT 2026-09-14:**
+- [x] `mx-seq-fb-cutter-tunnel.mp4` — WZtCcI7v4pA ~1:18–1:30 — explicit FB/cutter same-tunnel execution (311KB, cut-not-wired)
+- [x] `mx-seq-three-pitch-tree.mp4` — WZtCcI7v4pA ~1:41–2:00 — FB → cutter → curveball/splitter tree (631KB, cut-not-wired)
+
+### SLuY7YqJDFU — "I Faced Mexico's Most Dangerous Hitter" (53:05) — VTT 673 hits
+- **1:38–1:42** — "that was the nastiest splitter I've ever [thrown]" — splitter quality assessment
+- **1:39–1:47** — "used a lot of my curveball and my [splitter]" — pitch mix strategy
+- 673 hits throughout — similar depth to WZtCcI7v4pA
+
+### SVDr-eucaeM — "I Pitched Against Mexico's Most Stacked Team (MLB All-Stars + More)" (58:51) — VTT 475 hits
+- **1:24–1:30** — "execute perfect tunnel off of that. Cut her down and in" — explicit tunnel execution called out
+- **2:49–2:51** — "made an adjustment mid-season so my splitter is more controllable and [applicable against lefties]" — in-season pitch adjustment
+- **2:19–2:22** — "didn't bother me at all in warm-ups or pregame catch. But here on the third [inning]" — warmup vs game feel difference
+
+### IYLhuLHI2BM — "I Risked Getting Suspended To Save Our Season" (34:46) — VTT 538 hits
+- **0:57–1:00** — "command probably won't be quite as good" — pre-start honest assessment
+- **1:20–1:22** — "two fastballs, kind of over the [plate]" — pitch execution discussion
+- Emotional/stakes narrative around pitch sequences
+
+### 5MvQJOvxjCw — "I Rejoined My Team In Mexico" (57:36) — VTT 355 hits
+- **0:45–0:49** — "going to get to throw one bullpen in Oaxaca, which is at 5,500 [feet altitude]" — altitude adaptation bullpen
+- Travel reentry + altitude adaptation context throughout
+
+### z8Bu2g6FR5s — "Trevor Bauer Accused Of Cheating In Mexico" (31:07) — VTT 292 hits
+Previously scanned (frames-first). No new cuts beyond the existing `bauer-pitch-hipfire` + `bauer-pitch-gloveside` clips. Verdict stands: fielding B-roll is not worth cutting.
+VTT confirms 292 keyword hits are scattered through 31 minutes — no single dense instructional moment.
+
+### Other Mexico vlogs — lower priority
+| ID | Title | Duration | Hits | Notes |
+|----|-------|----------|------|-------|
+| VriiwxGed9c | Most Hated Team | 44:43 | 319 | bullpen walk-down commentary |
+| 9wc0ltGWqKA | Most Hated Team (Again) | 34:12 | 336 | throwing partner discussion |
+| -wgCpi81DdM | Second Start Set Records | 38:51 | 233 | command issues, next start prep |
+| jtbfEQZJS_4 | First Game In Mexico | 24:59 | 223 | pitch signs/catcher communication |
+| 1WDJhcdqMvY | Joined New Team | 29:06 | 227 | "in a tunnel or you want to dance" — tunnel mention |
+| FB3UWwTY8ps | Almost Missed First Start | 26:42 | 256 | "no exercise, no throwing" — travel disruption |
+| ZnhEGzpEd5g | Broke Strikeout Record | 41:55 | — | VTT download failed partially (curl reset), retry |
+
+**Mexico download priority:** WZtCcI7v4pA first (637 hits, explicit tunnel calls), then SLuY7YqJDFU, SVDr-eucaeM.
+
+---
+
+## VTT download status — 2026-09-14
+
+| ID | Series | Title | Duration | VTT | MP4 |
+|----|--------|-------|----------|-----|-----|
+| iV1lkqk-IVQ | Ducks | I Pitched In The U.S. After 5 Years | 50:21 | ✅ | ✅ 145MB (360p) |
+| LTgyXmpI2Go | Ducks | I Threw A No Hitter, A Breakdown | 50:20 | ✅ | ✅ 215MB (360p) |
+| SSVDpWbxVdQ | Ducks | My 10 Strikeout Game Got Heated | 49:06 | ✅ | ✅ 205MB (360p) |
+| V8gW0dj_s-A | Ducks | I Got Signed After This Start | 36:13 | ✅ | ❌ |
+| eKCyoudbw9g | Ducks | They Took Away My Best Pitches | 53:57 | ✅ | ❌ |
+| ADmcDpu9vNw | Ducks | I Threw My Brand New Pitch | 44:47 | ✅ | ✅ 184MB (360p) |
+| -LlMgGbGZZU | Ducks | I Struck Out 15 And Got Pulled | 54:25 | ✅ | ✅ section (2:00-2:20) |
+| Q65LYjUEpHg | Japan | Home Run Champion | 40:59 | ✅ | ✅ 108MB (360p) |
+| bDKnEWl8eSs | Japan | Strikeout King | 38:17 | ✅ | ✅ 163MB — frame-scanned 2026-09-16: game-day K-counter vlog (10K, 9 innings) + indoor cage facility tour; NO drill clips — vlog/game diary only |
+| zKz4RmeIP10 | Japan | First Start Almost Perfect | 35:56 | ✅ | ✅ 79MB (360p) |
+| X0dLL4uYivE | Japan | First Game Broke Records | 17:54 | ✅ | ✅ 68MB — frame-scanned 2026-09-16: Japan arrival vlog, hotel life, Command Logging app, media day, locker room; NO drill clips |
+| p_VMkZUJOkI | Japan | Rejoined Team Japan | 25:15 | ✅ | ❌ |
+| gRZ8MkZ97lk | Japan | Preparing to Face Best Pitcher | 17:10 | ✅ | ❌ |
+| CdMJXC9IsmA | Japan | MLB vs Japanese All-Star | 23:43 | ✅ | ❌ |
+| KyFBxnS4ZUw | Japan | Friends NOT Prepared | 20:55 | ✅ | ❌ |
+| vL0vSQNAQwI | Japan | Arriving at Brand New Team | 28:14 | ✅ | ❌ |
+| WZtCcI7v4pA | Mexico | Most Dangerous Hitters | 52:17 | ✅ | ✅ 197MB (360p) |
+| SLuY7YqJDFU | Mexico | Most Dangerous Hitter | 53:05 | ✅ | ❌ |
+| SVDr-eucaeM | Mexico | Most Stacked Team | 58:51 | ✅ | ❌ |
+| IYLhuLHI2BM | Mexico | Risked Getting Suspended | 34:46 | ✅ | ❌ |
+| 5MvQJOvxjCw | Mexico | Rejoined Team Mexico | 57:36 | ✅ | ❌ |
+| z8Bu2g6FR5s | Mexico | Accused of Cheating | 31:07 | ✅ | (scanned, no new cuts) |
+| VriiwxGed9c | Mexico | Most Hated Team | 44:43 | ✅ | ❌ |
+| 9wc0ltGWqKA | Mexico | Most Hated Team (Again) | 34:12 | ✅ | ❌ |
+| -wgCpi81DdM | Mexico | Second Start Set Records | 38:51 | ✅ | ❌ |
+| jtbfEQZJS_4 | Mexico | First Game In Mexico | 24:59 | ✅ | ❌ |
+| 1WDJhcdqMvY | Mexico | Joined New Team | 29:06 | ✅ | ❌ |
+| FB3UWwTY8ps | Mexico | Almost Missed First Start | 26:42 | ✅ | ❌ |
+| ZnhEGzpEd5g | Mexico | Broke Strikeout Record | 41:55 | ⚠ partial | ❌ |
+| pBT9ZhxTJ5c | Other | I Encountered A Rogue Umpire | 1:03:12 | ✅ local | ✅ 3 clips cut |
+
+**Note:** All 360p downloads via android client extractor (YouTube 429 blocks web client; android bypasses it at 360p only — no 720p available while rate limited). 360p is sufficient for clip encode (standard profile scales to 640 wide).
+
+**⚠ YouTube BOT-CHECK block (2026-09-14):** Rate limit escalated from 429 to full bot-detection ("Sign in to confirm you're not a bot") — android, web_embedded, and web_safari clients all blocked. No further yt-dlp downloads until cookies are passed (`--cookies-from-browser`) or owner downloads manually. iCloud path for manual drops: `iCloudDrive/0.5 Baseball/_sources/`.
+
+**Exercise keyword scan results (V8gW0dj_s-A, eKCyoudbw9g, -LlMgGbGZZU):** Scanned 2026-09-14 with full exercise keyword set (plyo/j-band/shoulder tube/foam roll/sleeper/couch/90-90/etc.). **0 hits each** — confirmed game-breakdown only, no exercise/warmup/stretch content. MP4s not needed for exercise purposes; only needed for clip candidates already identified in the VTT catalog above (`ducks-seq-fb-tunnel-up` from -LlMgGbGZZU).
+
+**Download queue (remaining):** V8gW0dj_s-A and eKCyoudbw9g lower priority (no exercise content, clip candidates already identified from VTT). All other priority downloads complete: -LlMgGbGZZU ✅ (ducks-seq-fb-tunnel-up cut), bDKnEWl8eSs ✅ (frame-scanned 2026-09-16: no drill clips), X0dLL4uYivE ✅ (frame-scanned 2026-09-16: no drill clips), pBT9ZhxTJ5c ✅ (3 clips cut).
+
+---
+
+## "I Encountered A Rogue Umpire" — pBT9ZhxTJ5c — SCAN COMPLETE 2026-09-14
+
+**Video ID:** `pBT9ZhxTJ5c`
+**Duration:** 1:03:12
+**Source:** `iCloudDrive/0.5 Baseball/sources/I Encountered A Rogue Umpire.mp4` (1295MB, already local)
+**Status:** ✅ SCANNED + CLIPS CUT — committed to `laneM/recov-clips-req015`
+
+**Scan method:** Embedded subtitle extraction (301KB VTT, covers last 3 min only — vlog format).
+Applied frames-first rule: 42-frame overview at 90s intervals + dense sampling at 15s/5s intervals
+across 3 exercise zones identified from overview.
+
+**Exercise zones found (frame scan results):**
+
+| Zone | Timestamps | Content | Clip status |
+|------|-----------|---------|------------|
+| Day 2 pregame | 14:00–14:45 | "DAY TWO - 3 DAYS UNTIL NEXT START" title + team high knees dynamic warmup on warning track | ✅ CUT |
+| Indoor tunnel plyoball | 15:15–16:30 | **"HUMPTY DRILL"** on-screen label — indoor tunnel, 4APF pink 0.5 LB ball, lunge/receive position; + ball selection explanation (all hand sizes); + outdoor concrete corridor wall throws | ✅ CUT |
+| Gym lifting | 35:30–38:00 | Green-wall gym (power rack), barbell deadlifts, seated floor work, stability ball visible | ✅ CUT |
+
+**NOT FOUND as demonstrable clips:**
+- Static stretches (Sleeper, Couch, 90/90, Cross-Body, Wrist Flexor, Calf/Ankle): incidental team pregame background — not demonstrated for camera, no isolated hold visible
+- J-Bands: not present
+- Shoulder Tube: not present
+- Named PlyoCare exercises (Kneeling Reverse Throw, Spiral Drill, etc.): the Humpty Drill is plyoball work but uses their own terminology, not standard 4App step-names
+
+**Clips cut (all 3 in `battery-laneM/clips/`, committed to branch):**
+
+| Clip | Source IN | Source OUT | Size | Maps to |
+|------|-----------|-----------|------|---------|
+| `ru-warmup-highknees.mp4` | 14:05 | 14:35 | 1.0MB | Dynamic Warmup — High Knees + Butt Kicks |
+| `ru-plyo-humpty.mp4` | 15:15 | 16:30 | 1.9MB | PlyoCare — Humpty Drill (indoor tunnel + ball selection + outdoor wall throws) |
+| `ru-gym-deadlift.mp4` | 35:30 | 38:00 | 3.0MB | Gym lifting — deadlifts (no current BATTERY app slot) |
+
+---
+
+## Catching clips — Coach Bougie / @yagoo.guy — 2026-09-16 (Q assignment)
+
+**Source:** YouTube Short `nGSWKIhTnoE` — "This is how catchers frame when pitchers miss their spot" — Coach Bougie (@catchingmadesimple) reacting to @yagoo.guy (Se One Park) pregame drill footage.
+**Downloaded:** `battery-video-work/_sources/nGSWKIhTnoE.mp4` (4.14MB, 58s) + `nGSWKIhTnoE.en.vtt` (1.65KB)
+
+### Content (VTT + frame scan 2026-09-16)
+Three continuous framing technique segments over @yagoo.guy pregame footage, with on-screen text labels and Bougie narration:
+
+| Time | On-screen label | Technique |
+|------|----------------|-----------|
+| 0:00–0:20 | "STEAL THIS MLB SHORT HOP RECEIVING PROGRESSION" / "HAVE A BENT ARM" | Preset stance → shoe (frame to ground), bent arm |
+| 0:20–0:32 | "NOW WE SWITCH STANCES TO" | Misfire: slide to side → catch back up (multiple reps) |
+| 0:32–0:55 | "HAVING SHARP ANGLES" | Right-knee-down for down-and-in pitch; animated angle overlay |
+
+**Bougie endorsement:** "if you guys don't follow this Yagu guy, you should definitely go do it — he posts these pregame clips all the time"
+
+**Source evaluation:** The Bougie Short IS the @yagoo.guy footage — Bougie narrates over yagoo.guy's clip. The Short is actually **better than the raw source** for BATTERY because:
+- On-screen technique labels at each segment
+- Bougie narration explains the progression
+- Already concisely edited (58s, three techniques in sequence)
+
+**Clip cut (2026-09-16):**
+| Clip | IN | OUT | Size | Maps to |
+|------|----|-----|------|---------|
+| `bougie-frame-preset-to-kneedown.mp4` | 0:01 | 0:57 | 2.74MB | Catching — framing: preset frame → misfire slide recovery → right-knee-down |
+
+✅ CUT + archived to iCloud 0.5 Baseball. Committed to `laneM/recov-clips-req015`.
+
+### @yagoo.guy Instagram survey — 2026-09-16
+- **Profile:** Se One Park (@yagoo.guy), 12.4K followers, MLB pregame catching drill clips
+- **yt-dlp:** Instagram user scraper broken (extractor marked as broken in yt-dlp)
+- **Browser survey:** Instagram requires login to view profile content — modal blocks unauthenticated access
+- **Status:** Survey blocked by Instagram auth wall. Owner to survey directly or use logged-in session.
+- **Known content from Bougie Short:** At least one MLB pregame framing drill progression video (preset → slide → knee-down) confirmed high quality. Bougie calls it "pregame clips all the time."
+
+---
+
+## Coach Bougie Warmup Drills — klSzYHMSflI — FULL PIPELINE 2026-09-18
+
+**Source:** `klSzYHMSflI` — "My Favorite Catcher Warm Up Drills (Blocking + Receiving)"
+**Channel:** Catching Made Simple (Coach Bougie) @catchingmadesimple
+**Duration:** 16:51 | **Size:** 325MB | **Views:** 9.1K
+**Downloaded:** `battery-video-work/_sources/My Favorite Catcher Warm Up Drills (Blocking + Receiving) [klSzYHMSflI].mp4`
+**VTT:** `AppData/Local/Temp/claude/C--/.../bougie-warmup-klSzYHMSflI.en.vtt` (3665 lines, fully scanned)
+
+**Owner directive:** "M scrubs → review → divvy into drills → wired into BATTERY → gated → tested → shipped → pushed. 'The whole thing.'"
+**Owner note:** "definitely a drill and I think a plyoball routine"
+
+### Drill Structure (full VTT scan 2026-09-18)
+
+**RECEIVING SECTION (0:00–8:48):**
+- 0:00–0:18: Intro — "watch a current high school coach do some receiving blocking work"
+- 0:18–2:25: **Position 1→3→5 framework** — elbow drive to position 3, short hops with regular ball + heavy ball
+- 2:25–6:35: **Zone receiving** — vertical vs flat glove philosophy, scraping drill, in-air receiving, low/mid/high pitch zones, "elbow leads" principle
+- 6:35–8:48: **Decisions drill** — mixed zone (middle→outside→inside→anywhere), preset angles, eyes tracking, two-knee stable pregame drill
+
+**BLOCKING SECTION (8:48–16:51):**
+- 8:48–11:52: **Blocking basics** — square vs angle philosophy, stay-square principle, weakness analysis (RKD ball kicks to arm side)
+- 11:52–13:45: **Blocking progression** — regular baseball, dry reps, single knee moves, inchworms, "relax + watch ball," get hips back, triple threat → decisions drill
+- 13:45–16:35: **Block reads** — ball bouncing before plate (pop-up), stay down, spiked fastball paddle-block approach
+- 16:35–16:51: Outro
+
+**Note on plyoball content:** "Mallet" and "heavy baseball" training implements mentioned in receiving section. No standard PlyoCare/4-ounce plyoball routine — content is pure receiving/blocking mechanics. Owner's "plyoball routine" expectation may require a different source.
+
+### Clips Cut (all 6 — 2026-09-18)
+
+| Clip | IN | OUT | Size | Maps to |
+|------|----|-----|------|---------|
+| `bougie-recv-pos135.mp4` | 0:18 | 2:25 | 2.96 MB | Catching — receiving: position 1→3→5, elbow drive, short hops |
+| `bougie-recv-zones.mp4` | 2:25 | 6:35 | 5.26 MB | Catching — receiving: zone work (low/mid/high), scraping, vertical vs flat |
+| `bougie-recv-decisions.mp4` | 6:35 | 8:48 | 2.76 MB | Catching — receiving: decisions drill, mixed zone, preset angles |
+| `bougie-block-basics.mp4` | 8:48 | 11:52 | 3.54 MB | Catching — blocking: square vs angle, stay-square philosophy |
+| `bougie-block-progression.mp4` | 11:52 | 13:45 | 2.22 MB | Catching — blocking: single knee, dry reps, triple threat, hips back |
+| `bougie-block-reads.mp4` | 13:45 | 16:35 | 3.27 MB | Catching — blocking: reads, stay down, spiked fastball paddle |
+
+All 6 in `battery-laneM/clips/` + archived to iCloud `0.5 Baseball/`. Branch: `laneM/recov-clips-req015`.
