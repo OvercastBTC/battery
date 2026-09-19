@@ -1313,3 +1313,43 @@ Full blocking blueprint: 3 problems (sloppy stances, poor movement, slow decisio
 
 **Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
 **CLIP_SOURCE:** `bougie-brick-` → 7AnSFFQUJMM added to arm.html
+
+---
+
+## Coach Bougie — Stop Leaning Forward: Rotation + Power (HHBtGMRu9UU) — CUT 2026-09-19
+
+Source: `HHBtGMRu9UU` "Stop Leaning Forward: How Pro Catchers Unlock Rotation + Power" (7:55)
+Conversational coaching session with Taylor Justice (pro banana ball catcher). Two-drill approach to fix leaning-forward at throw point. Key insight: posterior hip loading → rotation, not forward-pushing.
+
+### Key structure
+- 0:46–2:05: Drill 1 — hop-hop-throw: Taylor's self-diagnosis (separating hands early → forward), back leg load, posterior hips vs quad-dominant; "sticky back foot" intro
+- 2:16–3:05: Drill 2 — step-back hop transfer: Taylor's breakthrough moment ("it just unlocked — I feel the hips turning, it's flipping now"); works 12u to pros
+- 3:57–5:17: Patrick Bailey coach quote on transfer at hip + spine angle; rotational vs forward force ("that's how we actually have a good pop time")
+
+| Clip | Range | Size | Content |
+|------|-------|------|---------|
+| `bougie-lean-drill.mp4` | 0:46–2:05 | 1.5MB | Hop-hop-throw drill + posterior loading concept; "sticky back foot" |
+| `bougie-lean-sticky.mp4` | 2:16–3:05 | 1.1MB | Step-back hop breakthrough: "it just unlocked, I feel the hips flipping" |
+| `bougie-lean-rotate.mp4` | 3:57–5:17 | 1.6MB | Patrick Bailey transfer insight + rotational vs forward force concept |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-lean-` → HHBtGMRu9UU added to arm.html
+
+---
+
+## Coach Bougie — The #1 Throwing Mistake Catchers Make (bRRz82O9V2I) — CUT 2026-09-19
+
+Source: `bRRz82O9V2I` "The #1 Throwing Mistake Catchers Make (and how to fix it)" (4:29)
+Coach Bougie + Joey Love (throwing specialist). Clean, structured: the mistake (elbow drops below shoulder) → why it happens (body knows low-stress layback requires elbow at shoulder height, so overcompensates above) → fix (escalator path: hand follows elbow up to shoulder height, then flip).
+
+### Key structure
+- 0:10–2:00: The mistake — elbow below shoulder plane; body overcompensates up above shoulder ("throwing a dart"); why: low-stress layback requires elbow AT shoulder = body tries to get there by going above
+- 2:00–3:30: The fix — "hand follows elbow up the escalator" (not elevator/straight up, not straight back — escalator path: hand below elbow, rise together to shoulder height, then flip); hips lead kinetic chain → shoulders → elbow → hand last; head jumping = hips going up not rotating
+
+| Clip | Range | Size | Content |
+|------|-------|------|---------|
+| `bougie-throw1-elbow.mp4` | 0:10–2:00 | 2.7MB | Elbow-below-shoulder problem + why it happens (layback mechanics) + escalator fix intro |
+| `bougie-throw1-hips.mp4` | 2:00–3:30 | 2.3MB | Full escalator path + kinetic chain (hips→shoulders→elbow→hand) + head jump pattern |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-throw1-` → bRRz82O9V2I added to arm.html
