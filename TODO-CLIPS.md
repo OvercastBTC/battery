@@ -1268,3 +1268,48 @@ Features pitching coaches Bobby O'Neal + Joey Levit for arm path section.
 
 **Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
 **CLIP_SOURCE:** `bougie-pop30-` → 3EODf3R4jXA added to arm.html
+
+---
+
+## Coach Bougie — Patrick Bailey Pregame Breakdown (XpCZPoJN4iU) — CUT 2026-09-19
+
+Source: `XpCZPoJN4iU` "I Broke Down Patrick Bailey's Pregame Routine | 10 Coaching Takeaways" (17:13, ~280MB)
+Coach Bougie's 10-takeaway breakdown of Patrick Bailey's MLB pregame catching routine.
+Key themes: 30,000 reps/year via daily routine, 4 ball types, 90° glove angle at impact, backpicking changes runner behavior, full routine sequence.
+
+### Key structure
+- 0:29–1:35: Timing + compounding — 30 reps/day per skill × 365 = 30,000 reps/year; macro/micro timing of pregame vs game
+- 5:50–7:15: Receiving mechanics — 90° glove angle at impact, "clear paths open pockets", ball rolling out of pocket = glove tilted back
+- 8:34–9:50: Throwing — get to side of ball for transfer efficiency; backpicking so good that runners go BACKWARD when they see ball in dirt
+- 12:11–14:20: Full routine sequence — throwing → catch → tag plays → receiving drills → blocking → transfers; all drill specifics
+
+| Clip | Range | Size | Content |
+|------|-------|------|---------|
+| `bougie-bailey-reps.mp4` | 0:29–1:35 | 1.8MB | 30,000 reps concept: timing + compounding daily routine |
+| `bougie-bailey-recv.mp4` | 5:50–7:15 | 2.4MB | 90° glove angle at impact + "clear paths open pockets" cue |
+| `bougie-bailey-throw.mp4` | 8:34–9:50 | 2.4MB | Side-of-ball transfer + backpick story (runners going backward) |
+| `bougie-bailey-routine.mp4` | 12:11–14:20 | 3.4MB | Full pregame routine walkthrough with drill specifics |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-bailey-` → XpCZPoJN4iU added to arm.html
+
+---
+
+## Coach Bougie — Brick Wall Blocker (7AnSFFQUJMM) — CUT 2026-09-19
+
+Source: `7AnSFFQUJMM` "The FASTEST Way to be a Brick Wall Blocker [Full Blueprint]" (6:05, ~100MB)
+Full blocking blueprint: 3 problems (sloppy stances, poor movement, slow decisions) → 3 solutions. Self-assessment red/yellow/green framework.
+
+### Key structure
+- 0:43–1:33: Framework — "blocking is not about being brave, it's a simple plan"; 3 problems → 3 solutions identity framework
+- 1:33–2:55: 3 stances — secondary (foundation), LKD (don't tip breaking balls), RKDE (easier reset/throw with right foot back)
+- 2:55–4:20: Movement (shin-slide, toothpick arms, don't lean chin forward) + 3 decisions (horizontal, vertical, extended/rainbow)
+
+| Clip | Range | Size | Content |
+|------|-------|------|---------|
+| `bougie-brick-plan.mp4` | 0:43–1:33 | 1.2MB | "Simple plan" reframe + 3 problems/3 solutions identity |
+| `bougie-brick-stance.mp4` | 1:33–2:55 | 2.3MB | 3 stances: secondary, LKD, RKDE with purpose for each |
+| `bougie-brick-move.mp4` | 2:55–4:20 | 2.4MB | Movement (shin-slide, toothpick arms) + horizontal/vertical/extended decisions |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-brick-` → 7AnSFFQUJMM added to arm.html
