@@ -1350,110 +1350,6 @@
     margin-bottom: 3px;
   }
 
-  .weekly-summary {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  @media (min-width: 540px) {
-    .weekly-summary { grid-template-columns: repeat(4, 1fr); }
-  }
-  .weekly-summary-item {
-    background: var(--ink);
-    border: 1px solid var(--line);
-    padding: 10px;
-  }
-  .ws-label {
-    font-family: 'Courier New', monospace;
-    font-size: 9px;
-    color: var(--dim);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-  .ws-val {
-    font-family: 'Courier New', monospace;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--bone);
-    line-height: 1.1;
-  }
-  .ws-val.protein { color: var(--gold-bright); }
-  .ws-val.water { color: var(--blue); }
-  .ws-val.green { color: var(--green); }
-  .ws-sub {
-    font-size: 10px;
-    color: var(--dim);
-    margin-top: 3px;
-  }
-  .weekly-bars {
-    background: var(--steel);
-    border: 1px solid var(--line);
-    padding: 14px;
-    margin-bottom: 10px;
-  }
-  .wbar-row {
-    display: grid;
-    grid-template-columns: 60px 1fr 80px;
-    gap: 10px;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .wbar-row:last-child { border-bottom: none; }
-  .wbar-row.today {
-    background: rgba(88,166,255,0.04);
-    margin: 0 -8px;
-    padding: 6px 8px;
-    border-bottom-color: var(--line);
-  }
-  .wbar-day {
-    font-family: 'Courier New', monospace;
-    font-size: 10px;
-    color: var(--dim);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .wbar-day .wbar-date {
-    display: block;
-    font-size: 8px;
-    color: var(--line-bright);
-    margin-top: 1px;
-  }
-  .wbar-row.today .wbar-day { color: var(--blue); }
-  .wbar-track {
-    height: 14px;
-    background: var(--ink);
-    border: 1px solid var(--line);
-    position: relative;
-  }
-  .wbar-fill {
-    height: 100%;
-    transition: width 0.3s;
-  }
-  .wbar-fill.protein { background: linear-gradient(90deg, var(--gold) 0%, var(--gold-bright) 100%); }
-  .wbar-fill.water { background: linear-gradient(90deg, var(--blue) 0%, #79b8ff 100%); }
-  .wbar-fill.met { background: var(--green); }
-  .wbar-val {
-    font-family: 'Courier New', monospace;
-    font-size: 11px;
-    color: var(--bone);
-    text-align: right;
-    font-weight: 700;
-  }
-  .wbar-val .wbar-pct {
-    display: block;
-    font-size: 9px;
-    color: var(--dim);
-    font-weight: 400;
-  }
-  .wbar-empty {
-    color: var(--dim);
-    font-style: italic;
-    font-size: 11px;
-    text-align: center;
-    padding: 16px 0;
-  }
 
   /* PROFILE */
   .profile-target-grid {
@@ -1980,7 +1876,6 @@
 
 <nav class="tabs">
   <button class="tab active" data-tab="tracker">Tracker</button>
-  <button class="tab" data-tab="weekly">Weekly</button>
   <button class="tab" data-tab="events">Events</button>
   <button class="tab" data-tab="heat">Heat</button>
   <button class="tab qa-adult" data-tab="overview">Overview</button>
@@ -2445,49 +2340,6 @@
   </div>
   <div style="text-align:center;font-size:10px;color:#6e7681;font-family:'SF Mono',ui-monospace,monospace;letter-spacing:.5px;margin-bottom:6px">Backup saves to a file you control · restore on any device</div>
 
-<div class="page" id="page-weekly">
-  <h2>Weekly view</h2>
-  <p class="lede">7-day rollup. <b>Tap any day</b> (bar or the log strip below) to edit or backfill it — add from favorites, log protein/water, or fix a time. Totals &amp; streak update live.</p>
-
-  <div class="card blue">
-    <div class="card-head">
-      <div class="card-title">Last 7 days · totals</div>
-      <span class="badge blue" id="weekly-streak-badge">Streak: 0</span>
-    </div>
-    <div class="weekly-summary">
-      <div class="weekly-summary-item">
-        <div class="ws-label">Protein avg</div>
-        <div class="ws-val protein" id="weekly-p-avg">0g</div>
-        <div class="ws-sub" id="weekly-p-pct">0% of target</div>
-      </div>
-      <div class="weekly-summary-item">
-        <div class="ws-label">Water avg</div>
-        <div class="ws-val water" id="weekly-w-avg">0oz</div>
-        <div class="ws-sub" id="weekly-w-pct">0% of target</div>
-      </div>
-      <div class="weekly-summary-item">
-        <div class="ws-label">Goal-met days</div>
-        <div class="ws-val green" id="weekly-met">0/7</div>
-        <div class="ws-sub">Both protein + water hit</div>
-      </div>
-      <div class="weekly-summary-item">
-        <div class="ws-label">Electrolytes</div>
-        <div class="ws-val" id="weekly-elec">0</div>
-        <div class="ws-sub">Stick-equivalents this week</div>
-      </div>
-    </div>
-  </div>
-
-  <h3>Protein · daily</h3>
-  <div class="weekly-bars" id="weekly-bars-protein"></div>
-
-  <h3>Water · daily</h3>
-  <div class="weekly-bars" id="weekly-bars-water"></div>
-
-  <div class="info" style="margin-top: 20px;">
-    <strong>How streak works:</strong> Streak counts consecutive days (ending today or yesterday) where you hit <b>both</b> the protein and water goals for that day's day-type. Missing a day or hitting only one resets it. A "good enough" tier (both ≥80%) doesn't break the streak but doesn't count for it either; you'll see those days marked in <span style="color:var(--gold)">gold</span> on the strip.
-  </div>
-</div>
 
 <!-- ============== EVENTS ============== -->
 <div class="page" id="page-events">
@@ -3140,7 +2992,7 @@
     // US-3.0b: the Profile tab was removed (settings live on the host DATA/gear
     // screen). Redirect any stray call OR a stored fuel-last-tab='profile' from a
     // prior version to Tracker, so the orphaned page can never surface. No stub.
-    if (tabName === 'profile') tabName = 'tracker';
+    if (tabName === 'profile' || tabName === 'weekly') tabName = 'tracker';
     // Youth safety (§4.3): adult-content tabs (supplements/stimulant/dosing) are
     // off-limits to youth profiles — covers direct nav AND the boot tab-restore.
     if ((window.BATTERY_TIER||'youth')==='youth' && ['overview','protein','hydration','products'].indexOf(tabName) >= 0) tabName = 'tracker';
@@ -3739,7 +3591,6 @@
     refreshTargets();
     refreshProgress();
     refreshSuggestions();
-    refreshWeekly();
     maybeGameNudge();
     renderRecFrom();
     obsBump('dayChange');
@@ -4909,11 +4760,10 @@
     var hostTot = _selectedDate ? getTotalsForDate(todayKey()) : tot;
     try { parent.postMessage({ type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:t.water, tProtein:t.protein, day:t.label, runway:runway }, '*'); } catch (e) {}
 
-    // Also refresh mini stats / strip / weekly / suggestions each time
+    // Also refresh mini stats / strip / calendar / suggestions each time
     refreshMiniStrip();
     renderCalendar();
     refreshMiniStats();
-    refreshWeekly();
     refreshSuggestions();
   }
 
@@ -4973,7 +4823,6 @@
     storeSet('fuel-tracked', JSON.stringify(t));
     applyTrackedClasses();
     refreshProgress();
-    if (typeof refreshWeekly === 'function') refreshWeekly();
   };
 
   function renderPaceLine(t, tot){
@@ -5684,85 +5533,6 @@
     document.getElementById('mini-w-avg').innerHTML = `${wAvg}<span class="u">oz</span>`;
   }
 
-  /* ===== WEEKLY VIEW ===== */
-  function refreshWeekly() {
-    let pSum = 0, wSum = 0, eSum = 0, count = 0, metCount = 0;
-    const daysData = [];
-    for (let i = 6; i >= 0; i--) {
-      const key = dateKeyForOffset(i);
-      const tot = getTotalsForDate(key);
-      const lbl = dayLabelForOffset(i);
-      const d = classifyDay(i);
-      if (tot.protein > 0 || tot.water > 0) {
-        pSum += tot.protein;
-        wSum += tot.water;
-        count++;
-      }
-      eSum += tot.electrolytes;
-      if (d.tier === 'both') metCount++;
-      daysData.push({ i, key, lbl, tot, d, isToday: i === 0 });
-    }
-    const pAvg = count > 0 ? Math.round(pSum / count) : 0;
-    const wAvg = count > 0 ? Math.round(wSum / count) : 0;
-    // Use today's target as the reference for the avg % display
-    const refT = computedTarget();
-    const pPct = refT.protein > 0 ? Math.round((pAvg / refT.protein) * 100) : 0;
-    const wPct = refT.water > 0 ? Math.round((wAvg / refT.water) * 100) : 0;
-
-    const elPAvg = document.getElementById('weekly-p-avg');
-    if (elPAvg) {
-      const _pDays = daysData.filter(function(d){ return d.tot.protein > 0; }).length;
-      elPAvg.textContent = fy() ? `${_pDays}/7d` : `${pAvg}g`;
-      document.getElementById('weekly-w-avg').textContent = `${wAvg}oz`;
-      /* no percent-of-target for youth: a percentage IS a quantified target */
-      document.getElementById('weekly-p-pct').textContent =
-        fy() ? '' : `${pPct}% of ${refT.label.toLowerCase()}-day target`;
-      document.getElementById('weekly-w-pct').textContent = `${wPct}% of ${refT.label.toLowerCase()}-day target`;
-      document.getElementById('weekly-met').textContent = `${metCount}/7`;
-      document.getElementById('weekly-elec').textContent = eSum % 1 === 0 ? eSum.toString() : eSum.toFixed(1);
-      document.getElementById('weekly-streak-badge').textContent = `Streak: ${calcStreak()}d`;
-    }
-
-    // Render bar rows for protein
-    const pBars = document.getElementById('weekly-bars-protein');
-    const wBars = document.getElementById('weekly-bars-water');
-    if (!pBars || !wBars) return;
-    pBars.innerHTML = daysData.map(d => {
-      if (d.tot.protein === 0 && d.tot.water === 0) {
-        return `<div class="wbar-row${d.isToday ? ' today' : ''}" onclick="batteryEditDay('${d.key}')" style="cursor:pointer" title="Tap to edit / backfill this day">
-          <div class="wbar-day">${d.lbl.dayName}<span class="wbar-date">${d.lbl.date}</span></div>
-          <div class="wbar-track"></div>
-          <div class="wbar-val" style="color:var(--dim);font-weight:400">—</div>
-        </div>`;
-      }
-      const pct = d.d.pPct * 100;
-      const fillW = Math.min(100, pct);
-      const cls = d.d.tier === 'both' ? 'met' : 'protein';
-      return `<div class="wbar-row${d.isToday ? ' today' : ''}" onclick="batteryEditDay('${d.key}')" style="cursor:pointer" title="Tap to edit / backfill this day">
-        <div class="wbar-day">${d.lbl.dayName}<span class="wbar-date">${d.lbl.date}</span></div>
-        <div class="wbar-track"><div class="wbar-fill ${cls}" style="width:${fillW}%"></div></div>
-        <div class="wbar-val">${fy() ? (occOf(d.key) + '×') : (Math.round(d.tot.protein) + 'g')}<span class="wbar-pct">${fy() ? '' : Math.round(pct) + '%'}</span></div>
-      </div>`;
-    }).join('');
-    wBars.innerHTML = daysData.map(d => {
-      if (d.tot.protein === 0 && d.tot.water === 0) {
-        return `<div class="wbar-row${d.isToday ? ' today' : ''}" onclick="batteryEditDay('${d.key}')" style="cursor:pointer" title="Tap to edit / backfill this day">
-          <div class="wbar-day">${d.lbl.dayName}<span class="wbar-date">${d.lbl.date}</span></div>
-          <div class="wbar-track"></div>
-          <div class="wbar-val" style="color:var(--dim);font-weight:400">—</div>
-        </div>`;
-      }
-      const pct = d.d.wPct * 100;
-      const fillW = Math.min(100, pct);
-      const cls = d.d.tier === 'both' ? 'met' : 'water';
-      return `<div class="wbar-row${d.isToday ? ' today' : ''}" onclick="batteryEditDay('${d.key}')" style="cursor:pointer" title="Tap to edit / backfill this day">
-        <div class="wbar-day">${d.lbl.dayName}<span class="wbar-date">${d.lbl.date}</span></div>
-        <div class="wbar-track"><div class="wbar-fill ${cls}" style="width:${fillW}%"></div></div>
-        <div class="wbar-val">${Math.round(d.tot.water)}oz<span class="wbar-pct">${Math.round(pct)}%</span></div>
-      </div>`;
-    }).join('');
-  }
-
   /* ===== EVENTS ===== */
   function loadEvents() {
     try { return JSON.parse(storeGet('fuel-events', '[]')) || []; }
@@ -6413,19 +6183,7 @@
           (todayLog||header).insertAdjacentElement('afterend', fav);
         }
 
-        // 3) History ("tap a day to edit") moves to the WEEKLY page, not Tracker.
-        const weekly=document.getElementById('page-weekly');
-        if(weekly && !document.getElementById('battery-hist')){
-          const hist=document.createElement('div');
-          hist.id='battery-hist'; hist.style.margin='6px 0 18px';
-          // place it right after the weekly lede paragraph (or at top of weekly)
-          const lede=weekly.querySelector('.lede');
-          if(lede) lede.insertAdjacentElement('afterend', hist);
-          else weekly.insertAdjacentElement('afterbegin', hist);
-        }
-
         renderFavStrip();
-        renderHistory();
         if(window.batteryRenderRunway)window.batteryRenderRunway();
         if(window.batteryRenderVerdict)window.batteryRenderVerdict();
       }catch(e){}
@@ -6675,7 +6433,6 @@
       };
       function refreshPanels(){
         if(typeof refreshAll==='function')refreshAll();
-        if(typeof refreshWeekly==='function')refreshWeekly();
         if(window.batteryRenderHist)window.batteryRenderHist();
         if(typeof refreshProgress==='function')refreshProgress();
         if(typeof refreshMiniStrip==='function')refreshMiniStrip();
