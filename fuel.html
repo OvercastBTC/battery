@@ -3460,6 +3460,7 @@
       });
     }
     DAY_TARGETS = T;
+    window.DAY_TARGETS = DAY_TARGETS;
 
     return {
       baseWater, baseProtein, gkg, kg: Math.round(kg * 10) / 10,
@@ -6769,6 +6770,7 @@
       // DA B-GAP: a youth GAME day in Central-Valley heat needs more WATER (water numbers are
       // already youth-visible, so no 4.3 issue) — +25%, elec stays 0, protein stays flat.
       DAY_TARGETS.game.water = Math.round(one.water * 1.25 / 5) * 5;
+      window.DAY_TARGETS = DAY_TARGETS;
       return { baseWater:water, baseProtein:prot, gkg:1.1, kg:Math.round(kg*10)/10,
                stimAdj:0,hotAdj:0,sexAdj:0,ageAdj:0,frameMult:1, youth:true };
     };
