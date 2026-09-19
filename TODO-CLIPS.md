@@ -1221,3 +1221,50 @@ Three continuous framing technique segments over @yagoo.guy pregame footage, wit
 | `bougie-block-reads.mp4` | 13:45 | 16:35 | 3.27 MB | Catching — blocking: reads, stay down, spiked fastball paddle |
 
 All 6 in `battery-laneM/clips/` + archived to iCloud `0.5 Baseball/`. Branch: `laneM/recov-clips-req015`.
+
+---
+
+## Coach Bougie — Pop Time 1.86 (vC-ivPGeyOE) — CUT 2026-09-19
+
+Source: `vC-ivPGeyOE` "Helping a HS Catcher Throw a MLB-Level Pop Time (1.86 🤯)" (23:36, ~300MB)
+Live session with Dolan (HS senior, D1 commit, recovering from arm injury). Starting pop time ~2.0, goal sub-1.9.
+
+### Key structure
+- 0:00–1:38: Initial assessment using Sub 2.0 Protocol scoring (green/yellow/red): pre-catch turn, short steps, timing, arm path, lower half, arm strength
+- 1:38–5:58: Foot drills → glute engagement cue ("straight line hip to shoulder") → "heel to sky" finish → "rotate-stop-transfer" energy sequence
+- 14:52–16:19: Right foot timing insight — Patrick Bailey/Riuto get foot down at 3-3.5 with 0.58 release; "being a little slower actually makes you faster" (prevents deep transfer)
+- 19:13–21:15: 1.86 reveal + three sub-1.9 in a row; post-session takeaways
+
+| Clip | Range | Size | Content |
+|------|-------|------|---------|
+| `bougie-poptime-glute.mp4` | 3:27–5:58 | 4.1MB | Glute/hip mechanics: "straight line from hip to shoulder" cue, "heel to sky" finish, "rotate-stop-transfer" sequence |
+| `bougie-poptime-timing.mp4` | 14:52–16:19 | 2.4MB | Right foot timing insight: Bailey/Riuto comparison, "slower = faster" for transfer quality |
+| `bougie-poptime-result.mp4` | 19:13–21:15 | 1.8MB | 1.86 reveal + three sub-1.9 in a row, Dolan's takeaways |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-poptime-` → vC-ivPGeyOE added to arm.html
+
+---
+
+## Coach Bougie — Pop Time in 30 Minutes (3EODf3R4jXA) — CUT 2026-09-19
+
+Source: `3EODf3R4jXA` "He IMPROVED his POP TIME in 30 MINUTES" (30:35, ~380MB)
+Live session with Cody (17yo, Canada, 2.2→1.85 over training). Starting pop time 2.0, goal sub-1.9.
+Features pitching coaches Bobby O'Neal + Joey Levit for arm path section.
+
+### Key structure
+- 0:40–2:37: Baseline timing analysis ("heels down at .3, release at .72 = 2.0") + two-goal breakdown: (1) back foot down faster, (2) palm-to-flip transfer
+- 2:37–4:47: Foot speed drills — right knee back drill, right-left progressions, "left knee as gas pedal for the infielder" cue, "don't lift it up"
+- 5:00–7:13: Transfer drills — "dump down then flip", "pause at two then flip to three", palm-up elbow-drive cue ("think elbow not wrist")
+- 8:14–10:03: Result analysis — 1.95 → 1.85/1.86; "foot down at 0.25, release at 0.64 = 1.95"; debriefs what worked
+- 10:24–13:56: Bobby O'Neal + Joey Levit arm path coaching — "human whip" concept, scap/hip sync wall drill, front leg blocking, "previous piece must decelerate for next piece to accelerate"
+
+| Clip | Range | Size | Content |
+|------|-------|------|---------|
+| `bougie-pop30-assess.mp4` | 0:38–2:37 | 2.3MB | Baseline timing breakdown + two-goal coaching framework |
+| `bougie-pop30-feet.mp4` | 2:37–4:47 | 3.3MB | Foot speed drills (right knee back, right-left, "left knee = gas pedal") |
+| `bougie-pop30-transfer.mp4` | 5:00–7:13 | 2.7MB | Transfer drills (dump-down, pause-at-two-flip-to-three, palm-up elbow cue) |
+| `bougie-pop30-armpath.mp4` | 10:24–13:56 | 3.4MB | Bobby O'Neal + Joey Levit: human whip, scap/hip sync wall drill, front leg blocking |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-pop30-` → 3EODf3R4jXA added to arm.html
