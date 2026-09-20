@@ -1353,3 +1353,38 @@ Coach Bougie + Joey Love (throwing specialist). Clean, structured: the mistake (
 
 **Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
 **CLIP_SOURCE:** `bougie-throw1-` → bRRz82O9V2I added to arm.html
+
+---
+
+## Coach Bougie — The 5 Best Catcher Drills To Do By Yourself (L7J-QjQDsTQ) — CUT 2026-09-19
+
+Source: `L7J-QjQDsTQ` "The 5 Best Catcher Drills To Do By Yourself" (1:56, ~6.8MB)
+Short-format video listing 5 solo catcher drills: lateral movement from all stances, transfer footwork to bases (drop step/backpick), dry stance work (lunge/knee down), glove work (catch forwards/back), ball-toss transfers. Dense, high value for catchers who practice alone.
+
+| Clip | Range | Size | Content |
+|------|-------|------|---------|
+| `bougie-solo-drills.mp4` | 0:03–1:45 | 2.0MB | 5-drill solo sequence — full instructional content |
+
+**Maps to:** ARM → Catching tab (new slot, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-solo-` → L7J-QjQDsTQ added to arm.html
+
+---
+
+## Coach Bougie — Turn A Passed Ball Into An Out (v7ZwKgxAl4E) — CUT 2026-09-19
+
+Source: `v7ZwKgxAl4E` "Turn A Passed Ball Into An Out" (6:15, ~41.9MB)
+Group clinic. Teaches passed ball recovery: slide step, pull-step footwork, three-step sequence to get ball and convert to out. Active drill coaching with verbal cues.
+
+### Key structure
+- 0:35–1:30: Slide fundamentals — feet together, untuck, pull, slide recovery position
+- 1:30–2:30: Knee drill — get on knee, chest forward, hip square, three-step
+- 3:30–5:00: Full drill reps — right/left/slide sequence, repetition under fatigue
+
+| Clip | Range | Size | Content |
+|------|-------|------|---------|
+| `bougie-passball-slide.mp4` | 0:35–1:30 | 1.6MB | Slide fundamentals: feet together, pull, slide recovery position |
+| `bougie-passball-knee.mp4` | 1:30–2:30 | 2.2MB | Knee drill: chest forward, hips square, three-step sequence |
+| `bougie-passball-reps.mp4` | 3:30–5:00 | 4.0MB | Full drill reps — right/left/slide under fatigue, verbal cues |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-passball-` → v7ZwKgxAl4E added to arm.html
