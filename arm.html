@@ -7225,6 +7225,29 @@
     return { tonnage: tonnage, sets: sets, exercises: exercises };
   };
 
+  window.streamDoneFor = function(dateKey) {
+    if (!window._streamExMap) {
+      window._streamExMap = {};
+      document.querySelectorAll('.step').forEach(function(s) {
+        var id = s.dataset.ex;
+        if (!id) return;
+        window._streamExMap[id] = stepCountGroup(s);
+      });
+    }
+    var exMap = window._streamExMap;
+    var parts = dateKey.split('-');
+    var unpadded = parts[0] + '-' + parseInt(parts[1], 10) + '-' + parseInt(parts[2], 10);
+    var raw = '';
+    try { raw = localStorage.getItem('arm-care-done-' + unpadded) || ''; } catch(e) {}
+    var ids = raw.split(',').filter(Boolean);
+    var counts = { arm: 0, drills: 0, body: 0, lift: 0 };
+    ids.forEach(function(id) {
+      var stream = exMap[id] || 'arm';
+      if (counts.hasOwnProperty(stream)) counts[stream]++;
+    });
+    return counts;
+  };
+
   function renderLiftLog(){
     var host = document.getElementById('liftlog-card');
     if(!host) return;

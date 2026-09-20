@@ -5,7 +5,7 @@
 
    Cache name is bumped in lockstep with #ver-stamp on every release (see
    CLAUDE.md). Old caches are purged on activate. */
-const CACHE = 'battery-v140';
+const CACHE = 'battery-v141';
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil((async () => {
   const ks = await caches.keys();

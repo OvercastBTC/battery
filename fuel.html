@@ -4566,6 +4566,11 @@
     return { water, protein, electrolytes, day };
   }
 
+  window.fuelTotalsFor = function(dateKey) {
+    var t = getTotalsForDate(dateKey);
+    return { water: t.water, protein: t.protein };
+  };
+
   /* ===== US-2.6: surface the REAL recovery status (Arm Guardian / Pitch Smart)
      next to the Rest day-type, so the two 'rest' concepts can never silently
      disagree. Read-only cross-frame call (same-origin); additive — never touches
