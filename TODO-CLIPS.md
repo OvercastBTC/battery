@@ -1388,3 +1388,26 @@ Group clinic. Teaches passed ball recovery: slide step, pull-step footwork, thre
 
 **Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
 **CLIP_SOURCE:** `bougie-passball-` → v7ZwKgxAl4E added to arm.html
+
+---
+
+## Coach Bougie — 95% MLB Catchers Changed Their Stance in 2025 | Statcast Breakdown (EhKd3jLrbw0) — CUT 2026-09-19
+
+Source: `EhKd3jLrbw0` "95% of MLB Catchers Changed Their Stance in 2025 | Statcast Breakdown" (31:30, ~77MB)
+Statcast analysis + technique breakdown. Bougie walks through MLB.com data leaderboards, then shows specific catchers (Patrick Bailey, Austin Wells, Cal Raleigh, Trovinho) with technique commentary. High-information density — data-informed but instructional.
+
+### Key structure
+- 7:00–9:30: Patrick Bailey right-knee-down sprinter stance + throw; foot reset mechanics, hip press, lefty vs righty batter adjustments
+- 14:30–18:30: Shadow zone framing leaderboard + zone-by-zone analysis; Cal Raleigh glove load depth; youth implication of glove going to ground
+- 24:00–26:30: Five-position glove rotation concept (positions 4→5 = 45° → flat); elbow-up/forearm-down vs elbow-down/forearm-up
+- 26:30–28:00: Trovinho extension-gather technique; reps × technique = skill philosophy
+
+| Clip | Range | Size | Content |
+|------|-------|------|---------|
+| `bougie-statcast-baileyknee.mp4` | 7:00–9:30 | 1.9MB | Bailey knee-down sprinter stance mechanics + throw (foot reset, hip press) |
+| `bougie-statcast-framing.mp4` | 14:30–18:30 | 3.2MB | Shadow zone data + zone-by-zone tradeoffs; youth glove depth implication |
+| `bougie-statcast-glove5pos.mp4` | 24:00–26:30 | 2.0MB | Five-position glove rotation (4→5), elbow angle concepts |
+| `bougie-statcast-trovinho.mp4` | 26:30–28:00 | 1.1MB | Trovinho extension-gather; reps × technique philosophy |
+
+**Maps to:** ARM → Catching tab (new slots, needs Lane A wiring)
+**CLIP_SOURCE:** `bougie-statcast-` → EhKd3jLrbw0 added to arm.html (inserted before bougie-stance- to prevent prefix shadowing)
