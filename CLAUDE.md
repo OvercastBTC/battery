@@ -10,7 +10,7 @@ Project rules in §1–§8 below layer on top; where they conflict, the project 
 
 ## 1. What BATTERY Is
 
-Single-file installable PWA: `index.html` (~12 700 lines, hand-edited, no bundler).
+Split-build installable PWA: three hand-edited files — `index.html` (host shell, ~2 950 lines), `arm.html` (ARM iframe, ~8 400 lines), `fuel.html` (FUEL iframe, ~7 000 lines). No bundler.
 Deployed via GitHub Pages from branch `master`: **<https://overcastbtc.github.io/battery/>**
 Baseball arm-care + nutrition/hydration tracker (profiles: adult / youth).
 
@@ -74,7 +74,7 @@ A youth-tier profile must **never** see: supplement / stimulant / dosing / quant
 ## 5. How to Test
 
 Test harness (authoritative): `~/battery-tests/run.sh`
-Runs the **full Playwright gate (28 suites / 350 checks as of 26.09.01)** against the current `index.html` — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. Originals: `iframe-render`, `arm-history`, `persistence`, `export-scope`, `unified-export`, `import-roundtrip`, `profile-mgmt`, `youth-fuel-gate`, `today-view`, `e7-host`, `fuel-dual-credit`; added since: `icon-gauge`, `flow-mode`, `clip-playback`, `iframe-modal`, `demo-data`, `arm-guardian`, `consistency`, `week-report`, `icon-nudge`, `storage-warn`, `toast`, `fuel-bundles`, `recovery-boost`.
+Runs the **full Playwright gate (36 suites as of 26.09.19)** against the staged build — `run.sh` is the authoritative list, always trust it over this count if they ever disagree.
 
 `node --check` on the host `<script>` block is a useful quick check, but **it does not catch srcdoc breakage** (HTML encoding masks truncation from the parser). The Playwright gate is authoritative for all iframe edits.
 
@@ -122,27 +122,27 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 
 ## 6. Lane Roles / Release Protocol
 
-### Lane A — Claude Code session (iframe content developer)
+### Lane A — Claude Code Desktop session on AM06 (iframe content developer)
 
-- Worktree: `/Users/bacona/battery-laneA`, on a `laneA/*` branch. (`~/battery` is the main worktree, kept **detached at master** so `run.sh`'s `${BATTERY_REPO:-$HOME/battery}` default can't gate a stale build — do not develop there.)
+- Worktree: `C:\Users\bacona\battery-laneA`, on a `laneA/*` branch.
 - Scope: FUEL + ARM/PlyoCare iframe content; iframe side of the postMessage seam.
 - Runs `~/battery-tests/run.sh` as a sanity check.
-- Posts `READY` in `LANE.md §B` when done.
+- Posts `READY` via CCD send_message to Q when done.
 - **Does NOT** commit to `master`, bump the release stamp, push, or deploy.
 
-### Lane E — Claude Code Desktop session (host shell + sole release engineer)
+### Lane E — Claude Code Desktop session on AM06 (host shell + sole release engineer)
 
-- Worktree: `/Users/bacona/battery-laneE` (shares the same `.git`). **Identity binds to the worktree, not the app or session label** — see `LANE-E-BRIEF.md` §0.
+- Worktree: `C:\Users\bacona\battery-laneE` (shares the same `.git`). **Identity binds to the worktree, not the app or session label**.
 - Scope: host shell changes AND the full release pipeline for both lanes.
-- Release steps: merge `laneA/*` into `master` → run final DA + full checklist → run full Playwright gate → bump `#ver-stamp` (YY.MM.DD.NN) + SW cache name → commit → push to `master` (deploys) → append `HANDOFF.md §10` entry.
-- **Deploy remote:** `origin` = SSH (`git@github.com`). If `:22` is flaky (seen 6/26–7/3, intermittent — not a key issue), SSH is routed over GitHub's `ssh.github.com:443` in `~/.ssh/config` (host keys fingerprint-verified). Fallback: the `ghhttps` HTTPS remote (`https://github.com/OvercastBTC/battery.git`; large clip pushes need `git config http.postBuffer 524288000`). Both reach the same `master` — always FF-verify (`git merge-base --is-ancestor <remote>/master HEAD`) before pushing.
+- Release steps: cherry-pick from `laneA/*` → run full Playwright gate (isolated `/tmp/bt-laneE`) → bump `#ver-stamp` (YY.MM.DD.NN) + SW cache name + `version.txt` → commit → FF-verify → push to `master` (deploys) → notify Q.
+- **Deploy remote:** `origin` = HTTPS (`https://github.com/OvercastBTC/battery.git`), authenticated via `gh auth`. Always FF-verify (`git merge-base --is-ancestor origin/master HEAD`) before pushing.
 - **Single writer of `master`.** Single gate before deploy.
 
 `laneA/*` branches are visible in Lane E's worktree without pushing (shared `.git`).
 
-### Lane M — the networked PC (media / clips)
+### Lane M — Claude Code Desktop session on AM06 (media / clips)
 
-Owner's AM06 PC, `am06.local`. Formalized 2026-09-04 on owner directive.
+Local AM06 session. Formalized 2026-09-04 on owner directive.
 
 **Scope — YES:** sourcing and vetting clip assets · cutting and encoding to the
 `TODO-CLIPS.md` standard · adding files to `clips/` · the embed-timestamp config
@@ -191,17 +191,12 @@ shadowing check as **inert**: it asserted `'gi-'` shadows `'gi1-'`, which reads
 right and is false (`'gi1-'` has no dash in third position). Run the negctl after
 touching either file.
 
-**Setup: CLONE, do not worktree.** Git worktrees need real filesystem access to
-`.git`; doing that across a network is how indexes get corrupted, and the damage
-would be shared. Branch namespace `laneM/*`, push to the Mac, **never to
-`master`** — Lane E is the sole release engineer.
+**Setup:** Worktree at `C:\Users\bacona\battery-laneM` (shares `.git` with other lanes).
+Branch namespace `laneM/*`, **never pushes to `master`** — Lane E is the sole release engineer.
 
-**Environment constraints — re-verified over SSH from the Mac 2026-09-09, not taken
-from a report.** Do not assume parity with the Mac:
-native Windows 11 · no general-purpose WSL distro · node **v24.11.0** (Mac has v20)
-· `gh` **2.100.0 — now present**, the earlier "not installed" is stale · Playwright
-browsers still not installed · default SSH shell is `cmd.exe`, so
-`ssh host 'a; b; c'` does **not** chain. Git Bash at
+**Environment constraints (AM06):**
+Windows 11 · no general-purpose WSL distro · node **v24.11.0**
+· `gh` **2.100.0** · Playwright browsers installed · Git Bash at
 `C:\Program Files\Git\bin\bash.exe` is the POSIX-shaped target.
 
 **⚠ TWO REMOTE-EXECUTION TRAPS, both measured, both silent:**
@@ -253,161 +248,24 @@ The suites live in `tools/gate-static/` **in the repo**, not in `~/battery-tests
 so Lane M's clone gets them and the Mac's `run.sh` invokes the same copy — one
 source, no drift between what Lane M checks and what the Mac checks.
 
-**Comms:** `battery-lane` is host-local by construction and **cannot see Lane M** —
-it will never appear as live in `roster`, which says so rather than guessing.
-Reach it by SSH; it reaches us by SSH'ing into the Mac and running the Mac's copy:
+**Comms:** All lanes are on AM06 — use CCD `send_message` with session IDs from COMMS.md.
+No SSH relay needed.
 
-```bash
-ssh bacona@<mac> '~/.local/bin/battery-lane msg LANE-A "text"'
-```
+### Q (formerly Session Dispatch) — NOT A LANE
 
-Use the **absolute path** — a non-interactive shell has no `~/.local/bin` on `PATH`.
+The session that triages owner requests and routes work between lanes.
+**Absorbed the former Mac-based Dispatch role on AM06 (2026-09-11).**
 
-**⚠ That form is Git Bash only.** It was written without checking, and `cmd.exe` —
-Lane M's *default* SSH shell, recorded three paragraphs up — does not treat `'` as
-a quoting character at all, so the literal quotes get passed through and the remote
-command is mis-split. This is Lane M's only durable channel back to us, so the
-failure would be the kind you notice by hearing nothing. **Run comms from Git Bash**,
-where the line above works verbatim. If you must send from `cmd.exe`, swap the
-quoting — outer double, inner escaped:
+Owns no worktree, claims no branch namespace, is never a merge target.
+Never commits and never pushes — anything durable goes through the owning lane.
+Routes work: owner → Q → Lane A/E/M. Lanes report completion back to Q.
 
-```
-ssh bacona@<mac> "~/.local/bin/battery-lane msg LANE-A \"text\""
-```
+### Who is what lane right now
 
-**Name yourself — a remote lane cannot be identified automatically.** `msg` resolves
-the sender from this Mac's session registry, and an SSH shell has no Claude session,
-so Lane M's 26.09.08 message arrived stamped **`from UNKNOWN`**. Fixed 26.09.09: pass
-`--from`, or export it once.
-
-```
-battery-lane msg --from LANE-M LANE-A "text"
-export BATTERY_FROM=LANE-M        # better: put this in ~/.bashrc on AM06
-```
-
-Delivery is never blocked over this — losing a message is worse than an
-unattributed one — but it now warns and records the SSH source IP, because an
-unattributed post in a coordination channel is exactly the *who said this*
-ambiguity the whole lane-identity system exists to remove.
-
-### Session Dispatch — NOT A LANE
-
-The layer that routes requests between the owner and whichever Claude Code
-sessions are active. Owner's name for it: **Session Dispatch** / `DISPATCH`.
-
-**It is deliberately outside the A–E roster, and that is the point.** Every lane
-letter answers one question — *who writes here and holds the claim* — and identity
-binds to the **worktree**, never to an app or a session label. Dispatch owns no
-worktree and no branch namespace, so a letter would make the letter mean two
-incompatible things at once: a place in the code, or a role in the process. That
-ambiguity is not hypothetical. It is precisely what produced the Lane B / Lane E
-tangle, where a letter got attached to an application ("the VS Code lane") rather
-than to a worktree, and it cost real effort to unpick. A router with a letter
-would reintroduce that failure under a new name.
-
-There is a safety reason too: a lane letter reads as a claim to write. Dispatch
-working inside another lane's worktree is only safe **because** it holds no claim.
-Two writers on one worktree with no ownership boundary is how work gets silently
-clobbered — this project has already lost a gate result to a silent merge failure.
-
-**Rules:**
-
-1. Owns no worktree, claims no branch namespace, is never a merge target.
-2. **Never commits and never pushes.** Anything durable goes through the owning lane.
-3. When it must write inside a lane's worktree, it signs as the **origin of the
-   request** — `[OWNER · …]` or `[DISPATCH · …]` — **never as the lane.**
-4. **Anything it receives on a lane's behalf is written into that lane's durable
-   channel immediately** — `battery-comms.md`, `LANE.md`, or Issue #2 — and never
-   left in a chat transcript.
-
-Rule 4 is the load-bearing one and it is written from a real incident: on
-2026-08-31 six FUEL-stack revision items addressed to Lane A's scope existed only
-in a transcript Lane A could not see. They were recovered only because the
-Dispatch session flagged them unprompted. **A relay that forgets is worse than no
-relay, because everyone assumes the message landed.** The relay's defining
-obligation is durability, not routing.
-
-### Who is what lane right now — `battery-lane`
-
-**Never guess a session's lane, and never ask it to self-report from memory.**
-Run the tool. It is on `PATH` at `~/.local/bin/battery-lane`.
-
-```
-battery-lane roster      # every live session: lane, pid, model, uuid, socket
-battery-lane whoami      # this session's own lane + message address
-battery-lane addr LANE-E # a lane's socket path, for SendMessage
-battery-lane claim LANE-A   # bind THIS session to a lane (once per session)
-battery-lane set <uuid> LANE-E   # bind another session
-```
-
-**Why this exists.** The `bacona-*` session label is auto-generated and **changes
-on resume**, so Dispatch repeatedly had to ask "are you Lane A?" and infer the
-answer from context. Inference is where the mistakes came from, and a wrong guess
-routes work into the wrong worktree — the same class of failure §6 already
-describes for the Lane B / Lane E tangle.
-
-**The design rule: derive everything that can be derived; store only what cannot.**
-
-| Fact | Where it comes from |
-|---|---|
-| which sessions are alive | `/tmp/cc-socks/<pid>.sock` + a live PID — recomputed every call |
-| a session's message address | that socket path |
-| a session's **stable id** | the `--resume=<uuid>` flag in its own argv |
-| a session's model | the `--model` flag in its own argv |
-| **uuid → lane** | `~/battery-lanes.json` — the *only* stored fact |
-
-The session **uuid** is the durable key. Unlike the `bacona-*` label it survives
-resume, compaction and restart — it is the identity of the *conversation*, and it
-is what both the transcript file and the scratchpad directory are named after.
-Bind a lane to it once and it stays bound.
-
-**Liveness is never stored**, so a crashed session cannot leave a stale claim
-behind asserting it is still Lane E. That was the whole defect.
-
-**Three guards are enforced, matching the rules above:**
-- `DISPATCH` is refused a worktree — it owns none, per §6 rule 1.
-- A lane is refused another lane's worktree (`LANE-E` cannot claim `battery-laneA`).
-- A lane is singular: binding it to a new uuid **retires** the previous holder
-  rather than leaving two live claimants.
-
-`~/battery-lanes.json` is machine-local and **not in git** — it describes sessions
-on this Mac, which no other machine can observe. Cloud Lane D has no socket here
-and so never appears in the roster; that is correct, not a gap.
-
-**A session is TOLD what it MISSED at startup, too.** `battery-lane inbox` lists
-comms posts since this lane last marked itself caught up; `battery-lane read`
-advances the cursor. The SessionStart hook prints the unread count.
-
-This exists because writing to comms is not the same as reading it. On 2026-09-03
-Lane A posted a standing check-in listing two questions as *waiting on the owner*
-that the owner had **already answered in comms** — and a third Dispatch item aged
-out over two full check-in cycles. Every one of those posts was sitting in the file
-the whole time. **Read your inbox before you post a status.**
-
-Unaddressed posts count as yours deliberately: the item that went stale was one
-nobody was tagged in, so filtering to explicit `@LANE-A` mentions would reproduce
-the exact failure.
-
-**A session is TOLD its lane at startup.** A `SessionStart` hook runs
-`battery-lane hook` and injects the answer into context, so a resumed session
-never has to infer what it is — inference was the whole problem. Installed at
-**user level** in `~/.claude/settings.json`, deliberately **not** in the repo's
-`.claude/`, which is git-tracked and public.
-
-Verified end-to-end: a fresh session with no prior knowledge correctly reported
-both its own (unclaimed) status and DISPATCH's socket address — data that exists
-nowhere except the hook's output.
-
-Two traps worth knowing if you ever touch this:
-- Hooks **merge** across settings files rather than overriding by precedence, so a
-  second install double-injects. `battery-lane hook` is registered once, and the
-  installer checks for an existing entry before adding one.
-- The SessionStart payload field carrying the trigger is **`source`**, not
-  `start_reason` — the published docs summary has that name wrong. The stable id
-  arrives as `session_id`.
-
-The hook stays **silent** for any session whose cwd is unrelated to BATTERY, so
-installing it user-wide does not spam every other project on the machine.
+**Never guess a session's lane.** On AM06 all lanes run as Claude Desktop sessions
+with stable CCD session IDs listed in COMMS.md. Use `ListAgents` or CCD
+`list_sessions` to see what's alive. Lane identity binds to the **worktree**, not
+the app or session label.
 
 ## 6.5 iCloud is not a filesystem — verify before you trust it
 
@@ -491,32 +349,17 @@ return a negative has not confirmed anything.**
 
 @.claude/COMMS.md
 
-Complete reference for how to reach any lane from any machine: CCD send_message
-(AM06-local), battery-lane CLI (Mac), SSH wakeup, mailbox. Session IDs, topology
-diagram, rules. **Every lane reads this file.**
+Complete reference for how to reach any lane: CCD send_message session IDs,
+topology, rules. **Every lane reads this file.**
 
-| File | Purpose |
-|------|---------|
-**Lane roster** (3 active lanes as of 2026-08-16):
+**Lane roster** (4 active lanes on AM06 as of 2026-09-19):
 
-- **Lane A** — local MacBook, FUEL + ARM iframe content (`~/battery-laneA`).
-- **Lane E** — local MacBook (Claude Code Desktop), host shell + **sole release engineer** (`~/battery-laneE`): merges to `master`, stamp + SW-cache bump, Playwright gate, deploy.
-- **Lane B — RETIRED 2026-08-13.** Was the VS Code lane; that subscription is consumed by the owner's day job so its quota is permanently exhausted. Worktree deleted. Do not resurrect.
-- **Lane C — RETIRED 2026-08-13** (owner directive). Was glyph/icon art. Worktree returned to detached `master`. If glyph work is unparked it goes to cloud Lane D — no new local art lane.
-- **Lane D** — **cloud** Claude Code session (isolated container; works on `claude/*` branches + GitHub PRs; cannot see local files).
+- **Q** — AM06, sysadmin/triage/routing (no worktree).
+- **Lane A** — AM06, FUEL + ARM iframe content (`C:\Users\bacona\battery-laneA`).
+- **Lane E** — AM06, host shell + **sole release engineer** (`C:\Users\bacona\battery-laneE`).
+- **Lane M** — AM06, clips/sourcing/encoding (`C:\Users\bacona\battery-laneM`).
 
-**Comms topology** — choose the channel by who must hear it:
-
-| Channel | Reaches | Use |
-|---------|---------|-----|
-| `~/battery-comms.md` | Local lanes A/B/C only (shared FS; **non-git — never reaches the cloud**) | Fast local coordination, READY signals, watcher |
-| **GitHub Issue #2** | **All lanes incl. cloud Lane D** (the repo is the only cross-machine medium) | Cross-machine handoffs. One comment per message; header `**[date] FROM <lane> → TO <lane> — <subj>** · STATUS: OPEN/ACK/DONE` |
-| **PR comments** | Cloud Lane D **fast** (it subscribes to its own PR) | Wake Lane D immediately during an active handoff |
-| `LANE.md` | All lanes via git (committed board) | Durable lane status / READY |
-| `HANDOFF.md` | Local only (gitignored) | Release log (§10) |
-| `.claude/agents/` · `.claude/commands/` | All lanes via git | Sub-agent defs · slash commands |
-
-**Cross-machine rule:** Lane D shares ONLY the GitHub repo — `~/battery-comms.md` is invisible to it. Anything the cloud must see goes in **Issue #2** (or a PR comment) and the committed `CLAUDE.md`/`LANE.md`. Local lanes mirror cross-machine-relevant items between `~/battery-comms.md` ⇄ Issue #2.
+**Comms:** All lanes are CCD sessions on AM06 — use `send_message` with session IDs from COMMS.md. No cross-machine relay needed.
 
 **External review inputs (design/audit tools) are NOT lanes.** Tools like Claude Design are
 advisory *inputs*, structurally like Lane D's user stories or a research pass — they produce

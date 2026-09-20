@@ -31,12 +31,12 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 ### REQ-004: RESET DAY needs confirmation dialog → SHIPPED
 **Source:** Design review P1 (2026-09-09)
 **Context:** One tap destroys a full day of logged progress. No confirmation step. Appears in multiple sections.
-**Status:** SHIPPED — `uiConfirm()` guard in both `arm.html:6479` and `fuel.html:4567`.
+**Status:** SHIPPED — `uiConfirm()` guard in both `arm.html:7565` and `fuel.html:4482`.
 
 ### REQ-005: Profile Delete needs safety guard → SHIPPED
 **Source:** Design review P1 (2026-09-09)
 **Context:** Red Delete button beside Rename/Make Youth with equal visual weight, no confirmation. Accidental deletion wipes all user data.
-**Status:** SHIPPED — `modalConfirm()` with `danger:true` in `index.html:652` (`removePerson`).
+**Status:** SHIPPED — `removePerson()` with confirmation in `index.html:725`.
 
 ### REQ-006: Device detection broken on Capacitor Android
 **Source:** Design review P1 (2026-09-09)
@@ -115,7 +115,7 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 ### REQ-021: Lifting dropdown doesn't mark exercises complete → SHIPPED (876f0f9)
 **Source:** Owner finding 2026-09-09 (via Dispatch Mac history)
 **Context:** Logged exercise doesn't call `toggleDone()`; ring never sees it. Design tension: if arbitrary logs close ring, ring loses meaning. Logged steps should signal completion through `syncLiftLogDone()`.
-**Status:** SHIPPED — `syncLiftLogDone()` in arm.html:6264 syncs lift log → checkboxes → bat-counts. Shipped with liftlog-sync-done branch (876f0f9).
+**Status:** SHIPPED — `syncLiftLogDone()` in arm.html:7333 syncs lift log → checkboxes → bat-counts. Shipped with liftlog-sync-done branch (876f0f9).
 
 ### REQ-022: Week-card rows not clickable → SHIPPED (91c968c)
 **Source:** Dispatch Mac history (was HALF DONE)
@@ -155,7 +155,7 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 ### REQ-030: Pip-strip tap should open day editor → SHIPPED (4dbe82e)
 **Source:** Owner testing 2026-09-12 — "when I touch a pip, I would expect [the editor] to happen"
 **Context:** Tapping a pip only called `_selectDate(dk)` (changed the tracker view). User expected it to also open `batteryEditDay(dk)`. Selected-banner already shows "Viewing: 9/6 ↩ Today" when a non-today date is selected.
-**Status:** SHIPPED — pip click handler calls both `_selectDate(dk)` and `batteryEditDay(dk)` in fuel.html:5444. Deployed 26.09.12.120.
+**Status:** SHIPPED — pip click handler calls both `_selectDate(dk)` and `batteryEditDay(dk)` in fuel.html:5434. Deployed 26.09.12.120.
 
 ### REQ-024: Firefox icon final art
 **Source:** Owner — "iOS metal, modern, badass"
@@ -185,12 +185,12 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 **What:** First cut of Pitching section. Two Bauer clips only, not a curriculum. Bucket: `drills` (TAB_GROUPS gains `pitching:'drills'`). `data-optional="1"` flagged for owner decision.
 **Connections:** Resolves nav question that kept cleared Bauer clips dark for 3 weeks. Pitching is not universal — optional flag matters.
 
-### PLAN-003: selectedDate full history phase (design call 2.1)
+### PLAN-003: selectedDate full history phase (design call 2.1) → SHIPPED
 **Source:** LANE.md §320-324, owner direction 2026-09-12
-**Lane:** A (after pip-strip ships)
-**What:** Extend beyond 7-day strip. Owner direction (2026-09-12): calendar control at the top + scrollable running month with pips matching the 7-day strip style. Must land on tracker with affordances live — owner has rejected view-only date pickers 3x.
+**Lane:** A
+**What:** Extend beyond 7-day strip. Calendar control at the top + scrollable running month with pips matching the 7-day strip style.
 **UX spec:** (a) Calendar picker control at top of tracker, (b) scrollable month view using the same pip/fill/tier visual language as the existing 7-day strip, (c) tapping any pip opens `batteryEditDay(key)` for that date.
-**Status:** DIRECTION SET — ready for Lane A implementation.
+**Status:** SHIPPED — Full month calendar implemented in fuel.html: CSS (lines ~698–769), HTML (lines ~1953–1962), `renderCalendar()` (line ~5393), month nav (lines ~5449–5457).
 
 ---
 
