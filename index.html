@@ -250,7 +250,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.09.19.139</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.09.19.140</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -275,6 +275,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 </div>
 <div id="today-why" style="display:none;margin:10px auto 0;max-width:320px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#0d1117"></div>
 <div id="today-rows"></div>
+<div id="tonnage-card" style="display:none;margin:10px 0;padding:12px;border-radius:10px;background:#161b22;border:1px solid var(--line)"></div>
 <!-- §9 MUST-FIX: deleting the always-visible section menu strands whichever
      streams today's day-type turned off (a Rest day would have NO path to
      LIFT). This always-visible single line is the escape hatch -- direct
@@ -2607,6 +2608,7 @@ function renderToday(){
       '<span style="color:var(--faint)">›</span></div>';
     rowsEl.innerHTML=rows||'<p class="dmeta" style="text-align:center">Open a tab to start logging today.</p>';
   }
+  try{renderTonnageCard();}catch(e){}
   try{refreshFlowBtn();}catch(e){}
   // #today-rows above just got rebuilt via innerHTML, which wipes any .warn
   // class the GAME row had -- re-apply it every render, not just from
@@ -2816,6 +2818,58 @@ function flowProgress(){
   }
   var remaining=flowSteps();
   return {total:total,done:Math.max(0,total-remaining.length),remaining:remaining.length,next:remaining[0]||null};
+}
+function renderTonnageCard(){
+  var card=document.getElementById('tonnage-card');
+  if(!card)return;
+  var youth=profileTier(profile)==='youth';
+  var plan=getActivePlan();
+  if(youth||!plan.lift){card.style.display='none';return;}
+  var af=document.getElementById('f-arm');
+  if(!af||!af.contentWindow||!af.contentWindow.liftTonnageFor){card.style.display='none';return;}
+  var days=[];
+  var today=new Date();
+  for(var i=6;i>=0;i--){
+    var d=new Date(today);d.setDate(d.getDate()-i);
+    var key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    var t=af.contentWindow.liftTonnageFor(key);
+    days.push({key:key,tonnage:t.tonnage,sets:t.sets,exercises:t.exercises,isToday:i===0});
+  }
+  var todayData=days[6];
+  var weekTotal=days.reduce(function(s,d){return s+d.tonnage;},0);
+  if(weekTotal===0){card.style.display='none';return;}
+  var max=Math.max.apply(null,days.map(function(d){return d.tonnage;}))||1;
+  var barW=16,gap=6,h=32;
+  var svgW=days.length*barW+(days.length-1)*gap;
+  var dayNames=['S','M','T','W','T','F','S'];
+  var bars=days.map(function(d,i){
+    var bh=d.tonnage>0?Math.max(3,Math.round(d.tonnage/max*h)):0;
+    var x=i*(barW+gap);
+    var color=d.isToday?'var(--gold)':(d.tonnage>0?'var(--line)':'transparent');
+    return '<rect x="'+x+'" y="'+(h-bh)+'" width="'+barW+'" height="'+bh+'" rx="2" fill="'+color+'"/>';
+  }).join('');
+  var labels=days.map(function(d,i){
+    var dt=new Date(d.key+'T12:00:00');
+    var x=i*(barW+gap)+barW/2;
+    return '<text x="'+x+'" y="'+(h+12)+'" text-anchor="middle" fill="var(--faint)" font-size="8" font-family="SF Mono,monospace">'+dayNames[dt.getDay()]+'</text>';
+  }).join('');
+  var svg='<svg width="'+svgW+'" height="'+(h+14)+'" style="display:block">'+bars+labels+'</svg>';
+  function fmt(n){return n.toLocaleString();}
+  card.style.display='';
+  card.innerHTML=
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">'+
+      '<div>'+
+        '<div style="font-size:10px;letter-spacing:1.5px;color:var(--faint);text-transform:uppercase;font-family:\'SF Mono\',monospace;margin-bottom:4px">TONNAGE</div>'+
+        '<div style="font-size:22px;font-weight:800;color:var(--bone);font-family:\'SF Mono\',monospace;line-height:1">'+
+          fmt(todayData.tonnage)+'<span style="font-size:11px;font-weight:400;color:var(--dim);margin-left:4px">lbs</span></div>'+
+        '<div style="font-size:10px;color:var(--dim);margin-top:2px">'+
+          todayData.sets+' set'+(todayData.sets!==1?'s':'')+
+          ' · '+todayData.exercises+' exercise'+(todayData.exercises!==1?'s':'')+
+        '</div>'+
+      '</div>'+
+      '<div style="text-align:right">'+svg+'</div>'+
+    '</div>'+
+    '<div style="font-size:9px;color:var(--faint);font-family:\'SF Mono\',monospace;letter-spacing:.5px">7-DAY TOTAL: '+fmt(weekTotal)+' lbs</div>';
 }
 function refreshFlowBtn(){
   var b=document.getElementById('flow-btn'); if(!b)return;

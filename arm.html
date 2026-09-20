@@ -7204,6 +7204,27 @@
   }
   window.liftIntensityFor = liftIntensityFor;
 
+  window.liftTonnageFor = function(dateKey) {
+    var rows;
+    try { rows = JSON.parse(storeGet('arm-care-liftlog-' + (dateKey || armLocalDay()), '[]')) || []; }
+    catch(e) { rows = []; }
+    var tonnage = 0, sets = 0, exercises = 0;
+    rows.forEach(function(r) {
+      if (!r || !r.sets) return;
+      var exSets = 0;
+      (r.sets || []).forEach(function(st) {
+        var n = +st.reps || 0, w = +st.weight || 0;
+        if (n > 0 && w > 0) {
+          tonnage += n * w;
+          sets++;
+          exSets++;
+        }
+      });
+      if (exSets > 0) exercises++;
+    });
+    return { tonnage: tonnage, sets: sets, exercises: exercises };
+  };
+
   function renderLiftLog(){
     var host = document.getElementById('liftlog-card');
     if(!host) return;
