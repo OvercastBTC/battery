@@ -4657,6 +4657,8 @@
       const hit = occ >= OCC_TARGET;
       pVals.classList.toggle('over', hit);
       pBar.classList.toggle('over', hit);
+      var sp=document.getElementById('summary-protein');
+      if(sp) sp.textContent=occ+'/'+OCC_TARGET+' meals';
     }
 
     // Water
@@ -4675,6 +4677,7 @@
     }
 
     // Summary pills
+    if(!document.body.classList.contains('fuel-youth'))
     document.getElementById('summary-protein').textContent = `${Math.round(tot.protein)}/${t.protein}g`;
     document.getElementById('summary-water').textContent = `${Math.round(tot.water)}/${t.water}oz`;
 
@@ -6356,7 +6359,7 @@
               var col=f.type==='protein'?'#d4a017':(f.type==='water'?'#58a6ff':'#3fb950');
               var u=f.type==='protein'?'g':(f.type==='water'?'oz':'');
               var ic=f.type==='protein'?'🥩':(f.type==='water'?'💧':'⚡');
-              return '<button onclick="window._dayQuick(\''+f.type+'\','+(+f.amount||0)+',\''+esc(f.label)+'\','+(+f.e||0)+')" style="background:#0d1117;border:1px solid '+col+'55;color:'+col+';border-radius:999px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap">'+ic+' '+esc(f.label)+((f.type==='protein'&&fy())?'':(' +'+(+f.amount||0)+u))+'</button>';
+              return '<button onclick="window._dayQuick(\''+f.type+'\','+(+f.amount||0)+',\''+esc(f.label)+'\','+(+f.e||0)+','+(+f.w||0)+')" style="background:#0d1117;border:1px solid '+col+'55;color:'+col+';border-radius:999px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap">'+ic+' '+esc(f.label)+((f.type==='protein'&&fy())?'':(' +'+(+f.amount||0)+u))+'</button>';
             }).join('')+
             '</div></div>'
           : '';
@@ -6400,7 +6403,7 @@
         render(); refreshPanels();
       };
       // 1.2/1.4: one-tap add of a favorite / recent item to THIS day (writes to the day's key)
-      window._dayQuick=function(type,amount,label,elec){
+      window._dayQuick=function(type,amount,label,elec,w){
         const arr=entriesFor(key);
         const id=Date.now()+Math.random();
         if(type==='water'){
@@ -6408,6 +6411,7 @@
           if(+elec>0) arr.push({id:id+0.0001, t:'—', type:'electrolyte', amount:+elec, label:label||'Electrolyte', e:+elec, bundled:true});
         } else if(type==='protein'){
           arr.push({id, t:'—', type:'protein', amount:+amount, label:label||'Protein', e:0});
+          if(+w>0) arr.push({id:id+0.0001, t:'—', type:'water', amount:+w, label:'(paired)', e:0});
         } else if(type==='electrolyte'){
           arr.push({id, t:'—', type:'electrolyte', amount:+amount, label:label||'Electrolyte', e:+amount});
         } else { return; }
@@ -6925,8 +6929,8 @@
     function applyEdit(f, na, nl){
       try{ var favs=loadFavorites(), bk=bucketOf(f.type); if(!Array.isArray(favs[bk])) favs[bk]=[];
         var i=favs[bk].findIndex(function(x){ return (x.label||'')===f.label && (+x.amount||0)===f.amount; });
-        if(i!==-1) favs[bk][i]={amount:na,label:nl,e:f.e};
-        else { if(favs[bk].length>=6) favs[bk].shift(); favs[bk].push({amount:na,label:nl,e:f.e}); }
+        if(i!==-1) favs[bk][i]={amount:na,label:nl,e:f.e,w:f.w};
+        else { if(favs[bk].length>=6) favs[bk].shift(); favs[bk].push({amount:na,label:nl,e:f.e,w:f.w}); }
         saveFavorites(favs); if(window.batteryRenderFav) window.batteryRenderFav();
       }catch(e){}
     }

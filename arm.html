@@ -6625,7 +6625,7 @@
      owner's rule from item 3.x, applied uniformly so a new way of hiding a step
      cannot silently leave it in the denominator. */
   function trackHidden(s){ return s.classList.contains('track-hidden'); }
-  function stepDisabled(s){ return jxDisabledStep(s) || setStepOff(s) || splitHidden(s) || trackHidden(s); }
+  function stepDisabled(s){ if(document.body.classList.contains('youth')&&s.closest('.plyo-heavy'))return true; return jxDisabledStep(s) || setStepOff(s) || splitHidden(s) || trackHidden(s); }
 
   /* ===== WASHINGTON: SIMPLE vs FULL METHOD (owner ask) =====
      Two genuinely different users, so two tracks rather than one compromise.
