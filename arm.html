@@ -2653,7 +2653,6 @@
      lives in the host, so that is a seam change rather than an iframe one. -->
 <div class="page" id="page-gameday" data-optional="1">
   <h2>Game Day Warm-Up</h2>
-  <p class="lede">Trevor Bauer's full pre-game routine, walked through in his <b>Baseball 401 · Game Day Warmup Routine</b> video — his most in-depth warm-up. He runs different warm-ups for a lift, a bullpen or a recovery day; <b>this is the one before a start.</b> The order is the point: it slowly builds the body from measurement and mobility up to a full-effort bullpen.</p>
 
   <div class="plyo-youth-only">
     <div class="card blue">
@@ -2661,11 +2660,19 @@
         <div class="card-title">Youth: light catch / play only</div>
         <span class="badge blue">Under ~13</span>
       </div>
-      <p>This is an advanced adult-pitcher routine — weighted balls, a long-toss ladder and a full bullpen. <b>Not for kids.</b> For a young arm: an easy dynamic warm-up, light catch, and play. The full routine unlocks on an adult profile.</p>
+      <p>This is an advanced pregame routine — weighted balls, bullpens, and pro-level drills. <b>Not for kids.</b> For a young arm: an easy dynamic warm-up, light catch, and play. The full routine unlocks on an adult profile.</p>
     </div>
   </div>
 
   <div class="plyo-heavy">
+
+  <div id="gd-tabs" style="display:flex;gap:8px;margin:0 0 16px">
+    <button class="gd-tab-btn active" data-gdtab="pitcher" onclick="switchGdTab('pitcher')" style="flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--line);background:var(--gold);color:var(--bg);font-weight:700;font-size:13px;cursor:pointer">⚾ Pitcher</button>
+    <button class="gd-tab-btn" data-gdtab="catcher" onclick="switchGdTab('catcher')" style="flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--dim);font-weight:700;font-size:13px;cursor:pointer">🧤 Catcher</button>
+  </div>
+
+  <div id="gd-pitcher">
+  <p class="lede">Trevor Bauer's full pre-game routine, walked through in his <b>Baseball 401 · Game Day Warmup Routine</b> video — his most in-depth warm-up. He runs different warm-ups for a lift, a bullpen or a recovery day; <b>this is the one before a start.</b> The order is the point: it slowly builds the body from measurement and mobility up to a full-effort bullpen.</p>
   <div class="card gold">
     <div class="card-head">
       <div class="card-title">The sequence, in order</div>
@@ -2857,6 +2864,37 @@
   <div class="info" style="margin-top:18px">
     <strong>Source:</strong> Trevor Bauer — "Game Day Warmup Routine" (Baseball 401), youtube.com/@trevorbauer. Demo clips are short references trimmed from that video; the full walkthrough is worth watching once.
   </div>
+  </div><!-- /gd-pitcher -->
+
+  <div id="gd-catcher" style="display:none">
+  <p class="lede">Patrick Bailey's complete catcher pregame — the routine a starting MLB catcher runs before every game. <b>Four sections, in order.</b> Structure, sequence, and pacing from a pro who does this 162 times a year.</p>
+
+  <div class="card blue">
+    <div class="card-head">
+      <div class="card-title">The sequence, in order</div>
+      <span class="badge blue">Bailey Pregame</span>
+    </div>
+    <ul>
+      <li><b>1 · Pregame Routine</b> — full warmup framework overview</li>
+      <li><b>2 · Receiving Warmup</b> — soft hands, mitt presentation, progressive intensity</li>
+      <li><b>3 · Throwing Warmup</b> — pop-ups, snap throws, down & tag</li>
+      <li><b>4 · Rep Work</b> — rapid-fire blocking & receiving volume</li>
+    </ul>
+    <div class="cue">Work through each section in order. The sequence matters as much as the individual drills.</div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+    <button class="clip-btn" onclick="scrollToStep('bougie-bailey-routine')" style="text-align:left">→ B-29 · Bailey Pregame Routine</button>
+    <button class="clip-btn" onclick="scrollToStep('bougie-bailey-recv')" style="text-align:left">→ B-30 · Bailey: Receiving Warmup</button>
+    <button class="clip-btn" onclick="scrollToStep('bougie-bailey-throw')" style="text-align:left">→ B-31 · Bailey: Throwing Warmup</button>
+    <button class="clip-btn" onclick="scrollToStep('bougie-bailey-reps')" style="text-align:left">→ B-32 · Bailey: Rep Work</button>
+  </div>
+
+  <div class="info" style="margin-top:18px">
+    <strong>Source:</strong> Catching Made Simple (Coach Bougie) — Patrick Bailey pregame breakdown. The drills live in the Catching section; these buttons take you straight to each one.
+  </div>
+  </div><!-- /gd-catcher -->
+
   </div><!-- /plyo-heavy -->
 </div>
 
@@ -7068,6 +7106,7 @@
     // The lifting log reads storage, so rebuild it on show rather than only at boot --
     // otherwise a set logged, then a tab switch away and back, shows a stale card.
     if (tabName === 'lifting' && typeof renderLiftLog === 'function') renderLiftLog();
+    if (tabName === 'gameday' && typeof initGdTab === 'function') initGdTab();
     // Persist last tab (global + per-group so each bottom tab remembers its own page)
     storeSet('arm-care-last-tab', tabName);
     storeSet('arm-care-last-tab-' + tabGroup(tabName), tabName);
@@ -7076,6 +7115,41 @@
   tabs.forEach(t => {
     t.addEventListener('click', () => switchTab(t.dataset.tab));
   });
+
+  /* ===== GAMEDAY PITCHER / CATCHER SUB-TABS ===== */
+  function switchGdTab(tab){
+    var pitcher=document.getElementById('gd-pitcher');
+    var catcher=document.getElementById('gd-catcher');
+    if(pitcher) pitcher.style.display = tab==='pitcher' ? '' : 'none';
+    if(catcher) catcher.style.display = tab==='catcher' ? '' : 'none';
+    document.querySelectorAll('.gd-tab-btn').forEach(function(b){
+      var active = b.dataset.gdtab===tab;
+      b.classList.toggle('active',active);
+      b.style.background = active ? 'var(--gold)' : 'transparent';
+      b.style.color = active ? 'var(--bg)' : 'var(--dim)';
+    });
+    if(tab==='catcher'){
+      try{
+        var dk=armLocalDay();
+        localStorage.setItem('battery-plan-pregame-'+dk,'1');
+      }catch(e){}
+    }
+  }
+  window.switchGdTab=switchGdTab;
+  function scrollToStep(ex){
+    switchTab('washington');
+    setTimeout(function(){var el=document.querySelector('[data-ex="'+ex+'"]');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},120);
+  }
+  window.scrollToStep=scrollToStep;
+  function initGdTab(){
+    try{
+      var id=localStorage.getItem('battery-profile');
+      var people=JSON.parse(localStorage.getItem('battery-people')||'[]');
+      if(!Array.isArray(people)){switchGdTab('pitcher');return;}
+      var p=people.find(function(x){return x.id===id;});
+      switchGdTab((p&&(p.position==='catcher'||p.position==='both'))?'catcher':'pitcher');
+    }catch(e){switchGdTab('pitcher');}
+  }
 
   /* ===== STORAGE HELPERS ===== */
   function storeGet(k, fallback) {
@@ -8267,6 +8341,9 @@
     ['bougie-recv-',   'Catching Made Simple (Coach Bougie) — Catcher Warm Up Drills (Blocking + Receiving)', 'https://youtu.be/klSzYHMSflI'],
     ['bougie-stance-', 'Catching Made Simple (Coach Bougie) — Sign vs Resting Stance', 'https://youtu.be/MFbxm_j4N74'],
     ['bougie-frame-',  'Catching Made Simple (Coach Bougie) — Framing When Pitchers Miss Their Spot', 'https://youtu.be/nGSWKIhTnoE'],
+    ['bougie-statcast-','Catching Made Simple (Coach Bougie) — 95% of MLB Catchers Changed Their Stance in 2025 | Statcast Breakdown', 'https://youtu.be/EhKd3jLrbw0'],
+    ['bougie-solo-',   'Catching Made Simple (Coach Bougie) — The 5 Best Catcher Drills To Do By Yourself', 'https://youtu.be/L7J-QjQDsTQ'],
+    ['bougie-passball-','Catching Made Simple (Coach Bougie) — Turn A Passed Ball Into An Out', 'https://youtu.be/v7ZwKgxAl4E'],
     ['bougie-',        'Catching Made Simple (Coach Bougie) — @catchingmadesimple', 'https://www.youtube.com/@catchingmadesimple'],
     ['propoint-block-','@propointcatching — Scared to Block? 3 ESSENTIAL Drills for Catchers to Master Blocking', 'https://youtu.be/0_8OFSrnCG0'],
     ['propoint-recv-', '@propointcatching — Old School vs New School Receiving - Which Is Better?',              'https://youtu.be/YLBs8lp6WyA'],

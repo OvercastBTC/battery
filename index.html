@@ -647,6 +647,9 @@ function profileName(id){const p=getPerson(id);return p?String(p.name).toUpperCa
 function profileTier(id){const p=getPerson(id);return (p&&p.tier==='adult')?'adult':'youth';}
 function profileAge(id){const p=getPerson(id);const a=p?parseInt(p.age,10):0;return (a&&a>0)?a:null;}
 function setProfileAge(id,age){const a=parseInt(age,10)||null;setPeople(getPeople().map(function(x){return x.id===id?Object.assign({},x,{age:a}):x;}));}
+function getPosition(id){var p=getPerson(id);return (p&&p.position)?p.position:null;}
+function setPosition(id,pos){setPeople(getPeople().map(function(x){return x.id===id?Object.assign({},x,{position:pos||null}):x;}));}
+window.cyclePosition=function(id){var cur=getPosition(id);var next=cur==='pitcher'?'catcher':cur==='catcher'?'both':cur==='both'?null:'pitcher';setPosition(id,next);renderDataView();};
 function escHtml(s){return String(s).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);});}
 
 /* Install / device awareness. iOS does NOT expose the exact model, and a site
@@ -1161,11 +1164,13 @@ function renderDataView(){
         return '<div class="prow"'+(active?' data-active="1"':'')+'>'+
           '<div class="prow-h"><span class="prow-name">'+escHtml(p.name)+'</span>'+
           (youth?'<span class="prow-tag youth">YOUTH</span>':'<span class="prow-tag">ADULT</span>')+
+          (p.position?'<span class="prow-tag" style="background:var(--dim)">'+escHtml(p.position.toUpperCase())+'</span>':'')+
           (active?'<span class="prow-tag active">ACTIVE</span>':'')+'</div>'+
           '<div class="prow-meta">'+fmtCount(p.id)+' stored keys</div>'+
           '<div class="prow-btns">'+
             '<button onclick="renameProfile(\''+p.id+'\')">Rename</button>'+
             '<button onclick="setProfileTier(\''+p.id+'\',\''+(youth?'adult':'youth')+'\')">'+(youth?'Make Adult':'Make Youth')+'</button>'+
+            '<button onclick="cyclePosition(\''+p.id+'\')">'+(p.position?p.position.charAt(0).toUpperCase()+p.position.slice(1):'Set Position')+'</button>'+
             '<button class="del" onclick="removePerson(\''+p.id+'\')">Delete</button>'+
           '</div></div>';
       }).join('');
@@ -2853,6 +2858,7 @@ function flowSteps(){
     // on TODAY, not a plain view -- lifting is a sub-tab of ARM's 'body' group.
     if(plan.lift&&!youth){var lf=_batCounts.lift;if(lf&&lf.total>0&&lf.done<lf.total)steps.push({ico:'🏋',label:'Lift',view:'body',sub:'lifting',left:(lf.total-lf.done)+' left'});}
   }
+  if(todayGameEvent()){var pos=getPosition(profile);if((pos==='catcher'||pos==='both')&&!localStorage.getItem('battery-plan-pregame-'+sleepDateKey()))steps.push({ico:'🧤',label:'Pregame',view:'arm',sub:'gameday',left:'game day'});}
   if(_batFuel){
     if(_batFuel.tWater>0&&_batFuel.water<_batFuel.tWater)steps.push({ico:'💧',label:'Water',view:'fuel',sub:'hydration',left:(_batFuel.tWater-_batFuel.water)+' oz to go'});
     if(!youth&&_batFuel.tProtein>0&&_batFuel.protein<_batFuel.tProtein)steps.push({ico:'🥩',label:'Protein',view:'fuel',sub:'protein',left:(_batFuel.tProtein-_batFuel.protein)+' g to go'});
@@ -2874,6 +2880,7 @@ function flowProgress(){
     ['arm','drills','body'].forEach(function(k){if(!plan[k])return;var c=_batCounts[k];if(c&&c.total>0)total++;});
     if(plan.lift&&!youth){var lf=_batCounts.lift;if(lf&&lf.total>0)total++;}
   }
+  if(todayGameEvent()){var pos=getPosition(profile);if((pos==='catcher'||pos==='both')&&!localStorage.getItem('battery-plan-pregame-'+sleepDateKey()))total++;}
   if(_batFuel){
     if(_batFuel.tWater>0)total++;
     if(!youth&&_batFuel.tProtein>0)total++;
