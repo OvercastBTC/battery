@@ -8256,8 +8256,6 @@
       const a=getDays(); const i=a.indexOf(d);
       if(i>=0)a.splice(i,1); else a.push(d);
       setDays(a); paintWeekdays();
-      if(typeof refreshSchedule==='function')refreshSchedule();
-      if(typeof refreshExtras==='function')refreshExtras();
     };
     function paintWeekdays(){
       const days=getDays();

@@ -2938,9 +2938,6 @@
       if (dateEl && !dateEl.value) dateEl.value = todayKey();
       refreshEventsDisplay();
     }
-    if (tabName === 'profile') {
-      refreshProfileSummary();
-    }
     if (tabName === 'heat') {
       try { if (window.renderHeatRisk) window.renderHeatRisk(); } catch (e) {}
     }
