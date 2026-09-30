@@ -869,6 +869,8 @@
   .quickadd-section-title .accent {
     width: 4px; height: 14px;
   }
+  .quickadd-section.water  { background: rgba(88,166,255,0.08); }
+  .quickadd-section.protein { background: rgba(212,160,23,0.08); }
   .quickadd-section.water .accent { background: var(--blue); }
   .quickadd-section.protein .accent { background: var(--gold); }
   .quickadd-sub {
@@ -1123,15 +1125,13 @@
   }
   .caf-fav-label.checked { color: var(--gold); }
 
-  /* Favorites row */
+  /* Favorites row — card-style (REQ-033) */
   .fav-row {
     margin-bottom: 10px;
-    padding: 8px;
-    background: rgba(212,160,23,0.05);
-    border: 1px dashed var(--gold);
+    padding: 8px 0;
   }
   .fav-label {
-    font-family: 'Courier New', monospace;
+    font-family: 'SF Mono', 'Courier New', monospace;
     font-size: 9px;
     color: var(--gold);
     text-transform: uppercase;
@@ -1144,32 +1144,28 @@
     gap: 6px;
   }
   .fav-btn {
-    background: var(--steel-2);
-    border: 1.5px solid var(--gold);
-    color: var(--bone);
-    padding: 6px 10px;
+    background: #1c2128;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 6px 11px;
     cursor: pointer;
-    font-family: 'Courier New', monospace;
+    font-family: 'SF Mono', 'Courier New', monospace;
     font-size: 11px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 0;
+    border-radius: 9px;
     transition: all 0.15s;
   }
-  .fav-btn:hover {
-    background: var(--gold);
-    color: var(--ink);
+  .fav-btn.water { border-color: var(--blue); color: var(--blue); }
+  .fav-btn:hover { opacity: 0.85; }
+  .fav-btn .fav-star { color: var(--gold); margin-right: 4px; }
+  .fav-btn .fav-more {
+    margin-left: 7px;
+    padding: 0 3px;
+    color: #8b949e;
+    font-weight: 700;
   }
-  .fav-btn .fav-amt { font-weight: 700; color: var(--gold); }
-  .fav-btn:hover .fav-amt { color: var(--ink); }
-  .fav-btn .fav-x {
-    color: var(--blood);
-    margin-left: 4px;
-    font-size: 12px;
-    line-height: 1;
-    padding: 0 2px;
-  }
-  .fav-btn:hover .fav-x { color: var(--ink); }
   /* History log */
   .log-section {
     background: var(--steel);
@@ -4973,13 +4969,55 @@
       row.style.display = 'block';
       list.innerHTML = favs[type].map((f, i) => {
         const unit = type === 'water' ? 'oz' : 'g';
-        return `<div class="fav-btn" onclick="useFavorite('${type}', ${i})">
-          <span class="fav-amt">+${f.amount}${unit}</span>
-          <span>${f.label}</span>
-          <span class="fav-x" onclick="event.stopPropagation(); removeFavorite('${type}', ${i})">×</span>
-        </div>`;
+        const lbl = (f.label || '').replace(/'/g, '');
+        return `<button class="fav-btn ${type}" onclick="useFavorite('${type}', ${i})"><span class="fav-star">★</span>+${f.amount}${unit} · ${lbl}<span class="fav-more" onclick="event.stopPropagation(); removeFavorite('${type}', ${i})">⋯</span></button>`;
       }).join('');
     });
+    collapseRedundantSections();
+  }
+
+  function collapseRedundantSections(){
+    var favs=loadFavorites();
+    var wk={};
+    (favs.water||[]).forEach(function(f){ wk[f.label+'|'+f.amount]=true; });
+    ['containers','sportdrink','shaker'].forEach(function(gid){
+      var items=FUEL_W_ITEMS.filter(function(it){ return it.g===gid; });
+      if(!items.length) return;
+      if(!items.every(function(it){ return wk[it.l+'|'+it.w]; })) return;
+      var grid=document.getElementById('qa-w-'+gid);
+      if(!grid) return;
+      var lbl=grid.previousElementSibling;
+      while(lbl&&!lbl.classList.contains('qa-subgroup-label')) lbl=lbl.previousElementSibling;
+      if(lbl&&!lbl.classList.contains('qa-collapsed')){
+        lbl.classList.add('qa-collapsed');
+        grid.style.display='none';
+      }
+    });
+    var pk={};
+    (favs.protein||[]).forEach(function(f){ pk[f.label+'|'+f.amount]=true; });
+    try{
+      var all=window.fuelAllItems();
+      var grps={};
+      all.forEach(function(it){ if(!grps[it.g]) grps[it.g]=[]; grps[it.g].push(it); });
+      var host=document.getElementById('qa-protein-host');
+      if(!host) return;
+      var labels=host.querySelectorAll('.qa-subgroup-label');
+      labels.forEach(function(lbl){
+        var grid=lbl.nextElementSibling;
+        if(!grid||!grid.classList.contains('qa-grid')) return;
+        var btns=grid.querySelectorAll('button[data-item]');
+        if(!btns.length) return;
+        var allFaved=true;
+        for(var i=0;i<btns.length;i++){
+          var it=all.find(function(x){ return x.id===btns[i].dataset.item; });
+          if(!it||!pk[it.l+'|'+it.p]){ allFaved=false; break; }
+        }
+        if(allFaved&&!lbl.classList.contains('qa-collapsed')){
+          lbl.classList.add('qa-collapsed');
+          grid.style.display='none';
+        }
+      });
+    }catch(e){}
   }
 
   /* ===== E3 (4.3) FAVORITES: most-used auto-pop + pin-from-log + youth gate ===== */
