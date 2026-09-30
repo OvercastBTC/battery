@@ -59,7 +59,7 @@
       radial-gradient(ellipse at 80% 100%, rgba(212,160,23,0.08) 0%, transparent 50%),
       var(--ink);
     min-height: 100vh;
-    padding-bottom: 100px;
+    padding-bottom: 140px;
   }
   .wrap { max-width: 820px; margin: 0 auto; padding: 0 18px; }
 
@@ -992,7 +992,7 @@
   @media (hover: none) { .qa-btn .qa-menu-dot { opacity: 0.6; } }
   .qa-btn.qa-mine { position: relative; }
   .qa-x {
-    position: absolute; top: 2px; right: 4px; padding: 0 4px;
+    position: absolute; top: 2px; left: 4px; padding: 0 4px;
     color: #6e7681; font-weight: 700; font-size: 13px; line-height: 1.2;
   }
   .qa-x:hover { color: #f85149; }
@@ -4196,8 +4196,7 @@
           x.title = 'Remove this item';
           x.addEventListener('click', function(ev){
             ev.stopPropagation();
-            /* removing the button never touches logged entries -- history keeps
-               everything already eaten under its label */
+            if(!confirm('Remove "' + (it.n || it.l) + '"?')) return;
             window.removeCustomItem(it.id);
           });
           b.appendChild(x);
