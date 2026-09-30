@@ -250,7 +250,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.09.30.150</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.09.30.151</span></div>
 <div id="prof-switch"></div>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
 <div id="stage">
@@ -373,6 +373,10 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 <div class="gd-card" id="trt-card" style="display:none">
 <h3 style="margin-bottom:6px">TRT-Aware Hydration <span style="font-size:10px;color:var(--faint);letter-spacing:1px">ADULT ONLY</span></h3>
 <div id="trt-body"></div>
+</div>
+<div class="gd-card" id="notif-card" style="display:none">
+<h3 style="margin-bottom:6px">Notifications</h3>
+<div id="notif-body" class="dmeta"></div>
 </div>
 <div class="gd-card">
 <h3 style="margin-bottom:6px">Device &amp; Install</h3>
@@ -873,6 +877,7 @@ function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(
 let _batCounts=null,_batFuel=null;
 window.addEventListener('message',function(e){if(e.origin!==location.origin)return;var d=e&&e.data;if(!d)return;
  if(d.type==='bat-fuel'){_batFuel=d;refreshFuelDot();refreshTabIcons();renderScoreboard();renderToday();return;}
+ if(d.type==='bat-notif'){try{notifSend(d.title||'BATTERY',d.body||'',d.tag);}catch(e){}return;}
  if(d.type!=='bat-counts')return;
  _batCounts=d;
  function dot(v,c){var b=document.querySelector('#tabbar button[data-v="'+v+'"]');if(b)b.classList.toggle('todo',!!(c&&c.total>0&&c.done<c.total));}
@@ -1208,6 +1213,7 @@ function renderDataView(){
       '<div>Likely device: <b>'+escHtml(di.guess)+'</b> <span style="opacity:.6">(inferred — iOS hides the exact model)</span></div>';
   }
   renderTrtCard();
+  try{renderNotifCard();}catch(e){}
   try{renderDemoCard();}catch(e){}
   try{renderConsistencyCard();}catch(e){}
   try{renderWeekCard();}catch(e){}
@@ -2387,6 +2393,7 @@ function syncFuelDayFromPlan(flags){
     var f=document.getElementById('f-fuel');
     if(f&&f.contentWindow)f.contentWindow.postMessage({type:'bat-plan',day:day},'*');
   }catch(e){}
+  if(day==='game')try{maybeGameDayNotif();}catch(e){}
 }
 function setActivePlan(flags){
   // Restores the input validation master had (`if(!PLAN_PRESETS[p])return;`),
@@ -3029,6 +3036,80 @@ window.showToast=showToast;
     }).catch(function(){});
   },4000);
 })();
+/* ===== REQ-027: Notification API integration (v151) =====
+   Game-day reminders + bat-notif postMessage hookpoint for v153 timed protocols.
+   Youth profiles: gated (no notifications). Permission tracked in localStorage
+   so the user can toggle off without revoking browser permission. */
+var NOTIF_PERM_KEY='battery-notif-perm';
+function notifPermState(){
+  try{return localStorage.getItem(NOTIF_PERM_KEY)||'default';}catch(e){return 'default';}
+}
+function notifAllowed(){
+  var s=notifPermState();
+  if(s!=='granted')return false;
+  return typeof Notification!=='undefined'&&Notification.permission==='granted';
+}
+function notifRequest(cb){
+  if(typeof Notification==='undefined'){if(cb)cb('denied');return;}
+  Notification.requestPermission().then(function(p){
+    try{safeSet(NOTIF_PERM_KEY,p);}catch(e){}
+    if(cb)cb(p);
+  }).catch(function(){if(cb)cb('denied');});
+}
+function notifSend(title,body,tag){
+  if(!profile||profileTier(profile)==='youth')return;
+  if(!notifAllowed())return;
+  try{new Notification(title,{body:body,tag:tag||'battery',silent:false});}catch(e){}
+}
+function maybeGameDayNotif(){
+  if(!profile||profileTier(profile)==='youth')return;
+  var perm=notifPermState();
+  if(perm==='off'||perm==='denied')return;
+  if(perm==='default'){
+    notifRequest(function(p){if(p==='granted')fireGameDayNotif();});
+    return;
+  }
+  if(!notifAllowed())return;
+  fireGameDayNotif();
+}
+function fireGameDayNotif(){
+  var k='battery-notif-gameday-'+todayPlanKey();
+  try{if(localStorage.getItem(k))return;safeSet(k,'1');}catch(e){return;}
+  notifSend('Game day','Start your pregame routine','battery-gameday');
+}
+function notifEnable(){
+  notifRequest(function(p){try{renderNotifCard();}catch(e){}});
+}
+function notifSetEnabled(on){
+  try{safeSet(NOTIF_PERM_KEY,on?'granted':'off');}catch(e){}
+  try{renderNotifCard();}catch(e){}
+}
+function renderNotifCard(){
+  var card=document.getElementById('notif-card'),body=document.getElementById('notif-body');
+  if(!card||!body)return;
+  if(!profile||profileTier(profile)==='youth'){card.style.display='none';return;}
+  card.style.display='';
+  var supported=typeof Notification!=='undefined';
+  var perm=notifPermState();
+  var browserPerm=supported?Notification.permission:'denied';
+  var html='';
+  if(!supported){
+    html='<span style="color:var(--faint)">Notifications are not available on this device.</span>';
+  }else if(browserPerm==='denied'&&perm!=='granted'){
+    html='<span style="color:var(--gold)">⚠ Notifications are blocked by your browser. Update site notification settings to enable.</span>';
+  }else if(perm==='granted'){
+    html='<label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer"><input type="checkbox" checked onchange="notifSetEnabled(false)" style="width:18px;height:18px;flex:none"> Game-day reminders on</label>'+
+      '<div style="margin-top:6px;font-size:11px;color:var(--dim)">Fires when the app opens on a game day.</div>';
+  }else if(perm==='off'){
+    html='<label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer"><input type="checkbox" onchange="notifSetEnabled(true)" style="width:18px;height:18px;flex:none"> Game-day reminders off</label>'+
+      '<div style="margin-top:6px;font-size:11px;color:var(--dim)">Turn on to get game-day reminders.</div>';
+  }else{
+    html='<button class="dbtn bk" onclick="notifEnable()">🔔 Enable Game-Day Reminders</button>'+
+      '<div style="margin-top:6px;font-size:11px;color:var(--dim)">Get a heads-up when today is a game day.</div>';
+  }
+  body.innerHTML=html;
+}
+window.notifEnable=notifEnable;window.notifSetEnabled=notifSetEnabled;window.renderNotifCard=renderNotifCard;
 /* Feedback / feature request — opens the repo's GitHub issue composer prefilled with
    the build stamp (reaches the owner as repo owner). Set FEEDBACK_EMAIL to route via
    mailto instead (1-line swap). A throttled toast nudges ~weekly; DATA has a permanent

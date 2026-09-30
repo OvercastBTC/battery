@@ -2149,6 +2149,19 @@
     </ul>
   </div>
 
+  <!-- RECOVERY BOOST CALLOUT — adult-only (§4.3) -->
+  <div class="qa-adult" id="recovery-note-host" style="margin-top:14px;display:none">
+    <div class="card" style="border-color:var(--yellow)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#e6edf3;margin-bottom:4px">&#9889; Protein boosted</div>
+          <div id="recovery-note-text" style="font-size:12px;color:#8b949e;line-height:1.5"></div>
+        </div>
+        <button onclick="dismissRecoveryNote()" style="background:none;border:none;color:#8b949e;font-size:18px;cursor:pointer;padding:0 0 0 8px;flex-shrink:0">&#10005;</button>
+      </div>
+    </div>
+  </div>
+
   <!-- SUPPLEMENT CHECKLIST — adult-only (§4.3) -->
   <div class="qa-adult" id="supp-card-host" style="margin-top:14px">
     <div class="card" style="border-color:var(--green)">
@@ -6807,6 +6820,7 @@
           if(window.batteryRenderHist)window.batteryRenderHist();
           if(window.batteryRenderFav)window.batteryRenderFav();
           if(window.renderSuppCard)window.renderSuppCard();
+          if(window.renderRecoveryNote)window.renderRecoveryNote();
         }catch(e){}
         return r;
       };
@@ -6976,6 +6990,39 @@
     window.renderSuppCard=renderSuppCard;
     if(document.readyState!=='loading') setTimeout(renderSuppCard,420);
     else document.addEventListener('DOMContentLoaded',function(){setTimeout(renderSuppCard,420);});
+  })();
+
+  /* ===== RECOVERY BOOST EXPLANATION (REQ-001) ===== */
+  (function(){
+    window.dismissRecoveryNote=function(){
+      storeSet('fuel-recovery-note-'+todayKey(),'1');
+      var host=document.getElementById('recovery-note-host');
+      if(host) host.style.display='none';
+    };
+    window.renderRecoveryNote=function(){
+      var host=document.getElementById('recovery-note-host');
+      if(!host) return;
+      if(fy()){ host.style.display='none'; return; }
+      var dismissed=storeGet('fuel-recovery-note-'+todayKey(),'');
+      if(dismissed){ host.style.display='none'; return; }
+      var p=loadProfile();
+      if(!p){ host.style.display='none'; return; }
+      var rb=recoveryBoost(p);
+      if(!rb){ host.style.display='none'; return; }
+      var txt='';
+      if(rb.source==='lift'){
+        txt='You lifted heavy yesterday — protein target is elevated to support muscle repair.';
+      } else {
+        var label=rb.pitches ? rb.pitches+' pitches' : 'hard throwing';
+        var rest=rb.restDays>1 ? rb.restDays+'-day rest' : '1-day rest';
+        txt='You threw hard yesterday — '+label+' ('+rest+'). Protein target is elevated to support arm recovery.';
+      }
+      var el=document.getElementById('recovery-note-text');
+      if(el) el.textContent=txt;
+      host.style.display='';
+    };
+    if(document.readyState!=='loading') setTimeout(window.renderRecoveryNote,460);
+    else document.addEventListener('DOMContentLoaded',function(){ setTimeout(window.renderRecoveryNote,460); });
   })();
 
   /* ===== HEAT SAFETY: transparent risk model + readout ===== */
