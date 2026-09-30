@@ -2149,6 +2149,27 @@
     </ul>
   </div>
 
+  <!-- SUPPLEMENT CHECKLIST — adult-only (§4.3) -->
+  <div class="qa-adult" id="supp-card-host" style="margin-top:14px">
+    <div class="card" style="border-color:var(--green)">
+      <div class="card-head" onclick="toggleSuppCard()" style="cursor:pointer">
+        <div class="card-title" style="display:flex;align-items:center;gap:6px">💊 Supplements</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="supp-progress" style="font-size:12px;color:var(--dim);font-family:'SF Mono',monospace"></span>
+          <span class="caret" id="supp-caret" style="color:var(--dim)"></span>
+        </div>
+      </div>
+      <div id="supp-body" style="display:none">
+        <div id="supp-list"></div>
+        <div id="supp-streak" style="font-size:11px;color:var(--dim);font-family:'SF Mono',monospace;margin-top:8px;text-align:center"></div>
+        <div style="text-align:center;margin-top:8px">
+          <button onclick="toggleSuppEdit()" id="supp-edit-btn" style="background:none;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:6px 14px;font-size:11px;cursor:pointer;font-family:'SF Mono',monospace">⚙ Edit list</button>
+        </div>
+        <div id="supp-picker" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:10px"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ============== PROFILE (UNREACHABLE — DO NOT DELETE) ==============
@@ -6785,6 +6806,7 @@
           if(window.batteryRenderRunway)window.batteryRenderRunway();
           if(window.batteryRenderHist)window.batteryRenderHist();
           if(window.batteryRenderFav)window.batteryRenderFav();
+          if(window.renderSuppCard)window.renderSuppCard();
         }catch(e){}
         return r;
       };
@@ -6801,6 +6823,159 @@
       el.textContent = v ? 'build '+v : 'live'; }
     if(document.readyState!=='loading') setTimeout(setBuild,440);
     else document.addEventListener('DOMContentLoaded',function(){ setTimeout(setBuild,440); });
+  })();
+
+  /* ===== SUPPLEMENT CHECKLIST (REQ-031) ===== */
+  (function(){
+    var SUPP_CATALOG = [
+      {id:'collagen',     label:'Collagen peptides',       dose:'15g + vit C',        sizeAdj:true,  timing:'30-60 min pre-training'},
+      {id:'fishoil',      label:'Fish oil (EPA+DHA)',      dose:'2g',                 sizeAdj:true,  timing:'with food'},
+      {id:'creatine-hmb', label:'Creatine + HMB',          dose:'5g + 3g',            sizeAdj:false, timing:'daily, any time'},
+      {id:'joint',        label:'Joint complex',           dose:'1500/1200/1000mg',   sizeAdj:false, timing:'with food'},
+      {id:'zinc-copper',  label:'Zinc + Copper',           dose:'30mg / 2mg',         sizeAdj:false, timing:'not with dairy'},
+      {id:'vitD',         label:'Vitamin D + K2',          dose:'per product',        sizeAdj:false, timing:'with fat (meal)'},
+      {id:'shroom',       label:'Shroom Tech / adaptogens',dose:'per product',        sizeAdj:false, timing:'pre-workout'},
+      {id:'wolverine',    label:'Wolverine Stack (BPC+TB)',dose:'500mcg each',        sizeAdj:true,  timing:'daily injection'},
+      {id:'magnesium',    label:'Magnesium',               dose:'400mg',              sizeAdj:false, timing:'before bed'},
+      {id:'ultra-focus',  label:'Ultra Pouches (Focus)',   dose:'1 pouch',            sizeAdj:false, timing:'as needed'}
+    ];
+
+    function suppDoseHint(id, prof){
+      var w=(prof&&prof.weightLb)||150;
+      if(id==='collagen') return w>250?'20g (2 scoops) + vit C':(w>180?'15g (1.5 scoops) + vit C':'10g (1 scoop) + vit C');
+      if(id==='fishoil')  return w>250?'3g EPA+DHA':'2g EPA+DHA';
+      if(id==='wolverine')return w>250?'500mcg each':'250mcg each';
+      return null;
+    }
+    function suppTimingHint(id, prof){
+      if(id==='collagen'&&prof&&prof.glp&&prof.glp!=='none') return '60-90 min pre-training (GLP-1)';
+      var cat=SUPP_CATALOG.find(function(s){return s.id===id;});
+      return cat?cat.timing:'';
+    }
+    function getActiveSupps(){
+      var p=loadProfile();
+      return (p&&Array.isArray(p.supplements))?p.supplements:[];
+    }
+    function setActiveSupps(arr){
+      var p=loadProfile()||{};
+      p.supplements=arr;
+      saveProfileObj(p);
+    }
+    function dkey(d){
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    }
+    function getSuppDone(dk){
+      var raw=storeGet('fuel-supp-done-'+dk,'');
+      return raw?raw.split(',').filter(Boolean):[];
+    }
+    function setSuppDone(dk,arr){
+      storeSet('fuel-supp-done-'+dk,arr.join(','));
+    }
+    window.toggleSupp=function(id){
+      var dk=todayKey();
+      var done=getSuppDone(dk);
+      var idx=done.indexOf(id);
+      if(idx>=0) done.splice(idx,1); else done.push(id);
+      setSuppDone(dk,done);
+      renderSuppCard();
+    };
+    window.toggleSuppCard=function(){
+      var body=document.getElementById('supp-body');
+      var caret=document.getElementById('supp-caret');
+      if(!body) return;
+      var open=body.style.display!=='none';
+      body.style.display=open?'none':'';
+      if(caret) caret.style.transform=open?'rotate(-90deg)':'rotate(0)';
+    };
+    window.toggleSuppEdit=function(){
+      var picker=document.getElementById('supp-picker');
+      if(!picker) return;
+      var open=picker.style.display!=='none';
+      picker.style.display=open?'none':'';
+      if(!open) renderSuppPicker();
+    };
+    function renderSuppPicker(){
+      var picker=document.getElementById('supp-picker');
+      if(!picker) return;
+      var active=getActiveSupps();
+      picker.innerHTML='<div style="font-size:10px;letter-spacing:1px;color:var(--dim);font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:8px">Select your daily supplements</div>'+
+        SUPP_CATALOG.map(function(cat){
+          var on=active.indexOf(cat.id)>=0;
+          return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer" onclick="toggleSuppActive(\''+cat.id+'\')">'+
+            '<span style="font-size:18px;width:24px;text-align:center">'+(on?'☑':'☐')+'</span>'+
+            '<span style="color:var(--fg);font-size:13px">'+cat.label+'</span></label>';
+        }).join('');
+    }
+    window.toggleSuppActive=function(id){
+      var active=getActiveSupps();
+      var idx=active.indexOf(id);
+      if(idx>=0) active.splice(idx,1); else active.push(id);
+      setActiveSupps(active);
+      renderSuppPicker();
+      renderSuppCard();
+    };
+    function renderSuppCard(){
+      var host=document.getElementById('supp-card-host');
+      if(!host) return;
+      var active=getActiveSupps();
+      if(!active.length){
+        var body=document.getElementById('supp-body');
+        var prog=document.getElementById('supp-progress');
+        if(prog) prog.textContent='';
+        if(body){
+          body.style.display='';
+          document.getElementById('supp-list').innerHTML='<div style="color:var(--dim);font-size:13px;text-align:center;padding:10px 0">No supplements configured.</div>';
+          document.getElementById('supp-streak').textContent='';
+          document.getElementById('supp-picker').style.display='';
+          renderSuppPicker();
+        }
+        var caret=document.getElementById('supp-caret');
+        if(caret) caret.style.transform='rotate(0)';
+        return;
+      }
+      var dk=todayKey();
+      var done=getSuppDone(dk);
+      var prof=loadProfile();
+      var list=document.getElementById('supp-list');
+      if(list){
+        list.innerHTML=active.map(function(id){
+          var cat=SUPP_CATALOG.find(function(s){return s.id===id;});
+          if(!cat) return '';
+          var checked=done.indexOf(id)>=0;
+          var dose=suppDoseHint(id,prof)||cat.dose;
+          var timing=suppTimingHint(id,prof);
+          return '<div onclick="toggleSupp(\''+id+'\')" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer">'+
+            '<span style="font-size:20px;width:28px;text-align:center;color:'+(checked?'var(--green)':'var(--dim)')+'">'+(checked?'✓':'○')+'</span>'+
+            '<span style="flex:1;min-width:0">'+
+              '<span style="color:'+(checked?'var(--green)':'var(--fg)')+';font-size:14px;'+(checked?'text-decoration:line-through;opacity:0.6':'')+'">'+cat.label+'</span>'+
+              '<span style="display:block;font-size:11px;color:var(--dim);font-family:\'SF Mono\',monospace">'+dose+(timing?' · '+timing:'')+'</span>'+
+            '</span></div>';
+        }).join('');
+      }
+      var prog=document.getElementById('supp-progress');
+      if(prog){
+        var doneCount=active.filter(function(id){return done.indexOf(id)>=0;}).length;
+        prog.textContent=doneCount+'/'+active.length;
+        prog.style.color=doneCount===active.length?'var(--green)':'var(--dim)';
+      }
+      var streakEl=document.getElementById('supp-streak');
+      if(streakEl){
+        var streak=0;
+        var d=new Date(); d.setDate(d.getDate()-1);
+        for(var i=0;i<30;i++){
+          var k=dkey(d);
+          var sd=getSuppDone(k);
+          var allDone=active.every(function(id){return sd.indexOf(id)>=0;});
+          if(!allDone) break;
+          streak++;
+          d.setDate(d.getDate()-1);
+        }
+        streakEl.textContent=streak>0?('streak: '+streak+' day'+(streak>1?'s':'')):'';
+      }
+    }
+    window.renderSuppCard=renderSuppCard;
+    if(document.readyState!=='loading') setTimeout(renderSuppCard,420);
+    else document.addEventListener('DOMContentLoaded',function(){setTimeout(renderSuppCard,420);});
   })();
 
   /* ===== HEAT SAFETY: transparent risk model + readout ===== */
