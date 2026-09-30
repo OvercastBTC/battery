@@ -6861,10 +6861,32 @@
       if(id==='wolverine')return w>250?'500mcg each':'250mcg each';
       return null;
     }
-    function suppTimingHint(id, prof){
-      if(id==='collagen'&&prof&&prof.glp&&prof.glp!=='none') return '60-90 min pre-training (GLP-1)';
+    function isTrainDay(){
+      return activeDays.has('train')||activeDays.has('heavy')||activeDays.has('game');
+    }
+    function suppTimingHint(id, prof, training){
+      if(id==='collagen'){
+        var glp=prof&&prof.glp&&prof.glp!=='none';
+        if(training) return glp?'take 90 min before training (GLP-1)':'take 60 min before training';
+        return 'any time with vitamin C';
+      }
+      if(id==='shroom') return training?'pre-workout':'any time';
       var cat=SUPP_CATALOG.find(function(s){return s.id===id;});
       return cat?cat.timing:'';
+    }
+    function suppCheckNotify(training, active, done){
+      if(!training) return;
+      if(active.indexOf('collagen')<0) return;
+      if(done.indexOf('collagen')>=0) return;
+      var nk='fuel-supp-notif-'+todayKey();
+      if(storeGet(nk,'')) return;
+      storeSet(nk,'1');
+      try{
+        var prof=loadProfile();
+        var glp=prof&&prof.glp&&prof.glp!=='none';
+        var mins=glp?90:60;
+        parent.postMessage({type:'bat-notif',title:'Supplement reminder',body:'Take collagen + C now — training in '+mins+' min',tag:'supp-collagen'},'*');
+      }catch(e){}
     }
     function getActiveSupps(){
       var p=loadProfile();
@@ -6950,6 +6972,8 @@
       var dk=todayKey();
       var done=getSuppDone(dk);
       var prof=loadProfile();
+      var training=isTrainDay();
+      suppCheckNotify(training,active,done);
       var list=document.getElementById('supp-list');
       if(list){
         list.innerHTML=active.map(function(id){
@@ -6957,12 +6981,14 @@
           if(!cat) return '';
           var checked=done.indexOf(id)>=0;
           var dose=suppDoseHint(id,prof)||cat.dose;
-          var timing=suppTimingHint(id,prof);
+          var timing=suppTimingHint(id,prof,training);
+          var timingUrgent=training&&!checked&&(id==='collagen'||id==='shroom');
+          var timingColor=timingUrgent?'var(--yellow)':'var(--dim)';
           return '<div onclick="toggleSupp(\''+id+'\')" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer">'+
             '<span style="font-size:20px;width:28px;text-align:center;color:'+(checked?'var(--green)':'var(--dim)')+'">'+(checked?'✓':'○')+'</span>'+
             '<span style="flex:1;min-width:0">'+
               '<span style="color:'+(checked?'var(--green)':'var(--fg)')+';font-size:14px;'+(checked?'text-decoration:line-through;opacity:0.6':'')+'">'+cat.label+'</span>'+
-              '<span style="display:block;font-size:11px;color:var(--dim);font-family:\'SF Mono\',monospace">'+dose+(timing?' · '+timing:'')+'</span>'+
+              '<span style="display:block;font-size:11px;color:'+timingColor+';font-family:\'SF Mono\',monospace">'+dose+(timing?' · '+timing:'')+'</span>'+
             '</span></div>';
         }).join('');
       }
