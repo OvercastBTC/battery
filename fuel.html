@@ -982,6 +982,14 @@
      grams underneath, so the parent-facing history is unchanged. */
   body.fuel-youth .quickadd-section.protein .qa-amt { display: none; }
   /* stage 2: user-created items */
+  .qa-btn { position: relative; }
+  .qa-btn .qa-menu-dot {
+    position: absolute; top: 2px; right: 4px; padding: 0 4px;
+    color: #6e7681; font-weight: 700; font-size: 11px; line-height: 1.2;
+    opacity: 0.4;
+  }
+  .qa-btn:hover .qa-menu-dot { opacity: 1; }
+  @media (hover: none) { .qa-btn .qa-menu-dot { opacity: 0.6; } }
   .qa-btn.qa-mine { position: relative; }
   .qa-x {
     position: absolute; top: 2px; right: 4px; padding: 0 4px;
@@ -4115,7 +4123,9 @@
         }
         const nm = document.createElement('span');
         nm.className = 'qa-name'; nm.textContent = it.n;
-        b.appendChild(amt); b.appendChild(nm);
+        var dot=document.createElement('span'); dot.className='qa-menu-dot'; dot.textContent='⋯';
+        dot.addEventListener('click', function(ev){ ev.stopPropagation(); if(window._qaGridMenu) window._qaGridMenu(b,'water',it.l,+it.w||0,+it.e||0,0); });
+        b.appendChild(amt); b.appendChild(nm); b.appendChild(dot);
         b.addEventListener('click', function(){
           addItem({ water: +it.w || 0, elec: +it.e || 0, label: it.l });
         });
@@ -4159,7 +4169,9 @@
         amt.appendChild(u);
         const nm = document.createElement('span');
         nm.className = 'qa-name'; nm.textContent = it.n;
-        b.appendChild(amt); b.appendChild(nm);
+        var dot=document.createElement('span'); dot.className='qa-menu-dot'; dot.textContent='⋯';
+        dot.addEventListener('click', function(ev){ ev.stopPropagation(); if(window._qaGridMenu) window._qaGridMenu(b,'protein',it.l,+it.p||0,0,+it.w||0); });
+        b.appendChild(amt); b.appendChild(nm); b.appendChild(dot);
         b.addEventListener('click', function(){
           addItem({ protein: +it.p || 0, water: +it.w || 0, label: it.l });
         });
@@ -5178,9 +5190,7 @@
     if (idx !== -1) favs[bucket].splice(idx, 1);   // unpin
     else {
       if (favs[bucket].length >= 6) favs[bucket].shift();
-      // w: paired water oz for a shake-linked protein pin (owner-reported bug --
-      // pinning a combo item like Core Power Elite used to drop its water credit).
-      favs[bucket].push({ amount: amt, label: label || '', e: +elec || 0, w: +pairedOz || 0 });
+      favs[bucket].push({ amount: amt, label: label || '', e: +elec || 0, w: +pairedOz || 0, fid: Date.now()+'-'+Math.floor(Math.random()*9999) });
     }
     saveFavorites(favs);
     refreshFavorites();
@@ -7202,6 +7212,13 @@
       // paired water credit (same invariant togglePinFromLog's other callers hold).
       item(f.manual?'☆ Unfavorite':'★ Favorite (pin)', function(){ try{ togglePinFromLog(f.type,f.amount,f.label,f.e,f.w); }catch(e){} });
       if(f.manual){ item('← Move left', function(){ moveFav(f,-1); }); item('Move right →', function(){ moveFav(f,1); }); }
+      var bk=bucketOf(f.type);
+      var other=bk==='water'?'protein':(bk==='protein'?'water':null);
+      if(other){
+        var oLabel=other==='water'?'Water ★':'Protein ★';
+        item('⎘ Copy to '+oLabel, function(){ copyFavTo(f,other); });
+        item('→ Move to '+oLabel, function(){ moveFavTo(f,bk,other); });
+      }
       document.body.appendChild(menu);
     }
 
@@ -7240,9 +7257,62 @@
     document.addEventListener('touchend', function(e){ cancel(); if(longFired){ e.preventDefault(); } }, {passive:false});
     document.addEventListener('contextmenu', function(e){ var chip=chipFrom(e); if(!chip) return; e.preventDefault(); openMenu(chip); });
     document.addEventListener('click', function(e){ if(longFired){ e.stopPropagation(); e.preventDefault(); longFired=false; return; } if(menu && !menu.contains(e.target)) closeMenu(); }, true);
-    // Design item 3 SS4A: visible ⋯ twin on the ranked-bar chip calls the same
-    // sheet the long-press/right-click already open -- one menu, two doors.
     window._favOpenMenu = openMenu;
+
+    function copyFavTo(f, targetBucket){
+      try{
+        var favs=loadFavorites();
+        if(!Array.isArray(favs[targetBucket])) favs[targetBucket]=[];
+        var exists=favs[targetBucket].some(function(x){ return (x.label||'')===f.label && (+x.amount||0)===f.amount; });
+        if(exists) return;
+        if(favs[targetBucket].length>=6) favs[targetBucket].shift();
+        favs[targetBucket].push({amount:f.amount, label:f.label, e:f.e||0, w:f.w||0, fid:f.fid||Date.now()+'-'+Math.floor(Math.random()*9999)});
+        saveFavorites(favs);
+        refreshFavorites();
+        if(window.batteryRenderFav) window.batteryRenderFav();
+      }catch(e){}
+    }
+    function moveFavTo(f, sourceBucket, targetBucket){
+      try{
+        var favs=loadFavorites();
+        if(!Array.isArray(favs[sourceBucket])) return;
+        var idx=favs[sourceBucket].findIndex(function(x){ return (x.label||'')===f.label && (+x.amount||0)===f.amount; });
+        if(idx===-1) return;
+        var entry=favs[sourceBucket].splice(idx,1)[0];
+        if(!Array.isArray(favs[targetBucket])) favs[targetBucket]=[];
+        if(favs[targetBucket].length>=6) favs[targetBucket].shift();
+        if(!entry.fid) entry.fid=Date.now()+'-'+Math.floor(Math.random()*9999);
+        favs[targetBucket].push(entry);
+        saveFavorites(favs);
+        refreshFavorites();
+        if(window.batteryRenderFav) window.batteryRenderFav();
+      }catch(e){}
+    }
+
+    function gridMenu(btn, type, label, amount, elec, pairedOz){
+      closeMenu();
+      var r=btn.getBoundingClientRect();
+      menu=document.createElement('div'); menu.className='fav-ctx';
+      menu.style.cssText='position:fixed;z-index:9999;background:#161b22;border:1px solid #30363d;border-radius:11px;padding:5px;box-shadow:0 8px 28px #000c;display:flex;flex-direction:column;min-width:160px';
+      menu.style.left=Math.max(8,Math.min(r.left,window.innerWidth-176))+'px';
+      menu.style.top=Math.min(r.bottom+4,window.innerHeight-210)+'px';
+      var unit=type==='water'?'oz':'g';
+      var hd=document.createElement('div');
+      hd.textContent=(label||'item')+' · +'+amount+unit;
+      hd.style.cssText='font-size:10px;color:#8b949e;padding:6px 12px;border-bottom:1px solid #21262d;margin-bottom:3px;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px';
+      menu.appendChild(hd);
+      function mi(txt,fn){ var b=document.createElement('button'); b.textContent=txt; b.style.cssText='background:none;border:none;color:#e6edf3;text-align:left;padding:10px 12px;font-size:13px;font-family:inherit;cursor:pointer;border-radius:7px'; b.addEventListener('click',function(ev){ ev.stopPropagation(); closeMenu(); fn(); }); menu.appendChild(b); }
+      var pinned=false;
+      try{ pinned=typeof _favIsPinned==='function'&&_favIsPinned({type:type,amount:amount,label:label,e:elec||0,w:pairedOz||0}); }catch(e){}
+      mi(pinned?'☆ Unpin from ★':'★ Pin to Favorites', function(){ togglePinFromLog(type,amount,label,elec||0,pairedOz||0); });
+      var other=type==='water'?'protein':'water';
+      var otherLabel=type==='water'?'Protein ★':'Water ★';
+      mi('⎘ Copy to '+otherLabel, function(){
+        copyFavTo({amount:amount,label:label,e:elec||0,w:pairedOz||0}, other);
+      });
+      document.body.appendChild(menu);
+    }
+    window._qaGridMenu = gridMenu;
   })();
 
   /* ===== fuel-button category icons (steel glyph, currentColor by category) ===== */
