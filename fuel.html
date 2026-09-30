@@ -1180,6 +1180,7 @@
     position: absolute; bottom: 3px; right: 4px;
     color: var(--gold); font-size: 9px; opacity: 0.7;
   }
+  .fav-btn .fav-star.fav-freq { color: var(--dim); }
   .fav-btn .fav-more {
     position: absolute; top: 2px; right: 4px; padding: 0 4px;
     color: #6e7681; font-weight: 700; font-size: 11px; line-height: 1.2;
@@ -6280,26 +6281,22 @@
       if(all.length===0 && bundles.length===0){ host.innerHTML=''; return; }
       const ed=!!window._favEdit;
       const favChip=f=>{
-          const c = f.type==='protein' ? '#d4a017' : (f.type==='water' ? '#58a6ff' : '#3fb950');
-          const u = f.type==='protein' ? 'g' : (f.type==='water' ? 'oz' : '');
+          const type = f.type;
+          const u = type==='protein' ? 'g' : (type==='water' ? 'oz' : '');
           const lbl=(f.label||'').replace(/\x27/g,"");
-          const mark = f.manual ? '<span style="color:#d4a017;margin-right:4px">★</span>'
-                                : '<span style="color:#6e7681;margin-right:4px;font-size:10px">↻</span>';
-          const rm = (ed && f.manual) ? '<span onclick="event.stopPropagation();removeManualFav(\''+f.type+'\','+f.amount+',\''+lbl+'\')" style="margin-left:7px;color:#f85149;font-weight:700">×</span>' : '';
-          // Design item 3 SS4A: the pin/edit/move sheet was long-press-only (a
-          // hidden gesture). A visible ⋯ twin opens the identical menu so the
-          // capability has a pixel that advertises it, not just a gesture.
-          const more = '<span onclick="event.stopPropagation();if(window._favOpenMenu)window._favOpenMenu(this.closest(\'.fav-chip\'))" '
-            + 'style="margin-left:7px;padding:0 3px;color:#8b949e;font-weight:700">⋯</span>';
-          return '<button class="fav-chip" data-ft="'+f.type+'" data-fa="'+f.amount+'" data-fl="'+lbl+'" data-fe="'+(f.e||0)+'" data-fw="'+(f.w||0)+'" data-fm="'+(f.manual?1:0)+'" onclick="'+(ed?'':'useFavStripItem(\''+f.type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+','+(f.w||0)+')')+'" '+
-            'title="'+(f.manual?'Pinned favorite':'Most-used')+'" '+
-            'style="background:#1c2128;border:1px solid '+c+';color:'+c+';border-radius:9px;'+
-            'padding:6px 11px;font-family:\'SF Mono\',monospace;font-size:11px;cursor:pointer">'+
-            /* §4.3: the ranked strip echoes whatever was just logged, so a
-               protein chip reprinted its grams straight back onto a youth
-               screen. Water keeps its oz (not a macro); protein shows the food
-               NAME only, which is the useful half for a kid anyway. */
-            mark+((f.type==='protein' && fy()) ? '' : ('+'+f.amount+u+(f.w?' +'+f.w+'oz':'')+' · '))+(f.label||'')+(ed?rm:more)+'</button>';
+          const mark = f.manual ? '★' : '↻';
+          const markCls = f.manual ? 'fav-star' : 'fav-star fav-freq';
+          const rm = (ed && f.manual) ? '<span onclick="event.stopPropagation();removeManualFav(\''+type+'\','+f.amount+',\''+lbl+'\')" style="position:absolute;top:2px;right:4px;padding:0 4px;color:#f85149;font-weight:700;font-size:11px;cursor:pointer">×</span>' : '';
+          const more = '<span onclick="event.stopPropagation();if(window._favOpenMenu)window._favOpenMenu(this.closest(\'.fav-btn\'))" '+
+            'class="fav-more">⋯</span>';
+          const amtHtml = (type==='protein' && fy()) ? '' : '<span class="qa-amt">+'+f.amount+'<span class="u">'+u+'</span>'+(f.w?' +'+f.w+'<span class="u">oz</span>':'')+' </span>';
+          return '<button class="fav-btn '+type+'" data-ft="'+type+'" data-fa="'+f.amount+'" data-fl="'+lbl+'" data-fe="'+(f.e||0)+'" data-fw="'+(f.w||0)+'" data-fm="'+(f.manual?1:0)+'" onclick="'+(ed?'':'useFavStripItem(\''+type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+','+(f.w||0)+')')+'" '+
+            'title="'+(f.manual?'Pinned favorite':'Most-used')+'">'+
+            amtHtml+
+            '<span class="qa-name">'+(f.label||'')+'</span>'+
+            '<span class="'+markCls+'">'+mark+'</span>'+
+            (ed?rm:more)+
+            '</button>';
       };
       // Design item 4: bundles ride above the per-type favorites -- one tap
       // logs every delta in the bundle, with whole-bundle undo. Youth-filtered
@@ -6308,7 +6305,7 @@
       if(bundles.length){
         bh='<div style="font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
           'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin:7px 0 4px">📦 Bundles · one tap</div>'+
-          '<div style="display:flex;gap:6px;flex-wrap:wrap">'+bundles.map(b=>{
+          '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px">'+bundles.map(b=>{
             const parts=[];
             if(+b.water>0)   parts.push('+'+(+b.water)+'oz');
             /* §4.3: the REAL bundle button label is built here (bundleSummary()
@@ -6338,9 +6335,10 @@
         'font-family:\'SF Mono\',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:6px;cursor:pointer">'+(ed?'Done':'Edit')+'</button></div>'+bh;
       [['water','💧 Water'],['electrolyte','⚡ Electrolytes'],['protein','🥤 Protein']].forEach(g=>{
         const arr=grp[g[0]]; if(!arr.length) return;
+        const tinge = g[0]==='water' ? 'rgba(88,166,255,0.08)' : (g[0]==='protein' ? 'rgba(212,160,23,0.08)' : 'transparent');
         h+='<div style="font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
           'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin:7px 0 4px">'+g[1]+'</div>'+
-          '<div style="display:flex;gap:6px;flex-wrap:wrap">'+arr.map(favChip).join('')+'</div>';
+          '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;background:'+tinge+';padding:6px;border-radius:8px">'+arr.map(favChip).join('')+'</div>';
       });
       // Design item 3 SS4C: coach line, not a tour -- shown until the sheet has
       // been opened twice (tracked by _favOpenMenu), then never again.
