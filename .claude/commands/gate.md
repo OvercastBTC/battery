@@ -1,28 +1,26 @@
----
-description: Run the full BATTERY release gate (node --check host script + 11-test Playwright suite) against the current index.html and report PASS/FAIL with a READY/BLOCKED verdict.
----
+Run the full BATTERY release gate against the current worktree.
 
-Run the full BATTERY release gate against the current index.html.
+## Steps
 
-1. Run node --check on the host script block (last <script> in index.html):
+1. **Detect lane** — determine which lane worktree we're in:
+   - `~/battery-laneA` → Lane A
+   - `~/battery-laneE` → Lane E
+   - `~/battery-laneM` → Lane M
 
-```bash
-python3 -c "
-import re
-import subprocess; root=subprocess.check_output(['git','rev-parse','--show-toplevel']).decode().strip(); src = open(root+'/index.html').read()
-scripts = re.findall(r'<script[^>]*>(.*?)</script>', src, re.DOTALL)
-open('/tmp/battery_host_script.js', 'w').write(scripts[-1])
-print(f'Extracted {len(scripts[-1])} chars')
-"
-node --check /tmp/battery_host_script.js && echo "HOST SCRIPT: PASS" || echo "HOST SCRIPT: FAIL"
-```
-
-2. Run the full 11-test Playwright gate (authoritative — this is the only check that catches srcdoc footgun truncation):
+2. **Run the Playwright gate** (36 suites):
 
 ```bash
-BATTERY_REPO=$(git rev-parse --show-toplevel) bash ~/battery-tests/run.sh
+BATTERY_REPO="$(pwd)" bash ~/battery-tests/run.sh
 ```
 
-3. Summarize results: list each of the 11 test names with PASS or FAIL, report the node --check result, and print a final line: "GATE: X/11 tests passed — [READY TO RELEASE | BLOCKED]". If any test failed, name the failing test(s) and paste the relevant error output.
+3. **Report result**:
+   - If ALL 36 suites pass → `GATE: PASS (36/36) — READY`
+   - If any suite fails → `GATE: FAIL (N/36) — BLOCKED` with failure details
 
-Note: node --check does NOT catch srcdoc issues (HTML decoding masks them). Only the Playwright gate is authoritative for iframe content.
+## Notes
+
+- The test suite lives at `C:\Users\bacona\battery-tests`
+- Tests run against `index.html`, `arm.html`, and `fuel.html` in the target repo
+- `run.sh` handles MSYS2 path conversion on AM06
+- Lane A runs the gate for validation; only Lane E runs it as part of the release pipeline
+- Do NOT skip or work around failing tests

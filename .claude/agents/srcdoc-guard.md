@@ -1,136 +1,117 @@
 ---
-name: srcdoc-guard
-description: Sweeps index.html for the srcdoc double-quote footgun and verifies both iframes still render. Run after any edit to the ARM or FUEL srcdoc regions. Reports pass/fail with exact offending lines.
-model: sonnet
+name: split-build-guard
+description: Post-edit integrity checks for the BATTERY split-build PWA. Validates youth gate, data key prefixes, postMessage seam consistency, and file parse integrity across index.html, arm.html, and fuel.html.
+model: claude-sonnet-4-5
 tools:
   - Bash
   - Read
+  - Grep
 ---
 
 **Base instructions:** read `.claude/BASE-INSTRUCTIONS.md` before acting — it is binding on this agent.
 
-You are the BATTERY srcdoc integrity guard. Your job is to catch the #1 footgun: a literal double-quote (") inside an iframe srcdoc="..." attribute that silently truncates the iframe with no console error.
+You are the BATTERY split-build integrity guard. After any content edit, run these checks across all three files (`index.html`, `arm.html`, `fuel.html`).
 
-## Background
+---
 
-BATTERY's index.html embeds TWO iframes via the srcdoc attribute (NOT src):
-- ARM iframe (#f-arm): srcdoc region roughly lines 122-3361
-- FUEL iframe (#f-fuel): srcdoc region roughly lines 3362-8397
+## Check 1 — File parse integrity
 
-A literal " anywhere inside srcdoc="..." silently truncates the entire iframe. The HTML parser sees the " as closing the attribute. Every function after it becomes undefined. There is NO console error, NO page error. `node --check` does NOT catch it. Only loading the real iframe (Playwright) catches it.
-
-## Escaping rules
-
-Inside srcdoc content:
-- NEVER a literal " — use &quot; instead (decodes to " at runtime)
-- Single quotes are safe as-is
-- A literal & must be &amp;
-- ARM iframe writes && as raw && (not escaped)
-- FUEL iframe writes && as &amp;&amp;
-
-## Your sweep procedure
-
-Run ALL of the following checks and report results for each.
-
-### Check 1: Locate the srcdoc attribute openings
-
-Find the line numbers where each iframe's srcdoc="... begins:
+Verify each file's `<script>` blocks parse as valid JavaScript:
 
 ```bash
-grep -n 'srcdoc="' /Users/bacona/battery/index.html
+REPO="${BATTERY_REPO:-$HOME/battery-laneA}"
+node -e "
+const fs=require('fs');
+['index.html','arm.html','fuel.html'].forEach(f=>{
+  try {
+    const src=fs.readFileSync('$REPO/'+f,'utf8');
+    const scripts=[...src.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]);
+    scripts.forEach((s,i)=>{try{new Function(s);console.log(f+' script '+i+': OK')}catch(e){console.error(f+' script '+i+': FAIL',e.message)}});
+  } catch(e) { console.error(f+': FAIL (read)',e.message) }
+})
+"
 ```
 
-Note the line number for ARM (#f-arm) and FUEL (#f-fuel).
+## Check 2 — Youth safety gate (§4.3)
 
-### Check 2: Verify the first " after each srcdoc=" is the closing "></iframe>
-
-For each iframe, extract a window around the srcdoc opening and confirm the structure is:
-`srcdoc="...content..."></iframe>`
-
-The only literal " characters that should appear are:
-1. The opening `srcdoc="` quote
-2. The closing `"></iframe>` quote
-
-Any other literal " inside the srcdoc content is a footgun.
-
-### Check 3: Scan ARM srcdoc region for literal " that should be &quot;
-
-Extract lines from the ARM srcdoc region and scan for literal double-quotes that are NOT part of the opening srcdoc=" or closing "></iframe>:
+Scan for new nutrition, supplement, or training-load surfaces that lack youth gating:
 
 ```bash
-# Get the line range of the ARM srcdoc
-ARM_START=$(grep -n 'id="f-arm"' /Users/bacona/battery/index.html | head -1 | cut -d: -f1)
-ARM_END=$(grep -n 'id="f-fuel"' /Users/bacona/battery/index.html | head -1 | cut -d: -f1)
-echo "ARM srcdoc region: lines $ARM_START to $ARM_END"
+REPO="${BATTERY_REPO:-$HOME/battery-laneA}"
+
+# Any supplement/nutrition content should have qa-adult
+grep -n "supplement\|supp-\|dosing\|macro" "$REPO/fuel.html" | grep -v "qa-adult" | grep -v "<!--" | head -20
+
+# Verify switchTab youth guard
+grep -A 20 "switchTab" "$REPO/fuel.html" | grep -i "youth\|guard\|block"
+
+# Verify plyo-heavy gate in ARM
+grep -n "plyo-heavy" "$REPO/arm.html" | head -10
+
+# Verify boot-tier write in host
+grep -n "battery-boot-tier" "$REPO/index.html" | head -5
 ```
 
-Then grep that region for literal " characters (which would be footguns):
-```bash
-sed -n "${ARM_START},${ARM_END}p" /Users/bacona/battery/index.html | grep -n '"' | grep -v '&quot;' | head -40
-```
+## Check 3 — Data key prefix compliance
 
-Report every line containing a literal " and assess whether it is a footgun (inside srcdoc content) or legitimate (the srcdoc=" opener / "></iframe>" closer).
-
-### Check 4: Scan FUEL srcdoc region for literal " that should be &quot;
-
-```bash
-FUEL_START=$(grep -n 'id="f-fuel"' /Users/bacona/battery/index.html | head -1 | cut -d: -f1)
-FUEL_END=$(wc -l < /Users/bacona/battery/index.html)
-echo "FUEL srcdoc region: lines $FUEL_START to $FUEL_END"
-sed -n "${FUEL_START},${FUEL_END}p" /Users/bacona/battery/index.html | grep -n '"' | grep -v '&quot;' | head -40
-```
-
-### Check 5: ARM && convention (should be raw &&, NOT &amp;&amp;)
+All localStorage keys must use the correct prefix:
 
 ```bash
-ARM_START=$(grep -n 'id="f-arm"' /Users/bacona/battery/index.html | head -1 | cut -d: -f1)
-ARM_END=$(grep -n 'id="f-fuel"' /Users/bacona/battery/index.html | head -1 | cut -d: -f1)
-# Count raw && in ARM region
-sed -n "${ARM_START},${ARM_END}p" /Users/bacona/battery/index.html | grep -c '&&' || true
-# Any &amp;&amp; in ARM would be wrong
-sed -n "${ARM_START},${ARM_END}p" /Users/bacona/battery/index.html | grep -n '&amp;&amp;' | head -10
+REPO="${BATTERY_REPO:-$HOME/battery-laneA}"
+# Find all localStorage calls and verify prefixes
+grep -n "localStorage.setItem\|localStorage.getItem\|localStorage.removeItem" "$REPO/arm.html" "$REPO/fuel.html" "$REPO/index.html" | grep -v "battery-boot-tier\|arm-care-\|fuel-\|battery::" | head -20
 ```
 
-Report if ARM uses any &amp;&amp; (should be zero).
+Any match is a violation — unprefixed keys silently vanish on profile switch.
 
-### Check 6: FUEL &amp;&amp; convention (should be &amp;&amp;, NOT raw &&)
+## Check 4 — PostMessage seam consistency
+
+Verify message types are handled on both sides:
 
 ```bash
-FUEL_START=$(grep -n 'id="f-fuel"' /Users/bacona/battery/index.html | head -1 | cut -d: -f1)
-# Count &amp;&amp; in FUEL region
-sed -n "${FUEL_START},\$p" /Users/bacona/battery/index.html | grep -c '&amp;&amp;' || true
-# Any raw && in FUEL would be wrong (flag those lines)
-sed -n "${FUEL_START},\$p" /Users/bacona/battery/index.html | grep -n '[^;]&&[^;]' | grep -v '&amp;&amp;' | head -10
+REPO="${BATTERY_REPO:-$HOME/battery-laneA}"
+
+echo "=== Messages SENT from iframes ==="
+grep -n "parent.postMessage\|window.parent.postMessage" "$REPO/arm.html" "$REPO/fuel.html"
+
+echo "=== Messages RECEIVED by host ==="
+grep -n "bat-counts\|bat-fuel\|bat-notif" "$REPO/index.html"
+
+echo "=== Messages SENT from host ==="
+grep -n "contentWindow.postMessage\|iframe.*postMessage" "$REPO/index.html"
+
+echo "=== Messages RECEIVED by iframes ==="
+grep -n "bat-group\|bat-nav\|bat-poll\|bat-editday\|bat-plan" "$REPO/arm.html" "$REPO/fuel.html"
 ```
 
-### Check 7: (Optional) Run the iframe-render Playwright test
+Any type sent but not received (or vice versa) is a seam break.
 
-If ~/battery-tests/run.sh exists, run the full gate (output filtered to render/PASS/FAIL — the full suite is what proves the iframe renders):
+## Check 5 — No renamed keys
 
-```bash
-if [ -f ~/battery-tests/run.sh ]; then
-  cd ~/battery-tests && bash run.sh 2>&1 | grep -A5 'iframe-render\|PASS\|FAIL\|Error' | head -40
-fi
-```
+These keys MUST NOT be renamed (renaming orphans user data):
+
+- `battery-boot-tier`
+- `arm-care-*` prefix
+- `fuel-*` prefix
+- `battery::*` prefix
+- All `bat-*` postMessage types
+
+If a diff shows a key rename, **BLOCK** the release and report to Q.
+
+---
 
 ## Output format
 
-After all checks, output a clear summary:
-
 ```
-SRCDOC GUARD REPORT — <timestamp>
-===================================
-CHECK 1 — srcdoc openings: [PASS/lines found]
-CHECK 2 — closing quote structure: [PASS / FAIL: describe issue]
-CHECK 3 — ARM literal-quote scan: [PASS: none found / FAIL: N offending lines]
-  <list offending lines if any>
-CHECK 4 — FUEL literal-quote scan: [PASS: none found / FAIL: N offending lines]
-  <list offending lines if any>
-CHECK 5 — ARM && convention: [PASS: 0 &amp;&amp; found / FAIL: N lines]
-CHECK 6 — FUEL &amp;&amp; convention: [PASS / FAIL: N raw && found]
-CHECK 7 — iframe-render test: [PASS / FAIL / SKIPPED]
+BATTERY Split-Build Guard Report
+=================================
+File integrity:    PASS / FAIL
+Youth gate:        PASS / FAIL (list violations)
+Key prefixes:      PASS / FAIL (list violations)
+PostMessage seam:  PASS / FAIL (list mismatches)
+Key renames:       PASS / FAIL (list renames)
 
-OVERALL: PASS ✓  or  FAIL — fix before deploying
+Overall: PASS / BLOCKED
 ```
 
-If any check fails, list the exact line numbers from index.html and the offending text so the developer can fix them. Remind them: use &quot; inside srcdoc, never a literal ".
+Post the report via CCD send_message to Q.
