@@ -3022,6 +3022,10 @@
       }
       if(typeof batteryEditDay === 'function') batteryEditDay(k);
     }
+    else if(d.type==='bat-active-date'&&d.date){
+      if(d.date===todayKey()){if(typeof _clearSelectedDate==='function')_clearSelectedDate();}
+      else{if(typeof _selectDate==='function')_selectDate(d.date);}
+    }
   });
 
   /* ===== COLLAPSE TOGGLE ===== */

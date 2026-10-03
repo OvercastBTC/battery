@@ -7185,7 +7185,7 @@
     }
     updateCounter();
   }
-  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof loadDone==='function') loadDone(); if(typeof postCounts==='function') postCounts(); } });
+  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof loadDone==='function') loadDone(); if(typeof postCounts==='function') postCounts(); } else if(d.type==='bat-active-date'&&d.date){var today=armLocalDay(new Date());_armActiveDate=(d.date===today)?null:d.date;if(typeof loadDone==='function')loadDone();} });
 
   /* ===== ARM FLOW — the sequence as ONE continuous page =====
      Owner's ask, restated: warm-up, tube, J-Bands and plyo should physically lay
@@ -7519,7 +7519,8 @@
     const x = d || new Date();
     return `arm-care-done-${x.getFullYear()}-${x.getMonth()+1}-${x.getDate()}`;
   }
-  function getTodayKey() { return armDoneKey(); }
+  var _armActiveDate=null;
+  function getTodayKey(){if(_armActiveDate){return armDoneKey(new Date(_armActiveDate+'T00:00:00'));}return armDoneKey();}
 
   /* Local-time YYYY-MM-DD, zero-padded — byte-identical to FUEL's todayKey().
      Use this for ANY key that has to line up with the FUEL side, and never
