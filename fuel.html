@@ -1816,7 +1816,9 @@
   /* 4.3: press-&-hold favorites */
   .fav-chip { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
   .fav-ctx button:active { background: #21262d !important; }
+  .qa-btn .qa-food-img { width:14px; height:14px; vertical-align:-2px; margin-right:4px; border-radius:2px; object-fit:cover; opacity:0.88; flex-shrink:0; }
 </style>
+<script src="food-images.js"></script>
 </head>
 <body>
 
@@ -4182,7 +4184,13 @@
         const u = document.createElement('span'); u.className = 'u'; u.textContent = 'g';
         amt.appendChild(u);
         const nm = document.createElement('span');
-        nm.className = 'qa-name'; nm.textContent = it.n;
+        nm.className = 'qa-name';
+        if(window.FOOD_IMAGES && window.FOOD_IMAGES[it.id]){
+          var fi=document.createElement('img'); fi.className='qa-food-img';
+          fi.src=window.FOOD_IMAGES[it.id]; fi.alt=''; fi.setAttribute('aria-hidden','true');
+          nm.appendChild(fi);
+        }
+        nm.appendChild(document.createTextNode(it.n));
         var dot=document.createElement('span'); dot.className='qa-menu-dot'; dot.textContent='⋯';
         dot.addEventListener('click', function(ev){ ev.stopPropagation(); if(window._qaGridMenu) window._qaGridMenu(b,'protein',it.l,+it.p||0,0,+it.w||0); });
         b.appendChild(amt); b.appendChild(nm); b.appendChild(dot);
