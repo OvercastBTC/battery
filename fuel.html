@@ -1920,7 +1920,7 @@
   <button class="tab qa-adult" data-tab="protein">Protein</button>
   <button class="tab qa-adult" data-tab="hydration">Hydration</button>
   <button class="tab qa-adult" data-tab="products">Products</button>
-  <button class="tab" data-tab="sources">Sources</button>
+  <button class="tab qa-adult" data-tab="sources">Sources</button>
 </nav>
 
 <!-- ============== TRACKER ============== -->
@@ -2978,7 +2978,7 @@
     if (tabName === 'profile' || tabName === 'weekly' || tabName === 'overview' || tabName === 'schedule') tabName = 'tracker';
     // Youth safety (§4.3): adult-content tabs (supplements/stimulant/dosing) are
     // off-limits to youth profiles — covers direct nav AND the boot tab-restore.
-    if ((window.BATTERY_TIER||'youth')==='youth' && ['protein','hydration','products'].indexOf(tabName) >= 0) tabName = 'tracker';
+    if ((window.BATTERY_TIER||'youth')==='youth' && ['protein','hydration','products','sources'].indexOf(tabName) >= 0) tabName = 'tracker';
     if (!document.getElementById('page-' + tabName)) tabName = 'tracker';
     tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
     pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + tabName));
