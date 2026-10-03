@@ -7050,16 +7050,18 @@
   /* ===== SUPPLEMENT CHECKLIST (REQ-031) ===== */
   (function(){
     var SUPP_CATALOG = [
-      {id:'collagen',     label:'Collagen peptides',       dose:'15g + vit C',        sizeAdj:true,  timing:'30-60 min pre-training'},
-      {id:'fishoil',      label:'Fish oil (EPA+DHA)',      dose:'2g',                 sizeAdj:true,  timing:'with food'},
-      {id:'creatine-hmb', label:'Creatine + HMB',          dose:'5g + 3g',            sizeAdj:false, timing:'daily, any time'},
-      {id:'joint',        label:'Joint complex',           dose:'1500/1200/1000mg',   sizeAdj:false, timing:'with food'},
-      {id:'zinc-copper',  label:'Zinc + Copper',           dose:'30mg / 2mg',         sizeAdj:false, timing:'not with dairy'},
-      {id:'vitD',         label:'Vitamin D + K2',          dose:'per product',        sizeAdj:false, timing:'with fat (meal)'},
-      {id:'shroom',       label:'Shroom Tech / adaptogens',dose:'per product',        sizeAdj:false, timing:'pre-workout'},
-      {id:'wolverine',    label:'Wolverine Stack (BPC+TB)',dose:'500mcg each',        sizeAdj:true,  timing:'daily injection'},
-      {id:'magnesium',    label:'Magnesium',               dose:'400mg',              sizeAdj:false, timing:'before bed'},
-      {id:'ultra-focus',  label:'Ultra Pouches (Focus)',   dose:'1 pouch',            sizeAdj:false, timing:'as needed'}
+      {id:'collagen',     label:'Collagen peptides',       dose:'15g + vit C',        sizeAdj:true,  timing:'30-60 min pre-training', product:'Sports Research Collagen Peptides',  purpose:'Connective tissue repair — tendons, ligaments, fascia. Baar protocol: take with vitamin C for collagen synthesis.'},
+      {id:'fishoil',      label:'Fish oil (EPA+DHA)',      dose:'2g',                 sizeAdj:true,  timing:'with food',              product:'Intelligent Labs Ultra Omega-3',     purpose:'Anti-inflammatory, joint support, cardiovascular health. EPA+DHA reduce exercise-induced inflammation.'},
+      {id:'creatine-hmb', label:'Creatine + HMB',          dose:'5g + 3g',            sizeAdj:false, timing:'morning (maintenance)',   product:'Creatine Monohydrate + HMB',         purpose:'Muscle strength and anti-catabolic support. Maintenance dose — no loading phase needed at 5g/day.'},
+      {id:'joint',        label:'Joint complex',           dose:'1500/1200/1000mg',   sizeAdj:false, timing:'with food',              product:'Animal Flex',                        purpose:'Glucosamine/chondroitin/MSM joint support complex. Protects cartilage under heavy training load.'},
+      {id:'zinc-copper',  label:'Zinc + Copper',           dose:'30mg / 2mg',         sizeAdj:false, timing:'not with dairy',         product:'Nutricost Zinc + Copper',             purpose:'Immune function, testosterone support. Copper balances zinc depletion. Separate from dairy (calcium blocks absorption).'},
+      {id:'vitD',         label:'Vitamin D + K2',          dose:'per product',        sizeAdj:false, timing:'with fat (meal)',        product:'Vitamin D3 + K2',                    purpose:'Bone health, immune support, calcium metabolism. K2 directs calcium to bones, not arteries.'},
+      {id:'shroom',       label:'Shroom Tech / adaptogens',dose:'per product',        sizeAdj:false, timing:'pre-workout',           product:'Onnit Shroom Tech Sport',             purpose:'Cordyceps-based adaptogenic pre-workout. Supports endurance and oxygen utilization.'},
+      {id:'wolverine',    label:'Wolverine Stack (BPC+TB)',dose:'500mcg each',        sizeAdj:true,  timing:'daily injection',        product:'BPC-157 + TB-500',                   purpose:'Peptide healing stack for tissue repair. BPC-157 (gut/tendon), TB-500 (systemic repair). TRT synergy: 30-40% faster healing.'},
+      {id:'magnesium',    label:'Magnesium',               dose:'400mg',              sizeAdj:false, timing:'before bed',             product:'Intelligent Labs MagEnhance',         purpose:'Sleep quality, muscle relaxation, recovery. Threonate + glycinate + taurate blend for bioavailability.'},
+      {id:'ultra-focus',  label:'Ultra Pouches (Focus)',   dose:'1 pouch',            sizeAdj:false, timing:'as needed',              product:'Ultra Nicotine Pouches',              purpose:'Cognitive focus aid. Use sparingly — tolerance builds quickly.'},
+      {id:'animalpak',    label:'Animal Pak',              dose:'1 pack',             sizeAdj:false, timing:'with breakfast',         product:'Universal Nutrition Animal Pak',       purpose:'Comprehensive training multivitamin/mineral pack. Covers micronutrient gaps from high training volume.'},
+      {id:'c4sport',      label:'C4 Sport Pre-Workout',    dose:'1 scoop',            sizeAdj:false, timing:'30 min pre-workout',     product:'Cellucor C4 Sport',                   purpose:'NSF Certified for Sport pre-workout. Beta-alanine + caffeine for energy and endurance. Training days only.'}
     ];
     window.SUPP_CATALOG = SUPP_CATALOG;
 
@@ -7123,6 +7125,14 @@
       if(idx>=0) done.splice(idx,1); else done.push(id);
       setSuppDone(dk,done);
       renderSuppCard();
+    };
+    window.toggleSuppDetail=function(id){
+      var el=document.getElementById('supp-detail-'+id);
+      if(!el) return;
+      var open=el.style.display!=='none';
+      el.style.display=open?'none':'';
+      var chev=document.getElementById('supp-chev-'+id);
+      if(chev) chev.textContent=open?'▸':'▾';
     };
     window.toggleSuppCard=function(){
       var body=document.getElementById('supp-body');
@@ -7193,12 +7203,19 @@
           var timing=suppTimingHint(id,prof,training);
           var timingUrgent=training&&!checked&&(id==='collagen'||id==='shroom');
           var timingColor=timingUrgent?'var(--yellow)':'var(--dim)';
-          return '<div onclick="toggleSupp(\''+id+'\')" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer">'+
-            '<span style="font-size:20px;width:28px;text-align:center;color:'+(checked?'var(--green)':'var(--dim)')+'">'+(checked?'✓':'○')+'</span>'+
-            '<span style="flex:1;min-width:0">'+
+          var detailHtml=cat.product||cat.purpose?'<div id="supp-detail-'+id+'" style="display:none;padding:4px 0 8px 38px;font-size:11px;line-height:1.5;color:var(--dim)">'+
+            (cat.product?'<div style="font-family:\'SF Mono\',monospace;color:var(--bone);margin-bottom:2px">'+cat.product+'</div>':'')+
+            (cat.purpose?'<div>'+cat.purpose+'</div>':'')+
+            '</div>':'';
+          return '<div style="border-bottom:1px solid var(--line)">'+
+            '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;cursor:pointer">'+
+            '<span onclick="toggleSupp(\''+id+'\')" style="font-size:20px;width:28px;text-align:center;color:'+(checked?'var(--green)':'var(--dim)')+'">'+(checked?'✓':'○')+'</span>'+
+            '<span onclick="toggleSupp(\''+id+'\')" style="flex:1;min-width:0">'+
               '<span style="color:'+(checked?'var(--green)':'var(--fg)')+';font-size:14px;'+(checked?'text-decoration:line-through;opacity:0.6':'')+'">'+cat.label+'</span>'+
               '<span style="display:block;font-size:11px;color:'+timingColor+';font-family:\'SF Mono\',monospace">'+dose+(timing?' · '+timing:'')+'</span>'+
-            '</span></div>';
+            '</span>'+
+            (detailHtml?'<span id="supp-chev-'+id+'" onclick="event.stopPropagation();toggleSuppDetail(\''+id+'\')" style="color:var(--dim);font-size:12px;padding:4px 6px;cursor:pointer">▸</span>':'')+
+            '</div>'+detailHtml+'</div>';
         }).join('');
       }
       var prog=document.getElementById('supp-progress');
