@@ -7115,7 +7115,7 @@
     }
     updateCounter();
   }
-  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof postCounts==='function') postCounts(); } });
+  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof loadDone==='function') loadDone(); if(typeof postCounts==='function') postCounts(); } });
 
   /* ===== ARM FLOW — the sequence as ONE continuous page =====
      Owner's ask, restated: warm-up, tube, J-Bands and plyo should physically lay
@@ -8281,14 +8281,13 @@
     const fmt = (dt) => dt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
     listEl.innerHTML = days.map((d, idx) => {
       const detail = d.ids.map(id => `<li>${nameMap[id] || id}</li>`).join('');
-      // The card still expands read-only on tap; EDIT is a separate explicit control,
-      // so nobody opens an editor by trying to look at a day.
+      const pd = d.date.getFullYear()+'-'+String(d.date.getMonth()+1).padStart(2,'0')+'-'+String(d.date.getDate()).padStart(2,'0');
       return `<div class='card'>`
         + `<div class='card-head' style='cursor:pointer' onclick='toggleHistDay(${idx})'>`
         + `<div class='card-title'>${fmt(d.date)}</div>`
         + `<span class='badge blue'>${d.ids.length} done</span></div>`
         + `<ul class='hist-detail' id='hist-detail-${idx}' style='display:none;margin-top:8px'>${detail}</ul>`
-        + `<button class='hist-edit' onclick='armEditDay(&#39;${d.key}&#39;)'>EDIT THIS DAY</button>`
+        + `<button class='hist-edit' onclick='window.parent.postMessage({type:"request-day-edit",date:"${pd}"},"*")'>EDIT THIS DAY</button>`
         + `</div>`;
     }).join('');
   }

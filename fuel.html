@@ -6452,6 +6452,98 @@
             }).join('')+
             '</div></div>'
           : '';
+        // --- REQ-039: unified editor sections ---
+        // Training Plan (battery-plan-<date> JSON {arm,drills,body,lift})
+        var _planRaw = storeGet('battery-plan-'+key, null);
+        var _plan = null;
+        try { _plan = JSON.parse(_planRaw); } catch(e) {}
+        if (!_plan || typeof _plan !== 'object' || Array.isArray(_plan)) _plan = {};
+        var _planFields = fy() ? ['arm','drills','body'] : ['arm','drills','body','lift'];
+        var planSec = '<div style="border-top:1px solid #2d333b;margin-top:8px;padding-top:8px">'+
+          '<div style="font-size:10px;letter-spacing:1px;color:#8b949e;font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px">Training Plan</div>'+
+          '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+          _planFields.map(function(f){
+            var on=!!_plan[f];
+            return '<button onclick="window._dayTogglePlan(\''+f+'\')" style="background:'+(on?'#d4a01733':'#0d1117')+';border:1px solid '+(on?'#d4a017':'#2d333b')+';color:'+(on?'#d4a017':'#6e7681')+';border-radius:999px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:\'SF Mono\',monospace;text-transform:uppercase;font-weight:'+(on?'700':'400')+'">'+f+'</button>';
+          }).join('')+
+          '</div></div>';
+
+        // Sleep (battery::<pid>::sleep-<date>)
+        var _sleepPid='';
+        try { _sleepPid=localStorage.getItem('battery-profile')||''; } catch(e){}
+        var _sleepVal=null;
+        if(_sleepPid){ try{ _sleepVal=localStorage.getItem('battery::'+_sleepPid+'::sleep-'+key)||null; }catch(e){} }
+        var _sleepOpts=[{v:'rough',e:'😫',l:'Rough'},{v:'ok',e:'😐',l:'Okay'},{v:'good',e:'😌',l:fy()?'Great':'Good'}];
+        var sleepSec=_sleepPid?'<div style="border-top:1px solid #2d333b;margin-top:8px;padding-top:8px">'+
+          '<div style="font-size:10px;letter-spacing:1px;color:#8b949e;font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px">Sleep</div>'+
+          '<div style="display:flex;gap:6px">'+
+          _sleepOpts.map(function(o){
+            var on=_sleepVal===o.v;
+            return '<button onclick="window._daySetSleep(\''+o.v+'\')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;height:34px;background:'+(on?'#d4a017':'#0d1117')+';border:1px solid '+(on?'#d4a017':'#2d333b')+';color:'+(on?'#0d1117':'#c9d1d9')+';border-radius:9px;cursor:pointer;font-weight:'+(on?'700':'400')+'"><span style="font-size:15px">'+o.e+'</span><span style="font-size:11px">'+o.l+'</span></button>';
+          }).join('')+
+          '</div></div>':'';
+
+        // Arm Feel (arm-care-feel-<date>, padded)
+        var _feelVal=null;
+        try{ _feelVal=localStorage.getItem('arm-care-feel-'+key); }catch(e){}
+        var _feelOpts=[{v:'3',e:'💪',l:'Great'},{v:'2',e:'👍',l:'OK'},{v:'1',e:'🤕',l:'Sore'}];
+        var feelSec='<div style="border-top:1px solid #2d333b;margin-top:8px;padding-top:8px">'+
+          '<div style="font-size:10px;letter-spacing:1px;color:#8b949e;font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px">Arm Feel</div>'+
+          '<div style="display:flex;gap:6px">'+
+          _feelOpts.map(function(o){
+            var on=_feelVal===o.v;
+            return '<button onclick="window._daySetFeel(\''+o.v+'\')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;height:34px;background:'+(on?'#3fb95033':'#0d1117')+';border:1px solid '+(on?'#3fb950':'#2d333b')+';color:'+(on?'#3fb950':'#c9d1d9')+';border-radius:9px;cursor:pointer;font-weight:'+(on?'700':'400')+'"><span style="font-size:15px">'+o.e+'</span><span style="font-size:11px">'+o.l+'</span></button>';
+          }).join('')+
+          '</div></div>';
+
+        // ARM Exercises (arm-care-done-YYYY-M-D, UNPADDED)
+        var _armParts=key.split('-');
+        var _armKey='arm-care-done-'+parseInt(_armParts[0],10)+'-'+parseInt(_armParts[1],10)+'-'+parseInt(_armParts[2],10);
+        var _armIds=[];
+        try{ var _armRaw=localStorage.getItem(_armKey); _armIds=_armRaw?_armRaw.split(',').filter(Boolean):[]; }catch(e){}
+        var _nameMap={};
+        try{ _nameMap=window.parent.document.querySelector('#f-arm').contentWindow.buildExNameMap(); }catch(e){}
+        var _exLabel=function(id){var n=_nameMap[id]||id;return n.replace(/^[A-Z]+-?\d+\w?\s*·\s*/i,'');};
+        var armExSec='<div style="border-top:1px solid #2d333b;margin-top:12px;padding-top:12px">'+
+          '<div style="font-size:10px;letter-spacing:1px;color:#8b949e;font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px">ARM Exercises · '+_armIds.length+' logged</div>';
+        if(_armIds.length){
+          armExSec+=_armIds.map(function(id){
+            return '<div style="display:flex;align-items:center;gap:8px;padding:6px 11px;background:#0d1117;border:1px solid #2d333b;border-radius:9px;margin-bottom:4px">'+
+              '<span style="color:#3fb950;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+_exLabel(id)+'</span>'+
+              '<button onclick="window._dayArmRemove(\''+id+'\')" style="background:none;border:1px solid #da3633;color:#da3633;border-radius:7px;padding:3px 8px;font-size:11px;cursor:pointer">✕</button></div>';
+          }).join('');
+        }
+        var _allExIds=Object.keys(_nameMap);
+        var _missingEx=_allExIds.filter(function(id){ return _armIds.indexOf(id)<0; });
+        if(_missingEx.length){
+          armExSec+='<div style="margin-top:6px;display:flex;gap:6px">'+
+            '<select id="_dayArmSel" style="flex:1;background:#0d1117;border:1px solid #2d333b;color:#e6edf3;padding:8px;border-radius:9px;font-size:12px">'+
+            _missingEx.map(function(id){ return '<option value="'+id+'">'+_exLabel(id)+'</option>'; }).join('')+
+            '</select>'+
+            '<button onclick="window._dayArmAdd()" style="background:#3fb950;border:none;color:#0d1117;border-radius:9px;padding:8px 14px;font-weight:700;font-size:12px;cursor:pointer">+ ADD</button></div>';
+        }
+        armExSec+='</div>';
+
+        // Supplements (fuel-supp-done-<date>, §4.3 youth-gated)
+        var suppSec='';
+        if(!fy()){
+          var _catalog=window.SUPP_CATALOG||[];
+          var _suppDone=[];
+          try{ var _suppRaw=storeGet('fuel-supp-done-'+key,''); _suppDone=_suppRaw?_suppRaw.split(',').filter(Boolean):[]; }catch(e){}
+          if(_catalog.length){
+            suppSec='<div style="border-top:1px solid #2d333b;margin-top:12px;padding-top:12px" class="qa-adult">'+
+              '<div style="font-size:10px;letter-spacing:1px;color:#8b949e;font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px">Supplements · '+_suppDone.length+'/'+_catalog.length+'</div>'+
+              '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">'+
+              _catalog.map(function(s){
+                var on=_suppDone.indexOf(s.id)>=0;
+                return '<button onclick="window._dayToggleSupp(\''+s.id+'\')" style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:'+(on?'#3fb95022':'#0d1117')+';border:1px solid '+(on?'#3fb950':'#2d333b')+';border-radius:9px;cursor:pointer;text-align:left">'+
+                  '<span style="font-size:14px">'+(on?'✅':'⬜')+'</span>'+
+                  '<span style="font-size:11px;color:'+(on?'#3fb950':'#c9d1d9')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+s.label+'</span></button>';
+              }).join('')+
+              '</div></div>';
+          }
+        }
+        // --- end REQ-039 section builders ---
         modal.innerHTML='<div style="background:#161b22;border:1px solid #d4a017;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));width:100%;max-width:560px;max-height:86vh;overflow-y:auto">'+
           '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
             '<div style="font-size:15px;font-weight:700;color:#e6edf3">Edit · '+key+'</div>'+
@@ -6464,6 +6556,7 @@
             var tgt=(!fy()&&g.protein)?(' · '+g.protein+'g P / '+g.water+'oz W'):'';
             return '<div style="font-size:12px;color:#8b949e;font-family:\'SF Mono\',monospace;margin-bottom:8px">'+lbl+' day'+tgt+'</div>';
           })()+
+          planSec+sleepSec+feelSec+
           goalLine+ rows+ favChips+
           // add row: item name + amount + type + time (1.2/1.3)
           '<div style="border-top:1px solid #2d333b;margin-top:12px;padding-top:12px">'+
@@ -6478,7 +6571,8 @@
           '</div>'+
           '<button onclick="window._dayAdd()" style="width:100%;background:#d4a017;border:none;color:#0d1117;border-radius:9px;padding:12px;font-weight:700;font-size:14px;cursor:pointer">+ ADD ITEM</button>'+
           '</div>'+
-          '<div style="font-size:10px;color:#6e7681;margin-top:10px;text-align:center;font-family:\'SF Mono\',monospace">Named items + optional time · totals &amp; streak update live</div>'+
+          armExSec+suppSec+
+          '<div style="font-size:10px;color:#6e7681;margin-top:10px;text-align:center;font-family:\'SF Mono\',monospace">Unified editor · all sections update live</div>'+
           '</div>';
       }
       function fmtTime(hhmm){
@@ -6514,6 +6608,62 @@
         } else { return; }
         save(key,arr); render(); refreshPanels();
       };
+      // --- REQ-039: unified editor handlers ---
+      window._dayTogglePlan=function(field){
+        var raw=storeGet('battery-plan-'+key,null);
+        var p=null; try{p=JSON.parse(raw);}catch(e){}
+        if(!p||typeof p!=='object'||Array.isArray(p))p={};
+        p[field]=!p[field];
+        if(field==='lift'&&fy())p[field]=false;
+        storeSet('battery-plan-'+key,JSON.stringify(p));
+        try{window.parent.batPoll();}catch(e){}
+        render(); refreshPanels();
+      };
+      window._daySetSleep=function(val){
+        var pid=''; try{pid=localStorage.getItem('battery-profile')||'';}catch(e){}
+        if(!pid)return;
+        try{localStorage.setItem('battery::'+pid+'::sleep-'+key,val);}catch(e){}
+        try{window.parent.renderSleepCard();}catch(e){}
+        render(); refreshPanels();
+      };
+      window._daySetFeel=function(val){
+        try{localStorage.setItem('arm-care-feel-'+key,String(val));}catch(e){}
+        render(); refreshPanels();
+      };
+      window._dayArmRemove=function(id){
+        var parts=key.split('-');
+        var ak='arm-care-done-'+parseInt(parts[0],10)+'-'+parseInt(parts[1],10)+'-'+parseInt(parts[2],10);
+        var raw=''; try{raw=localStorage.getItem(ak)||'';}catch(e){}
+        var ids=raw.split(',').filter(Boolean).filter(function(x){return x!==id;});
+        if(ids.length){try{localStorage.setItem(ak,ids.join(','));}catch(e){}}
+        else{try{localStorage.removeItem(ak);}catch(e){}}
+        try{window.parent.batPoll();}catch(e){}
+        render(); refreshPanels();
+      };
+      window._dayArmAdd=function(){
+        var sel=document.getElementById('_dayArmSel');
+        if(!sel||!sel.value)return;
+        var id=sel.value;
+        var parts=key.split('-');
+        var ak='arm-care-done-'+parseInt(parts[0],10)+'-'+parseInt(parts[1],10)+'-'+parseInt(parts[2],10);
+        var raw=''; try{raw=localStorage.getItem(ak)||'';}catch(e){}
+        var ids=raw.split(',').filter(Boolean);
+        if(ids.indexOf(id)<0)ids.push(id);
+        try{localStorage.setItem(ak,ids.join(','));}catch(e){}
+        try{window.parent.batPoll();}catch(e){}
+        render(); refreshPanels();
+      };
+      window._dayToggleSupp=function(id){
+        var sk='fuel-supp-done-'+key;
+        var raw=storeGet(sk,'');
+        var done=raw?raw.split(',').filter(Boolean):[];
+        var idx=done.indexOf(id);
+        if(idx>=0)done.splice(idx,1); else done.push(id);
+        storeSet(sk,done.join(','));
+        if(window.renderSuppCard)window.renderSuppCard();
+        render(); refreshPanels();
+      };
+      // --- end REQ-039 handlers ---
       function refreshPanels(){
         if(typeof refreshAll==='function')refreshAll();
         if(window.batteryRenderHist)window.batteryRenderHist();
@@ -6911,6 +7061,7 @@
       {id:'magnesium',    label:'Magnesium',               dose:'400mg',              sizeAdj:false, timing:'before bed'},
       {id:'ultra-focus',  label:'Ultra Pouches (Focus)',   dose:'1 pouch',            sizeAdj:false, timing:'as needed'}
     ];
+    window.SUPP_CATALOG = SUPP_CATALOG;
 
     function suppDoseHint(id, prof){
       var w=(prof&&prof.weightLb)||150;
