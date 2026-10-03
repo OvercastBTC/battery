@@ -4668,7 +4668,9 @@
     applyTrackedClasses();
     renderRestStatus();   // US-2.6: keep the real recovery status in sync
     // effective targets: untracked areas zeroed for display + the host seam
-    const t = effTargets(computedTarget());
+    const liveT = effTargets(computedTarget());
+    // past-date view: progress bars show that date's frozen/stored targets
+    const t = _selectedDate ? effTargets(_goalForDate(_selectedDate, false)) : liveT;
     const tot = getTotals();
 
     // Protein
@@ -4774,7 +4776,7 @@
     }
     const runway=getRunwayStatus();
     var hostTot = _selectedDate ? getTotalsForDate(todayKey()) : tot;
-    try { parent.postMessage({ type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:t.water, tProtein:t.protein, day:t.label, runway:runway }, '*'); } catch (e) {}
+    try { parent.postMessage({ type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:liveT.water, tProtein:liveT.protein, day:liveT.label, runway:runway }, '*'); } catch (e) {}
 
     // Also refresh mini stats / strip / calendar / suggestions each time
     refreshMiniStrip();
