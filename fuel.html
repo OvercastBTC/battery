@@ -823,6 +823,15 @@
   .bar-fill.protein { background: linear-gradient(90deg, var(--gold) 0%, var(--gold-bright) 100%); }
   .bar-fill.water { background: linear-gradient(90deg, var(--blue) 0%, #79b8ff 100%); }
   .bar-fill.over { background: linear-gradient(90deg, var(--green) 0%, #56d364 100%); }
+  .bar-fill.water-stretch { position:absolute;top:0;bottom:0;background:rgba(88,166,255,.38);transition:width .3s,left .3s; }
+  .water-base-tick { position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--bone);z-index:2;transition:left .3s; }
+  .water-base-flag { position:absolute;top:-17px;font-size:9px;font-weight:700;color:rgba(230,237,243,.42);white-space:nowrap;transform:translateX(-50%);transition:left .3s;z-index:2; }
+  .water-base-flag.met { color:var(--green); }
+  .water-bump-row { display:flex;gap:6px;margin-top:8px;align-items:center; }
+  .water-bump-chip { flex:1;min-width:50px;border:1.5px solid var(--line);background:var(--ink,#0d1117);color:var(--blue);border-radius:9px;padding:7px 4px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap; }
+  .water-bump-chip:hover { border-color:var(--blue);background:rgba(88,166,255,.16); }
+  .water-bump-chip.reset { color:rgba(230,237,243,.42);flex:0 0 auto;min-width:0;padding:7px 10px; }
+  .water-bump-chip.reset:hover { border-color:var(--warn);color:var(--warn); }
 
   /* REQ-009: compact quick-add entry point visible on TRACKER above the log */
   .qa-jump {
@@ -2020,7 +2029,21 @@
           <span class="pct" id="water-pct">0%</span>
         </span>
       </div>
-      <div class="bar"><div class="bar-fill water" id="water-bar" style="width:0%"></div></div>
+      <div class="bar" style="position:relative;overflow:visible;padding-top:0" id="water-bar-wrap">
+        <div class="water-base-flag" id="water-base-flag" style="display:none"></div>
+        <div style="position:relative;height:10px;border-radius:5px;background:rgba(230,237,243,.08);overflow:hidden">
+          <div class="bar-fill water" id="water-bar" style="width:0%"></div>
+          <div class="bar-fill water-stretch" id="water-stretch" style="width:0%;left:100%"></div>
+        </div>
+        <div class="water-base-tick" id="water-base-tick" style="display:none"></div>
+      </div>
+      <div class="water-bump-row trk-water" id="water-bump-row">
+        <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(230,237,243,.26)">Need more?</span>
+        <button class="water-bump-chip" onclick="window._waterBump(16)">+16</button>
+        <button class="water-bump-chip" onclick="window._waterBump(24)">+24</button>
+        <button class="water-bump-chip" onclick="window._waterBump(32)">+32</button>
+        <button class="water-bump-chip reset" id="water-bump-reset" style="display:none" onclick="window._waterBumpReset()">Reset</button>
+      </div>
     </div>
     <!-- 6.2: time-of-day pace — where you'd typically be right now, given your wake time -->
     <div class="pace-line" id="pace-line" style="display:none">
@@ -3514,6 +3537,23 @@
     return { protein: p, water: w, label, elecMax: eM, elecWarn: eW };
   }
 
+  /* ===== Water 1.5 Part A: manual goal bump (today-only, additive) ===== */
+  var _waterBumpOz = 0;
+  var _waterBumpDate = null;
+  function _waterBumpGet(){
+    if(_waterBumpDate !== todayKey()){ _waterBumpOz = 0; _waterBumpDate = todayKey(); }
+    return _waterBumpOz;
+  }
+  window._waterBump = function(oz){
+    _waterBumpDate = todayKey();
+    _waterBumpOz += oz;
+    refreshTargets(); refreshProgress();
+  };
+  window._waterBumpReset = function(){
+    _waterBumpOz = 0; _waterBumpDate = todayKey();
+    refreshTargets(); refreshProgress();
+  };
+
   /* Design item 1: HOME owns the activity-level day type. Tapping a locked chip
      (or the affordance) takes you to HOME rather than doing nothing -- so if a
      derived day (game from the calendar, heavy from yesterday's load) has not
@@ -3745,7 +3785,8 @@
        Single writer for this element -- see the note in refreshProgress(). */
     document.getElementById('protein-goal').textContent =
       fy() ? '5 meals + snacks' : `${t.protein}g`;
-    document.getElementById('water-goal').textContent = `${t.water}oz`;
+    var _wb = _waterBumpGet();
+    document.getElementById('water-goal').textContent = _wb > 0 ? `${t.water + _wb}oz` : `${t.water}oz`;
     document.getElementById('summary-day').textContent = t.label;
     try { renderBank(); } catch (e) {}
   }
@@ -4762,25 +4803,58 @@
       if(sp) sp.textContent=occ+'/'+OCC_TARGET+' meals';
     }
 
-    // Water
-    const wPct = t.water > 0 ? (tot.water / t.water) * 100 : 0;
+    // Water — with 1.5 Part A bump support
+    const _wbump = _selectedDate ? 0 : _waterBumpGet();
+    const wBase = t.water;
+    const wGoal = wBase + _wbump;
+    const wPct = wGoal > 0 ? (tot.water / wGoal) * 100 : 0;
+    const wBaseMet = tot.water >= wBase;
     document.getElementById('water-cur').textContent = `${Math.round(tot.water)}oz`;
-    document.getElementById('water-pct').textContent = `${Math.round(wPct)}%`;
+    document.getElementById('water-pct').textContent = _wbump > 0 ? (wBaseMet ? 'base met' : `${Math.round(wBase - tot.water)}oz to base`) : `${Math.round(wPct)}%`;
     const wBar = document.getElementById('water-bar');
-    wBar.style.width = Math.min(wPct, 100) + '%';
     const wVals = document.getElementById('water-vals');
-    if (wPct >= 100) {
-      wVals.classList.add('over');
-      wBar.classList.add('over');
+    if (_wbump > 0) {
+      const basePct = wGoal > 0 ? (wBase / wGoal * 100) : 100;
+      const solidPct = wGoal > 0 ? (Math.min(tot.water, wBase) / wGoal * 100) : 0;
+      wBar.style.width = solidPct + '%';
+      const wStretch = document.getElementById('water-stretch');
+      if (wStretch) {
+        const stretchW = tot.water > wBase ? ((tot.water - wBase) / wGoal * 100) : 0;
+        wStretch.style.left = basePct + '%';
+        wStretch.style.width = Math.min(stretchW, 100 - basePct) + '%';
+        wStretch.style.display = 'block';
+      }
+      const tick = document.getElementById('water-base-tick');
+      if (tick) { tick.style.left = basePct + '%'; tick.style.display = 'block'; }
+      const flag = document.getElementById('water-base-flag');
+      if (flag) {
+        flag.style.left = basePct + '%';
+        flag.style.display = 'block';
+        flag.className = 'water-base-flag' + (wBaseMet ? ' met' : '');
+        flag.textContent = (wBaseMet ? '✓ base ' : 'base ') + wBase;
+      }
+      wVals.classList.toggle('over', wBaseMet);
+      wBar.classList.toggle('over', wBaseMet);
     } else {
-      wVals.classList.remove('over');
-      wBar.classList.remove('over');
+      wBar.style.width = Math.min(wPct, 100) + '%';
+      var wStretchEl = document.getElementById('water-stretch');
+      if (wStretchEl) wStretchEl.style.display = 'none';
+      var tickEl = document.getElementById('water-base-tick');
+      if (tickEl) tickEl.style.display = 'none';
+      var flagEl = document.getElementById('water-base-flag');
+      if (flagEl) flagEl.style.display = 'none';
+      if (wPct >= 100) { wVals.classList.add('over'); wBar.classList.add('over'); }
+      else { wVals.classList.remove('over'); wBar.classList.remove('over'); }
     }
+    var resetBtn = document.getElementById('water-bump-reset');
+    if (resetBtn) resetBtn.style.display = _wbump > 0 ? 'block' : 'none';
+    var bumpRow = document.getElementById('water-bump-row');
+    if (bumpRow) bumpRow.style.display = _selectedDate ? 'none' : 'flex';
 
     // Summary pills
     if(!document.body.classList.contains('fuel-youth'))
     document.getElementById('summary-protein').textContent = `${Math.round(tot.protein)}/${t.protein}g`;
-    document.getElementById('summary-water').textContent = `${Math.round(tot.water)}/${t.water}oz`;
+    document.getElementById('summary-water').textContent = `${Math.round(tot.water)}/${wGoal}oz`;
 
     // Status flags
     renderStatusFlags(tot, t);
@@ -4817,7 +4891,7 @@
     }
     const runway=getRunwayStatus();
     var hostTot = _selectedDate ? getTotalsForDate(todayKey()) : tot;
-    try { parent.postMessage({ type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:liveT.water, tProtein:liveT.protein, day:liveT.label, runway:runway }, '*'); } catch (e) {}
+    try { parent.postMessage({ type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:liveT.water, tProtein:liveT.protein, tWaterStretch:liveT.water + _waterBumpGet(), day:liveT.label, runway:runway }, '*'); } catch (e) {}
 
     // Also refresh mini stats / strip / calendar / suggestions each time
     refreshMiniStrip();
