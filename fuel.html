@@ -1817,6 +1817,21 @@
   .fav-chip { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
   .fav-ctx button:active { background: #21262d !important; }
   .qa-btn .qa-food-img { width:14px; height:14px; vertical-align:-2px; margin-right:4px; border-radius:2px; object-fit:cover; opacity:0.88; flex-shrink:0; }
+  .qa-btn.qa-has-img { height:76px; border-radius:12px; overflow:hidden; isolation:isolate; padding:0; border:1px solid var(--line); }
+  .qa-btn.qa-has-img:hover { transform:translateY(-1px); }
+  .qa-btn.qa-has-img .qa-bg { position:absolute; inset:0; background-size:cover; background-position:center; z-index:0; }
+  .qa-btn.qa-has-img .qa-tint { position:absolute; inset:0; z-index:1; mix-blend-mode:multiply; }
+  .qa-btn.qa-has-img.protein .qa-tint { background:#d4a017; opacity:.34; }
+  .qa-btn.qa-has-img.water .qa-tint { background:#58a6ff; opacity:.34; }
+  .qa-btn.qa-has-img .qa-scrim { position:absolute; inset:0; z-index:2; background:linear-gradient(to top, rgba(4,7,12,.86) 0%, rgba(4,7,12,.46) 30%, rgba(4,7,12,0) 64%); }
+  .qa-btn.qa-has-img .qa-edge { position:absolute; left:0; top:0; bottom:0; width:3px; z-index:3; }
+  .qa-btn.qa-has-img.protein .qa-edge { background:var(--gold); }
+  .qa-btn.qa-has-img.water .qa-edge { background:var(--blue); }
+  .qa-btn.qa-has-img .qa-label { position:absolute; left:11px; right:10px; bottom:9px; z-index:4; text-align:left; }
+  .qa-btn.qa-has-img .qa-iname { font-size:13px; font-weight:800; color:#fff; letter-spacing:-.01em; text-shadow:0 1px 3px rgba(0,0,0,.6); line-height:1.15; }
+  .qa-btn.qa-has-img .qa-iamt { font-size:10.5px; font-weight:600; color:rgba(255,255,255,.85); text-shadow:0 1px 2px rgba(0,0,0,.6); }
+  .qa-btn.qa-has-img .qa-menu-dot { z-index:5; color:rgba(255,255,255,.6); }
+  .qa-btn.qa-has-img .qa-menu-dot:hover { color:#fff; }
 </style>
 <script src="food-images.js"></script>
 </head>
@@ -4119,27 +4134,41 @@
       host.textContent = '';
       FUEL_W_ITEMS.filter(function(it){ return it.g === gid; }).forEach(function(it){
         const b = document.createElement('button');
-        b.className = 'qa-btn water';
         b.dataset.item = it.id;
-        const amt = document.createElement('span');
-        amt.className = 'qa-amt';
-        if(+it.w > 0){
-          amt.appendChild(document.createTextNode('+' + it.w));
-          const u = document.createElement('span'); u.className = 'u'; u.textContent = 'oz';
-          amt.appendChild(u);
-          if(it.z) amt.appendChild(document.createTextNode(' ⚡'));
+        var hasImg = window.FOOD_IMAGES && window.FOOD_IMAGES[it.id];
+        if(hasImg){
+          b.className = 'qa-btn water qa-has-img';
+          var bg=document.createElement('div'); bg.className='qa-bg';
+          bg.style.backgroundImage='url('+window.FOOD_IMAGES[it.id]+')';
+          var tint=document.createElement('div'); tint.className='qa-tint';
+          var scrim=document.createElement('div'); scrim.className='qa-scrim';
+          var edge=document.createElement('div'); edge.className='qa-edge';
+          var wlab=document.createElement('div'); wlab.className='qa-label';
+          var parts=it.n.split(' · ');
+          var iname=document.createElement('div'); iname.className='qa-iname'; iname.textContent=parts[0];
+          wlab.appendChild(iname);
+          if(parts[1]){ var iamt=document.createElement('div'); iamt.className='qa-iamt'; iamt.textContent=parts[1]; wlab.appendChild(iamt); }
+          b.appendChild(bg); b.appendChild(tint); b.appendChild(scrim); b.appendChild(edge); b.appendChild(wlab);
         } else {
-          /* sticks read as a half or a whole, never as 0.5 */
-          const n = (+it.e === 0.5) ? '½' : String(it.e);
-          /* half a stick is still 'stick', not 'sticks' -- pluralise above one,
-             not merely away from one (caught in live render: it read '+½ sticks') */
-          amt.appendChild(document.createTextNode('+' + n + ' stick' + (+it.e > 1 ? 's' : '')));
+          b.className = 'qa-btn water';
+          const amt = document.createElement('span');
+          amt.className = 'qa-amt';
+          if(+it.w > 0){
+            amt.appendChild(document.createTextNode('+' + it.w));
+            const u = document.createElement('span'); u.className = 'u'; u.textContent = 'oz';
+            amt.appendChild(u);
+            if(it.z) amt.appendChild(document.createTextNode(' ⚡'));
+          } else {
+            const n = (+it.e === 0.5) ? '½' : String(it.e);
+            amt.appendChild(document.createTextNode('+' + n + ' stick' + (+it.e > 1 ? 's' : '')));
+          }
+          const nm = document.createElement('span');
+          nm.className = 'qa-name'; nm.textContent = it.n;
+          b.appendChild(amt); b.appendChild(nm);
         }
-        const nm = document.createElement('span');
-        nm.className = 'qa-name'; nm.textContent = it.n;
         var dot=document.createElement('span'); dot.className='qa-menu-dot'; dot.textContent='⋯';
         dot.addEventListener('click', function(ev){ ev.stopPropagation(); if(window._qaGridMenu) window._qaGridMenu(b,'water',it.l,+it.w||0,+it.e||0,0); });
-        b.appendChild(amt); b.appendChild(nm); b.appendChild(dot);
+        b.appendChild(dot);
         b.addEventListener('click', function(){
           addItem({ water: +it.w || 0, elec: +it.e || 0, label: it.l });
         });
@@ -4174,24 +4203,36 @@
       grid.className = 'qa-grid' + (g.adult ? ' qa-adult' : '');
       mine.forEach(function(it){
         const b = document.createElement('button');
-        b.className = 'qa-btn protein';
         b.dataset.item = it.id;
-        const amt = document.createElement('span');
-        amt.className = 'qa-amt';
-        amt.appendChild(document.createTextNode('+' + it.p));
-        const u = document.createElement('span'); u.className = 'u'; u.textContent = 'g';
-        amt.appendChild(u);
-        const nm = document.createElement('span');
-        nm.className = 'qa-name';
-        if(window.FOOD_IMAGES && window.FOOD_IMAGES[it.id]){
-          var fi=document.createElement('img'); fi.className='qa-food-img';
-          fi.src=window.FOOD_IMAGES[it.id]; fi.alt=''; fi.setAttribute('aria-hidden','true');
-          nm.appendChild(fi);
+        var hasImg = window.FOOD_IMAGES && window.FOOD_IMAGES[it.id];
+        if(hasImg){
+          b.className = 'qa-btn protein qa-has-img';
+          var bg=document.createElement('div'); bg.className='qa-bg';
+          bg.style.backgroundImage='url('+window.FOOD_IMAGES[it.id]+')';
+          var tint=document.createElement('div'); tint.className='qa-tint';
+          var scrim=document.createElement('div'); scrim.className='qa-scrim';
+          var edge=document.createElement('div'); edge.className='qa-edge';
+          var lab=document.createElement('div'); lab.className='qa-label';
+          var parts=it.n.split(' · ');
+          var iname=document.createElement('div'); iname.className='qa-iname'; iname.textContent=parts[0];
+          lab.appendChild(iname);
+          if(parts[1]){ var iamt=document.createElement('div'); iamt.className='qa-iamt'; iamt.textContent=parts[1]; lab.appendChild(iamt); }
+          b.appendChild(bg); b.appendChild(tint); b.appendChild(scrim); b.appendChild(edge); b.appendChild(lab);
+        } else {
+          b.className = 'qa-btn protein';
+          const amt = document.createElement('span');
+          amt.className = 'qa-amt';
+          amt.appendChild(document.createTextNode('+' + it.p));
+          const u = document.createElement('span'); u.className = 'u'; u.textContent = 'g';
+          amt.appendChild(u);
+          const nm = document.createElement('span');
+          nm.className = 'qa-name';
+          nm.appendChild(document.createTextNode(it.n));
+          b.appendChild(amt); b.appendChild(nm);
         }
-        nm.appendChild(document.createTextNode(it.n));
         var dot=document.createElement('span'); dot.className='qa-menu-dot'; dot.textContent='⋯';
         dot.addEventListener('click', function(ev){ ev.stopPropagation(); if(window._qaGridMenu) window._qaGridMenu(b,'protein',it.l,+it.p||0,0,+it.w||0); });
-        b.appendChild(amt); b.appendChild(nm); b.appendChild(dot);
+        b.appendChild(dot);
         b.addEventListener('click', function(){
           addItem({ protein: +it.p || 0, water: +it.w || 0, label: it.l });
         });
