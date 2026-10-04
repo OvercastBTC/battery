@@ -758,6 +758,14 @@
   .water-bump-chip.reset:hover { border-color:var(--warn);color:var(--warn); }
   .water-carry-why { display:flex;align-items:center;gap:7px;margin-top:8px;padding:8px 11px;background:rgba(212,160,23,.08);border:1px solid rgba(212,160,23,.2);border-radius:9px;font-size:11px;color:color-mix(in srgb,var(--gold) 86%,#fff);line-height:1.4; }
   .water-carry-why b { color:var(--gold);font-weight:800; }
+  .st-block { padding:10px 0;border-bottom:1px solid var(--line); }
+  .st-block:last-child { border-bottom:none; }
+  .st-time { font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(163,113,247,.8);margin-bottom:4px; }
+  .st-items { font-size:12px;color:var(--bone);line-height:1.65; }
+  .st-items li { margin-bottom:2px; }
+  .st-note { font-size:10px;color:var(--dim);margin-top:2px;font-style:italic; }
+  .st-rules { margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11px;color:var(--dim);line-height:1.6; }
+  .st-rules b { color:var(--bone); }
 
   /* REQ-009: compact quick-add entry point visible on TRACKER above the log */
   .qa-jump {
@@ -2164,6 +2172,17 @@
         </div>
         <div id="supp-picker" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:10px"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- SUPPLEMENT TIMING REFERENCE — adult-only (§4.3) -->
+  <div class="qa-adult" id="supp-timing-host" style="margin-top:14px">
+    <div class="card" style="border-color:rgba(163,113,247,.35)">
+      <div class="card-head" onclick="toggleSuppTiming()" style="cursor:pointer">
+        <div class="card-title" style="display:flex;align-items:center;gap:6px">⏱ Supplement Timing</div>
+        <span class="caret" id="supp-timing-caret" style="color:var(--dim)"></span>
+      </div>
+      <div id="supp-timing-body" style="display:none"></div>
     </div>
   </div>
 
@@ -7334,6 +7353,47 @@
     window.renderSuppCard=renderSuppCard;
     if(document.readyState!=='loading') setTimeout(renderSuppCard,420);
     else document.addEventListener('DOMContentLoaded',function(){setTimeout(renderSuppCard,420);});
+  })();
+
+  /* ===== SUPPLEMENT TIMING REFERENCE (v180) ===== */
+  (function(){
+    var SUPP_TIMING = [
+      {time:'Wake / Hydrate', items:['Yeti #1 = Liquid IV + creatine (mixed FRESH)','Yeti #2 = Liquid IV + protein (SR whey isolate or Core Power Elite)']},
+      {time:'AM Pills (with shakes)', items:['Animal Pak','Animal Flex','Omega-3 (fish oil)','Thorne D3/K2']},
+      {time:'Pre-Load · ~90 min before training', items:['Collagen 20g + Liquid IV (vit C is the cofactor)']},
+      {time:'Pre-Workout · ~45 min before', items:['C4 Sport','Shroom Tech Sport']},
+      {time:'During training', items:['Hydrate + electrolytes (Liquid IV / MTN OPS)']},
+      {time:'Post-training', items:['Protein shake or meal']},
+      {time:'Early afternoon', items:['Dynavel XR']},
+      {time:'Before bed', items:['Magnesium (MagEnhance)']}
+    ];
+    var SUPP_RULES = [
+      'Creatine never pre-mixed in Liquid IV — degrades in acid',
+      'Collagen & whey 30+ min apart — they compete for absorption',
+      'One caffeine source only — runs hot',
+      'Collagen CAN pre-mix in Liquid IV overnight'
+    ];
+    window.toggleSuppTiming=function(){
+      var body=document.getElementById('supp-timing-body');
+      var caret=document.getElementById('supp-timing-caret');
+      if(!body) return;
+      var open=body.style.display!=='none';
+      body.style.display=open?'none':'';
+      if(caret) caret.style.transform=open?'rotate(-90deg)':'rotate(0)';
+      if(!open && !body.dataset.rendered){
+        body.dataset.rendered='1';
+        var html='';
+        SUPP_TIMING.forEach(function(b){
+          html+='<div class="st-block"><div class="st-time">'+b.time+'</div><ul class="st-items" style="margin:0;padding-left:18px">';
+          b.items.forEach(function(i){ html+='<li>'+i+'</li>'; });
+          html+='</ul></div>';
+        });
+        html+='<div class="st-rules"><b>Rules:</b><ul style="margin:4px 0 0;padding-left:18px">';
+        SUPP_RULES.forEach(function(r){ html+='<li>'+r+'</li>'; });
+        html+='</ul></div>';
+        body.innerHTML=html;
+      }
+    };
   })();
 
   /* ===== RECOVERY BOOST EXPLANATION (REQ-001) ===== */
