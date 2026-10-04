@@ -756,6 +756,8 @@
   .water-bump-chip:hover { border-color:var(--blue);background:rgba(88,166,255,.16); }
   .water-bump-chip.reset { color:rgba(230,237,243,.42);flex:0 0 auto;min-width:0;padding:7px 10px; }
   .water-bump-chip.reset:hover { border-color:var(--warn);color:var(--warn); }
+  .water-carry-why { display:flex;align-items:center;gap:7px;margin-top:8px;padding:8px 11px;background:rgba(212,160,23,.08);border:1px solid rgba(212,160,23,.2);border-radius:9px;font-size:11px;color:color-mix(in srgb,var(--gold) 86%,#fff);line-height:1.4; }
+  .water-carry-why b { color:var(--gold);font-weight:800; }
 
   /* REQ-009: compact quick-add entry point visible on TRACKER above the log */
   .qa-jump {
@@ -1857,6 +1859,13 @@
         <span class="bank-n" id="bank-n">off</span>
       </div>
       <div class="bank-why qa-adult" id="bank-why"></div>
+      <div class="bank-row trk-water">
+        <label>
+          <input type="checkbox" id="water-carry-on" class="caf-checkbox" onchange="toggleWaterCarry()" />
+          <span class="bank-t">Water carry-over</span>
+        </label>
+        <span class="bank-n" id="water-carry-n">on</span>
+      </div>
     </div>
   </div>
 </header>
@@ -1956,6 +1965,10 @@
         <button class="water-bump-chip" onclick="window._waterBump(24)">+24</button>
         <button class="water-bump-chip" onclick="window._waterBump(32)">+32</button>
         <button class="water-bump-chip reset" id="water-bump-reset" style="display:none" onclick="window._waterBumpReset()">Reset</button>
+      </div>
+      <div class="water-carry-why trk-water" id="water-carry-why" style="display:none">
+        <span style="flex-shrink:0">&#x21bb;</span>
+        <span><b id="water-carry-amt"></b> <span id="water-carry-text"></span></span>
       </div>
     </div>
     <!-- 6.2: time-of-day pace — where you'd typically be right now, given your wake time -->
@@ -3385,6 +3398,10 @@
     const box = document.getElementById('bank-n'), why = document.getElementById('bank-why');
     const cb = document.getElementById('bank-on');
     if (cb) cb.checked = bankOn();
+    var wcCb=document.getElementById('water-carry-on');
+    if(wcCb) wcCb.checked=waterCarryOn();
+    var wcN=document.getElementById('water-carry-n');
+    if(wcN) wcN.textContent=waterCarryOn()?'on':'off';
     if (!box) return;
     if (!bankOn()){
       box.textContent = 'off'; box.className = 'bank-n';
@@ -3466,6 +3483,47 @@
     _waterBumpOz = 0; _waterBumpDate = todayKey();
     refreshTargets(); refreshProgress();
   };
+
+  /* ===== Water 1.5 Part B: auto rehydration carry-over ===== */
+  function waterCarryOn(){ return storeGet('fuel-water-carry','1') !== '0'; }
+  window.toggleWaterCarry = function(){
+    storeSet('fuel-water-carry', waterCarryOn() ? '0' : '1');
+    refreshTargets(); refreshProgress();
+    var cb=document.getElementById('water-carry-on');
+    if(cb) cb.checked=waterCarryOn();
+    var n=document.getElementById('water-carry-n');
+    if(n) n.textContent=waterCarryOn()?'on':'off';
+  };
+  function _dateKeyOffset(offset){
+    var d=new Date(); d.setDate(d.getDate()+offset);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function _waterCarryGet(){
+    if(!waterCarryOn()) return {oz:0, text:''};
+    if(_selectedDate) return {oz:0, text:''};
+    var total=0, reason='';
+    var y1key=_dateKeyOffset(-1), y2key=_dateKeyOffset(-2);
+    var y1type=storeGet('fuel-day-'+y1key,null);
+    var y2type=storeGet('fuel-day-'+y2key,null);
+    var CARRY_TYPES={heavy:1, game:1};
+    if(y1type && CARRY_TYPES[y1type]){
+      var wt=DAY_TARGETS[y1type]?DAY_TARGETS[y1type].water:0;
+      var restW=DAY_TARGETS.rest?DAY_TARGETS.rest.water:150;
+      var amt=Math.round((wt-restW)*0.5/5)*5;
+      if(amt>0){ total+=amt; reason='repaying yesterday\'s '+DAY_TARGETS[y1type].label+'-day sweat'; }
+    }
+    if(y2type && CARRY_TYPES[y2type]){
+      var wt2=DAY_TARGETS[y2type]?DAY_TARGETS[y2type].water:0;
+      var restW2=DAY_TARGETS.rest?DAY_TARGETS.rest.water:150;
+      var amt2=Math.round((wt2-restW2)*0.5*0.5/5)*5;
+      if(amt2>0){
+        total+=amt2;
+        if(!reason) reason='taper from '+DAY_TARGETS[y2type].label+' day 2 days ago';
+        else reason+=' + taper';
+      }
+    }
+    return {oz:total, text:reason};
+  }
 
   /* Design item 1: HOME owns the activity-level day type. Tapping a locked chip
      (or the affordance) takes you to HOME rather than doing nothing -- so if a
@@ -3699,7 +3757,9 @@
     document.getElementById('protein-goal').textContent =
       fy() ? '5 meals + snacks' : `${t.protein}g`;
     var _wb = _waterBumpGet();
-    document.getElementById('water-goal').textContent = _wb > 0 ? `${t.water + _wb}oz` : `${t.water}oz`;
+    var _wc = _waterCarryGet().oz;
+    var _wTotal = t.water + _wb + _wc;
+    document.getElementById('water-goal').textContent = (_wb + _wc) > 0 ? `${_wTotal}oz` : `${t.water}oz`;
     document.getElementById('summary-day').textContent = t.label;
     try { renderBank(); } catch (e) {}
   }
@@ -4716,17 +4776,20 @@
       if(sp) sp.textContent=occ+'/'+OCC_TARGET+' meals';
     }
 
-    // Water — with 1.5 Part A bump support
+    // Water — with 1.5 Part A bump + Part B carry-over
     const _wbump = _selectedDate ? 0 : _waterBumpGet();
+    const _wcarry = _waterCarryGet();
+    const wCarryOz = _wcarry.oz;
     const wBase = t.water;
-    const wGoal = wBase + _wbump;
+    const wGoal = wBase + _wbump + wCarryOz;
     const wPct = wGoal > 0 ? (tot.water / wGoal) * 100 : 0;
     const wBaseMet = tot.water >= wBase;
     document.getElementById('water-cur').textContent = `${Math.round(tot.water)}oz`;
-    document.getElementById('water-pct').textContent = _wbump > 0 ? (wBaseMet ? 'base met' : `${Math.round(wBase - tot.water)}oz to base`) : `${Math.round(wPct)}%`;
+    const _wstretch = _wbump + wCarryOz;
+    document.getElementById('water-pct').textContent = _wstretch > 0 ? (wBaseMet ? 'base met' : `${Math.round(wBase - tot.water)}oz to base`) : `${Math.round(wPct)}%`;
     const wBar = document.getElementById('water-bar');
     const wVals = document.getElementById('water-vals');
-    if (_wbump > 0) {
+    if (_wstretch > 0) {
       const basePct = wGoal > 0 ? (wBase / wGoal * 100) : 100;
       const solidPct = wGoal > 0 ? (Math.min(tot.water, wBase) / wGoal * 100) : 0;
       wBar.style.width = solidPct + '%';
@@ -4763,6 +4826,14 @@
     if (resetBtn) resetBtn.style.display = _wbump > 0 ? 'block' : 'none';
     var bumpRow = document.getElementById('water-bump-row');
     if (bumpRow) bumpRow.style.display = _selectedDate ? 'none' : 'flex';
+    var carryWhy = document.getElementById('water-carry-why');
+    if (carryWhy) {
+      if (wCarryOz > 0 && !_selectedDate) {
+        carryWhy.style.display = 'flex';
+        document.getElementById('water-carry-amt').textContent = '+' + wCarryOz + ' oz';
+        document.getElementById('water-carry-text').textContent = 'carried over · ' + _wcarry.text;
+      } else { carryWhy.style.display = 'none'; }
+    }
 
     // Summary pills
     if(!document.body.classList.contains('fuel-youth'))
@@ -4804,7 +4875,7 @@
     }
     const runway=getRunwayStatus();
     var hostTot = _selectedDate ? getTotalsForDate(todayKey()) : tot;
-    try { parent.postMessage({ type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:liveT.water, tProtein:liveT.protein, tWaterStretch:liveT.water + _waterBumpGet(), day:liveT.label, runway:runway }, '*'); } catch (e) {}
+    try { parent.postMessage({ type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:liveT.water, tProtein:liveT.protein, tWaterStretch:liveT.water + _waterBumpGet() + _waterCarryGet().oz, day:liveT.label, runway:runway }, '*'); } catch (e) {}
 
     // Also refresh mini stats / strip / calendar / suggestions each time
     refreshMiniStrip();
