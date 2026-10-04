@@ -2425,6 +2425,10 @@
         <input type="date" id="event-date" />
       </div>
       <div class="event-form-row">
+        <label>Time <span style="color:var(--dim);font-weight:400">(optional)</span></label>
+        <input type="time" id="event-time" />
+      </div>
+      <div class="event-form-row">
         <label>Notes <span style="color:var(--dim);font-weight:400">(optional)</span></label>
         <input type="text" id="event-notes" placeholder="e.g. 'Sunday game, 100° forecast'" maxlength="80" />
       </div>
@@ -3807,6 +3811,7 @@
     refreshProgress();
     refreshLog();
     _renderSelectedBanner();
+    if(typeof _refreshSuppTiming==='function') try{_refreshSuppTiming();}catch(e){}
   }
   window._clearSelectedDate = function() { _selectDate(todayKey()); };
 
@@ -5659,6 +5664,7 @@
   }
 
   /* ===== EVENTS ===== */
+  function _fmtTime12(t){if(!t)return'';var p=t.split(':'),h=+p[0],m=p[1]||'00';var ap=h>=12?'pm':'am';h=h%12||12;return h+':'+m+ap;}
   function loadEvents() {
     try { return JSON.parse(storeGet('fuel-events', '[]')) || []; }
     catch (e) { return []; }
@@ -5680,9 +5686,11 @@
   async function addEvent() {
     const type = document.getElementById('event-type').value;
     const date = document.getElementById('event-date').value;
+    const time = (document.getElementById('event-time').value||'').trim();
     const notes = document.getElementById('event-notes').value.trim();
     if (!date) { await uiAlert('Pick a date', 'Pick a date.'); return; }
     const ev = { id: Date.now(), type, date, notes };
+    if (time) ev.time = time;
     if (type === 'practice') {
       const checks = document.querySelectorAll('#practice-items input[type=checkbox]:checked');
       const items = Array.from(checks).map(c => c.value);
@@ -5693,6 +5701,7 @@
     events.push(ev);
     saveEvents(events);
     document.getElementById('event-notes').value = '';
+    var tEl=document.getElementById('event-time');if(tEl)tEl.value='';
     if (type === 'practice') document.querySelectorAll('#practice-items input[type=checkbox]').forEach(c => { c.checked = false; });
     refreshEventsDisplay();
     refreshSuggestions();
@@ -5720,6 +5729,7 @@
   // footgun-safe HTML escaper (DOM-based — no literal angle brackets in source, can't truncate the srcdoc)
   function fEscHtml(s){ var d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; }
   function refreshEventsDisplay() {
+    if(typeof _refreshSuppTiming==='function') try{_refreshSuppTiming(true);}catch(e){}
     const list = document.getElementById('events-list');
     if (!list) return;
     var raw = loadEvents();
@@ -5759,7 +5769,7 @@
       })();
       return '<div class="event-row ' + cls + '">' +
         '<div class="event-info">' +
-          '<div class="event-when">' + when + ' · ' + niceDate + '</div>' +
+          '<div class="event-when">' + when + ' · ' + niceDate + (e.time?' · '+_fmtTime12(e.time):'') + '</div>' +
           '<div class="event-type">' + fEscHtml(label) + '</div>' +
           (e.notes ? '<div class="event-notes">"' + fEscHtml(e.notes) + '"</div>' : '') +
         '</div>' +
@@ -7355,17 +7365,18 @@
     else document.addEventListener('DOMContentLoaded',function(){setTimeout(renderSuppCard,420);});
   })();
 
-  /* ===== SUPPLEMENT TIMING REFERENCE (v180) ===== */
+  /* ===== SUPPLEMENT TIMING REFERENCE (v180 → v181 event-aware) ===== */
   (function(){
-    var SUPP_TIMING = [
-      {time:'Wake / Hydrate', items:['Yeti #1 = Liquid IV + creatine (mixed FRESH)','Yeti #2 = Liquid IV + protein (SR whey isolate or Core Power Elite)']},
-      {time:'AM Pills (with shakes)', items:['Animal Pak','Animal Flex','Omega-3 (fish oil)','Thorne D3/K2']},
-      {time:'Pre-Load · ~90 min before training', items:['Collagen 20g + Liquid IV (vit C is the cofactor)']},
-      {time:'Pre-Workout · ~45 min before', items:['C4 Sport','Shroom Tech Sport']},
-      {time:'During training', items:['Hydrate + electrolytes (Liquid IV / MTN OPS)']},
-      {time:'Post-training', items:['Protein shake or meal']},
-      {time:'Early afternoon', items:['Dynavel XR']},
-      {time:'Before bed', items:['Magnesium (MagEnhance)']}
+    var TRAINING_TYPES={game:1,bullpen:1,practice:1,bp:1,lift:1,'long-toss':1,coaching:1,other:1};
+    var SUPP_STATIC = [
+      {key:'wake', time:'Wake / Hydrate', items:['Yeti #1 = Liquid IV + creatine (mixed FRESH)','Yeti #2 = Liquid IV + protein (SR whey isolate or Core Power Elite)']},
+      {key:'am', time:'AM Pills (with shakes)', items:['Animal Pak','Animal Flex','Omega-3 (fish oil)','Thorne D3/K2']},
+      {key:'preload', time:'Pre-Load · ~90 min before training', anchor:-90, items:['Collagen 20g + Liquid IV (vit C is the cofactor)']},
+      {key:'prework', time:'Pre-Workout · ~45 min before', anchor:-45, items:['C4 Sport','Shroom Tech Sport']},
+      {key:'during', time:'During training', anchor:0, items:['Hydrate + electrolytes (Liquid IV / MTN OPS)']},
+      {key:'post', time:'Post-training', anchor:null, items:['Protein shake or meal']},
+      {key:'afternoon', time:'Early afternoon', items:['Dynavel XR']},
+      {key:'bed', time:'Before bed', items:['Magnesium (MagEnhance)']}
     ];
     var SUPP_RULES = [
       'Creatine never pre-mixed in Liquid IV — degrades in acid',
@@ -7373,6 +7384,58 @@
       'One caffeine source only — runs hot',
       'Collagen CAN pre-mix in Liquid IV overnight'
     ];
+    function _offsetTime(baseTime, offsetMin){
+      var p=baseTime.split(':'),h=+p[0],m=+p[1];
+      var total=h*60+m+offsetMin;
+      if(total<0) total+=1440;
+      if(total>=1440) total-=1440;
+      var rh=Math.floor(total/60),rm=total%60;
+      var ap=rh>=12?'pm':'am';rh=rh%12||12;
+      return rh+':'+(rm<10?'0':'')+rm+ap;
+    }
+    function _findTrainingEvent(dateKey){
+      var evs;try{evs=loadEvents();}catch(e){return null;}
+      var training=evs.filter(function(e){return e.date===dateKey && e.time && TRAINING_TYPES[e.type];});
+      if(!training.length) return null;
+      training.sort(function(a,b){return a.time<b.time?-1:a.time>b.time?1:0;});
+      return training[0];
+    }
+    function _buildTimingHtml(dateKey){
+      var ev=_findTrainingEvent(dateKey);
+      var evLabel=ev?(EVENT_TYPES[ev.type]?EVENT_TYPES[ev.type].label:ev.type):null;
+      var html='';
+      if(ev){
+        html+='<div style="padding:6px 0 8px;font-size:11px;color:rgba(163,113,247,.9);display:flex;align-items:center;gap:6px">';
+        html+='<span style="font-size:14px">📍</span> Anchored to <b style="color:var(--bone)">'+_fmtTime12(ev.time)+' '+fEscHtml(evLabel)+'</b>';
+        html+='</div>';
+      }
+      SUPP_STATIC.forEach(function(b){
+        var timeLabel=b.time;
+        if(ev && typeof b.anchor==='number'){
+          var clock=_offsetTime(ev.time, b.anchor);
+          if(b.anchor<0) timeLabel=b.key==='preload'?'Pre-Load':b.key==='prework'?'Pre-Workout':'';
+          else if(b.anchor===0) timeLabel='During training';
+          timeLabel+=' · '+clock;
+        } else if(ev && b.key==='post'){
+          timeLabel='Post-training · after '+_fmtTime12(ev.time);
+        }
+        html+='<div class="st-block"><div class="st-time">'+timeLabel+'</div><ul class="st-items" style="margin:0;padding-left:18px">';
+        b.items.forEach(function(i){ html+='<li>'+i+'</li>'; });
+        html+='</ul></div>';
+      });
+      html+='<div class="st-rules"><b>Rules:</b><ul style="margin:4px 0 0;padding-left:18px">';
+      SUPP_RULES.forEach(function(r){ html+='<li>'+r+'</li>'; });
+      html+='</ul></div>';
+      return html;
+    }
+    function _renderSuppTimingBody(){
+      var body=document.getElementById('supp-timing-body');
+      if(!body||body.style.display==='none') return;
+      var dateKey=activeKey();
+      body.innerHTML=_buildTimingHtml(dateKey);
+      body.dataset.rendered='1';
+      body.dataset.dateKey=dateKey;
+    }
     window.toggleSuppTiming=function(){
       var body=document.getElementById('supp-timing-body');
       var caret=document.getElementById('supp-timing-caret');
@@ -7380,19 +7443,13 @@
       var open=body.style.display!=='none';
       body.style.display=open?'none':'';
       if(caret) caret.style.transform=open?'rotate(-90deg)':'rotate(0)';
-      if(!open && !body.dataset.rendered){
-        body.dataset.rendered='1';
-        var html='';
-        SUPP_TIMING.forEach(function(b){
-          html+='<div class="st-block"><div class="st-time">'+b.time+'</div><ul class="st-items" style="margin:0;padding-left:18px">';
-          b.items.forEach(function(i){ html+='<li>'+i+'</li>'; });
-          html+='</ul></div>';
-        });
-        html+='<div class="st-rules"><b>Rules:</b><ul style="margin:4px 0 0;padding-left:18px">';
-        SUPP_RULES.forEach(function(r){ html+='<li>'+r+'</li>'; });
-        html+='</ul></div>';
-        body.innerHTML=html;
-      }
+      if(!open) _renderSuppTimingBody();
+    };
+    window._refreshSuppTiming=function(force){
+      var body=document.getElementById('supp-timing-body');
+      if(!body||body.style.display==='none') return;
+      if(force) _renderSuppTimingBody();
+      else{var dateKey=activeKey();if(body.dataset.dateKey!==dateKey||!body.dataset.rendered) _renderSuppTimingBody();}
     };
   })();
 
