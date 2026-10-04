@@ -94,7 +94,17 @@ if (isSplit) {
   log(false, 'neither srcdoc= nor src="arm.html" found — unrecognized build shape');
 }
 
+const atiRe = /<link\s+rel="apple-touch-icon"[^>]*>/g;
+let atiMatch;
+let atiCount = 0;
+while ((atiMatch = atiRe.exec(src)) !== null) {
+  atiCount++;
+  const hasSizes = /sizes="/.test(atiMatch[0]);
+  log(hasSizes, `apple-touch-icon #${atiCount}: sizes attribute ${hasSizes ? 'present' : 'MISSING (DuckDuckGo iOS needs it)'}`);
+}
+log(atiCount > 0, `apple-touch-icon: ${atiCount} link(s) found`);
+
 console.log('  ----------------------------------------------');
-console.log(pass ? '  PASS — iframe integrity verified.'
+console.log(pass ? '  PASS — integrity verified.'
                  : '  FAIL — integrity check failed (see ✗ above).');
 process.exit(pass ? 0 : 1);
