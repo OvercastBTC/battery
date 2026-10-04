@@ -6551,10 +6551,20 @@
           (function(){
             var raw=storeGet('fuel-day-'+key,null);
             var parts=raw?String(raw).split(',').filter(function(d){return DAY_TARGETS[d];}):[];
-            if(!parts.length) return '';
-            var lbl=parts.map(function(d){return DAY_TARGETS[d].label;}).join(' + ');
-            var tgt=(!fy()&&g.protein)?(' · '+g.protein+'g P / '+g.water+'oz W'):'';
-            return '<div style="font-size:12px;color:#8b949e;font-family:\'SF Mono\',monospace;margin-bottom:8px">'+lbl+' day'+tgt+'</div>';
+            if(!parts.length) parts=['train'];
+            var isPast=(key!==todayKey());
+            if(!isPast){
+              var lbl=parts.map(function(d){return DAY_TARGETS[d].label;}).join(' + ');
+              var tgt=(!fy()&&g.protein)?(' · '+g.protein+'g P / '+g.water+'oz W'):'';
+              return '<div style="font-size:12px;color:#8b949e;font-family:\'SF Mono\',monospace;margin-bottom:8px">'+lbl+' day'+tgt+'</div>';
+            }
+            var types=['rest','light','train','heavy','game'];
+            return '<div style="font-size:10px;letter-spacing:1px;color:#8b949e;font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px">Day type</div>'+
+              '<div id="_dayTypeChips" style="display:flex;gap:6px;margin-bottom:10px">'+
+              types.map(function(d){
+                var on=parts.indexOf(d)>=0;
+                return '<button data-day="'+d+'" onclick="window._daySetType(\''+d+'\')" style="flex:1;padding:8px 4px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:1.5px solid '+(on?'#d4a017':'#2d333b')+';background:'+(on?'#d4a017':'#161b22')+';color:'+(on?'#0d1117':'#6e7681')+'">'+DAY_TARGETS[d].label+'</button>';
+              }).join('')+'</div>';
           })()+
           planSec+sleepSec+feelSec+
           goalLine+ rows+ favChips+
@@ -6663,6 +6673,81 @@
         if(window.renderSuppCard)window.renderSuppCard();
         render(); refreshPanels();
       };
+      // --- goal-recompute 1.0: past-day day-type change with confirm ---
+      var _pendingType=null;
+      window._daySetType=function(newType){
+        if(key===todayKey()) return;
+        var raw=storeGet('fuel-day-'+key,null);
+        var cur=raw?String(raw).split(',').filter(function(d){return DAY_TARGETS[d];}):['train'];
+        if(cur.length===1&&cur[0]===newType) return;
+        var curTarget=_targetForDayTypes(cur.join(','));
+        var newTarget=_targetForDayTypes(newType);
+        if(curTarget.protein===newTarget.protein&&curTarget.water===newTarget.water){
+          storeSet('fuel-day-'+key,newType);
+          try{localStorage.setItem('fuel-goalsnap-'+key,JSON.stringify({protein:newTarget.protein,water:newTarget.water}));}catch(e){}
+          render(); refreshPanels();
+          return;
+        }
+        _pendingType=newType;
+        var tot=getTotalsForDate(key);
+        var wasMet=tot.protein>=curTarget.protein;
+        var willMet=tot.protein>=newTarget.protein;
+        var statusTxt,statusCol;
+        if(willMet&&wasMet){statusTxt='Still met ✓';statusCol='#3fb950';}
+        else if(willMet&&!wasMet){statusTxt='Now meets goal ✓';statusCol='#3fb950';}
+        else if(!willMet&&wasMet){statusTxt='⚠ Was met — now missed · streak may change';statusCol='#e5534b';}
+        else{statusTxt='Still under goal';statusCol='#e5534b';}
+        var sheet=document.getElementById('_goalSheet');
+        if(!sheet){
+          sheet=document.createElement('div');sheet.id='_goalSheet';
+          sheet.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;justify-content:center';
+          document.body.appendChild(sheet);
+        }
+        sheet.innerHTML='<div onclick="window._goalCancel()" style="position:absolute;inset:0;background:rgba(4,7,12,.6)"></div>'+
+          '<div style="position:relative;background:#1c2230;border:1px solid rgba(230,237,243,.08);border-radius:20px 20px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));width:100%;max-width:420px;z-index:1">'+
+          '<div style="width:36px;height:4px;border-radius:2px;background:rgba(230,237,243,.18);margin:0 auto 15px"></div>'+
+          '<div style="font-size:17px;font-weight:800;color:#e6edf3;text-align:center;margin-bottom:6px">Change this day’s goal?</div>'+
+          '<div style="font-size:12.5px;color:rgba(230,237,243,.42);text-align:center;margin-bottom:15px">'+key+' becomes a <b style="color:#e6edf3">'+DAY_TARGETS[newType].label+'</b> day.</div>'+
+          '<div style="background:#0d1117;border:1px solid rgba(230,237,243,.08);border-radius:11px;padding:13px;margin-bottom:9px">'+
+            '<div style="display:flex;align-items:center;justify-content:center;gap:10px;font-family:\'SF Mono\',monospace;font-size:17px;font-weight:700;margin-bottom:7px">'+
+              '<span style="color:rgba(230,237,243,.42)">'+curTarget.protein+'g</span>'+
+              '<span style="color:#d4a017;font-family:inherit">→</span>'+
+              '<span style="color:#e6edf3">'+newTarget.protein+'g</span></div>'+
+            '<div style="text-align:center;font-size:11.5px;font-weight:600;color:'+statusCol+'">'+statusTxt+'</div>'+
+          '</div>'+
+          '<button onclick="window._goalConfirm()" style="width:100%;padding:13px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:800;background:#d4a017;color:#20160a;margin-bottom:8px">Change goal</button>'+
+          '<button onclick="window._goalCancel()" style="width:100%;padding:8px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;background:none;color:rgba(230,237,243,.42)">Keep current</button>'+
+          '</div>';
+        sheet.style.display='flex';
+      };
+      window._goalConfirm=function(){
+        if(!_pendingType) return;
+        var newTarget=_targetForDayTypes(_pendingType);
+        storeSet('fuel-day-'+key,_pendingType);
+        try{localStorage.setItem('fuel-goalsnap-'+key,JSON.stringify({protein:newTarget.protein,water:newTarget.water}));}catch(e){}
+        _pendingType=null;
+        var sheet=document.getElementById('_goalSheet');
+        if(sheet)sheet.remove();
+        render(); refreshPanels();
+        _goalToast();
+      };
+      window._goalCancel=function(){
+        _pendingType=null;
+        var sheet=document.getElementById('_goalSheet');
+        if(sheet)sheet.remove();
+      };
+      function _goalToast(){
+        var t=document.getElementById('_goalToast');
+        if(!t){
+          t=document.createElement('div');t.id='_goalToast';
+          t.style.cssText='position:fixed;left:50%;bottom:80px;transform:translateX(-50%) translateY(20px);background:#222a37;border:1px solid rgba(230,237,243,.08);color:#e6edf3;font-size:11px;font-weight:600;padding:8px 14px;border-radius:20px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:10000;white-space:nowrap';
+          document.body.appendChild(t);
+        }
+        t.textContent='Snapshot updated · streak recalculated';
+        t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+        setTimeout(function(){t.style.opacity='0';t.style.transform='translateX(-50%) translateY(20px)';},1900);
+      }
+      // --- end goal-recompute handlers ---
       // --- end REQ-039 handlers ---
       function refreshPanels(){
         if(typeof refreshAll==='function')refreshAll();
