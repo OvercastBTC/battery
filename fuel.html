@@ -30,6 +30,11 @@
     --purple: #bc8cff;
     --orange: #ff9347;
 
+    /* REQ-042 Liquid Metal rim gradients for photo quick-add tiles (owner-locked) */
+    --metal-gold :linear-gradient(150deg,#f7edcd,#f1e3b4 14%,#c79a2f 34%,#4a3c17 52%,#d9b445 70%,#f6ead0 86%,#8a6f24);
+    --metal-blue :linear-gradient(150deg,#dbecff,#aecdf5 15%,#3f84d8 34%,#122a44 52%,#4f97ea 70%,#d2e6ff 86%,#274a73);
+    --metal-green:linear-gradient(150deg,#def7e3,#b0e8ba 15%,#2f9b45 34%,#0f3319 52%,#45c85c 70%,#d6f4db 86%,#216a30);
+
     /* day-type accents */
     --d-rest:   #58a6ff;
     --d-light:  #3fb950;
@@ -42,6 +47,8 @@
   body.fuel-youth {
     --gold: #2fd66b;
     --gold-bright: #6ef2a0;
+    /* keep the youth green-accent convention on the Liquid Metal protein rim too */
+    --metal-gold: var(--metal-green);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1760,20 +1767,41 @@
   .fav-chip { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
   .fav-ctx button:active { background: #21262d !important; }
   .qa-btn .qa-food-img { width:14px; height:14px; vertical-align:-2px; margin-right:4px; border-radius:2px; object-fit:cover; opacity:0.88; flex-shrink:0; }
-  .qa-btn.qa-has-img { height:76px; border-radius:12px; overflow:hidden; isolation:isolate; padding:0; border:1px solid var(--line); }
+  /* REQ-042 Liquid Metal quick-add tiles (owner-approved mockup 5CTXe5XT18xLhBwTjj6dNW).
+     Metal RIM is data-driven off the existing FUEL class (.protein=gold default,
+     .water=blue, .electrolyte=green) via --metal-* tokens -- no per-key hand-mapping.
+     Photo/scrim/sheen inset 3px inside the metal background to reveal the rim.
+     display:grid + aspect-ratio give the tile height even though every layer is
+     position:absolute (all-absolute children contribute 0 in-flow height -- without
+     a definite height source the photo renders 0x0). Keeps the v174 createElement
+     DOM + youth gating + verbatim text untouched; this is a CSS-only reskin. */
+  .qa-btn.qa-has-img {
+    display:grid; aspect-ratio:16/11; height:auto;
+    position:relative; border-radius:16px; overflow:hidden; isolation:isolate;
+    padding:0; border:none;
+    background:var(--metal-gold);
+    box-shadow:0 3px 8px rgba(0,0,0,.55), 0 1px 0 rgba(255,255,255,.08);
+  }
+  .qa-btn.qa-has-img.water       { background:var(--metal-blue); }
+  .qa-btn.qa-has-img.electrolyte { background:var(--metal-green); }
+  /* REQ-042 per-item tone override (tone = MACRO, not grid class): sport-drinks live
+     in the water grid (class .water) but add electrolytes -> green rim. Keyed off the
+     existing data-item id (every .qa-btn carries b.dataset.item), so the button's type
+     class, amount color, grid placement, and youth gating are all untouched. Extra
+     .water in the selector outranks the .water blue rule regardless of source order.
+     milk-8oz/fairlife-8oz need no override -- they're protein-grid (gold default). */
+  .qa-btn.qa-has-img.water[data-item^="sport-drink-"] { background:var(--metal-green); }
   .qa-btn.qa-has-img:hover { transform:translateY(-1px); }
-  .qa-btn.qa-has-img .qa-bg { position:absolute; inset:0; background-size:cover; background-position:center; z-index:0; }
-  .qa-btn.qa-has-img .qa-tint { position:absolute; inset:0; z-index:1; mix-blend-mode:multiply; }
-  .qa-btn.qa-has-img.protein .qa-tint { background:#d4a017; opacity:.34; }
-  .qa-btn.qa-has-img.water .qa-tint { background:#58a6ff; opacity:.34; }
-  .qa-btn.qa-has-img .qa-scrim { position:absolute; inset:0; z-index:2; background:linear-gradient(to top, rgba(4,7,12,.86) 0%, rgba(4,7,12,.46) 30%, rgba(4,7,12,0) 64%); }
-  .qa-btn.qa-has-img .qa-edge { position:absolute; left:0; top:0; bottom:0; width:3px; z-index:3; }
-  .qa-btn.qa-has-img.protein .qa-edge { background:var(--gold); }
-  .qa-btn.qa-has-img.water .qa-edge { background:var(--blue); }
-  .qa-btn.qa-has-img .qa-label { position:absolute; left:11px; right:10px; bottom:9px; z-index:4; text-align:left; }
-  .qa-btn.qa-has-img .qa-iname { font-size:13px; font-weight:800; color:#fff; letter-spacing:-.01em; text-shadow:0 1px 3px rgba(0,0,0,.6); line-height:1.15; }
-  .qa-btn.qa-has-img .qa-iamt { font-size:10.5px; font-weight:600; color:rgba(255,255,255,.85); text-shadow:0 1px 2px rgba(0,0,0,.6); }
-  .qa-btn.qa-has-img .qa-menu-dot { z-index:5; color:rgba(255,255,255,.6); }
+  .qa-btn.qa-has-img .qa-bg { position:absolute; inset:3px; border-radius:13px; background-size:cover; background-position:center; background-repeat:no-repeat; background-color:#0b0f14; z-index:0; }
+  /* .qa-tint repurposed as the liquid-glass sheen -- color now lives in the rim, not a photo wash */
+  .qa-btn.qa-has-img .qa-tint { position:absolute; inset:3px; border-radius:13px; z-index:2; mix-blend-mode:screen; background:linear-gradient(133deg, rgba(255,255,255,.30), rgba(255,255,255,.08) 16%, transparent 40%); }
+  .qa-btn.qa-has-img .qa-scrim { position:absolute; inset:3px; border-radius:13px; z-index:1; background:linear-gradient(to top, rgba(2,6,12,.92) 0%, rgba(2,6,12,.6) 40%, rgba(2,6,12,.12) 72%); }
+  /* .qa-edge retired -- the full metal rim replaces the single left accent bar */
+  .qa-btn.qa-has-img .qa-edge { display:none; }
+  .qa-btn.qa-has-img .qa-label { position:absolute; left:12px; right:11px; bottom:10px; z-index:4; text-align:left; }
+  .qa-btn.qa-has-img .qa-iname { font-size:13px; font-weight:800; color:#fff; letter-spacing:-.01em; text-shadow:0 1px 3px rgba(0,0,0,.95); line-height:1.15; }
+  .qa-btn.qa-has-img .qa-iamt { font-size:10.5px; font-weight:600; color:rgba(255,255,255,.9); text-shadow:0 1px 3px rgba(0,0,0,.95); }
+  .qa-btn.qa-has-img .qa-menu-dot { z-index:5; color:rgba(255,255,255,.7); }
   .qa-btn.qa-has-img .qa-menu-dot:hover { color:#fff; }
 </style>
 <script src="food-images.js"></script>
