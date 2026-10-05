@@ -6894,6 +6894,23 @@
     });
     return {done:done,total:total,optDone:optDone,optTotal:optTotal};
   }
+  /* Ring fast-follow (4.1 #6): TODAY's counts regardless of _armActiveDate, so the
+     host readiness ring stays today-live on a past view. Same filters as groupCount,
+     but the numerator reads TODAY's stored done-set instead of the DOM's .done (which
+     reflects the active date). Denominators (total/optTotal) are DOM-structural and
+     identical either way. */
+  function todayGroupCount(g){
+    var set;
+    try { var raw = storeGet(armDoneKey(), ''); set = new Set(raw ? raw.split(',') : []); } catch(e){ set = new Set(); }
+    var done=0,total=0,optDone=0,optTotal=0;
+    document.querySelectorAll('.step').forEach(function(s){
+      if(stepCountGroup(s)!==g) return;
+      if(stepDisabled(s)) return;
+      if(stepOptional(s)){ optTotal++; if(set.has(s.dataset.ex)) optDone++; }
+      else { total++; if(set.has(s.dataset.ex)) done++; }
+    });
+    return {done:done,total:total,optDone:optDone,optTotal:optTotal};
+  }
   /* ===== J-BANDS: ONE LIST, ORDERED BY WHAT THE TISSUE NEEDS FIRST =====
      Owner ask: de-duplicate, merge the official 11 and the optional extras into
      a single list, and order it for muscle use rather than for provenance.
@@ -7156,7 +7173,15 @@
       const lift = _liftYouth
         ? {done:0,total:0,optDone:0,optTotal:0}
         : groupCount('lift');
-      parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills'),body:groupCount('body'),lift:lift},'*');
+      /* 4.1 #6: additive today-counts (host reads for the today-live readiness ring
+         on past views; old hosts ignore the unknown key). Youth lift zeroed, same gate. */
+      const today = {
+        arm: todayGroupCount('arm'),
+        drills: todayGroupCount('drills'),
+        body: todayGroupCount('body'),
+        lift: _liftYouth ? {done:0,total:0,optDone:0,optTotal:0} : todayGroupCount('lift')
+      };
+      parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills'),body:groupCount('body'),lift:lift,today:today},'*');
     }catch(e){}
   }
   function applyGroup(group){
