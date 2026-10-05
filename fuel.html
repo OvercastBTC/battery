@@ -3616,6 +3616,9 @@
   }
 
   window.goSetDayOnHome = function(){
+    /* F1: viewing a past day -> edit THAT day's type via the day editor's v175
+       consent/re-freeze path, never a today write. Today -> HOME (unchanged, §7). */
+    if (_selectedDate) { if (typeof batteryEditDay === 'function') batteryEditDay(_selectedDate); return; }
     obsBump('homeLinkTap');
     try { parent.go('today'); } catch(e) {}
   };
@@ -3624,6 +3627,9 @@
     if (!DAY_TARGETS[d]) return;
     // Activity types are set on HOME now; only modifiers (travel) remain local.
     if (DAY_ACTIVITY.indexOf(d) >= 0) { goSetDayOnHome(); return; }
+    /* F1: a past date is selected -> route the modifier change through the day
+       editor (v175 consent), never write today. */
+    if (_selectedDate) { if (typeof batteryEditDay === 'function') batteryEditDay(_selectedDate); return; }
     if (activeDays.has(d)) {
       activeDays.delete(d);
       if (activeDays.size === 0) activeDays.add(d); // can't clear all
@@ -3689,13 +3695,13 @@
   }
 
   function loadRecFrom(){
-    const raw = storeGet('fuel-recovery-' + todayKey(), '');
+    const raw = storeGet('fuel-recovery-' + activeKey(), '');   // F2: per active date, not always today
     return new Set(raw ? raw.split(',').filter(Boolean) : []);
   }
   function renderRecFrom(){
     const box = document.getElementById('rec-from');
     if (!box) return;
-    const onRest = activeDays.has('rest');
+    const onRest = _activeDayTypes().has('rest');   // F2: selected day's rest status when a past date is active
     box.style.display = onRest ? 'block' : 'none';
     if (!onRest) return;
     const sel = loadRecFrom();
@@ -3709,7 +3715,7 @@
     if ((window.BATTERY_TIER || 'youth') !== 'adult' && what === 'lift') return;  // §4.3
     const sel = loadRecFrom();
     if (sel.has(what)) sel.delete(what); else sel.add(what);
-    storeSet('fuel-recovery-' + todayKey(), Array.from(sel).join(','));
+    storeSet('fuel-recovery-' + activeKey(), Array.from(sel).join(','));   // F2: per active date
     renderRecFrom();
   };
 
@@ -3839,11 +3845,28 @@
   function activeKey() { return _selectedDate || todayKey(); }
   function entryTime() { return _selectedDate ? '—' : nowTimeStr(); }
 
+  /* F1 (REQ-041 active-date): the day-type chip row reflects the ACTIVE day —
+     the selected past day's stored type, else today's activeDays. Display-only;
+     a past day's TYPE is changed through the day editor's v175 consent/re-freeze
+     (see goSetDayOnHome / toggleDay past-date branches), never a today write. */
+  function _activeDayTypes() {
+    if (!_selectedDate) return activeDays;
+    var raw = storeGet('fuel-day-' + _selectedDate, '');
+    var s = new Set(String(raw).split(',').filter(function(d){ return DAY_TARGETS[d]; }));
+    if (s.size === 0) s.add('train');
+    return s;
+  }
+  function _syncDayChipDisplay() {
+    var types = _activeDayTypes();
+    document.querySelectorAll('.day-chip').forEach(function(c){ c.classList.toggle('active', types.has(c.dataset.day)); });
+  }
   function _selectDate(dateKey) {
     _selectedDate = (dateKey === todayKey()) ? null : dateKey;
     refreshProgress();
     refreshLog();
     _renderSelectedBanner();
+    _syncDayChipDisplay();
+    if(typeof renderRecFrom==='function') try{ renderRecFrom(); }catch(e){}
     if(typeof _refreshSuppTiming==='function') try{_refreshSuppTiming();}catch(e){}
   }
   window._clearSelectedDate = function() { _selectDate(todayKey()); };
