@@ -313,7 +313,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.05.185</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.05.186</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -2601,8 +2601,12 @@ function readinessScore(){
   var youth=profileTier(profile)==='youth';
   var plan=getActivePlan();
   var parts=[];
-  if(_batCounts){
-    PLAN_STREAMS.forEach(function(k){if(!plan[k])return;var c=_batCounts[k];if(c&&c.total>0)parts.push(Math.min(1,c.done/c.total));});
+  // #6: the readiness ring is TODAY-LIVE. On a past view use TODAY's stream counts (ARM emits
+  // bat-counts.today regardless of _armActiveDate); _batFuel is already today's (v172 liveT). So the
+  // ring value stays today's instead of mixing today-fuel with the selected day's arm counts.
+  var _rc=(activeDateStr()!==_todayStr() && _batCounts && _batCounts.today) ? _batCounts.today : _batCounts;
+  if(_rc){
+    PLAN_STREAMS.forEach(function(k){if(!plan[k])return;var c=_rc[k];if(c&&c.total>0)parts.push(Math.min(1,c.done/c.total));});
   }
   if(_batFuel){
     if(_batFuel.tWater>0)parts.push(Math.min(1,_batFuel.water/_batFuel.tWater));
@@ -2619,10 +2623,12 @@ function readinessBreakdown(){
   var youth=profileTier(profile)==='youth', items=[];
   var plan=getActivePlan();
   function pct(n,d){return d>0?Math.min(100,Math.round(n/d*100)):null;}
-  if(_batCounts){
+  // #6: the ring's "why" explains today's readiness — use today's stream counts on a past view (matches readinessScore).
+  var _rc=(activeDateStr()!==_todayStr() && _batCounts && _batCounts.today) ? _batCounts.today : _batCounts;
+  if(_rc){
     [['arm','Arm care'],['drills','Drills'],['body','Body'],['lift','Lift']].forEach(function(r){
       if(!plan[r[0]])return;
-      var c=_batCounts[r[0]]; if(c&&c.total>0)items.push({label:r[1],pct:pct(c.done,c.total),detail:c.done+'/'+c.total});
+      var c=_rc[r[0]]; if(c&&c.total>0)items.push({label:r[1],pct:pct(c.done,c.total),detail:c.done+'/'+c.total});
     });
   }
   if(_batFuel){
@@ -2797,16 +2803,21 @@ function renderToday(){
     var rows='';
     var plan=getActivePlan();
     var trends=getWeekTrends();
-    if(_batCounts){
-      if(plan.arm)rows+=bar('ARM CARE','🦾',_batCounts.arm.done,_batCounts.arm.total,'var(--blood)','arm',trends.arm||'');
-      if(plan.drills)rows+=bar('DRILLS','🧤',_batCounts.drills.done,_batCounts.drills.total,'var(--blue)','drills',trends.drills||'');
-      if(plan.body){var bd=_batCounts.body||{done:0,total:0};if(bd.total>0)rows+=bar('RECOVERY','🧘',bd.done,bd.total,'#bc8cff','body',trends.body||'');}
+    // #6: HOME rows are TODAY-LIVE (grouped with the ring). On a past view use today's stream counts
+    // (bat-counts.today) + today's fuel (already today via v172); the whole #today-rows is dimmed +
+    // "TODAY"-labeled below so it reads as today's progress, never the selected day's.
+    var _rtPast=activeDateStr()!==_todayStr();
+    var _rc=(_rtPast && _batCounts && _batCounts.today) ? _batCounts.today : _batCounts;
+    if(_rc){
+      if(plan.arm)rows+=bar('ARM CARE','🦾',_rc.arm.done,_rc.arm.total,'var(--blood)','arm',trends.arm||'');
+      if(plan.drills)rows+=bar('DRILLS','🧤',_rc.drills.done,_rc.drills.total,'var(--blue)','drills',trends.drills||'');
+      if(plan.body){var bd=_rc.body||{done:0,total:0};if(bd.total>0)rows+=bar('RECOVERY','🧘',bd.done,bd.total,'#bc8cff','body',trends.body||'');}
       // LIFT rides the 'lift' field on bat-counts (plan-v2, adult-only per §4.3 --
       // the ARM iframe already reports zeros for youth, so this row naturally
       // never shows meaningfully for a youth profile). Deep-links via goTab like
       // the existing LIFT quick-icon, not a plain go() value (lifting is a
       // sub-tab of the ARM iframe's 'body' group, not its own top-level view).
-      if(plan.lift&&!youth){var lf=_batCounts.lift||{done:0,total:0};if(lf.total>0){
+      if(plan.lift&&!youth){var lf=_rc.lift||{done:0,total:0};if(lf.total>0){
         var lpct=Math.min(100,Math.round(lf.done/lf.total*100)),lfull=lf.done>=lf.total,lunt=lf.total>0&&lf.done===0;
         var ldim=lfull||lunt;
         var lTrend=trends.lift||'';
@@ -2838,6 +2849,10 @@ function renderToday(){
     if(profile)rows+='<div data-v="game" onclick="go(\'game\')" style="cursor:pointer;margin:10px 0;display:flex;justify-content:space-between;align-items:center;font-size:11px">'+
       '<span style="color:var(--dim);letter-spacing:1px;display:inline-flex;align-items:center">⚾&nbsp; GAME DAY</span>'+
       '<span style="color:var(--faint)">›</span></div>';
+    // #6: on a past view, DIM the whole rows block + prefix a "TODAY · LIVE" label so it reads as
+    // today's live progress (grouped with the ring), never the selected day's score.
+    rowsEl.style.opacity=_rtPast?'.5':'';
+    if(_rtPast&&rows)rows='<div style="font-size:9px;letter-spacing:1.5px;color:var(--faint);text-align:center;margin:0 0 6px">TODAY · LIVE</div>'+rows;
     rowsEl.innerHTML=rows||'<p class="dmeta" style="text-align:center">Open a tab to start logging today.</p>';
   }
   try{renderTonnageCard();}catch(e){}
