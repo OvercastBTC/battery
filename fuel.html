@@ -931,6 +931,8 @@
      forbids. Keep the button, drop the number -- the entry still logs its real
      grams underneath, so the parent-facing history is unchanged. */
   body.fuel-youth .quickadd-section.protein .qa-amt { display: none; }
+  /* §4.3: the image-tile gram readout (5.0) is hidden for youth, same as .qa-amt above */
+  body.fuel-youth .quickadd-section.protein .qa-igram { display: none; }
   /* stage 2: user-created items */
   .qa-btn { position: relative; }
   .qa-btn .qa-menu-dot {
@@ -1801,6 +1803,9 @@
   .qa-btn.qa-has-img .qa-label { position:absolute; left:12px; right:11px; bottom:10px; z-index:4; text-align:left; }
   .qa-btn.qa-has-img .qa-iname { font-size:13px; font-weight:800; color:#fff; letter-spacing:-.01em; text-shadow:0 1px 3px rgba(0,0,0,.95); line-height:1.15; }
   .qa-btn.qa-has-img .qa-iamt { font-size:10.5px; font-weight:600; color:rgba(255,255,255,.9); text-shadow:0 1px 3px rgba(0,0,0,.95); }
+  /* 5.0: +Xg protein readout on image tiles -- gold, amount-forward like the non-image .qa-amt, legible over the scrim */
+  .qa-btn.qa-has-img .qa-igram { font-size:15px; font-weight:800; color:var(--gold-bright); text-shadow:0 1px 3px rgba(0,0,0,.95); line-height:1.1; margin-bottom:1px; }
+  .qa-btn.qa-has-img .qa-igram .u { font-size:10px; font-weight:700; margin-left:1px; color:rgba(255,255,255,.85); }
   .qa-btn.qa-has-img .qa-menu-dot { z-index:5; color:rgba(255,255,255,.7); }
   .qa-btn.qa-has-img .qa-menu-dot:hover { color:#fff; }
 </style>
@@ -4280,6 +4285,10 @@
           var edge=document.createElement('div'); edge.className='qa-edge';
           var lab=document.createElement('div'); lab.className='qa-label';
           var parts=it.n.split(' · ');
+          /* 5.0: restore the +Xg protein value on image tiles (REQ-042 dropped it).
+             Prominent gold gram readable over the scrim; youth-gated in CSS exactly
+             like the non-image .qa-amt below (§4.3 -- youth never sees the macro). */
+          if(+it.p > 0){ var igram=document.createElement('div'); igram.className='qa-igram'; igram.appendChild(document.createTextNode('+'+it.p)); var gu=document.createElement('span'); gu.className='u'; gu.textContent='g'; igram.appendChild(gu); lab.appendChild(igram); }
           var iname=document.createElement('div'); iname.className='qa-iname'; iname.textContent=parts[0];
           lab.appendChild(iname);
           if(parts[1]){ var iamt=document.createElement('div'); iamt.className='qa-iamt'; iamt.textContent=parts[1]; lab.appendChild(iamt); }
