@@ -313,7 +313,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.05.184</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.05.185</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -945,6 +945,7 @@ function setActiveDate(ds){
   var lbl=document.getElementById('host-date-label');
   if(lbl){if(past){var d=new Date(_activeDate+'T00:00:00');lbl.textContent=(d.getMonth()+1)+'/'+d.getDate();lbl.style.color='var(--bone)';}else{lbl.textContent='Today';lbl.style.color='';}}
   renderWeekStrip();
+  try{renderToday();}catch(e){}  // H5: host today view follows the active date (re-renders sleep card, youth summary cards, advisory immediately — not just via the iframe round-trip)
   try{FRAMES.arm.contentWindow.postMessage({type:'bat-active-date',date:activeDateStr()},'*');}catch(e){}
   try{FRAMES.fuel.contentWindow.postMessage({type:'bat-active-date',date:activeDateStr()},'*');}catch(e){}
 }
@@ -2740,6 +2741,12 @@ function renderToday(){
     ring.style.cursor='pointer';
     ring.onclick=window.toggleReadyWhy;
     ring.title='Tap for why';
+    // H6: readiness is a TODAY-LIVE forward metric (v172 deliberately feeds it today's fuel). On a
+    // past view keep TODAY's score but DIM it + relabel READY→TODAY so it never reads as the selected
+    // day's score. (Mix-consistency — ARM still posts the active-date counts — is the A-coordinated fast-follow.)
+    var _rpast=activeDateStr()!==_todayStr();
+    ring.style.opacity=_rpast?'.4':'';
+    var _rlbl=ring.querySelector('.lbl'); if(_rlbl)_rlbl.textContent=_rpast?'TODAY':'READY';
     var sc=document.getElementById('today-score'); if(sc)sc.textContent=profile?score:'–';
   }
   if(profile&&score>=100){try{celebrateCharged();}catch(e){}}
@@ -2868,7 +2875,7 @@ function renderToday(){
   }
   var adv=document.getElementById('today-sleep-adv');
   if(adv){
-    var a=null; try{a=sleepAdvisory();}catch(e){}
+    var a=null; if(activeDateStr()===_todayStr()){ try{a=sleepAdvisory();}catch(e){} }  // H4: "today's readiness" advice is today-only — hides on past dates (stale advice is worse than none)
     if(a){
       adv.style.display='';
       adv.style.background=a.tone==='good'?'rgba(63,185,80,.08)':'rgba(240,162,60,.10)';
@@ -2911,7 +2918,7 @@ function renderToday(){
 function renderYouthCards(){
   var host=document.getElementById('youth-today-cards'); if(!host)return;
   if(!profile || profileTier(profile)!=='adult'){ host.innerHTML=''; return; }   // §4.3: adult viewer only
-  var today=todayPlanKey(), people=[];
+  var today=activeDateStr(), people=[];  // H2: youth summary cards (arm-feel/bottles/J-Bands) follow the ACTIVE date, not always today
   try{ people=getPeople(); }catch(e){}
   var cards=people.filter(function(p){return p&&p.tier==='youth';}).map(function(p){
     var armCount=0; try{ armCount=(consistencyMap(p.id)[today]||0); }catch(e){}
@@ -2951,22 +2958,22 @@ try{Object.keys(localStorage).filter(function(k){return k.match(/::sleep-\d{4}-\
   }
 });}catch(e){}
 function getSleep(id,dateStr){if(!id)return null;try{return localStorage.getItem('battery::'+id+'::sleep-'+dateStr)||null;}catch(e){return null;}}
-window.logSleep=function(val){if(!profile)return;try{safeSet('battery::'+profile+'::sleep-'+sleepDateKey(new Date()),val);}catch(e){}renderSleepCard();};
+window.logSleep=function(val){if(!profile)return;try{safeSet('battery::'+profile+'::sleep-'+activeDateStr(),val);}catch(e){}renderSleepCard();};
 function renderSleepCard(){
   var card=document.getElementById('sleep-card'); if(!card)return;
   if(!profile){card.style.display='none';return;}
   card.style.display='';
   var youth=profileTier(profile)==='youth';
-  var today=sleepDateKey(new Date()), cur=getSleep(profile,today);
+  var dkey=activeDateStr(), isPastSleep=(dkey!==_todayStr()), cur=getSleep(profile,dkey);  // 4.0: sleep log/read keyed to the ACTIVE date, not always today
   var OPTS=[{v:'rough',e:'😫',l:'Rough'},{v:'ok',e:'😐',l:'Okay'},{v:'good',e:'😌',l:youth?'Great':'Good'}];
   var t=document.getElementById('sleep-title'); if(t)t.textContent=youth?'😴 How did you sleep?':'😴 How’d you sleep?'; // kid-voice copy preserved (today-view.test.mjs) even in the .76 compact one-row layout
   var sub=document.getElementById('sleep-sub');
-  if(sub)sub.innerHTML=cur?'Logged — tap to change.':(youth?'Tell us how you slept last night!':'Bauer’s #1 recovery tool — log last night.');
+  if(sub)sub.innerHTML=cur?'Logged — tap to change.':(isPastSleep?'Log how you slept that night — tap a face.':(youth?'Tell us how you slept last night!':'Bauer’s #1 recovery tool — log last night.'));
   var btns=document.getElementById('sleep-btns');
   if(btns)btns.innerHTML=OPTS.map(function(o){var on=cur===o.v;return '<button onclick="logSleep(\''+o.v+'\')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;height:32px;box-sizing:border-box;background:'+(on?'var(--goldb)':'#161b22')+';border:1px solid '+(on?'var(--goldb)':'var(--line)')+';color:'+(on?'#0d1117':'var(--bone)')+';border-radius:9px;padding:0 4px;cursor:pointer;font-weight:'+(on?'700':'400')+'"><span style="font-size:15px;line-height:1">'+o.e+'</span><span style="font-size:10px;letter-spacing:.3px">'+o.l+'</span></button>';}).join('');
   var EMO={rough:'😫',ok:'😐',good:'😌'};
   var cells='',logged=0,good=0;
-  for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var v=getSleep(profile,sleepDateKey(d));if(v){logged++;if(v==='good')good++;}cells+='<span style="font-size:15px;opacity:'+(v?'1':'.22')+'">'+(v?(EMO[v]||'·'):'·')+'</span>';}
+  for(var i=6;i>=0;i--){var d=new Date(activeDateStr()+'T00:00:00');d.setDate(d.getDate()-i);var v=getSleep(profile,sleepDateKey(d));if(v){logged++;if(v==='good')good++;}cells+='<span style="font-size:15px;opacity:'+(v?'1':'.22')+'">'+(v?(EMO[v]||'·'):'·')+'</span>';}
   var tr=document.getElementById('sleep-trend');
   if(tr){
     if(logged>0){
@@ -3107,6 +3114,7 @@ function renderTonnageCard(){
 }
 function refreshFlowBtn(){
   var b=document.getElementById('flow-btn'); if(!b)return;
+  if(activeDateStr()!==_todayStr()){ b.style.display='none'; return; }  // item5: Flow/resume is a TODAY-ONLY action — hide on past dates
   var p=flowProgress();
   b.style.display=p.remaining?'block':'none';
   if(!p.remaining){b.textContent='';return;}
