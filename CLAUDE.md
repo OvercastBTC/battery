@@ -74,7 +74,14 @@ A youth-tier profile must **never** see: supplement / stimulant / dosing / quant
 ## 5. How to Test
 
 Test harness (authoritative): `~/battery-tests/run.sh`
-Runs the **full Playwright gate (36 suites as of 26.09.19)** against the staged build — `run.sh` is the authoritative list, always trust it over this count if they ever disagree.
+Runs the **full Playwright gate (38 suites as of 26.10.05)** against the staged build — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. `run.sh` uses an EXPLICIT suite list (not a glob) — a new `.mjs` needs a `node "${HERE}/x.test.mjs"` line added.
+
+**Suites added since the 36 baseline, each guarding a "derived UI whose correctness nothing asserts" / "silent-data-wrong" class (writes/renders the wrong thing with no error and no failing test — exactly how the bugs below shipped unnoticed):**
+- `derived-ui.test.mjs` §4b (+v183): the host month picker (`#picker-grid`) must compute `display:grid` and lay out 7 columns — guards the v183 single-column bug (CSS rule was `.picker-grid` but the element is `id="picker-grid"`, so `display:grid` never applied).
+- `food-images.test.mjs` (+v182): REQ-042 food tiles — non-zero RENDER AREA on `.qa-has-img .qa-bg` (the 0×0 present-but-invisible trap), valid `data:image/webp`, decoded size floor/ceiling, alias-aware distinctness, metal-tone-by-type, youth re-point.
+- `date-dependence.test.mjs` (+v187): the 4.1 fix — sleep logs/reads the ACTIVE date (today not overwritten), advisory hides on past, host plan-chips locked + no `battery-plan-<today>` write on past, FUEL day-chip reflects `fuel-day-<selKey>` + no `fuel-day-<today>` mutation on past tap, recovery reads `fuel-recovery-<activeKey>`. Negative-controlled (reverting a keying reds it).
+
+Both `food-images` and `date-dependence` are FEATURE-GUARDED (skip pre-feature builds via a source marker; fail loud on a real break) per the per-check rule below.
 
 `node --check` on the host `<script>` block is a useful quick check, but **it does not catch srcdoc breakage** (HTML encoding masks truncation from the parser). The Playwright gate is authoritative for all iframe edits.
 
@@ -306,13 +313,13 @@ return a negative has not confirmed anything.**
 | Direction | Shape | Purpose |
 |-----------|-------|---------|
 | host → ARM | `{type:'bat-group', group:'arm'|'drills'|'body'}` | show group |
-| ARM → host | `{type:'bat-counts', arm, drills, body, lift}` | activity counts. `lift:{done,total,optDone,optTotal}` is additive (plan-v2) — Lifting-tab counts, zeroed for youth on the ARM side (§4.3). Host must tolerate the field being absent (old cached iframe). |
+| ARM → host | `{type:'bat-counts', arm, drills, body, lift, today}` | activity counts. `lift:{done,total,optDone,optTotal}` is additive (plan-v2) — Lifting-tab counts, zeroed for youth on the ARM side (§4.3). **`today:{arm,drills,body,lift}` (additive, +v186) = TODAY's counts regardless of `_armActiveDate`** (computed from today's stored done-set, not the DOM). The host readiness ring/rows read `today` on a PAST view so the today-live score stays today's (see §7.5); youth `today.lift` zeroed via the same gate. Host must tolerate `today` — and any field — being absent (old cached iframe). |
 | host → iframe | `{type:'bat-nav', tab}` | iframe calls `switchTab(tab)` |
 | host → iframe | `{type:'bat-poll'}` | ARM: `postCounts()`; FUEL: `refreshProgress()` |
 | host → both | `{type:'bat-active-date', date}` | REQ-039 (v168): broadcasts active date (`'YYYY-MM-DD'` or `null` for today) to both iframes. ARM converts to UNPADDED key internally. FUEL calls `_selectDate(date)` / `_clearSelectedDate()`. `body.past-date` class on host drives 18% navy tint. |
 | FUEL → host | `{type:'bat-fuel', water, protein, tWater, tProtein, tWaterStretch, day, runway}` | today totals. `tWater` = BASE target (met/streak contract). `tWaterStretch` = base + manual bump + carry-over (v176/v179, ring rendering). `runway:{state:'none'|'active'|'now', time?}` is additive — pre-training eat/drink window status, surfaced read-only on TODAY. |
 | FUEL → host | `{type:'bat-day-progress', days}` | 42-day map of `{tier, p, w}` per date key (v177). `tier` from `classifyDateKey()`: both/partial/low/empty/future/rest. Posted on goal OR event change. Host uses for week-strip goal dots + picker dual-goal bars. |
-| host → FUEL | `{type:'bat-editday', date}` | Open FUEL's day editor on `date`. **`date` MUST be a FUEL-shaped key** — zero-padded local `YYYY-MM-DD`, i.e. what `todayKey()` produces. ARM's completion keys are deliberately UNPADDED and the two are byte-incompatible, so an ARM-shaped key would open an EMPTY day instead of failing. The handler therefore **validates and refuses** rather than trusting the sender. Exists so the host's read-only *This Week in Review* card can become clickable **without growing a second day editor** — FUEL already owns a working one, reachable from every weekly bar row and history row. Host sends; FUEL opens. |
+| host → FUEL | `{type:'bat-editday', date}` | Open FUEL's day editor on `date`. **`date` MUST be a FUEL-shaped key** — zero-padded local `YYYY-MM-DD`, i.e. what `todayKey()` produces. ARM's completion keys are deliberately UNPADDED and the two are byte-incompatible, so an ARM-shaped key would open an EMPTY day instead of failing. The handler therefore **validates and refuses** rather than trusting the sender. Exists so the host's read-only *This Week in Review* card can become clickable **without growing a second day editor** — FUEL already owns a working one, reachable from every weekly bar row and history row. Host sends; FUEL opens. **(+v187) This is also the SINGLE past-day day-type edit funnel: both the host plan-chips (`openDayEditorForActive()`) and A's FUEL day-type chips route a past-date tap through this one relay → FUEL's v175 consent editor. Never add a second write path or a reconciliation layer (see §7.5).** |
 | host → FUEL | `{type:'bat-plan', day}` | plan-v2: sent whenever TODAY's plan flags change. Mapping (host `syncFuelDayFromPlan()`): game event → `'game'`; all streams off → `'rest'`; trained hard yesterday or lifted heavy today → `'heavy'`; all streams on (fullsend) → `'heavy'`; lift on OR (arm+drills) on → `'train'`; otherwise → `'light'`. FUEL commits the day type unconditionally (one control, no layer). |
 | FUEL → host | `{type:'bat-notif', title, body, tag}` | REQ-027 (v151): FUEL requests the host to dispatch a Notification. Host owns `Notification.requestPermission()` and the dispatch; iframes can't request permission independently. Youth-gated. Hookpoint for v153 timed supplement cues. |
 | ARM → host → FUEL | `{type:'request-day-edit', date}` → `{type:'bat-editday', date}` | REQ-039 (v161): ARM history "EDIT THIS DAY" sends padded date to host; host relays as `bat-editday` to FUEL and switches to FUEL view. `date` is FUEL-shaped (zero-padded `YYYY-MM-DD`). |
@@ -346,6 +353,22 @@ return a negative has not confirmed anything.**
 
   This table exists because Lane E's host card independently guessed a `good`/`okay`/`rough` word vocabulary for these exact three values. Both the type and the words were wrong, so `if(feel==='good')` could never match — no error, no test failure. Caught only by reading the shipped source after merge. **If you add a cross-seam key, add a row and a test asserting the real values.**
 - Migrations must be one-time idempotent guards. Plan-v2 example: `battery-plan-<date>` used to store a single preset string (full/throwing/hitting/lift/rest); `getActivePlan()` migrates a legacy string value to the new `{arm,drills,body,lift}` JSON flag object the first time it's read, then rewrites it as JSON so migration only runs once per date key.
+
+## 7.5 Active-date / date context (the 4.1 fix — v185–v187)
+
+The app has an **active date** (host `_activeDate`, null = today) chosen from the week strip / month picker. It is broadcast to the iframes via `bat-active-date` (§7). Keys everywhere are **zero-padded local `YYYY-MM-DD`**: host `activeDateStr()` = `_activeDate || _todayStr()`; FUEL `activeKey()` = `_selectedDate || todayKey()`. (ARM still converts to its own UNPADDED completion keys internally.)
+
+**The lever (host):** `setActiveDate()` calls `renderToday()` so the host today view re-renders DATED surfaces **immediately** on a date change — not just whenever an iframe re-posts counts. Before v185 it only re-rendered the week strip + notified iframes, so every host today-view surface silently showed *today's* data on a past view (the whole 4.1 bug class).
+
+**DATED** — read the active key, re-render on date change:
+- Host: **sleep card** (`sleep-<activeDateStr()>`), **youth summary cards** (`renderYouthCards`: `arm-care-feel`/`consistencyMap`/`fuelDayTotals` for the active date), **plan-chips DISPLAY** (read-only on past).
+- FUEL: **day-type chips** (read `fuel-day-<activeKey()>`), **recovery checklist** (`fuel-recovery-<activeKey()>`).
+
+**TODAY-LIVE** — a live/forward "right now" surface; HIDE or DIM on a past view, do **not** re-key:
+- **Sleep advisory** + **Flow/resume CTA** → hidden on past.
+- **Readiness ring + `#today-rows`** → stay today's value (ring reads `bat-counts.today`; rows read `bat-counts.today` + `_batFuel` which is already today's via the v172 liveT seam), DIMMED + labeled "TODAY"/"TODAY · LIVE" so they never read as the selected day's score. (`readinessScore` still weights by `getActivePlan(today)`.) Dating the rows was deliberately NOT done — it would need FUEL to post selected-date totals (a cross-seam change; keep v172).
+
+**§7 DAY-TYPE is single-source-of-truth = TODAY, and must stay that way.** The day-type/plan WRITE path is today-only. On a past view the day-type is **READ-ONLY display**: host plan-chips use `getPlanForDate(dk)` (read-only — stored `battery-plan-<dk>` only, NO migration write-back, NO weekly-template fallback; returns null → honest "No plan logged for this day" rather than a fabricated plan; youth lift forced off). Editing a past day routes through the **ONE** `bat-editday` → v175 consent editor (host `openDayEditorForActive()` and A's FUEL chips both). **Never reintroduce a "suggest/overwrite" or reconciliation layer** — that is the exact layer deliberately deleted 2026-08-18 (see §7's resolved note: all three of that month's silent-failure bugs lived there). **FUEL-specific (do not "fix" this later):** past-day consent must NOT be inlined into `commitDays` — its caller `handlePlanSync` is the HOME today-push and must stay UNCONDITIONAL; inlining per-date consent there re-creates that 3-silent-bug layer. `commitDays` / `handlePlanSync` / the today write-path stay unconditional; past-date edits go only through `batteryEditDay(selectedDate)` (the v175 consent/re-freeze editor), reached via `bat-editday`. A past-date surface must never write `battery-plan-<today>` / `fuel-day-<today>`; the `date-dependence.test.mjs` gate (§5) asserts this.
 
 ## 8. Coordination Pointers
 
@@ -406,3 +429,17 @@ Lane A is the **quarterback**: it assigns work, and lanes report completion back
 **Quarterback loop:** Lane A assigns → lane disarms and works → lane reports completion to Lane A → if the next step depends on someone else, the lane arms and posts `BLOCKED on <what>` → Lane A unblocks it → lane disarms and works. Lane A tells a lane to disarm when it hands it work; a lane arms itself when it becomes blocked.
 
 **Usage-limit protocol (owner directive 2026-07-17):** a usage/quota limit is a pause, not a cancellation. Before stopping: record the reset time + interrupted work in comms (Issue #2 if cross-machine). Re-check after the reset and continue. Workflows resume with cached results — never redo finished work. Time-sensitive work gets reassigned to a lane with budget via Lane A. Capped lanes announce their return.
+
+## 9. UI & asset conventions
+
+### REQ-042 — Liquid Metal food quick-add tiles (FUEL, v182/v184)
+
+- **`display:grid` on `.qa-btn.qa-has-img` is LOAD-BEARING.** Every layer (`.qa-bg` photo / scrim / sheen) is `position:absolute`, so without a definite height source (`display:grid` + `aspect-ratio:16/11`) the photo renders **0×0** — markup + a valid data-URI both pass a static check; only a rendered-rect check catches it (`food-images.test.mjs`, §5).
+- **Metal rim tone is data-driven by the existing FUEL class, not per-key:** `.protein`→`--metal-gold` (default), `.water`→`--metal-blue`, `.electrolyte`→`--metal-green`; a per-item override only where macro≠grid (e.g. `.qa-has-img.water[data-item^="sport-drink-"]`→green). Youth: `--metal-gold`→`--metal-green` under `body.fuel-youth`.
+- The `+Xg` protein-gram readout on image tiles (`.qa-igram`, v184) is **youth-gated exactly like `.qa-amt`** (§4.3 — youth never sees the macro).
+- Images are **inline base64** in `food-images.js` (NOT hosted files) because the **SW is DORMANT** — index.html unregisters all SWs on boot and there is no `register()` call, so `sw.js` never runs. Base64 rides the cached script = offline-safe; hosted files would be uncached fetches. REQ-028 (hosted assets) stays deferred unless the SW is re-enabled. Aliasing (multiple `FOOD_IMAGES` keys → one shared const for size-variants of one item) is intentional; the gate's dup check is alias-aware.
+
+### Clip system — fallback & licensing
+
+- A step's `clip-btn` → `openClip(name)`. When the local `clips/<name>` is absent, `clipFailed` shows the official **"watch demo" link** (`OFFICIAL_DEMOS`) + the `CLIP_SOURCE` credit — the un-recorded-clip fallback; `openClip` core is unchanged. `clips/previews/*.webp` holds REQ-041 preview-card thumbnails.
+- **Licensing (`[[clip-licensing-embed-only]]`):** a NEW / un-cleared third-party source ships **link-only** — a `CLIP_SOURCE` credit + an `OFFICIAL_DEMOS` external link. That is the same class already live (Jaeger, YouTube channels, Bauer rows) and needs **no per-source owner clearance** — a link + credit is not a re-host. **Re-hosting footage locally** (adding a `clips/*.mp4`) DOES need explicit owner clearance for that source (the owner's "yes, add it" IS the clearance). Worked example: Band Pull-Apart (v184) — owner chose offline-inline → cleared → local clip + preview shipped.
