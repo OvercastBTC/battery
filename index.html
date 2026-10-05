@@ -313,7 +313,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.05.186</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.05.187</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -2413,6 +2413,32 @@ function showWeeklySchedule(){
 window.showWeeklySchedule=showWeeklySchedule;
 function todayPlanKey(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function flagsEqual(a,b){return PLAN_STREAMS.every(function(k){return !!a[k]===!!b[k];});}
+/* H3: READ-ONLY plan for an arbitrary (past) date. Stored battery-plan-<dk> only — NO migration
+   write-back, NO weekly-template fallback (those are getActivePlan's today-forward behaviors and must
+   not run for a past read). Returns null when nothing was explicitly stored for that day (past days are
+   completion-driven; don't fabricate a plan). Youth lift forced off (§4.3). */
+function getPlanForDate(dk){
+  var youth=profileTier(profile)==='youth', flags=null;
+  try{
+    var raw=localStorage.getItem('battery-plan-'+dk);
+    if(raw){
+      try{ flags=JSON.parse(raw); }
+      catch(e){ if(Object.prototype.hasOwnProperty.call(PLAN_LEGACY_MAP,raw)) flags=Object.assign({},PLAN_LEGACY_MAP[raw]); }
+    }
+  }catch(e){}
+  if(!flags||typeof flags!=='object'||Array.isArray(flags)) return null;
+  if(youth)flags.lift=false;
+  return flags;
+}
+/* H3: open the FUEL day editor (v175 consent) for the active date — the single past-day day-type edit
+   surface for BOTH host plan-chips and A's FUEL day-type chips. Reuses the existing bat-editday relay
+   (§7/REQ-039), so no new contract and no host-side today-write. */
+function openDayEditorForActive(){
+  var dk=activeDateStr();
+  try{ if(FRAMES.fuel&&FRAMES.fuel.contentWindow) FRAMES.fuel.contentWindow.postMessage({type:'bat-editday',date:dk},'*'); }catch(e){}
+  try{ go('fuel'); }catch(e){}
+}
+window.openDayEditorForActive=openDayEditorForActive;
 function getActivePlan(){
   var youth=profileTier(profile)==='youth';
   var flags=null;
@@ -2784,6 +2810,23 @@ function renderToday(){
     planChipsEl.innerHTML=presetHtml+
       '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;padding-top:4px;border-top:1px solid var(--line)">'+
       pills+'<span style="width:1px;align-self:stretch;background:var(--line);margin:0 2px"></span>'+conv+'</div>'+schedLink;
+    // H3: on a PAST date the §7 day-type/plan write-SoT stays TODAY. Replace the editable chips with a
+    // READ-ONLY summary of the SELECTED day's stored plan; tapping routes to the FUEL day editor (v175
+    // consent) via the existing bat-editday relay — never a today-write. Nothing stored for that day
+    // (past days are completion-driven) -> say so rather than fabricate a plan.
+    if(activeDateStr()!==_todayStr()){
+      var _pd=getPlanForDate(activeDateStr()), _plabel;
+      if(!_pd){ _plabel='No plan logged for this day'; }
+      else {
+        var _fr=youth?Object.assign({},PLAN_ALL_ON,{lift:false}):PLAN_ALL_ON;
+        if(flagsEqual(_pd,_fr))_plabel='Full';
+        else if(flagsEqual(_pd,PLAN_REST))_plabel='Rest';
+        else { var _L={arm:'Arm',drills:'Drills',body:'Recovery',lift:'Lift'};
+          var _on=['arm','drills','body','lift'].filter(function(k){return _pd[k]&&(k!=='lift'||!youth);}).map(function(k){return _L[k];});
+          _plabel=_on.length?_on.join(' · '):'Rest'; }
+      }
+      planChipsEl.innerHTML='<button class="plan-chip" onclick="openDayEditorForActive()" style="width:100%;text-align:left;opacity:.85;cursor:pointer">🔒 '+escHtml(_plabel)+' · tap to edit this day</button>';
+    }
   }
   var rowsEl=document.getElementById('today-rows');
   if(rowsEl){
