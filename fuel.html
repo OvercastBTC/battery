@@ -1796,7 +1796,10 @@
      class, amount color, grid placement, and youth gating are all untouched. Extra
      .water in the selector outranks the .water blue rule regardless of source order.
      milk-8oz/fairlife-8oz need no override -- they're protein-grid (gold default). */
-  .qa-btn.qa-has-img.water[data-item^="sport-drink-"] { background:var(--metal-green); }
+  /* 5.3b: collapsed sport-drink id is now 'sport-drink' (not 'sport-drink-N'); keep the
+     prefix match (drops the trailing dash) so the electrolyte drink keeps its GREEN rim
+     (tone = macro: sport drink adds electrolytes, it's not plain water). */
+  .qa-btn.qa-has-img.water[data-item^="sport-drink"] { background:var(--metal-green); }
   .qa-btn.qa-has-img:hover { transform:translateY(-1px); }
   /* REQ-052 5.3 Layout 1 — orientation-grouped tiles (data-driven via item.orient).
      DRINKS = portrait (3/4): the size-accurate vessel render shows WHOLE (contain) on the
