@@ -74,12 +74,13 @@ A youth-tier profile must **never** see: supplement / stimulant / dosing / quant
 ## 5. How to Test
 
 Test harness (authoritative): `~/battery-tests/run.sh`
-Runs the **full Playwright gate (38 suites as of 26.10.05)** against the staged build — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. `run.sh` uses an EXPLICIT suite list (not a glob) — a new `.mjs` needs a `node "${HERE}/x.test.mjs"` line added.
+Runs the **full Playwright gate (37 suites as of 26.10.05.188)** against the staged build — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. (Count was mislabeled "38"; the live `run.sh` has 37 `node x.test.mjs` lines — 36 at v187 + `week-strip-rings.test.mjs` at v188.) `run.sh` uses an EXPLICIT suite list (not a glob) — a new `.mjs` needs a `node "${HERE}/x.test.mjs"` line added.
 
 **Suites added since the 36 baseline, each guarding a "derived UI whose correctness nothing asserts" / "silent-data-wrong" class (writes/renders the wrong thing with no error and no failing test — exactly how the bugs below shipped unnoticed):**
 - `derived-ui.test.mjs` §4b (+v183): the host month picker (`#picker-grid`) must compute `display:grid` and lay out 7 columns — guards the v183 single-column bug (CSS rule was `.picker-grid` but the element is `id="picker-grid"`, so `display:grid` never applied).
 - `food-images.test.mjs` (+v182): REQ-042 food tiles — non-zero RENDER AREA on `.qa-has-img .qa-bg` (the 0×0 present-but-invisible trap), valid `data:image/webp`, decoded size floor/ceiling, alias-aware distinctness, metal-tone-by-type, youth re-point.
 - `date-dependence.test.mjs` (+v187): the 4.1 fix — sleep logs/reads the ACTIVE date (today not overwritten), advisory hides on past, host plan-chips locked + no `battery-plan-<today>` write on past, FUEL day-chip reflects `fuel-day-<selKey>` + no `fuel-day-<today>` mutation on past tap, recovery reads `fuel-recovery-<activeKey>`. Negative-controlled (reverting a keying reds it).
+- `week-strip-rings.test.mjs` (+v188, NEW FILE — the only one added since v187, hence 36→37): REQ 2.0 week-strip goal rings — pushes a map through the real `bat-day-progress` seam and asserts dual-ring render-area (0×0 guard), data-faithful `--p`/`--w` arcs, over-100 clamp, tier→class, and §4.3 youth no-macro-leak (adult aria-label carries the %, youth carries none — both-ways). Feature-guarded (skips pre-rings builds via the `dc-ring` source marker).
 
 Both `food-images` and `date-dependence` are FEATURE-GUARDED (skip pre-feature builds via a source marker; fail loud on a real break) per the per-check rule below.
 
