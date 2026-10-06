@@ -1798,6 +1798,16 @@
      milk-8oz/fairlife-8oz need no override -- they're protein-grid (gold default). */
   .qa-btn.qa-has-img.water[data-item^="sport-drink-"] { background:var(--metal-green); }
   .qa-btn.qa-has-img:hover { transform:translateY(-1px); }
+  /* REQ-052 5.3 Layout 1 — orientation-grouped tiles (data-driven via item.orient).
+     DRINKS = portrait (3/4): the size-accurate vessel render shows WHOLE (contain) on the
+     dark tile so an 8oz glass reads 8oz vs a 1L. FOOD = landscape (16/10). The default
+     qa-has-img 16/11 still applies to any tile without an orientation class (e.g. the
+     separate full-tab pages — Tracker-only restyle, per scope). */
+  .qa-btn.qa-has-img.qa-portrait  { aspect-ratio:3/4; }
+  .qa-btn.qa-has-img.qa-portrait .qa-bg { background-size:contain; background-color:#0b0f14; }
+  .qa-btn.qa-has-img.qa-landscape { aspect-ratio:16/10; }
+  /* denser groups: drinks pack 3 portrait tiles/row; food keeps 2 landscape (bigger photo) */
+  .quickadd-section.water .qa-grid { grid-template-columns:repeat(3,1fr); gap:6px; }
   .qa-btn.qa-has-img .qa-bg { position:absolute; inset:3px; border-radius:13px; background-size:cover; background-position:center; background-repeat:no-repeat; background-color:#0b0f14; z-index:0; }
   /* .qa-tint repurposed as the liquid-glass sheen -- color now lives in the rim, not a photo wash */
   .qa-btn.qa-has-img .qa-tint { position:absolute; inset:3px; border-radius:13px; z-index:2; mix-blend-mode:screen; background:linear-gradient(133deg, rgba(255,255,255,.30), rgba(255,255,255,.08) 16%, transparent 40%); }
@@ -4252,7 +4262,8 @@
     {id:'yeti-shaker-28-0-0',g:'containers',w:28,e:0,l:'Yeti shaker',n:'Yeti shaker 28oz'},
     {id:'smart-water-1l-33-8-0',g:'containers',w:33.8,e:0,l:'Smart Water 1L',n:'Smart Water 1L (33.8oz)'},
     {id:'bottle-12-0-0',g:'containers',w:12,e:0,l:'Bottle',n:'Standard bottle'},
-    {id:'glass-8-0-0',g:'containers',w:8,e:0,l:'Glass',n:'Glass / cup'},
+    {id:'glass-8-0-0',g:'containers',w:8,e:0,orient:'portrait',l:'Glass',n:'Glass / cup'},
+    {id:'wide-bottle-28-0-0',g:'containers',w:28,e:0,orient:'portrait',l:'Water bottle 28oz',n:'Wide bottle · 28oz'},
     {id:'liquid-iv-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV',n:'Liquid IV ⚡ full'},
     {id:'liquid-iv-0-0-5',g:'mixins',w:0,e:0.5,l:'Liquid IV ½',n:'Liquid IV ⚡ half'},
     {id:'liquid-iv-energy-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV Energy',n:'Liquid IV Energy ⚡'},
@@ -4284,7 +4295,9 @@
         b.dataset.item = it.id;
         var hasImg = window.FOOD_IMAGES && window.FOOD_IMAGES[it.id];
         if(hasImg){
-          b.className = 'qa-btn water qa-has-img';
+          /* 5.3 Layout 1: orientation tile. Drinks default portrait (vessel shown); orient
+             field overrides per-item (data-driven, a tall shake could be portrait in food). */
+          b.className = 'qa-btn water qa-has-img ' + ((it.orient||'portrait')==='landscape'?'qa-landscape':'qa-portrait');
           var bg=document.createElement('div'); bg.className='qa-bg';
           bg.style.backgroundImage='url('+window.FOOD_IMAGES[it.id]+')';
           var tint=document.createElement('div'); tint.className='qa-tint';
@@ -4353,7 +4366,8 @@
         b.dataset.item = it.id;
         var hasImg = window.FOOD_IMAGES && window.FOOD_IMAGES[it.id];
         if(hasImg){
-          b.className = 'qa-btn protein qa-has-img';
+          /* 5.3 Layout 1: food defaults landscape; orient field overrides per-item. */
+          b.className = 'qa-btn protein qa-has-img ' + ((it.orient||'landscape')==='portrait'?'qa-portrait':'qa-landscape');
           var bg=document.createElement('div'); bg.className='qa-bg';
           bg.style.backgroundImage='url('+window.FOOD_IMAGES[it.id]+')';
           var tint=document.createElement('div'); tint.className='qa-tint';
