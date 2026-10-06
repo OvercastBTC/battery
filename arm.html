@@ -1064,7 +1064,50 @@
     display:flex; justify-content:space-between; align-items:center;
     font-size:10px; color:rgba(255,255,255,0.55);
   }
-  .clip-card-full { font-size:9px; color:rgba(255,255,255,0.3); }
+  .clip-card-full { font-size:9px; color:rgba(255,255,255,0.3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:62%; }
+  a.clip-card-full { color:var(--blue); text-decoration:none; }
+  a.clip-card-full:hover { text-decoration:underline; }
+  .clip-card-label { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* REQ-042 4.2 (D spec): the preview card IS an inline player.
+     The 16:9 .clip-preview box already has height (aspect-ratio), so an absolute
+     <video> fills it without the 0x0 collapse. Poster = cover; video = contain so a
+     portrait clip letterboxes in the same box instead of stretching (mixed list never
+     reflows). */
+  .clip-preview video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; display:block; z-index:1; }
+  .clip-fsbtn { position:absolute; top:6px; right:6px; z-index:4;
+    width:30px; height:30px; border-radius:8px; border:1px solid rgba(255,255,255,0.18);
+    background:rgba(13,17,23,0.6); color:#fff; cursor:pointer; display:none;
+    align-items:center; justify-content:center; font-size:16px; line-height:1; padding:0; }
+  .clip-fsbtn:hover { background:rgba(13,17,23,0.85); }
+  /* 4.2: explicit slow-mo buttons on the inline player — slow-mo is a core coaching
+     feature and iOS native <video> controls don't reliably expose playback speed, so we
+     keep prominent 1x/half/quarter buttons rather than relying on native controls. */
+  .clip-speed-inline { position:absolute; top:6px; left:6px; z-index:4; display:none; gap:3px; }
+  .clip-card-anim.playing .clip-speed-inline { display:flex; }
+  .clip-speed-inline .cs-ib { background:rgba(13,17,23,0.6); border:1px solid rgba(255,255,255,0.18);
+    color:#fff; border-radius:7px; padding:3px 7px; font-size:11px; font-weight:700; cursor:pointer;
+    font-family:inherit; line-height:1; }
+  .clip-speed-inline .cs-ib:hover { background:rgba(13,17,23,0.85); }
+  .clip-speed-inline .cs-ib.on { background:var(--gold,#f0b832); color:#0a0f14; border-color:transparent; }
+  .clip-card-anim.playing .clip-play-overlay,
+  .clip-card-anim.playing .clip-preview-img,
+  .clip-card-anim.playing .clip-loop-badge { display:none; }
+  .clip-card-anim.playing .clip-fsbtn { display:flex; }
+  .clip-linkout { position:absolute; inset:0; z-index:3; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:6px; background:#0a1828; color:var(--blue);
+    text-decoration:none; font-size:12px; font-weight:700; text-align:center; padding:12px; }
+  /* BIG (fullscreen-API fallback / sandboxed-iframe path) */
+  #clip-scrim { position:fixed; inset:0; background:rgba(2,4,8,0.82); z-index:50; display:none; }
+  #clip-scrim.open { display:block; }
+  #clip-exitbig { position:fixed; top:14px; right:16px; z-index:52; display:none;
+    background:var(--panel,#161b22); border:1px solid var(--line); color:var(--fg,#e6edf3);
+    border-radius:9px; padding:8px 13px; font-size:12.5px; font-weight:600; cursor:pointer; }
+  #clip-exitbig.show { display:inline-flex; }
+  .clip-card-anim.big { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:min(94vw,1000px); max-width:none; margin:0; z-index:51; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+  .clip-card-anim.big .clip-preview { aspect-ratio:16/9; }
+  .clip-card-anim.big .clip-card-footer { display:none; }
 
   /* PLYO youth gate (§4.3): heavy plyo is training load — hidden for kids */
   .plyo-youth-only { display: none; }
@@ -8703,12 +8746,56 @@
   }
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeClip(); });
 
-  /* REQ-041: builds an animated 320×180 preview card for a clip file.
-     Preview path: clips/previews/preview-{key}.webp — 404 hides the img gracefully. */
+  /* REQ-042 4.2 (D verified spec): the REQ-041 preview card IS an inline player.
+     The 4.1 animated webp is the poster; tap -> native <video controls playsinline> in
+     the SAME 16:9 box (no reflow); ⤢ corner button OR double-tap -> goBig (iOS
+     webkitEnterFullscreen, else card.requestFullscreen() with a .catch() -> CSS .big
+     expand so the control is never silently dead). Single player at a time (clipStopOthers).
+     Local re-hosted clips play inline; a missing/external clip flips to the official-source
+     link-out (same classifier the modal used: try local, link out on <video> error). The
+     source credit (CLIP_SOURCE) stays visible for licensing. openClip (modal) is left intact
+     for any direct callers; the cards no longer route through it. Zero deps, no SW change. */
+  function clipStopOthers(except){
+    var cards=document.querySelectorAll('.clip-card-anim.playing');
+    for(var i=0;i<cards.length;i++){ if(cards[i]===except) continue;
+      var v=cards[i].querySelector('video'); if(v){ try{v.pause();}catch(e){} }
+      cards[i].classList.remove('playing'); }
+  }
+  function clipEnsureBigChrome(){
+    if(document.getElementById('clip-scrim')) return;
+    var s=document.createElement('div'); s.id='clip-scrim';
+    s.addEventListener('click', clipExitAllBig); document.body.appendChild(s);
+    var x=document.createElement('button'); x.id='clip-exitbig'; x.type='button';
+    x.textContent='✕ Close'; x.addEventListener('click', clipExitAllBig); document.body.appendChild(x);
+  }
+  function clipExitAllBig(){
+    var big=document.querySelectorAll('.clip-card-anim.big');
+    for(var i=0;i<big.length;i++) big[i].classList.remove('big');
+    var s=document.getElementById('clip-scrim'); if(s) s.classList.remove('open');
+    var x=document.getElementById('clip-exitbig'); if(x) x.classList.remove('show');
+  }
+  function clipBigFallback(card){
+    clipEnsureBigChrome(); card.classList.add('big');
+    var s=document.getElementById('clip-scrim'); if(s) s.classList.add('open');
+    var x=document.getElementById('clip-exitbig'); if(x) x.classList.add('show');
+  }
+  function clipGoBig(card){
+    var v=card.querySelector('video');
+    if(v && typeof v.webkitEnterFullscreen==='function'){ try{ v.webkitEnterFullscreen(); return; }catch(e){} }
+    var fn=card.requestFullscreen||card.webkitRequestFullscreen;
+    if(!fn){ clipBigFallback(card); return; }
+    var p=null; try{ p=fn.call(card); }catch(e){ clipBigFallback(card); return; }
+    if(p && typeof p.then==='function'){ p.catch(function(){ clipBigFallback(card); }); }
+  }
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') clipExitAllBig(); });
+
   function buildClipCard(file, label){
     var key = file.replace(/\.mp4$/,'');
+    var srcInfo = sourceFor(file);
     var card = document.createElement('div');
     card.className = 'clip-card-anim';
+    card.setAttribute('role','button'); card.tabIndex = 0;
+    card.setAttribute('aria-label', 'Play clip: ' + (label || key.replace(/-/g,' ')));
     var prev = document.createElement('div');
     prev.className = 'clip-preview';
     var img = document.createElement('img');
@@ -8727,15 +8814,79 @@
     var pbtn = document.createElement('div'); pbtn.className='clip-play-btn';
     var tri = document.createElement('div'); tri.className='clip-play-tri';
     pbtn.appendChild(tri); ovr.appendChild(pbtn); prev.appendChild(ovr);
+    var fsb = document.createElement('button'); fsb.className='clip-fsbtn'; fsb.type='button';
+    fsb.setAttribute('aria-label','Expand to full screen'); fsb.textContent='⤢';
+    prev.appendChild(fsb);
+    /* 4.2: explicit slow-mo control (coaching feature; iOS native controls hide speed) */
+    var speed = document.createElement('div'); speed.className='clip-speed-inline';
+    [['1','1×'],['0.5','½×'],['0.25','¼×']].forEach(function(p){
+      var sb=document.createElement('button'); sb.type='button'; sb.className='cs-ib';
+      sb.setAttribute('data-rate',p[0]); sb.setAttribute('aria-label','Play at '+p[1]); sb.textContent=p[1];
+      sb.addEventListener('click', function(ev){ ev.stopPropagation(); setInlineRate(parseFloat(p[0])); });
+      speed.appendChild(sb);
+    });
+    prev.appendChild(speed);
+    function savedRate(){ var r=parseFloat(storeGet('arm-care-clipspeed','1')); return (r===0.5||r===0.25)?r:1; }
+    function syncSpeedBtns(r){ var bs=speed.querySelectorAll('.cs-ib');
+      for(var i=0;i<bs.length;i++){ bs[i].classList.toggle('on', parseFloat(bs[i].getAttribute('data-rate'))===r); } }
+    function setInlineRate(r){ try{ storeSet('arm-care-clipspeed', String(r)); }catch(e){}
+      if(video){ try{ video.playbackRate=r; }catch(e){} } syncSpeedBtns(r); }
     card.appendChild(prev);
     var footer = document.createElement('div'); footer.className='clip-card-footer';
     var lbl = document.createElement('span'); lbl.className='clip-card-label';
     lbl.textContent = label || key.replace(/-/g,' ');
-    var full = document.createElement('span'); full.className='clip-card-full';
-    full.textContent = 'Full video';
-    footer.appendChild(lbl); footer.appendChild(full);
+    footer.appendChild(lbl);
+    if(srcInfo){
+      var cr=document.createElement('a'); cr.className='clip-card-full';
+      cr.href=srcInfo[2]; cr.target='_blank'; cr.rel='noopener';
+      cr.textContent=srcInfo[1]+' ↗';
+      cr.addEventListener('click', function(ev){ ev.stopPropagation(); });
+      footer.appendChild(cr);
+    } else {
+      var full=document.createElement('span'); full.className='clip-card-full'; full.textContent='Full video';
+      footer.appendChild(full);
+    }
     card.appendChild(footer);
-    card.addEventListener('click', function(){ openClip(file); });
+
+    var video=null, failed=false;
+    function linkOut(){
+      if(failed) return; failed=true;
+      var url=officialFor(file) || (srcInfo?srcInfo[2]:null);
+      var a=document.createElement('a'); a.className='clip-linkout';
+      a.href=url||'#'; a.target='_blank'; a.rel='noopener';
+      a.appendChild(document.createTextNode('▶ Watch official demo ↗'));
+      a.addEventListener('click', function(ev){ ev.stopPropagation(); });
+      prev.appendChild(a); card.classList.add('playing');
+    }
+    function play(){
+      if(failed){ var u=officialFor(file)||(srcInfo?srcInfo[2]:null); if(u) window.open(u,'_blank','noopener'); return; }
+      clipStopOthers(card);
+      if(!video){
+        video=document.createElement('video');
+        video.setAttribute('controls',''); video.setAttribute('playsinline',''); video.preload='metadata';
+        try { video.src = parent.location.href.replace(/[^/]*$/,'') + 'clips/' + file; }
+        catch(e) { video.src = 'clips/' + file; }
+        video.addEventListener('error', function(){
+          if(video && video.parentNode) video.parentNode.removeChild(video);
+          video=null; card.classList.remove('playing'); linkOut();
+        });
+        prev.appendChild(video);
+        try { video.playbackRate = savedRate(); } catch(e){}
+      }
+      card.classList.add('playing');
+      syncSpeedBtns(savedRate());
+      var pr=video.play(); if(pr && pr.catch) pr.catch(function(){});
+    }
+    pbtn.addEventListener('click', function(ev){ ev.stopPropagation(); play(); });
+    ovr.addEventListener('click', function(ev){ ev.stopPropagation(); play(); });
+    card.addEventListener('click', function(){ if(!card.classList.contains('playing')) play(); });
+    card.addEventListener('dblclick', function(){ if(!card.classList.contains('playing')) play(); clipGoBig(card); });
+    fsb.addEventListener('click', function(ev){ ev.stopPropagation(); clipGoBig(card); });
+    card.addEventListener('keydown', function(e){
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); play(); }
+      else if(e.key==='f' || e.key==='F'){ clipGoBig(card); }
+      else if(e.key==='Escape'){ clipExitAllBig(); }
+    });
     return card;
   }
 
