@@ -2096,6 +2096,9 @@
     <div class="qa-subgroup-label qa-adult" style="margin-top:14px">Shaker + Liquid IV · water + ⚡ in one tap</div>
     <div class="qa-grid qa-adult" id="qa-w-shaker"></div>
 
+    <div class="qa-subgroup-label qa-adult" style="margin-top:14px">Energy · caffeinated (adult)</div>
+    <div class="qa-grid qa-adult" id="qa-w-energy"></div>
+
     <div class="custom-add-form" id="custom-water-form">
       <!-- US-2.9B: one-tap quantity control (1–48oz; ceiling sanity-checked vs
            hyponatremia guidance — do not raise). Saved values live in a recents
@@ -4094,6 +4097,7 @@
      macro sweep had to chase. */
   const FUEL_GROUPS = [
     {id:'shakes-protein-water-one-tap',t:'Shakes · protein + water (one tap)',adult:1},
+    {id:'protein-supplements',t:'Protein supplements',adult:1},
     {id:'meals-and-combos',t:'Meals & Combos'},
     {id:'bowls-and-full-meals',t:'Bowls & full meals'},
     {id:'sandwiches-and-wraps',t:'Sandwiches & wraps'},
@@ -4207,7 +4211,14 @@
     {id:'banana-pb',g:'meals-and-combos',p:8,w:0,l:'Banana + PB',n:'Banana + peanut butter',est:true},
     {id:'pasta-chicken',g:'meals-and-combos',p:38,w:0,l:'Pasta + Chicken',n:'Pasta + chicken',est:true},
     {id:'loaded-baked-potato',g:'meals-and-combos',p:15,w:0,l:'Loaded Baked Potato',n:'Loaded baked potato',est:true},
-    {id:'chicken-sweet-potato',g:'meals-and-combos',p:35,w:0,l:'Chicken + Sweet Potato',n:'Chicken + sweet potato',est:true}
+    {id:'chicken-sweet-potato',g:'meals-and-combos',p:35,w:0,l:'Chicken + Sweet Potato',n:'Chicken + sweet potato',est:true},
+    /* 5.2b: adult protein-supplement tiles (group protein-supplements is adult:1 -> youth-hidden).
+       collagen uses the sizes stepper (1 scoop +11g / 2 scoops +22g). protein-shake logs the
+       user's per-scoop grams (fuel-gscoop, default 25) via the gscoop flag + click special-case. */
+    {id:'collagen-scoop',g:'protein-supplements',p:11,w:0,l:'Collagen',n:'Sports Research · 1 scoop',sizes:[{l:'1 scoop',p:11},{l:'2 scoops',p:22}]},
+    {id:'protein-shake',g:'shakes-protein-water-one-tap',p:25,w:16,l:'Protein shake',n:'Whey · 1 scoop + water',gscoop:true},
+    /* 5.2b: Yeti AM-routine combo (adult -- contains supplements). p22+w28 -> addShake. */
+    {id:'yeti-liv-collagen',g:'shakes-protein-water-one-tap',p:22,w:28,l:'Yeti + LIV + Collagen',n:'Yeti · Liquid IV + 2 scoops collagen'}
   ];
   /* user-added items live here; merged at render so they are indistinguishable
      from built-ins except that they can be removed */
@@ -4250,7 +4261,13 @@
     {id:'sport-drink-28-0-0-7',g:'sportdrink',w:28,e:0.7,l:'Sport drink',n:'Large · 28oz'},
     {id:'sport-drink-32-0-0-8',g:'sportdrink',w:32,e:0.8,l:'Sport drink',n:'XL · 32oz'},
     {id:'28oz-shaker-liquid-iv-28-0',g:'shaker',w:28,e:1,l:'28oz shaker + Liquid IV',n:'28oz shaker + Liquid IV',z:1},
-    {id:'28oz-shaker-liquid-iv-ener',g:'shaker',w:28,e:1,l:'28oz shaker + Liquid IV Energy',n:'28oz shaker + Liquid IV Energy',z:1}
+    {id:'28oz-shaker-liquid-iv-ener',g:'shaker',w:28,e:1,l:'28oz shaker + Liquid IV Energy',n:'28oz shaker + Liquid IV Energy',z:1},
+    /* 5.2b: C4 Energy + Aminos -- adult (stimulant). Logs 12oz hydration; group 'energy'
+       grid is qa-adult so youth never sees it. Image c4-energy -> blue water tone (gate-safe). */
+    {id:'c4-energy',g:'energy',w:12,e:0,l:'C4 Energy',n:'C4 Energy + Aminos · 12oz'},
+    /* 5.2b: Yeti AM combo (adult). 28oz water + Liquid IV -> addWater(28,·,1); creatine is
+       identity-only (not a tracked macro), image carries the "creatine's in here" reminder. */
+    {id:'yeti-creatine-liv',g:'energy',w:28,e:1,l:'Yeti + Creatine + LIV',n:'Yeti · creatine + Liquid IV · 28oz'}
   ];
   function renderWaterQuickAdds(){
     /* LAYOUT BUG FIX: the hosts used to be a <span> INSIDE each .qa-grid, which
@@ -4258,7 +4275,7 @@
        because they were no longer grid items -- the buttons were children of the
        span, not of the grid. The id now sits ON the grid div itself so buttons
        are direct grid children again, matching the protein section. */
-    ['containers','mixins','sportdrink','shaker'].forEach(function(gid){
+    ['containers','mixins','sportdrink','shaker','energy'].forEach(function(gid){
       const host = document.getElementById('qa-w-' + gid);
       if(!host) return;
       host.textContent = '';
@@ -4368,7 +4385,8 @@
         dot.addEventListener('click', function(ev){ ev.stopPropagation(); if(window._qaGridMenu) window._qaGridMenu(b,'protein',it.l,+it.p||0,0,+it.w||0,it); });
         b.appendChild(dot);
         b.addEventListener('click', function(){
-          addItem({ protein: +it.p || 0, water: +it.w || 0, label: it.l });
+          var _pp = (it.gscoop && typeof qcGscoop==='function') ? qcGscoop() : (+it.p || 0);
+          addItem({ protein: _pp, water: +it.w || 0, label: it.l });
         });
         if(it.mine){
           b.classList.add('qa-mine');
@@ -7269,7 +7287,7 @@
     var SUPP_CATALOG = [
       {id:'collagen',     label:'Collagen peptides',       dose:'15g + vit C',        sizeAdj:true,  timing:'30-60 min pre-training', product:'Sports Research Collagen Peptides',  purpose:'Connective tissue repair — tendons, ligaments, fascia. Baar protocol: take with vitamin C for collagen synthesis.'},
       {id:'fishoil',      label:'Fish oil (EPA+DHA)',      dose:'2g',                 sizeAdj:true,  timing:'with food',              product:'Intelligent Labs Ultra Omega-3',     purpose:'Anti-inflammatory, joint support, cardiovascular health. EPA+DHA reduce exercise-induced inflammation.'},
-      {id:'creatine-hmb', label:'Creatine + HMB',          dose:'5g + 3g',            sizeAdj:false, timing:'morning (maintenance)',   product:'Creatine Monohydrate + HMB',         purpose:'Muscle strength and anti-catabolic support. Maintenance dose — no loading phase needed at 5g/day.'},
+      {id:'creatine-hmb', label:'Creatine HMB+ (Animal)',  dose:'5g + 3g',            sizeAdj:false, timing:'morning (maintenance)',   product:'Animal Creatine HMB+',               purpose:'Muscle strength and anti-catabolic support. Maintenance dose — no loading phase needed at 5g/day.'},
       {id:'joint',        label:'Joint complex',           dose:'1500/1200/1000mg',   sizeAdj:false, timing:'with food',              product:'Animal Flex',                        purpose:'Glucosamine/chondroitin/MSM joint support complex. Protects cartilage under heavy training load.'},
       {id:'zinc-copper',  label:'Zinc + Copper',           dose:'30mg / 2mg',         sizeAdj:false, timing:'not with dairy',         product:'Nutricost Zinc + Copper',             purpose:'Immune function, testosterone support. Copper balances zinc depletion. Separate from dairy (calcium blocks absorption).'},
       {id:'vitD',         label:'Vitamin D + K2',          dose:'per product',        sizeAdj:false, timing:'with fat (meal)',        product:'Vitamin D3 + K2',                    purpose:'Bone health, immune support, calcium metabolism. K2 directs calcium to bones, not arteries.'},
@@ -7278,7 +7296,8 @@
       {id:'magnesium',    label:'Magnesium',               dose:'400mg',              sizeAdj:false, timing:'before bed',             product:'Intelligent Labs MagEnhance',         purpose:'Sleep quality, muscle relaxation, recovery. Threonate + glycinate + taurate blend for bioavailability.'},
       {id:'ultra-focus',  label:'Ultra Pouches (Focus)',   dose:'1 pouch',            sizeAdj:false, timing:'as needed',              product:'Ultra Nicotine Pouches',              purpose:'Cognitive focus aid. Use sparingly — tolerance builds quickly.'},
       {id:'animalpak',    label:'Animal Pak',              dose:'1 pack',             sizeAdj:false, timing:'with breakfast',         product:'Universal Nutrition Animal Pak',       purpose:'Comprehensive training multivitamin/mineral pack. Covers micronutrient gaps from high training volume.'},
-      {id:'c4sport',      label:'C4 Sport Pre-Workout',    dose:'1 scoop',            sizeAdj:false, timing:'30 min pre-workout',     product:'Cellucor C4 Sport',                   purpose:'NSF Certified for Sport pre-workout. Beta-alanine + caffeine for energy and endurance. Training days only.'}
+      {id:'c4sport',      label:'C4 Pre-Workout',          dose:'1 scoop',            sizeAdj:false, timing:'30 min pre-workout',     product:'Cellucor C4',                         purpose:'Pre-workout — beta-alanine + caffeine for energy and endurance. Training days only. Note: regular C4 is NOT NSF Certified for Sport — use C4 Sport if in-season eligibility matters.'},
+      {id:'animal-nonstim',label:'Non-Stim Pre-Workout',   dose:'1 scoop',            sizeAdj:false, timing:'20-30 min pre-workout',  product:'Animal Non-Stim Pre-Workout',         purpose:'Stimulant-free pre-workout — pumps, focus, endurance without caffeine. For late training or when stacking with other stimulants.'}
     ];
     window.SUPP_CATALOG = SUPP_CATALOG;
 
@@ -7373,8 +7392,11 @@
       picker.innerHTML='<div style="font-size:10px;letter-spacing:1px;color:var(--dim);font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:8px">Select your daily supplements</div>'+
         SUPP_CATALOG.map(function(cat){
           var on=active.indexOf(cat.id)>=0;
+          /* 5.2b: brand product thumbnail (SUPP_IMAGES, adult-gated host). Absent key -> no img. */
+          var thumb=(window.SUPP_IMAGES&&window.SUPP_IMAGES[cat.id])?'<img src="'+window.SUPP_IMAGES[cat.id]+'" alt="" aria-hidden="true" style="width:36px;height:22px;object-fit:cover;border-radius:5px;flex:none" />':'';
           return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer" onclick="toggleSuppActive(\''+cat.id+'\')">'+
             '<span style="font-size:18px;width:24px;text-align:center">'+(on?'☑':'☐')+'</span>'+
+            thumb+
             '<span style="color:var(--fg);font-size:13px">'+cat.label+'</span></label>';
         }).join('');
     }
@@ -7424,9 +7446,12 @@
             (cat.product?'<div style="font-family:\'SF Mono\',monospace;color:var(--bone);margin-bottom:2px">'+cat.product+'</div>':'')+
             (cat.purpose?'<div>'+cat.purpose+'</div>':'')+
             '</div>':'';
+          /* 5.2b: brand product thumbnail (SUPP_IMAGES, adult-gated host). Absent key -> no img. */
+          var thumb=(window.SUPP_IMAGES&&window.SUPP_IMAGES[id])?'<img onclick="toggleSupp(\''+id+'\')" src="'+window.SUPP_IMAGES[id]+'" alt="" aria-hidden="true" style="width:42px;height:26px;object-fit:cover;border-radius:6px;flex:none;cursor:pointer'+(checked?';opacity:0.5':'')+'" />':'';
           return '<div style="border-bottom:1px solid var(--line)">'+
             '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;cursor:pointer">'+
             '<span onclick="toggleSupp(\''+id+'\')" style="font-size:20px;width:28px;text-align:center;color:'+(checked?'var(--green)':'var(--dim)')+'">'+(checked?'✓':'○')+'</span>'+
+            thumb+
             '<span onclick="toggleSupp(\''+id+'\')" style="flex:1;min-width:0">'+
               '<span style="color:'+(checked?'var(--green)':'var(--fg)')+';font-size:14px;'+(checked?'text-decoration:line-through;opacity:0.6':'')+'">'+cat.label+'</span>'+
               '<span style="display:block;font-size:11px;color:'+timingColor+';font-family:\'SF Mono\',monospace">'+dose+(timing?' · '+timing:'')+'</span>'+
