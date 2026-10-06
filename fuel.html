@@ -1874,7 +1874,7 @@
      qa-has-img 16/11 still applies to any tile without an orientation class (e.g. the
      separate full-tab pages — Tracker-only restyle, per scope). */
   .qa-btn.qa-has-img.qa-portrait  { aspect-ratio:3/4; }
-  .qa-btn.qa-has-img.qa-portrait .qa-bg { background-size:contain; background-color:#0b0f14; }
+  .qa-btn.qa-has-img.qa-portrait .qa-bg { background-size:cover; background-color:#0b0f14; } /* 5.1: full-bleed — D's drink renders are 3:4 to match the 3:4 tile, so cover fills exactly (no letterbox) */
   .qa-btn.qa-has-img.qa-landscape { aspect-ratio:16/10; }
   /* denser groups: drinks pack 3 portrait tiles/row; food keeps 2 landscape (bigger photo) */
   .quickadd-section.water .qa-grid { grid-template-columns:repeat(3,1fr); gap:6px; }
@@ -4595,13 +4595,15 @@
      0, so addItem({water,elec,label}) reaches the identical call for every one
      of these 15. Mix-ins (e only, no water) route to addMixIn() exactly as before. */
   const FUEL_W_ITEMS = [
-    {id:'yeti-28oz-28-0-0',g:'containers',w:28,e:0,l:'Yeti 28oz',n:'Yeti Rambler 28oz'},
-    {id:'ocean-bottle-28-0-0',g:'containers',w:28,e:0,l:'Ocean Bottle',n:'Ocean Bottle 28oz'},
-    {id:'yeti-shaker-28-0-0',g:'containers',w:28,e:0,l:'Yeti shaker',n:'Yeti shaker 28oz'},
+    /* 5.2/5.4 (D): Ocean Bottle = the single 28oz water tile (p-ocean-28); Yeti shaker = the
+       Yeti hydration tile (p-yeti-shaker). The Rambler (yeti-28oz-28-0-0) + wide-bottle were
+       retired from the quick-add catalog — removed here only, logged history untouched (water
+       logs are amount-based; no id rename, no localStorage purge — internal-keys rule). */
+    {id:'ocean-bottle-28-0-0',g:'containers',w:28,e:0,orient:'portrait',l:'Ocean Bottle',n:'Ocean Bottle 28oz'},
+    {id:'yeti-shaker-28-0-0',g:'containers',w:28,e:0,orient:'portrait',l:'Yeti shaker',n:'Yeti shaker 28oz'},
     {id:'smart-water-1l-33-8-0',g:'containers',w:33.8,e:0,l:'Smart Water 1L',n:'Smart Water 1L (33.8oz)'},
     {id:'bottle-12-0-0',g:'containers',w:12,e:0,l:'Bottle',n:'Standard bottle'},
     {id:'glass-8-0-0',g:'containers',w:8,e:0,orient:'portrait',l:'Glass',n:'Glass / cup'},
-    {id:'wide-bottle-28-0-0',g:'containers',w:28,e:0,orient:'portrait',l:'Water bottle 28oz',n:'Wide bottle · 28oz'},
     {id:'liquid-iv-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV',n:'Liquid IV ⚡ full'},
     {id:'liquid-iv-0-0-5',g:'mixins',w:0,e:0.5,l:'Liquid IV ½',n:'Liquid IV ⚡ half'},
     {id:'liquid-iv-energy-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV Energy',n:'Liquid IV Energy ⚡'},
