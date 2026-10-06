@@ -933,6 +933,10 @@
   body.fuel-youth .quickadd-section.protein .qa-amt { display: none; }
   /* §4.3: the image-tile gram readout (5.0) is hidden for youth, same as .qa-amt above */
   body.fuel-youth .quickadd-section.protein .qa-igram { display: none; }
+  /* §4.3 (5.2): the ⋯ grid menu exposes gram amounts (header "+Xg" + the size/count
+     steppers), and the menu-dot is not otherwise youth-gated. Hide it for youth on the
+     protein section so youth can't open a macro surface. Water dots (oz) are unaffected. */
+  body.fuel-youth .quickadd-section.protein .qa-menu-dot { display: none; }
   /* stage 2: user-created items */
   .qa-btn { position: relative; }
   .qa-btn .qa-menu-dot {
@@ -4090,6 +4094,7 @@
      macro sweep had to chase. */
   const FUEL_GROUPS = [
     {id:'shakes-protein-water-one-tap',t:'Shakes · protein + water (one tap)',adult:1},
+    {id:'meals-and-combos',t:'Meals & Combos'},
     {id:'bowls-and-full-meals',t:'Bowls & full meals'},
     {id:'sandwiches-and-wraps',t:'Sandwiches & wraps'},
     {id:'burgers',t:'Burgers'},
@@ -4170,8 +4175,39 @@
        believing they got there. For a protein goal, round down.
 
        w:0 -- neither carries meaningful water. */
-    {id:'pizza-slice-lg-pepperoni',g:'sides-and-fast-food',p:13,w:0,l:'Pizza Slice Lg Pepperoni',n:'Pizza slice \u00b7 large, pepperoni'},
-    {id:'fries',g:'sides-and-fast-food',p:4,w:0,l:'Fries',n:'Fries \u00b7 regular serving'}
+    {id:'pizza-slice-lg-pepperoni',g:'sides-and-fast-food',p:13,w:0,l:'Pepperoni & Bacon',n:'Pizza slice \u00b7 pepperoni & bacon'},
+    {id:'fries',g:'sides-and-fast-food',p:4,w:0,l:'Fries',n:'Fries \u00b7 regular serving',sizes:[{l:'Regular',p:4},{l:'Large',p:7}]},
+    /* ===== 5.2 (REQ-052) \u2014 My-Items adoption + meal combos + protein singles =====
+       All youth-OK food. est:true = D estimate (owner-accepted via Q). Image tiles
+       auto-upgrade via FOOD_IMAGES[id] (Liquid Metal, data-driven). Every item needs
+       an n (renderProteinQuickAdds does it.n.split). Carb staples are tracked only via
+       the meal's combined protein -- no standalone carb tile (owner 2.1). */
+    /* My-Items adopted -> built-in (dup customs deduped at render, non-destructive) */
+    {id:'spaghetti-meat-sauce',g:'meals-and-combos',p:30,w:0,l:'Spaghetti + Meat Sauce',n:'Spaghetti w meat sauce \u00b7 1 cup'},
+    {id:'taco',g:'meals-and-combos',p:12,w:0,l:'Taco',n:'Seasoned beef taco'},
+    {id:'baconator',g:'burgers',p:63,w:0,l:'Baconator',n:'Double bacon cheeseburger'},
+    {id:'oikos-flips-yogurt',g:'dairy-and-snacks',p:11,w:0,l:'OIKOS Flips',n:'Greek yogurt + mix-in'},
+    {id:'goldfish-crackers',g:'dairy-and-snacks',p:4,w:0,l:'Goldfish',n:'Goldfish \u00b7 ~51 ct'},
+    {id:'chips-1oz',g:'dairy-and-snacks',p:2,w:0,l:'Chips',n:'Chips \u00b7 1 oz'},
+    {id:'cereal-3cup',g:'dairy-and-snacks',p:12,w:0,l:'Cereal',n:'Cereal \u00b7 3 cups + milk'},
+    {id:'chicken-fingers',g:'sides-and-fast-food',p:11,w:0,l:'Chicken Fingers',n:'Chicken fingers \u00b7 tenders',stepper:'count',perUnitP:11},
+    /* Protein singles (orphan images, est macros) */
+    {id:'pork-chop',g:'proteins-and-eggs',p:26,w:0,l:'Pork Chop',n:'Pork chop \u00b7 4oz',est:true},
+    {id:'shrimp',g:'proteins-and-eggs',p:20,w:0,l:'Shrimp',n:'Shrimp \u00b7 3oz \u00b7 ~7 large',est:true},
+    {id:'turkey-breast',g:'proteins-and-eggs',p:24,w:0,l:'Turkey Breast',n:'Turkey breast \u00b7 3oz',est:true},
+    {id:'protein-bar',g:'dairy-and-snacks',p:20,w:0,l:'Protein Bar',n:'Protein bar \u00b7 1 bar',est:true},
+    /* Meal combos + carb-staple combos (est macros; staple shot = meal poster) */
+    {id:'steak-rice-veggies',g:'meals-and-combos',p:48,w:0,l:'Steak + Rice + Veg',n:'Steak \u00b7 rice \u00b7 veg',est:true},
+    {id:'chicken-teriyaki-bowl',g:'meals-and-combos',p:40,w:0,l:'Chicken Teriyaki Bowl',n:'Chicken teriyaki \u00b7 bowl',est:true},
+    {id:'jambalaya',g:'meals-and-combos',p:32,w:0,l:'Jambalaya',n:'Jambalaya \u00b7 1 bowl',est:true},
+    {id:'burrito-bowl',g:'meals-and-combos',p:42,w:0,l:'Burrito Bowl',n:'Burrito bowl',est:true},
+    {id:'meatloaf-plate',g:'meals-and-combos',p:38,w:0,l:'Meatloaf Plate',n:'Meatloaf \u00b7 plate',est:true},
+    {id:'oatmeal-protein',g:'meals-and-combos',p:20,w:0,l:'Oatmeal + Protein',n:'Oatmeal + protein',est:true},
+    {id:'bagel-eggs',g:'meals-and-combos',p:18,w:0,l:'Bagel + Eggs',n:'Bagel + eggs',est:true},
+    {id:'banana-pb',g:'meals-and-combos',p:8,w:0,l:'Banana + PB',n:'Banana + peanut butter',est:true},
+    {id:'pasta-chicken',g:'meals-and-combos',p:38,w:0,l:'Pasta + Chicken',n:'Pasta + chicken',est:true},
+    {id:'loaded-baked-potato',g:'meals-and-combos',p:15,w:0,l:'Loaded Baked Potato',n:'Loaded baked potato',est:true},
+    {id:'chicken-sweet-potato',g:'meals-and-combos',p:35,w:0,l:'Chicken + Sweet Potato',n:'Chicken + sweet potato',est:true}
   ];
   /* user-added items live here; merged at render so they are indistinguishable
      from built-ins except that they can be removed */
@@ -4329,7 +4365,7 @@
           b.appendChild(amt); b.appendChild(nm);
         }
         var dot=document.createElement('span'); dot.className='qa-menu-dot'; dot.textContent='⋯';
-        dot.addEventListener('click', function(ev){ ev.stopPropagation(); if(window._qaGridMenu) window._qaGridMenu(b,'protein',it.l,+it.p||0,0,+it.w||0); });
+        dot.addEventListener('click', function(ev){ ev.stopPropagation(); if(window._qaGridMenu) window._qaGridMenu(b,'protein',it.l,+it.p||0,0,+it.w||0,it); });
         b.appendChild(dot);
         b.addEventListener('click', function(){
           addItem({ protein: +it.p || 0, water: +it.w || 0, label: it.l });
@@ -7736,7 +7772,7 @@
       }catch(e){}
     }
 
-    function gridMenu(btn, type, label, amount, elec, pairedOz){
+    function gridMenu(btn, type, label, amount, elec, pairedOz, it){
       closeMenu();
       var r=btn.getBoundingClientRect();
       menu=document.createElement('div'); menu.className='fav-ctx';
@@ -7757,6 +7793,34 @@
       mi('⎘ Copy to '+otherLabel, function(){
         copyFavTo({amount:amount,label:label,e:elec||0,w:pairedOz||0}, other);
       });
+      /* 5.2 (REQ-052): size variants (fries) + count stepper (chicken-fingers).
+         Extends this menu rather than adding a new control (Q-approved). it is
+         passed only from the protein grid; water calls omit it -> no stepper UI.
+         Log labels carry the size/count so history + favourites stay distinct. */
+      if(it && ((it.sizes && it.sizes.length) || it.stepper==='count')){
+        var _sep=document.createElement('div'); _sep.style.cssText='border-top:1px solid #21262d;margin:4px 0 2px'; menu.appendChild(_sep);
+      }
+      if(it && it.sizes && it.sizes.length){
+        var _szl=document.createElement('div'); _szl.textContent='Log a size'; _szl.style.cssText='font-size:10px;color:#8b949e;padding:4px 12px 2px;font-family:monospace'; menu.appendChild(_szl);
+        it.sizes.forEach(function(sz){
+          mi((sz.l)+' · +'+(+sz.p||0)+'g', function(){ addItem({protein:+sz.p||0, water:+it.w||0, label: it.l+' · '+sz.l}); });
+        });
+      }
+      if(it && it.stepper==='count'){
+        var _per=+it.perUnitP||+it.p||0;
+        var _cl=document.createElement('div'); _cl.textContent='Count · '+_per+'g each'; _cl.style.cssText='font-size:10px;color:#8b949e;padding:4px 12px 2px;font-family:monospace'; menu.appendChild(_cl);
+        var _n=1;
+        var _row=document.createElement('div'); _row.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 12px';
+        function _sb(t){ var b=document.createElement('button'); b.textContent=t; b.style.cssText='width:30px;height:30px;border-radius:8px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font-size:16px;cursor:pointer;line-height:1;font-family:inherit'; return b; }
+        var _minus=_sb('−'), _plus=_sb('+');
+        var _disp=document.createElement('span'); _disp.style.cssText='flex:1;text-align:center;font-family:monospace;font-size:13px;color:#e6edf3';
+        function _sync(){ _disp.textContent='×'+_n+'  ·  +'+(_per*_n)+'g'; }
+        _sync();
+        _minus.addEventListener('click', function(ev){ ev.stopPropagation(); if(_n>1){ _n--; _sync(); } });
+        _plus.addEventListener('click', function(ev){ ev.stopPropagation(); if(_n<20){ _n++; _sync(); } });
+        _row.appendChild(_minus); _row.appendChild(_disp); _row.appendChild(_plus); menu.appendChild(_row);
+        mi('✓ Log this count', function(){ addItem({protein:_per*_n, water:+it.w||0, label: it.l+' ×'+_n}); });
+      }
       document.body.appendChild(menu);
     }
     window._qaGridMenu = gridMenu;
