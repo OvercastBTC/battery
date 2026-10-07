@@ -4734,7 +4734,14 @@
     {id:'c4-energy',g:'energy',w:12,e:0,l:'C4 Energy',n:'C4 Energy + Aminos · 12oz'},
     /* 5.2b: Yeti AM combo (adult). 28oz water + Liquid IV -> addWater(28,·,1); creatine is
        identity-only (not a tracked macro), image carries the "creatine's in here" reminder. */
-    {id:'yeti-creatine-liv',g:'energy',w:28,e:1,l:'Yeti + Creatine + LIV',n:'Yeti · creatine + Liquid IV · 28oz'}
+    {id:'yeti-creatine-liv',g:'energy',w:28,e:1,l:'Yeti + Creatine + LIV',n:'Yeti · creatine + Liquid IV · 28oz'},
+    /* D c4-combo in the 'energy' grid (qa-adult qa-supp-optin: since the v198→v205 youth-
+       visibility go-live this grid IS youth-visible with VALUES hidden — tiles show oz only,
+       grams render as ✓ for youth). ONE tap logs collagen protein 22g + 28oz water + 1 Liquid IV
+       stick as a single undoable entry (addItem → addShakeWithElec, the yeti-liv-collagen path).
+       p/w/e are DATA fields; the tile shows only n's first two " · " segments, so no grams in
+       n/l ([[youth-gram-label]]). */
+    {id:'c4-combo',g:'energy',p:22,w:28,e:1,l:'C4 + Collagen + Creatine + LIV',n:'C4 combo · collagen + creatine + Liquid IV · 28oz'}
   ];
   /* 5.3b size-family sticky: the collapsed tile shows the user's last-picked size
      (fuel-size-<id>, default = it.defSize/median). Image swaps from SIZE_IMAGES (separate
@@ -4812,9 +4819,12 @@
         dot.addEventListener('click', function(ev){ ev.stopPropagation(); if(window._qaGridMenu) window._qaGridMenu(b,'water',it.l,+it.w||0,+it.e||0,0,it); });
         b.appendChild(dot);
         b.addEventListener('click', function(){
-          /* 5.3b: sized item body-tap logs the sticky size; else the plain item. */
+          /* 5.3b: sized item body-tap logs the sticky size; else the plain item.
+             protein rides along when the row carries p (c4-combo: collagen in a drink
+             combo) so addItem can route p+w+e to the one-entry shake path — every other
+             water row has no p → 0 → unchanged routing. */
           var _lw = _sized ? +_si.w||0 : +it.w||0, _le = _sized ? +_si.e||0 : +it.e||0;
-          addItem({ water: _lw, elec: _le, label: it.l });
+          addItem({ water: _lw, elec: _le, protein: +it.p || 0, label: it.l });
         });
         host.appendChild(b);
       });
