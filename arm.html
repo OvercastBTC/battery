@@ -244,6 +244,33 @@
     gap: 6px;
     flex-wrap: wrap;
   }
+  /* ===== POSITION-GROUP RAIL (#4 Drills IF/P/C — D spec, owner-approved) =====
+     Four big cards P · C · IF · OF ABOVE the per-position chips. A grouping over the
+     SAME persisted arm-care-pos state (an adapter over setPos — no second store;
+     Smart Week reads the same key). IF expands the 1B/2B/SS/3B chips; P/C/OF map 1:1.
+     Gold when all members are on, dashed-gold when only some are (e.g. SS alone). */
+  .pgroups { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
+  .pg { border: 1px solid var(--line); border-radius: 12px; background: var(--steel); padding: 10px 6px;
+    text-align: center; cursor: pointer; min-height: 64px; user-select: none; -webkit-user-select: none;
+    transition: border-color .15s, background .15s; }
+  .pg .k { font-family: 'Courier New', monospace; font-weight: 800; font-size: 15px; letter-spacing: 1px; color: var(--bone); }
+  .pg .n { font-family: 'Courier New', monospace; font-weight: 600; font-size: 9px; color: var(--dim); margin-top: 3px; }
+  .pg .c { font-family: 'Courier New', monospace; font-weight: 700; font-size: 9px; color: var(--gold); margin-top: 3px; }
+  .pg.on { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); background: #1a1a12; }
+  .pg.on .k { color: var(--gold-bright, #f0b832); }
+  .pg.part { border-style: dashed; }
+  /* IF sub-row: the existing 1B/2B/SS/3B chips keep their DOM + state; they're only
+     SHOWN while the IF group has a member on (tap IF to expand). All/P/C/OF always show. */
+  .position-chips.if-closed .chip[data-pos="1b"], .position-chips.if-closed .chip[data-pos="2b"],
+  .position-chips.if-closed .chip[data-pos="ss"], .position-chips.if-closed .chip[data-pos="3b"] { display: none; }
+  .pos-callout { display: flex; align-items: center; gap: 8px; border: 1px solid var(--gold); border-radius: 10px;
+    padding: 8px 10px; background: rgba(212,160,23,.08); font-family: 'Courier New', monospace; font-weight: 600;
+    font-size: 10px; color: var(--gold-bright, #f0b832); margin: 0 0 10px; line-height: 1.35; }
+  .pos-callout b { color: var(--bone); }
+  /* Per-card position tag (injected once at boot): gold when the card matches the filter. */
+  .ptag { display: inline-block; font-family: 'Courier New', monospace; font-weight: 700; font-size: 8px; letter-spacing: .5px;
+    padding: 2px 6px; border-radius: 8px; border: 1px solid var(--line-bright); color: var(--dim); margin-left: 8px; vertical-align: middle; }
+  .pos-card.active .ptag { border-color: var(--gold); color: var(--gold-bright, #f0b832); }
   .chip {
     background: var(--steel);
     border: 1.5px solid var(--line);
@@ -855,14 +882,19 @@
 
   /* POSITION-CONDITIONAL CONTENT */
   .pos-card {
-    display: none;
+    /* #4 IF/P/C (owner-approved D spec): non-matching position cards are DIMMED, not
+       hidden — you can still see what the other positions do; matching ones pop. The
+       .active toggle in applyPositionState() is unchanged; only this CSS softened. */
+    display: block;
+    opacity: .38;   /* instant (no transition): a paused/background tab never advances
+                       an opacity transition, so a fade would read as "not dimmed" */
     background: var(--steel-2);
     border: 1px solid var(--line);
     padding: 14px 16px;
     margin-bottom: 12px;
     border-left-width: 4px;
   }
-  .pos-card.active { display: block; }
+  .pos-card.active { opacity: 1; }
   .pos-card[data-pos="pitcher"] { border-left-color: var(--p-pitcher); }
   .pos-card[data-pos="1b"]      { border-left-color: var(--p-1b); }
   .pos-card[data-pos="2b"]      { border-left-color: var(--p-2b); }
@@ -1348,6 +1380,9 @@
 
       <div class="position-filter">
         <div class="position-filter-label">◆ Today's position:</div>
+        <!-- #4 position-group rail + callout (rendered by renderPosGroups; adapter over setPos) -->
+        <div class="pgroups" id="pos-groups" aria-label="Position groups"></div>
+        <div class="pos-callout" id="pos-callout">🧤 Showing <b>ALL</b> drills · same position as Smart Week &amp; ARM</div>
         <div class="position-chips">
           <div class="chip active" data-pos="all" onclick="setPos('all')">All</div>
           <div class="chip" data-pos="pitcher" onclick="setPos('pitcher')">Pitcher</div>
@@ -7518,6 +7553,8 @@
     storeSet('arm-care-pos', Array.from(activePositions).join(','));
     // Update summary
     updatePositionSummary();
+    // #4 position-group rail + callout + per-card tags follow the same state (additive hook)
+    try { renderPosGroups(); } catch (e) {}
   }
 
   function updatePositionSummary() {
@@ -7559,6 +7596,68 @@
     if (activePositions.size === 0) activePositions.add('all');
     applyPositionState();
   }
+
+  /* ===== POSITION-GROUP RAIL (#4 Drills IF/P/C) — an ADAPTER over setPos(). =====
+     POS_GROUPS maps a group to its member keys in the SAME activePositions set the
+     chips drive and arm-care-pos persists (Smart Week reads that key). No second store,
+     no new handler path: a group tap just calls setPos() per member key, so toggle
+     semantics ('all' fallback when empty, 'all' dropped on first pick) stay the real ones.
+     `var` so the boot-time applyPositionState() → renderPosGroups() never hits a TDZ. */
+  var POS_GROUPS = [
+    { k: 'P',  n: 'Pitcher',  keys: ['pitcher'] },
+    { k: 'C',  n: 'Catcher',  keys: ['c'] },
+    { k: 'IF', n: 'Infield',  keys: ['1b', '2b', 'ss', '3b'] },
+    { k: 'OF', n: 'Outfield', keys: ['of'] }
+  ];
+  function _posGroupOf(pos) { for (var i = 0; i < POS_GROUPS.length; i++) if (POS_GROUPS[i].keys.indexOf(pos) >= 0) return POS_GROUPS[i]; return null; }
+  // 'on' = every member active · 'part' = some (e.g. SS alone, as Smart Week may set) · '' = none / 'all' mode
+  function _posGroupState(g) {
+    if (activePositions.has('all')) return '';
+    var on = g.keys.filter(function (k) { return activePositions.has(k); }).length;
+    return on === 0 ? '' : (on === g.keys.length ? 'on' : 'part');
+  }
+  function togglePosGroup(k) {
+    var g = null; for (var i = 0; i < POS_GROUPS.length; i++) if (POS_GROUPS[i].k === k) g = POS_GROUPS[i];
+    if (!g) return;
+    if (_posGroupState(g)) g.keys.forEach(function (p) { if (activePositions.has(p)) setPos(p); });   // any on → all off
+    else g.keys.forEach(function (p) { if (!activePositions.has(p)) setPos(p); });                     // none on → all on
+  }
+  function renderPosGroups() {
+    var rail = document.getElementById('pos-groups'); if (!rail) return;
+    // drill counts come from the REAL .pos-card set, not a hand-kept list
+    var counts = {};
+    document.querySelectorAll('.pos-card[data-pos]').forEach(function (c) { counts[c.dataset.pos] = (counts[c.dataset.pos] || 0) + 1; });
+    rail.innerHTML = POS_GROUPS.map(function (g) {
+      var st = _posGroupState(g);
+      var n = g.keys.reduce(function (s, p) { return s + (counts[p] || 0); }, 0);
+      var cls = st === 'on' ? ' on' : (st === 'part' ? ' on part' : '');
+      return '<div class="pg' + cls + '" role="button" aria-pressed="' + (st ? 'true' : 'false') + '" onclick="togglePosGroup(\'' + g.k + '\')">' +
+             '<div class="k">' + g.k + '</div><div class="n">' + g.n + '</div><div class="c">' + n + ' drill' + (n === 1 ? '' : 's') + '</div></div>';
+    }).join('');
+    // IF sub-row (the existing 1B/2B/SS/3B chips) shows only while IF has a member on
+    var chips = document.querySelector('.position-chips');
+    if (chips) chips.classList.toggle('if-closed', !_posGroupState(POS_GROUPS[2]));
+    // callout — names the groups showing, ties to Smart Week
+    var co = document.getElementById('pos-callout');
+    if (co) {
+      var names = activePositions.has('all') ? ['ALL']
+        : POS_GROUPS.filter(function (g) { return _posGroupState(g); }).map(function (g) { return g.n.toUpperCase(); });
+      co.innerHTML = '🧤 Showing <b>' + (names.length ? names.join(' + ') : 'ALL') + '</b> drills · same position as Smart Week &amp; ARM';
+    }
+    _injectPosTags();
+  }
+  // one-time: a position tag on each .pos-card label; gold when the card matches (CSS on .pos-card.active)
+  function _injectPosTags() {
+    document.querySelectorAll('.pos-card[data-pos]').forEach(function (c) {
+      if (c.dataset.ptag) return; c.dataset.ptag = '1';
+      var pos = c.dataset.pos; if (pos === 'all') return;
+      var g = _posGroupOf(pos), lbl = c.querySelector('.pos-card-label') || c;
+      var t = document.createElement('span'); t.className = 'ptag';
+      t.textContent = g ? (g.k === 'IF' ? 'IF · ' + pos.toUpperCase() : g.k) : pos.toUpperCase();
+      lbl.appendChild(t);
+    });
+  }
+  window.togglePosGroup = togglePosGroup;
 
   /* ===== BONUS DAYS ===== */
   function setBonus(n) {
