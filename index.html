@@ -324,7 +324,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.06.207</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.06.208</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -693,13 +693,45 @@ function escHtml(s){return String(s).replace(/[&<>"']/g,function(c){return({'&':
    opened in Safari vs one Added to Home Screen can hold SEPARATE localStorage —
    so backup/restore is the only reliable bridge between them. */
 function isStandalone(){try{return (window.navigator.standalone===true)||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);}catch(e){return false;}}
+/* Read the live env(safe-area-inset-*) values in px. env() can't be read from JS directly,
+   so apply the four insets as paddings on a hidden probe and measure the computed px. */
+function _safeInsets(){
+  try{
+    var p=document.createElement('div');
+    p.style.cssText='position:fixed;top:0;left:0;width:0;height:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left)';
+    document.body.appendChild(p);
+    var cs=getComputedStyle(p);
+    var o={t:Math.round(parseFloat(cs.paddingTop)||0),r:Math.round(parseFloat(cs.paddingRight)||0),b:Math.round(parseFloat(cs.paddingBottom)||0),l:Math.round(parseFloat(cs.paddingLeft)||0)};
+    p.remove(); return o;
+  }catch(e){ return {t:0,r:0,b:0,l:0}; }
+}
 function deviceInfo(){
   const dpr=window.devicePixelRatio||1;
   const lw=Math.min(screen.width,screen.height), lh=Math.max(screen.width,screen.height);
   const map={'320x568':'iPhone SE (1st gen) / 5s','375x667':'iPhone SE (2nd/3rd) / 6 / 7 / 8','414x736':'iPhone 6+/7+/8 Plus','375x812':'iPhone X / XS / 11 Pro / 12-13 mini','390x844':'iPhone 12 / 13 / 14','393x852':'iPhone 14 Pro / 15 / 16','414x896':'iPhone XR / XS Max / 11 / 11 Pro Max','428x926':'iPhone 12-13 Pro Max / 14 Plus','430x932':'iPhone 14 Pro Max / 15 Plus / 15-16 Pro Max'};
-  return {w:lw,h:lh,dpr,guess:(map[lw+'x'+lh]||'iPhone (size not in table)')};
+  return {w:lw,h:lh,dpr,guess:(map[lw+'x'+lh]||'iPhone (size not in table)'),
+    vw:window.innerWidth,vh:window.innerHeight,sw:screen.width,sh:screen.height,
+    sa:_safeInsets(),ua:navigator.userAgent};
 }
 window.isStandalone=isStandalone; window.deviceInfo=deviceInfo;
+/* Device & Install card — live per-device readout: CSS viewport, raw screen px, DPR, the four
+   env(safe-area-inset-*) in px, and UA. The safe-area readout is a real per-device diagnostic for
+   the bottom-nav/safe-area (H-1) work. Re-renders live on resize / orientationchange. */
+function renderDeviceCard(){
+  var dv=document.getElementById('data-device'); if(!dv) return;
+  var sa=isStandalone(); var di=deviceInfo();
+  dv.innerHTML=
+    '<div>Mode: <b style="color:'+(sa?'var(--green)':'var(--gold)')+'">'+(sa?'Installed app (Home Screen)':'Safari browser')+'</b></div>'+
+    (sa?'':'<div style="margin-top:6px">To install: <b>Share</b> → <b>Add to Home Screen</b>.</div>')+
+    '<div style="margin-top:6px;color:var(--gold)">⚠ On iOS, the installed app and Safari can keep <b>separate</b> data. To move yours, <b>Backup</b> here, then <b>Restore</b> in the other.</div>'+
+    '<div style="margin-top:8px">Screen: <b>'+di.w+'×'+di.h+'</b> pt · '+di.dpr+'× · ~'+(di.w*di.dpr)+'×'+(di.h*di.dpr)+' px</div>'+
+    '<div>Viewport (CSS): <b>'+di.vw+'×'+di.vh+'</b> · Screen (raw): '+di.sw+'×'+di.sh+' · DPR '+di.dpr+'×</div>'+
+    '<div>Safe-area insets: <b>T '+di.sa.t+' · R '+di.sa.r+' · B '+di.sa.b+' · L '+di.sa.l+'</b> px <span style="opacity:.6">(live)</span></div>'+
+    '<div>Likely device: <b>'+escHtml(di.guess)+'</b> <span style="opacity:.6">(inferred — iOS hides the exact model)</span></div>'+
+    '<div style="margin-top:6px;opacity:.7;font-size:11px;word-break:break-all">UA: '+escHtml(di.ua)+'</div>';
+}
+window.renderDeviceCard=renderDeviceCard;
+(function(){ var _r=function(){ try{ if(document.getElementById('data-device')) renderDeviceCard(); }catch(e){} }; window.addEventListener('resize',_r); window.addEventListener('orientationchange',_r); })();
 
 /* One-time migration: fold the formerly-pinned Adam/Kole into the registry so
    existing devices keep every profile + all data. Fresh installs stay empty. */
@@ -1400,16 +1432,7 @@ function renderDataView(){
     else nudge.style.display='none';
   }
   try{checkBackupHealth();}catch(e){}
-  const dv=document.getElementById('data-device');
-  if(dv){
-    const sa=isStandalone(); const di=deviceInfo();
-    dv.innerHTML=
-      '<div>Mode: <b style="color:'+(sa?'var(--green)':'var(--gold)')+'">'+(sa?'Installed app (Home Screen)':'Safari browser')+'</b></div>'+
-      (sa?'':'<div style="margin-top:6px">To install: <b>Share</b> → <b>Add to Home Screen</b>.</div>')+
-      '<div style="margin-top:6px;color:var(--gold)">⚠ On iOS, the installed app and Safari can keep <b>separate</b> data. To move yours, <b>Backup</b> here, then <b>Restore</b> in the other.</div>'+
-      '<div style="margin-top:8px">Screen: <b>'+di.w+'×'+di.h+'</b> pt · '+di.dpr+'× · ~'+(di.w*di.dpr)+'×'+(di.h*di.dpr)+' px</div>'+
-      '<div>Likely device: <b>'+escHtml(di.guess)+'</b> <span style="opacity:.6">(inferred — iOS hides the exact model)</span></div>';
-  }
+  try{renderDeviceCard();}catch(e){}
   renderTrtCard();
   try{renderNotifCard();}catch(e){}
   try{renderDemoCard();}catch(e){}
