@@ -933,6 +933,10 @@
      surfaces (.supp-dose / .supp-detail / .qa-igram / .qa-amt) stay hidden -- the hard
      §4.3 line that must survive the flag flip. */
   body.fuel-youth:not(.youth-supps) .qa-supp-optin { display: none !important; }
+  /* The "👥 Youth can see" admin control is ADULT-ONLY — it lives inside the supp card
+     (.qa-supp-optin), which becomes youth-visible when the flag is on, so it needs its OWN
+     hard hide: a youth must never reach the control that governs youth visibility. */
+  body.fuel-youth #supp-youth-vis { display: none !important; }
   .youth-fuel-only { display: none; }
   body.fuel-youth .youth-fuel-only { display: inline; }
   /* §4.3 + design review §6: a youth screen counts OBJECTS, never macros.
@@ -2292,6 +2296,7 @@
           <button onclick="toggleSuppEdit()" id="supp-edit-btn" style="background:none;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:6px 14px;font-size:11px;cursor:pointer;font-family:'SF Mono',monospace">⚙ Edit list</button>
         </div>
         <div id="supp-picker" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:10px"></div>
+        <div id="supp-youth-vis" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:10px"></div>
       </div>
     </div>
   </div>
@@ -7687,25 +7692,34 @@
       {id:'shroom',       label:'Shroom Tech / adaptogens',dose:'per product',        sizeAdj:false, timing:'pre-workout',           product:'Onnit Shroom Tech Sport',             purpose:'Cordyceps-based adaptogenic pre-workout. Supports endurance and oxygen utilization.'},
       {id:'wolverine',    label:'Wolverine Stack (BPC+TB)',dose:'500mcg each',        sizeAdj:true,  timing:'daily injection',        product:'BPC-157 + TB-500',                   purpose:'Peptide healing stack for tissue repair. BPC-157 (gut/tendon), TB-500 (systemic repair). TRT synergy: 30-40% faster healing.'},
       {id:'magnesium',    label:'Magnesium',               dose:'400mg',              sizeAdj:false, timing:'before bed',             product:'Intelligent Labs MagEnhance',         purpose:'Sleep quality, muscle relaxation, recovery. Threonate + glycinate + taurate blend for bioavailability.'},
-      {id:'ultra-focus',  label:'Ultra Pouches (Focus)',   dose:'1 pouch',            sizeAdj:false, timing:'as needed',              product:'Ultra Nicotine Pouches',              purpose:'Cognitive focus aid. Use sparingly — tolerance builds quickly.'},
+      {id:'ultra-focus',  label:'Ultra Pouches (Focus)',   dose:'1 pouch',            sizeAdj:false, timing:'as needed',              product:'Ultra — nicotine-free focus pouch (Alpha-GPC + paraxanthine)',              purpose:'NICOTINE-FREE focus pouch — paraxanthine (the caffeine metabolite) + Alpha-GPC. A no-nicotine alternative to nicotine pouches for cognitive focus. Use sparingly; tolerance builds. Adult-only (hard youth-locked).' /* owner 2026-10-06: KEEP the info + branding — it may encourage adults to go no-nicotine; hard youth-locked via YOUTH_SUPP_EXCLUDE */},
       {id:'animalpak',    label:'Animal Pak',              dose:'1 pack',             sizeAdj:false, timing:'with breakfast',         product:'Universal Nutrition Animal Pak',       purpose:'Comprehensive training multivitamin/mineral pack. Covers micronutrient gaps from high training volume.'},
       {id:'c4sport',      label:'C4 Pre-Workout',          dose:'1 scoop',            sizeAdj:false, timing:'30 min pre-workout',     product:'Cellucor C4',                         purpose:'Pre-workout — beta-alanine + caffeine for energy and endurance. Training days only. Note: regular C4 is NOT NSF Certified for Sport — use C4 Sport if in-season eligibility matters.'},
       {id:'animal-nonstim',label:'Non-Stim Pre-Workout',   dose:'1 scoop',            sizeAdj:false, timing:'20-30 min pre-workout',  product:'Animal Non-Stim Pre-Workout',         purpose:'Stimulant-free pre-workout — pumps, focus, endurance without caffeine. For late training or when stacking with other stimulants.'}
     ];
     window.SUPP_CATALOG = SUPP_CATALOG;
     /* v198 youth-visibility (owner policy change) — THE GO-LIVE SWITCH.
-       DEFAULT false = youth do NOT see supplement/energy items (today's behavior). The
-       release engineer flips this to true ONLY on the owner's DIRECT in-session word
-       (relaxing a child-safety guard needs the owner directly, not a peer relay). When
-       true, youth SEE the opt-in supp/energy items (name + image) but their VALUES
+       ✅ LIVE as of v205 (flipped true on Adam's DIRECT in-session word + flag-ON screenshot
+       review, E.26.10.06.1 2026-10-06 — a child-safety relaxation, owner-direct only, never a
+       peer/Q relay). Youth SEE the opt-in supp/energy items (name + image) but their VALUES
        (dose/mg/g) stay hidden -- that hard line is CSS-enforced regardless of this flag.
-       YOUTH_SUPP_EXCLUDE: ids NEVER shown to youth even when the flag is on (the future
-       coach-reviewed "don't show" list; default empty = show all opt-in items). */
-    if(typeof window.YOUTH_SHOW_SUPPS==='undefined') window.YOUTH_SHOW_SUPPS=false;
-    /* Default "don't show to youth" list: ultra-focus (Ultra Pouches — nicotine-FREE
-       paraxanthine/Alpha-GPC nootropic, but an adult pouch product → not for kids) + the
-       peptide (wolverine, also hard-mandatory in _youthHideSupp). Coach list extends this. */
+       YOUTH_SUPP_ALLOW governs what youth see (fail-safe allowlist, below); YOUTH_SUPP_EXCLUDE
+       is a hard-deny that wins on top. Owner-reviewed set = all SUPP_CATALOG items EXCEPT
+       wolverine (peptide) + ultra-focus (adult stimulant pouch). Per-item on/off lives in the adult-only
+       "👥 Youth can see" control; owner can disable any item there with no rebuild. */
+    if(typeof window.YOUTH_SHOW_SUPPS==='undefined') window.YOUTH_SHOW_SUPPS=true;
+    /* Hard-deny list — ids NEVER shown to youth even if allowlisted: ultra-focus (Ultra
+       Pouches — Alpha-GPC + paraxanthine stimulant pouch, NICOTINE-FREE; an adult pouch
+       product, owner-excluded from youth) + the peptide (wolverine, also hard-mandatory in
+       _youthHideSupp). Coach additions extend this. */
     if(typeof window.YOUTH_SUPP_EXCLUDE==='undefined') window.YOUTH_SUPP_EXCLUDE=['wolverine','ultra-focus'];
+    /* v198 go-live ALLOWLIST (owner-direct — Adam, in-session 2026-10-06): when youth see
+       supps, youth see ONLY these ids. FAIL-SAFE: anything not listed is hidden from youth by
+       DEFAULT, so a future supp added to SUPP_CATALOG can never leak to youth by someone
+       forgetting to deny it. Scope = "things we all already know youth already use" — C4
+       (energy/pre-workout), creatine, fish oil, vitamin D, magnesium. Undefined/empty here
+       falls back to the denylist-only behavior above (the pre-allowlist default). */
+    if(typeof window.YOUTH_SUPP_ALLOW==='undefined') window.YOUTH_SUPP_ALLOW=['c4sport','creatine-hmb','fishoil','vitD','magnesium','collagen','joint','zinc-copper','shroom','animalpak','animal-nonstim'];
 
     function suppDoseHint(id, prof){
       var w=(prof&&prof.weightLb)||150;
@@ -7786,22 +7800,73 @@
     };
     window.toggleSuppEdit=function(){
       var picker=document.getElementById('supp-picker');
+      var yvis=document.getElementById('supp-youth-vis');
       if(!picker) return;
       var open=picker.style.display!=='none';
       picker.style.display=open?'none':'';
-      if(!open) renderSuppPicker();
+      /* youth-vis control is adult-only — never reveal it for a youth profile */
+      var adult=!document.body.classList.contains('fuel-youth');
+      if(yvis) yvis.style.display=(open||!adult)?'none':'';
+      if(!open){ renderSuppPicker(); if(adult) renderYouthSuppVis(); }
     };
-    /* v198 exclusion hook: when youth SEE supps (flag on), a future coach-reviewed
-       "don't show" list (window.YOUTH_SUPP_EXCLUDE, default empty) drops specific ids —
-       a one-line data change, no rebuild. Inert while the list is empty. */
+    /* v198 youth-visibility model (owner-direct, Adam 2026-10-06).
+       Per-item on/off, owner/coach-editable from the adult "👥 Youth can see" control,
+       persisted in `fuel-youth-supp-vis` (a {id:bool} override map). Fail-safe:
+       - HARD DENY always wins (wolverine peptide + YOUTH_SUPP_EXCLUDE adult-pouch/coach list)
+         — a hard-denied id can never be toggled visible.
+       - An id with a stored override uses it.
+       - An id with no override defaults to the YOUTH_SUPP_ALLOW allowlist (unknown/new
+         items default HIDDEN, so nothing leaks to youth by omission). */
+    function _youthSuppHardDenied(id){
+      if(id==='wolverine') return true; /* BPC-157+TB-500 peptide — owner peptide option-i */
+      return (window.YOUTH_SUPP_EXCLUDE||[]).indexOf(id)>=0;
+    }
+    function _youthSuppVisMap(){
+      try{ return JSON.parse(localStorage.getItem('fuel-youth-supp-vis')||'{}')||{}; }
+      catch(e){ return {}; }
+    }
+    function _youthSuppVisible(id){
+      if(_youthSuppHardDenied(id)) return false;
+      var m=_youthSuppVisMap();
+      if(Object.prototype.hasOwnProperty.call(m,id)) return !!m[id];
+      return (window.YOUTH_SUPP_ALLOW||[]).indexOf(id)>=0;
+    }
+    window.setYouthSuppVisible=function(id,on){
+      if(document.body.classList.contains('fuel-youth')) return; /* adult-only control */
+      if(_youthSuppHardDenied(id)) return; /* cannot enable a hard-denied item */
+      var m=_youthSuppVisMap(); m[id]=!!on;
+      try{ localStorage.setItem('fuel-youth-supp-vis',JSON.stringify(m)); }catch(e){}
+      renderYouthSuppVis();
+    };
+    window.toggleYouthSuppVisible=function(id){ setYouthSuppVisible(id,!_youthSuppVisible(id)); };
+    function renderYouthSuppVis(){
+      var host=document.getElementById('supp-youth-vis');
+      if(!host) return;
+      if(document.body.classList.contains('fuel-youth')){ host.innerHTML=''; host.style.display='none'; return; } /* adult-only */
+      host.innerHTML='<div style="font-size:10px;letter-spacing:1px;color:var(--dim);font-family:\'SF Mono\',monospace;text-transform:uppercase;margin:2px 0 6px">👥 Youth can see</div>'+
+        '<div style="font-size:10px;color:var(--dim);margin-bottom:8px;line-height:1.4">Toggle which items a youth profile sees (name + image only — doses stay hidden). Locked items can never be shown.</div>'+
+        SUPP_CATALOG.map(function(cat){
+          var denied=_youthSuppHardDenied(cat.id);
+          if(denied){
+            var reason=cat.id==='wolverine'?'peptide':(cat.id==='ultra-focus'?'adult pouch':'locked');
+            return '<label style="display:flex;align-items:center;gap:8px;padding:5px 0;opacity:.55;cursor:not-allowed">'+
+              '<span style="font-size:15px;width:24px;text-align:center">🔒</span>'+
+              '<span style="color:var(--fg);font-size:13px;flex:1">'+cat.label+'</span>'+
+              '<span style="font-size:10px;color:var(--dim);font-family:\'SF Mono\',monospace">'+reason+' · off</span></label>';
+          }
+          var on=_youthSuppVisible(cat.id);
+          return '<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer" onclick="toggleYouthSuppVisible(\''+cat.id+'\')">'+
+            '<span style="font-size:18px;width:24px;text-align:center;color:'+(on?'var(--green)':'var(--dim)')+'">'+(on?'☑':'☐')+'</span>'+
+            '<span style="color:var(--fg);font-size:13px;flex:1">'+cat.label+'</span>'+
+            '<span style="font-size:10px;color:'+(on?'var(--green)':'var(--dim)')+';font-family:\'SF Mono\',monospace">'+(on?'shown':'hidden')+'</span></label>';
+        }).join('');
+    }
+    window.renderYouthSuppVis=renderYouthSuppVis;
+    /* Youth visibility gate: a supp is hidden from youth unless the per-item model says show. */
     function _youthHideSupp(id){
       try{
         if(!document.body.classList.contains('fuel-youth')) return false;
-        /* v198: 'wolverine' (BPC-157+TB-500 peptide) is MANDATORY-excluded from youth
-           regardless of the editable list -- enforces the owner's peptide option-i
-           ("exclude from the app") so youth can NEVER see it even with the flag on. */
-        if(id==='wolverine') return true;
-        return (window.YOUTH_SUPP_EXCLUDE||[]).indexOf(id)>=0;
+        return !_youthSuppVisible(id);
       }catch(e){ return false; }
     }
     function renderSuppPicker(){
