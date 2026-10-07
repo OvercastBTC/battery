@@ -1268,13 +1268,14 @@
   .log-list {
     list-style: none;
     padding: 0;
-    /* Fixed reserved height so adding entries never reflows the quick-add
-       buttons below it (the relayout IIFE hoists this list above the grids).
-       ~5 rows visible; the rest scroll internally. */
-    height: 150px;
-    min-height: 150px;
-    max-height: 150px;
+    margin: 0;
+    /* Log drawer: #log-list now lives INSIDE the expanded bottom-sheet modal,
+       so it flexes to the sheet and scrolls internally. (The old fixed 150px box was
+       the inline tracker section, which the drawer replaced.) */
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .log-list li {
     display: flex;
@@ -1313,6 +1314,58 @@
     letter-spacing: 0.5px;
   }
   .log-undo:hover { color: var(--bone); }
+  /* ===== LOG DRAWER (owner-#1: repurpose the FUEL bottom band; D spec v2, 440-verified) =====
+     Collapsed = a pinned, internally-scrollable mini-list of today's log (~3 rows,
+     newest-first). Expanded = bottom-sheet modal holding the REAL #log-list that
+     refreshLog() renders (pin ★ + Undo + Reset Day). It is pinned to the iframe's OWN
+     bottom edge, which the host already places at the nav top — deliberately NO
+     env(safe-area-inset-bottom) here: inside the iframe it double-counts the host's
+     inset ([[feedback-safe-area]]). Shown on the Tracker page only (body.logbar-on). */
+  .logbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: none;
+    background: var(--steel); border-top: 1px solid var(--line-bright);
+    box-shadow: 0 -6px 18px rgba(0,0,0,.45); }
+  body.logbar-on .logbar { display: block; }
+  /* Tracker content reserves the LIVE collapsed-bar height (set by _logbarMeasure)
+     so the last quick-add row never hides behind the pinned bar. */
+  body.logbar-on #page-tracker.active { padding-bottom: calc(30px + var(--logbar-h, 118px)); }
+  .logbar-grab { width: 36px; height: 4px; border-radius: 2px; background: var(--line-bright); margin: 6px auto 2px; }
+  .logbar-head { display: flex; align-items: center; gap: 8px; padding: 2px 14px 6px; min-height: 32px;
+    cursor: pointer; user-select: none; -webkit-user-select: none; }
+  .logbar-head .logbar-title { font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: var(--bone); white-space: nowrap; }
+  .logbar-head .logbar-count { font-family: 'Courier New', monospace; font-size: 10px; font-weight: 700; color: var(--gold); }
+  .logbar-head .logbar-hint { flex: 1; text-align: right; font-family: 'Courier New', monospace; font-size: 9px;
+    font-weight: 600; color: var(--dim); letter-spacing: .3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .logbar-head .logbar-chev { color: var(--dim); font-size: 13px; }
+  .logbar-list { list-style: none; margin: 0; padding: 0 14px 8px; max-height: 96px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .logbar-list li { display: flex; align-items: center; gap: 7px; padding: 5px 0; border-top: 1px solid var(--line);
+    font-family: 'Courier New', monospace; font-size: 12px; font-weight: 600; }
+  .logbar-list li:first-child { border-top: none; }
+  .logbar-list li.fresh { animation: logbar-flash 1.2s ease-out; }
+  @keyframes logbar-flash { 0% { background: var(--green-dim); } 100% { background: transparent; } }
+  .logbar-list .t { color: var(--dim); font-size: 10px; min-width: 48px; }
+  .logbar-list .d { flex: 1; color: var(--bone); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .logbar-list .d .tag { font-size: 9px; padding: 1px 5px; margin-right: 6px; text-transform: uppercase;
+    letter-spacing: .5px; border: 1px solid var(--line-bright); color: var(--dim); }
+  .logbar-list .d .tag.water { color: var(--blue); border-color: var(--blue); }
+  .logbar-list .d .tag.protein { color: var(--gold); border-color: var(--gold); }
+  .logbar-list .d .tag.electrolyte { color: var(--green); border-color: var(--green); }
+  .logbar-list .logbar-empty { color: var(--dim); font-style: italic; }
+  #logmodal-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none;
+    transition: opacity .22s; z-index: 35; }
+  #logmodal-scrim.open { opacity: 1; pointer-events: auto; }
+  .logmodal { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; transform: translateY(110%);
+    background: var(--steel); border-top: 1px solid var(--line-bright); border-radius: 14px 14px 0 0;
+    transition: transform .26s cubic-bezier(.2,.8,.2,1); max-height: 84vh; display: flex; flex-direction: column;
+    box-shadow: 0 -10px 30px rgba(0,0,0,.6); padding: 0 16px 12px; }
+  .logmodal.open { transform: translateY(0); }
+  .logmodal .logbar-grab { width: 40px; margin: 8px auto 2px; cursor: pointer; }
+  .logmodal .log-section-head { padding: 6px 0 10px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+  .logmodal-foot { padding: 8px 0 0; border-top: 1px solid var(--line); }
+  .logmodal-foot .sum { font-family: 'Courier New', monospace; font-size: 10px; font-weight: 600; color: var(--dim); letter-spacing: .3px; }
+  .logmodal-foot .chrome { font-family: 'Courier New', monospace; font-size: 9px; font-weight: 600; color: #5a636e;
+    letter-spacing: .5px; margin-top: 4px; text-align: center; line-height: 1.6; }
+  .logmodal-foot .chrome .v { color: var(--blue); }
   /* E3 4.3: pin-from-log ★ affordance on each log row */
   .log-pin {
     background: none;
@@ -2289,16 +2342,9 @@
     </div>
   </div>
 
-  <!-- LOG -->
-  <div class="log-section">
-    <div class="log-section-head">
-      <div class="log-section-title">◆ Today's log</div>
-      <button class="reset-btn" onclick="resetDay()">Reset Day</button>
-    </div>
-    <ul class="log-list" id="log-list">
-      <li class="log-empty">No entries yet. Tap + Water or + Protein above to start.</li>
-    </ul>
-  </div>
+  <!-- LOG — relocated into the pinned Log Drawer at the bottom of the page:
+       collapsed scrollable mini-list + expanded modal that holds the real #log-list.
+       refreshLog() renders both from one projection. -->
 
   <!-- RECOVERY BOOST CALLOUT — adult-only (§4.3) -->
   <div class="qa-adult" id="recovery-note-host" style="margin-top:14px;display:none">
@@ -3105,10 +3151,35 @@
 
 </div><!-- /wrap -->
 
-<footer>
-  <div>FUEL STACK · <span id="fuel-build">live</span> · <span class="v">PROTEIN + HYDRATION</span></div>
-  <div style="margin-top: 6px;">DAILY · SAVE TO HOME SCREEN</div>
-</footer>
+<!-- ===== LOG DRAWER (owner-#1 repurpose of the bottom band; D spec v2) =====
+     Collapsed bar: scrollable mini-list, newest-first. Tap / swipe-up the handle or
+     header → expanded modal = the REAL log (#log-list via refreshLog) + pin ★ + Undo +
+     Reset Day (all existing code). The old <footer> text now sits in the modal footer.
+     Shown on the Tracker page only (switchTab toggles body.logbar-on). -->
+<div class="logbar" id="logbar" aria-label="Today's log, collapsed">
+  <div class="logbar-grab" id="logbar-grab" title="Swipe up to expand"></div>
+  <div class="logbar-head" id="logbar-head" onclick="openLogModal()" role="button" aria-expanded="false" aria-controls="logmodal">
+    <span class="logbar-title">◆ Log</span><span class="logbar-count" id="logbar-count"></span>
+    <span class="logbar-hint">scroll to scan · tap or swipe ↑ for details</span>
+    <span class="logbar-chev">▲</span>
+  </div>
+  <ul class="logbar-list" id="logbar-list"></ul>
+</div>
+<div id="logmodal-scrim" onclick="closeLogModal()"></div>
+<div class="logmodal" id="logmodal" role="dialog" aria-modal="true" aria-label="Today's log">
+  <div class="logbar-grab" id="logmodal-grab" onclick="closeLogModal()" title="Swipe down to collapse"></div>
+  <div class="log-section-head" id="logmodal-head">
+    <div class="log-section-title">◆ Today's log</div>
+    <button class="reset-btn" onclick="resetDay()">Reset Day</button>
+  </div>
+  <ul class="log-list" id="log-list">
+    <li class="log-empty">No entries yet. Tap + Water or + Protein above to start.</li>
+  </ul>
+  <div class="logmodal-foot">
+    <div class="sum" id="logmodal-sum"></div>
+    <div class="chrome">FUEL STACK · <span id="fuel-build">live</span> · <span class="v">PROTEIN + HYDRATION</span><br>DAILY · SAVE TO HOME SCREEN</div>
+  </div>
+</div>
 
 <script>
   /* ===== STORAGE HELPERS ===== */
@@ -3145,6 +3216,10 @@
     if (!document.getElementById('page-' + tabName)) tabName = 'tracker';
     tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
     pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + tabName));
+    // Log drawer lives with the Tracker: pin the bar + reserve its height there only;
+    // collapse the expanded modal when navigating away.
+    document.body.classList.toggle('logbar-on', tabName === 'tracker');
+    try { if (tabName === 'tracker') _logbarMeasure(); else closeLogModal(); } catch (e) {}
     window.scrollTo({ top: 0, behavior: 'auto' });
     storeSet('fuel-last-tab', tabName);
     // Default the events date input to today when opening the events tab
@@ -4308,13 +4383,15 @@
     obsBump('fuelLog');
     _stampGoalSnapshot(activeKey());
     const entries = loadEntries();
-    entries.push({
+    const entry = {
       id: Date.now() + Math.random(),
       t: entryTime(),
       type, amount, label,
       // e = electrolyte stick equivalents (number, e.g. 1, 0.5, 0). Boolean preserved as 1 for legacy.
       e: typeof electrolyteUnits === 'number' ? electrolyteUnits : (electrolyteUnits ? 1 : 0)
-    });
+    };
+    entries.push(entry);
+    _logFreshId = entry.id;   // log drawer: flash the row as it lands in the collapsed bar
     saveEntries(entries);
     refreshProgress();
     refreshLog();
@@ -5573,22 +5650,25 @@
   function refreshLog() {
     try{if(window.batteryRenderHist)window.batteryRenderHist();if(window.batteryRenderFav)window.batteryRenderFav();}catch(e){}
     const list = document.getElementById('log-list');
+    const bar = document.getElementById('logbar-list');
     const allEntries = loadEntries();
     // Map shakeId → water oz for labeling protein entries
     const shakeWaterMap = {};
     allEntries.forEach(e => {
       if (e.shakeWater && e.shakeId) shakeWaterMap[e.shakeId] = e.amount;
     });
-    // Show all entries except bundled electrolytes and shakeWater helpers
+    // Show all entries except bundled electrolytes and shakeWater helpers.
+    // §4.3 — the log drawer is a youth-reachable surface: for youth, youth-unsafe rows
+    // (electrolyte products, branded adult shakes) are HIDDEN entirely, using the one
+    // existing rule the pin ★ already relies on (_favIsYouthSafe). Adult: unchanged.
     const entries = allEntries.filter(e =>
       !(e.type === 'electrolyte' && e.bundled) && !e.shakeWater
+      && (!fy() || _favIsYouthSafe({ type: e.type, amount: e.amount, label: e.label, e: e.e || 0 }))
     );
-    if (entries.length === 0) {
-      list.innerHTML = '<li class="log-empty">No entries yet. Tap + Water or + Protein above to start.</li>';
-      return;
-    }
-    const sorted = [...entries].reverse();
-    list.innerHTML = sorted.map(e => {
+    // ONE per-entry projection feeds BOTH the collapsed bar and the expanded modal —
+    // same amount text (fy() → '✓', never grams for youth), same labels, same order
+    // (newest first). No second renderer, no second data path.
+    const rows = [...entries].reverse().map(e => {
       const tag = e.type;
       const tagLabel = LOG_TAG_ICON[tag] || tag.toUpperCase();
       let amt, elIcon = '', pairedOz = null;
@@ -5605,6 +5685,28 @@
       if (e.type === 'water' && e.e > 0) {
         elIcon = ` · ⚡${e.e % 1 === 0 ? e.e : e.e.toFixed(1)}`;
       }
+      return { e, tag, tagLabel, amt, elIcon, pairedOz };
+    });
+    // ---- collapsed bar: compact mini-list (~3 rows visible, scrolls internally) ----
+    if (bar) {
+      const countEl = document.getElementById('logbar-count');
+      if (countEl) countEl.textContent = rows.length ? String(rows.length) : '';
+      bar.innerHTML = rows.length
+        ? rows.map(r => `<li${r.e.id === _logFreshId ? ' class="fresh"' : ''}><span class="t">${r.e.t}</span><span class="d"><span class="tag ${r.tag}">${r.tagLabel}</span>${r.e.label}${r.amt ? ' · ' + r.amt : ''}${r.elIcon}</span></li>`).join('')
+        : '<li><span class="d logbar-empty">No entries yet — tap a tile above</span></li>';
+      bar.scrollTop = 0;   // newest row sits at the top; a fresh add lands in view
+      _logFreshId = null;
+      _logbarMeasure();
+    }
+    // ---- expanded modal: the REAL list, row template unchanged (pin ★ + Undo) ----
+    if (!list) return;
+    if (rows.length === 0) {
+      list.innerHTML = '<li class="log-empty">No entries yet. Tap + Water or + Protein above to start.</li>';
+      _logModalSummary(rows, entries, shakeWaterMap);
+      return;
+    }
+    list.innerHTML = rows.map(r => {
+      const e = r.e, tag = r.tag, tagLabel = r.tagLabel, amt = r.amt, elIcon = r.elIcon, pairedOz = r.pairedOz;
       // owner request: a shake-linked protein row also credits water -- make
       // that visible with a compact badge, not just the '+ Noz' text suffix.
       const dualIcon = pairedOz ? ` <span class="tag water" style="opacity:.75">💧${Math.round(pairedOz)}oz</span>` : '';
@@ -5628,7 +5730,68 @@
         <button class="log-undo" onclick="removeShakeEntry(${e.id}, '${e.shakeId || ''}')">Undo</button>
       </li>`;
     }).join('');
+    _logModalSummary(rows, entries, shakeWaterMap);
   }
+  // Modal footer summary from the same filtered entries. Youth: count + water oz only
+  // (water oz is youth-permitted); protein grams are adult-only (§4.3).
+  function _logModalSummary(rows, entries, shakeWaterMap) {
+    const el = document.getElementById('logmodal-sum'); if (!el) return;
+    if (!rows.length) { el.textContent = ''; return; }
+    const n = rows.length + (rows.length === 1 ? ' entry' : ' entries');
+    const oz = entries.reduce((s, e) => s + (e.type === 'water' ? (+e.amount || 0) : ((e.shakeId && shakeWaterMap[e.shakeId]) || 0)), 0);
+    if (fy()) { el.textContent = `${n} · ${Math.round(oz)}oz water`; return; }
+    const g = entries.reduce((s, e) => s + (e.type === 'protein' ? (+e.amount || 0) : 0), 0);
+    el.textContent = `${n} · ${Math.round(g)}g protein · ${Math.round(oz)}oz water`;
+  }
+
+  /* ===== LOG DRAWER — expand / collapse (D spec v2). Data + rendering stay in
+     refreshLog(); this is only the sheet mechanics. `var` (not let) so the boot-time
+     refreshLog()/switchTab() calls that run before this block never hit a TDZ. ===== */
+  var _logFreshId = null;
+  function _logbarMeasure() {
+    // Measure NOW (offsetHeight forces a layout; one-shot, cheap) so the reserved
+    // padding is right even when requestAnimationFrame is throttled (hidden/scaled
+    // frame), then re-measure on the next frame to catch any post-layout change.
+    function apply() {
+      var b = document.getElementById('logbar');
+      var h = b ? b.offsetHeight : 0;          // 0 while hidden (non-Tracker tab) → keep last
+      if (h) document.documentElement.style.setProperty('--logbar-h', h + 'px');
+    }
+    apply();
+    requestAnimationFrame(apply);
+  }
+  function openLogModal() {
+    var m = document.getElementById('logmodal'), s = document.getElementById('logmodal-scrim'), h = document.getElementById('logbar-head');
+    if (!m) return;
+    m.classList.add('open'); if (s) s.classList.add('open'); if (h) h.setAttribute('aria-expanded', 'true');
+    var l = document.getElementById('log-list'); if (l) l.scrollTop = 0;
+  }
+  function closeLogModal() {
+    var m = document.getElementById('logmodal'), s = document.getElementById('logmodal-scrim'), h = document.getElementById('logbar-head');
+    if (!m) return;
+    m.classList.remove('open'); if (s) s.classList.remove('open'); if (h) h.setAttribute('aria-expanded', 'false');
+  }
+  (function () {
+    // Gestures: swipe UP on the bar's handle/header expands (the mini-list itself keeps
+    // its own scroll — a swipe there scrolls, it doesn't pop the sheet); swipe DOWN on
+    // the modal's handle/header collapses; scrim tap + Esc collapse too.
+    var ty = 0;
+    function swipe(el, dir, fn) {
+      if (!el) return;
+      el.addEventListener('touchstart', function (e) { ty = e.touches[0].clientY; }, { passive: true });
+      el.addEventListener('touchend', function (e) {
+        var dy = e.changedTouches[0].clientY - ty;
+        if ((dir === 'up' && -dy > 30) || (dir === 'down' && dy > 40)) fn();
+      }, { passive: true });
+    }
+    swipe(document.getElementById('logbar-head'), 'up', openLogModal);
+    swipe(document.getElementById('logbar-grab'), 'up', openLogModal);
+    swipe(document.getElementById('logmodal-grab'), 'down', closeLogModal);
+    swipe(document.getElementById('logmodal-head'), 'down', closeLogModal);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLogModal(); });
+    window.addEventListener('resize', _logbarMeasure);
+    window.openLogModal = openLogModal; window.closeLogModal = closeLogModal;
+  })();
 
   /* ===== FAVORITES ===== */
   // Saved as { water: [{amount, label}, ...], protein: [...] }
