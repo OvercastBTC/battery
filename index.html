@@ -159,6 +159,26 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 .wk-sched-row .wk-chips{display:flex;gap:4px;flex-wrap:wrap;flex:1}
 .wk-sched-row .wk-chip{padding:4px 8px;border-radius:14px;border:1px solid var(--line);background:#161b22;color:var(--dim);font-family:'SF Mono',monospace;font-size:9px;letter-spacing:.3px;cursor:pointer}
 .wk-sched-row .wk-chip.active{background:var(--gold);border-color:var(--gold);color:#0d1117;font-weight:700}
+/* v214/v215 (D spec): the weekly-only Rest chip reads as "off" — dashed border, blue when active (distinct from gold presets) */
+.wk-sched-row .wk-chip[data-preset="rest"]{border-style:dashed}
+.wk-sched-row .wk-chip[data-preset="rest"].active{background:var(--blue);border-color:var(--blue);border-style:solid;color:#0d1117}
+/* v215 SMART WEEK section + AUTO tags. The card scrolls now that it holds the section + 7 rows (iPhone 440×956). */
+#bmodal .bm-card.wk-card{max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sw-sec{border:1px solid var(--line);border-radius:12px;padding:10px 12px 12px;margin:0 0 12px;background:#161b22}
+.sw-title{font-family:'SF Mono',monospace;font-size:11px;letter-spacing:1.5px;color:var(--gold);font-weight:700;margin-bottom:8px}
+.sw-title .sw-sub{color:var(--faint);font-weight:400;letter-spacing:.5px;text-transform:lowercase;margin-left:4px}
+.sw-row{display:flex;align-items:center;gap:8px;padding:5px 0}
+.sw-lbl{width:72px;flex-shrink:0;font-family:'SF Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--dim);font-weight:700}
+.sw-chips{display:flex;flex-wrap:wrap;gap:4px;align-items:center;flex:1}
+.sw-chip{min-width:28px;padding:5px 7px;border-radius:12px;border:1px solid var(--line);background:#0d1117;color:var(--dim);font-family:'SF Mono',monospace;font-size:10px;letter-spacing:.3px;cursor:pointer;text-align:center}
+.sw-chip.on{background:var(--gold);border-color:var(--gold);color:#0d1117;font-weight:700}
+.sw-chip.ro{cursor:default}
+.sw-chip.ro.on{background:transparent;border-color:var(--gold);color:var(--gold)}
+.sw-chip.lock{opacity:.45;cursor:not-allowed}
+.sw-note{font-family:'SF Mono',monospace;font-size:9px;color:var(--faint);letter-spacing:.3px;margin-left:2px}
+.sw-gen{margin-top:10px}
+.sw-why{margin-top:8px;font-family:'SF Mono',monospace;font-size:9.5px;letter-spacing:.3px;color:var(--faint);line-height:1.5}
+.wk-day .wk-auto{display:block;font-size:7.5px;letter-spacing:1px;color:var(--blue);font-weight:700;margin-top:1px}
 /* v214 (#3, D's final spec): the two HOME plan controls become REAL buttons reusing the app's existing
    outlined treatment (#view-data .dbtn / .dbtn.bk = REQUEST A FEATURE / BACKUP EVERYTHING). .dbtn is
    scoped under #view-data, so .dbtn.home is a self-contained global copy + the HOME tweaks (44px,
@@ -342,7 +362,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.07.214</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.07.215</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -2456,21 +2476,119 @@ function hasTemplateForToday(){
   var tpl=getWeeklyTemplate();if(!tpl)return false;
   return Object.prototype.hasOwnProperty.call(tpl,String(new Date().getDay()));
 }
+/* ===== v215 SMART WEEK (D's #1 spec, owner-approved) =====
+   generateWeek(inp) is a PURE function: no DOM, no storage, deterministic. Inputs:
+   { positions:['P'|'C'|'IF'|'OF'], gameDays:[dow], practiceDays:[dow], liftsPerWk:0-3, restPerWk:0-2, youth }
+   → { tpl:{'<dow>':presetName|WEEKLY_REST} (ALL 7 days written), why:[...] }.
+   Rules 1–6: game anchors (day before → recovery; day after → P:recovery / else armcare) → explicit practice
+   → rest days furthest from any game (needs the v214 WEEKLY_REST sentinel: "off", not maintenance) → lifts
+   ≥2 days from a game, never back-to-back (youth 0) → fill alternating by position (P/C armcare-first,
+   IF/OF practice-first) → youth coerces lift/fullsend → practice. Ties break on DAY_ORDER Mon..Sun.
+   The output IS the weekly template (every day), so it supersedes PLAN_DEFAULT_MAINT by construction;
+   MAINT stays the no-template fallback and the "Default" chip's meaning. Precedence stays getActivePlan's. */
+var SMART_DAY_ORDER=[1,2,3,4,5,6,0];
+function generateWeek(inp){
+  inp=inp||{};
+  var S=function(x){return new Set(Array.isArray(x)?x:[]);};
+  var pos=S(inp.positions), games=S((inp.gameDays||[]).map(Number)), prac=S((inp.practiceDays||[]).map(Number));
+  var youth=!!inp.youth;
+  var lifts=youth?0:Math.max(0,Math.min(3,parseInt(inp.liftsPerWk||0,10)||0));
+  var rests=Math.max(0,Math.min(2,parseInt(inp.restPerWk||0,10)||0));
+  var isP=pos.has('P'), isC=pos.has('C');
+  var tpl={}, why=[];
+  var set=function(d,v){tpl[String(d)]=v;};
+  var has=function(d){return Object.prototype.hasOwnProperty.call(tpl,String(d));};
+  var prev=function(d){return (d+6)%7;}, next=function(d){return (d+1)%7;};
+  var dist=function(d){if(!games.size)return 99;var m=99;games.forEach(function(g){var a=Math.abs(d-g);var c=Math.min(a,7-a);if(c<m)m=c;});return m;};
+  games.forEach(function(g){set(g,'gameday');});
+  games.forEach(function(g){var b=prev(g);if(!has(b))set(b,'recovery');});
+  games.forEach(function(g){var a=next(g);if(!has(a))set(a,isP?'recovery':'armcare');});
+  if(games.size)why.push('Game day'+(games.size>1?'s':'')+' anchor the week: light recovery the day before, '+(isP?'arm recovery':'arm care')+' the day after.');
+  prac.forEach(function(p){if(!has(p))set(p,'practice');});
+  if(prac.size)why.push('Your practice days are set as Practice.');
+  var unsetByDist=function(){return SMART_DAY_ORDER.filter(function(d){return !has(d);}).sort(function(a,b){var da=dist(a),db=dist(b);if(db!==da)return db-da;return SMART_DAY_ORDER.indexOf(a)-SMART_DAY_ORDER.indexOf(b);});};
+  for(var r=0;r<rests;r++){var cands=unsetByDist();if(!cands.length)break;set(cands[0],WEEKLY_REST);}
+  if(rests)why.push(rests+' rest day'+(rests>1?'s':'')+' placed furthest from games (everything off).');
+  var placedLifts=0;
+  if(lifts){
+    var tries=unsetByDist();
+    for(var i=0;i<tries.length&&placedLifts<lifts;i++){
+      var d=tries[i];if(dist(d)<2)continue;
+      if(tpl[String(prev(d))]==='lift'||tpl[String(next(d))]==='lift')continue;
+      set(d,'lift');placedLifts++;
+    }
+    why.push(placedLifts+' lift day'+(placedLifts!==1?'s':'')+' spaced 2+ days from games, never back-to-back'+(placedLifts<lifts?' ('+(lifts-placedLifts)+' could not fit safely)':'')+'.');
+  }
+  var pair=(isP||isC)?['armcare','practice']:['practice','armcare'];
+  var k=0;
+  SMART_DAY_ORDER.forEach(function(d){if(!has(d)){set(d,pair[k%2]);k++;}});
+  why.push(((isP||isC)?'Arm care leads':'Practice leads')+' the open days, alternating with '+((isP||isC)?'practice':'arm care')+'.');
+  if(youth){SMART_DAY_ORDER.forEach(function(d){var v=tpl[String(d)];if(v==='lift'||v==='fullsend')set(d,'practice');});why.push('Youth: no lifting days.');}
+  SMART_DAY_ORDER.forEach(function(d){if(!has(d))set(d,'practice');});
+  return {tpl:tpl,why:why};
+}
+/* AUTO map: battery-plan-weekly-auto = {'<dow>':true} for days the generator wrote (prefix-compliant, §7).
+   A hand-edit on a row clears that dow's tag; Clear All wipes it. Display-only — precedence is unchanged. */
+function getWeeklyAuto(){
+  try{var raw=localStorage.getItem('battery-plan-weekly-auto');if(raw){var a=JSON.parse(raw);if(a&&typeof a==='object'&&!Array.isArray(a))return a;}}catch(e){}
+  return {};
+}
+function setWeeklyAuto(map){
+  if(!map||!Object.keys(map).length){try{localStorage.removeItem('battery-plan-weekly-auto');}catch(e){}return;}
+  safeSet('battery-plan-weekly-auto',JSON.stringify(map));
+}
+/* Smart Week inputs persist at battery-plan-smart-week = {gameDays,practiceDays,liftsPerWk,restPerWk} so the
+   section re-opens as it was left. POSITION is NOT stored here — it MIRRORS ARM's arm-care-pos (read-only
+   here: pitcher→P, c→C, 1b/2b/ss/3b→IF, of→OF; 'all'/empty → every group), edited in ARM. */
+function getSmartWeekInputs(){
+  var def={gameDays:[],practiceDays:[],liftsPerWk:0,restPerWk:1};
+  try{var raw=localStorage.getItem('battery-plan-smart-week');if(raw){var o=JSON.parse(raw);if(o&&typeof o==='object'&&!Array.isArray(o))return Object.assign(def,o);}}catch(e){}
+  return def;
+}
+function smartWeekPositions(){
+  var raw='';try{raw=localStorage.getItem('arm-care-pos')||'';}catch(e){}
+  var keys=raw.split(',').filter(Boolean);
+  if(!keys.length||keys.indexOf('all')>=0)return ['P','C','IF','OF'];
+  var out=[];var M={pitcher:'P',c:'C','1b':'IF','2b':'IF',ss:'IF','3b':'IF',of:'OF'};
+  keys.forEach(function(k){var g=M[k];if(g&&out.indexOf(g)<0)out.push(g);});
+  return out.length?out:['P','C','IF','OF'];
+}
 function showWeeklySchedule(){
   var host=document.getElementById('bmodal');if(!host)return;
   var tpl=getWeeklyTemplate()||{};
+  var auto=getWeeklyAuto();
   var presets=getPlanPresets();
   var youth=profileTier(profile)==='youth';
   var today=new Date().getDay();
   var DAY_ORDER=[1,2,3,4,5,6,0];
   var DAY_NAMES={0:'SUN',1:'MON',2:'TUE',3:'WED',4:'THU',5:'FRI',6:'SAT'};
-  var html='<div class="bm-card" role="dialog" aria-modal="true">';
+  var DAY_SHORT={0:'Su',1:'Mo',2:'Tu',3:'We',4:'Th',5:'Fr',6:'Sa'};
+  var sw=getSmartWeekInputs();
+  if(youth)sw.liftsPerWk=0; /* §4.3: youth never lift */
+  var swPos=smartWeekPositions();
+  var html='<div class="bm-card wk-card" role="dialog" aria-modal="true">';
   html+='<h3>Weekly Schedule</h3>';
   html+='<div class="bm-body">Assign a preset to each day. Tapping a preset on HOME still overrides for that day.</div>';
+  /* v215 SMART WEEK — auto-fill section (D's #1). Inputs are chips; Generate writes all 7 rows. */
+  html+='<div class="sw-sec" id="smart-week">';
+  html+='<div class="sw-title">✦ SMART WEEK <span class="sw-sub">auto-fill</span></div>';
+  html+='<div class="sw-row"><div class="sw-lbl">POSITION</div><div class="sw-chips sw-pos">';
+  ['P','C','IF','OF'].forEach(function(g){html+='<span class="sw-chip ro'+(swPos.indexOf(g)>=0?' on':'')+'" data-pos="'+g+'">'+g+'</span>';});
+  html+='<span class="sw-note">from ARM · edit there</span></div></div>';
+  var dayChips=function(field,sel){var s='';DAY_ORDER.forEach(function(d){s+='<button type="button" class="sw-chip'+(sel.indexOf(d)>=0?' on':'')+'" data-sw="'+field+'" data-dow="'+d+'">'+DAY_SHORT[d]+'</button>';});return s;};
+  html+='<div class="sw-row"><div class="sw-lbl">GAME DAY</div><div class="sw-chips">'+dayChips('gameDays',sw.gameDays.map(Number))+'</div></div>';
+  html+='<div class="sw-row"><div class="sw-lbl">PRACTICE</div><div class="sw-chips">'+dayChips('practiceDays',sw.practiceDays.map(Number))+'</div></div>';
+  var numChips=function(field,max,val,lock){var s='';for(var n=0;n<=max;n++){s+='<button type="button" class="sw-chip'+(n===val?' on':'')+(lock?' lock':'')+'" data-sw="'+field+'" data-n="'+n+'"'+(lock?' disabled aria-disabled="true"':'')+'>'+n+'</button>';}return s;};
+  html+='<div class="sw-row"><div class="sw-lbl">LIFTS/WK</div><div class="sw-chips">'+numChips('liftsPerWk',3,youth?0:sw.liftsPerWk,youth)+(youth?'<span class="sw-note">🔒 youth</span>':'')+'</div></div>';
+  html+='<div class="sw-row"><div class="sw-lbl">REST/WK</div><div class="sw-chips">'+numChips('restPerWk',2,sw.restPerWk,false)+'</div></div>';
+  html+='<button type="button" id="sw-generate" class="dbtn bk home sw-gen">✦ Generate my week</button>';
+  var whyNow=[];try{whyNow=JSON.parse(localStorage.getItem('battery-plan-smart-week-why')||'[]');}catch(e){}
+  html+='<div class="sw-why" id="sw-why"'+(Object.keys(auto).length&&whyNow.length?'':' style="display:none"')+'>'+(whyNow.length?'Why this week: '+whyNow.join(' '):'')+'</div>';
+  html+='</div>';
   DAY_ORDER.forEach(function(dow){
     var isToday=dow===today;
     html+='<div class="wk-sched-row'+(isToday?' wk-today':'')+'" data-dow="'+dow+'">';
-    html+='<div class="wk-day">'+DAY_NAMES[dow]+'</div>';
+    html+='<div class="wk-day">'+DAY_NAMES[dow]+(auto[String(dow)]&&tpl[String(dow)]?'<span class="wk-auto">AUTO</span>':'')+'</div>';
     html+='<div class="wk-chips">';
     Object.keys(PLAN_PRESET_LABELS).forEach(function(name){
       if(!Object.prototype.hasOwnProperty.call(presets,name))return;
@@ -2489,7 +2607,26 @@ function showWeeklySchedule(){
   html+='<div class="wk-legend" style="margin:10px 0 2px;font-family:\'SF Mono\',monospace;font-size:9.5px;letter-spacing:.3px;color:var(--faint);line-height:1.5">★ Default = maintenance (arm + recovery) · Rest = everything off · a HOME tap overrides today</div>';
   html+='<div class="bm-btns"><button id="bm-cancel">Close</button><button id="bm-ok" class="pri">Clear All</button></div></div>';
   host.innerHTML=html;host.classList.add('on');
+  /* v215: Smart Week input chips (day toggles + counts) persist to battery-plan-smart-week; nothing is
+     generated until the Generate button. Position chips are read-only mirrors of arm-care-pos. */
+  function saveSw(){safeSet('battery-plan-smart-week',JSON.stringify({gameDays:sw.gameDays,practiceDays:sw.practiceDays,liftsPerWk:youth?0:sw.liftsPerWk,restPerWk:sw.restPerWk}));}
+  function clearAutoTag(dow){if(auto[dow]){delete auto[dow];setWeeklyAuto(auto);var row=host.querySelector('.wk-sched-row[data-dow="'+dow+'"] .wk-auto');if(row)row.remove();}}
   host.onclick=function(e){
+    var swChip=e.target.closest('.sw-chip[data-sw]');
+    if(swChip&&!swChip.disabled){
+      var f=swChip.getAttribute('data-sw');
+      if(swChip.hasAttribute('data-dow')){
+        var dd=parseInt(swChip.getAttribute('data-dow'),10);
+        var arr=sw[f].map(Number);var ix=arr.indexOf(dd);
+        if(ix>=0)arr.splice(ix,1);else{arr.push(dd);if(f==='gameDays'&&arr.length>2)arr.shift();} /* GAME DAY 0–2 */
+        sw[f]=arr;swChip.classList.toggle('on',arr.indexOf(dd)>=0);
+        if(f==='gameDays')host.querySelectorAll('.sw-chip[data-sw="gameDays"]').forEach(function(c){c.classList.toggle('on',arr.indexOf(parseInt(c.getAttribute('data-dow'),10))>=0);});
+      }else{
+        var n=parseInt(swChip.getAttribute('data-n'),10);sw[f]=n;
+        host.querySelectorAll('.sw-chip[data-sw="'+f+'"]').forEach(function(c){c.classList.toggle('on',parseInt(c.getAttribute('data-n'),10)===n);});
+      }
+      saveSw();return;
+    }
     var chip=e.target.closest('.wk-chip');
     if(chip){
       var dow=chip.getAttribute('data-dow');
@@ -2497,21 +2634,39 @@ function showWeeklySchedule(){
       if(preset)tpl[dow]=preset;else delete tpl[dow];
       var row=chip.closest('.wk-sched-row');
       if(row){row.querySelectorAll('.wk-chip').forEach(function(c){c.classList.remove('active');});chip.classList.add('active');}
+      clearAutoTag(dow); /* v215: a hand-edit un-tags AUTO for that day */
       setWeeklyTemplate(Object.keys(tpl).length?tpl:null);
       return;
     }
     if(e.target===host){host.classList.remove('on');host.innerHTML='';document.removeEventListener('keydown',onKey);}
   };
+  document.getElementById('sw-generate').onclick=function(){
+    var res=generateWeek({positions:smartWeekPositions(),gameDays:sw.gameDays,practiceDays:sw.practiceDays,liftsPerWk:youth?0:sw.liftsPerWk,restPerWk:sw.restPerWk,youth:youth});
+    tpl=res.tpl;
+    auto={};Object.keys(tpl).forEach(function(d){auto[d]=true;});
+    setWeeklyAuto(auto);
+    safeSet('battery-plan-smart-week-why',JSON.stringify(res.why));
+    setWeeklyTemplate(tpl); /* writes all 7 days; HOME's today-override still wins via getActivePlan */
+    host.querySelectorAll('.wk-sched-row').forEach(function(row){
+      var d=row.getAttribute('data-dow');
+      row.querySelectorAll('.wk-chip').forEach(function(c){c.classList.toggle('active',c.getAttribute('data-preset')===(tpl[d]||''));});
+      var day=row.querySelector('.wk-day');if(day&&!day.querySelector('.wk-auto')){var t=document.createElement('span');t.className='wk-auto';t.textContent='AUTO';day.appendChild(t);}
+    });
+    var w=document.getElementById('sw-why');if(w){w.textContent='Why this week: '+res.why.join(' ');w.style.display='';}
+  };
   document.getElementById('bm-cancel').onclick=function(){host.classList.remove('on');host.innerHTML='';document.removeEventListener('keydown',onKey);};
   document.getElementById('bm-ok').onclick=function(){
     tpl={};host.querySelectorAll('.wk-chip.active').forEach(function(c){c.classList.remove('active');});
     host.querySelectorAll('.wk-chip[data-preset=""]').forEach(function(c){c.classList.add('active');});
+    auto={};setWeeklyAuto(null);host.querySelectorAll('.wk-auto').forEach(function(t){t.remove();});
+    var w=document.getElementById('sw-why');if(w){w.textContent='';w.style.display='none';}
     setWeeklyTemplate(null);
   };
   function onKey(e){if(e.key==='Escape'){host.classList.remove('on');host.innerHTML='';document.removeEventListener('keydown',onKey);}}
   document.addEventListener('keydown',onKey);
 }
 window.showWeeklySchedule=showWeeklySchedule; window.WEEKLY_REST=WEEKLY_REST; window.setWeeklyTemplate=setWeeklyTemplate; window.PLAN_PRESET_LABELS=PLAN_PRESET_LABELS;
+window.generateWeek=generateWeek; window.getWeeklyAuto=getWeeklyAuto; window.smartWeekPositions=smartWeekPositions; /* v215: gate drives the pure generator + reads the AUTO map */
 function todayPlanKey(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function flagsEqual(a,b){return PLAN_STREAMS.every(function(k){return !!a[k]===!!b[k];});}
 /* H3: READ-ONLY plan for an arbitrary (past) date. Stored battery-plan-<dk> only — NO migration
