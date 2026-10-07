@@ -27,7 +27,7 @@ backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px}
 #prof-name-static{font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--dim);padding:6px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 #prof-name-static.youth{color:var(--green)}
 #prof-select{background:var(--steel);border:1px solid var(--line);color:var(--bone);font:inherit;font-size:12px;font-weight:700;letter-spacing:.5px;padding:6px 10px;border-radius:16px;max-width:100%;text-align:center}
-#stage{position:absolute;top:0;left:0;right:0;bottom:50px;}
+#stage{position:absolute;top:0;left:0;right:0;bottom:calc(50px + env(safe-area-inset-bottom));}
 iframe{position:absolute;top:calc(env(safe-area-inset-top) + 122px);left:0;right:0;bottom:0;width:100%;height:calc(100% - env(safe-area-inset-top) - 122px);border:0;display:none;background:var(--ink)}
 iframe.on{display:block}
 #view-game{position:absolute;inset:0;display:none;overflow-y:auto;
@@ -112,7 +112,13 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 #first-run .fr-or{color:var(--dim);font-size:11px;margin:6px 0 12px;letter-spacing:1px}
 #first-run .fr-restore{background:#161b22;border:1px solid var(--green,#3fb950);color:var(--green,#3fb950)}
 #first-run .fr-demo{background:none;border:1px dashed var(--line);color:var(--dim)}
-#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;background:var(--steel2);border-top:1px solid var(--line);padding-bottom:0;backdrop-filter:blur(10px)}
+/* NO-SAFE-INSET bottom nav (v210, owner directive): the nav extends edge-to-edge to the TRUE
+   screen bottom — its background fills DOWN through the home-indicator zone via padding-bottom,
+   so there's no dark resting strip below it. Buttons stay in the top (above the indicator);
+   owner accepts the indicator line overlapping the nav's bottom. #stage reserves the same
+   (50px + inset) so content meets the nav top, not behind it. env()=0 on non-notch devices
+   → identical to the old 50px layout (no regression). */
+#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;background:var(--steel2);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);backdrop-filter:blur(10px)}
 #tabbar button{flex:1;height:50px;background:none;border:none;color:var(--faint);padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:"SF Mono",monospace}
 #tabbar button .ico{display:flex;align-items:center;justify-content:center;height:24px}#tabbar button .lb{font-size:9px;letter-spacing:1.5px;white-space:nowrap}
 #tabbar{overflow:hidden}
@@ -317,14 +323,14 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 #picker-today-btn{display:block;width:100%;background:none;border:1px solid var(--gold);color:var(--goldb);font-family:"SF Mono",monospace;font-size:12px;letter-spacing:1px;padding:8px;border-radius:8px;cursor:pointer}
 #host-date-label{font-size:10px;letter-spacing:.5px;color:var(--dim);font-family:"SF Mono",monospace;white-space:nowrap;flex-shrink:0;min-width:32px;text-align:right}
 #today-pill{background:var(--gold);color:var(--ink);border:none;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:.5px;padding:4px 9px;cursor:pointer;font-family:"SF Mono",monospace;flex-shrink:0;display:none}
-body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top) + 122px);left:0;right:0;bottom:50px;background:rgba(12,35,64,.18);pointer-events:none;z-index:50}
+body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top) + 122px);left:0;right:0;bottom:calc(50px + env(safe-area-inset-bottom));background:rgba(12,35,64,.18);pointer-events:none;z-index:50}
 </style></head><body>
 <script>/* §4.3 FAIL-SAFE BOOT: set the youth surface BEFORE the iframes below parse, so a youth never flashes adult content during the boot race. Defaults SAFE (youth) on any uncertainty; only an explicit tier:'adult' profile is treated as adult. */
 (function(){try{var id=localStorage.getItem('battery-profile');var ppl=JSON.parse(localStorage.getItem('battery-people')||'[]');var me=(id&&Array.isArray(ppl))?ppl.find(function(p){return p&&p.id===id;}):null;var isYouth=!(me&&me.tier==='adult');document.body.classList.toggle('youth',isYouth);localStorage.setItem('battery-boot-tier',isYouth?'youth':'adult');}catch(e){try{document.body.classList.add('youth');localStorage.setItem('battery-boot-tier','youth');}catch(_){}}})();
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.06.209</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.07.210</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
