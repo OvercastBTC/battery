@@ -66,7 +66,15 @@
       radial-gradient(ellipse at 80% 100%, rgba(212,160,23,0.08) 0%, transparent 50%),
       var(--ink);
     min-height: 100vh;
-    padding-bottom: 140px;
+    /* S3 owner-#1 "black box" (Adam screenshot: dead black band at FUEL bottom): was
+       140px — a dead band below the FUEL footer, above the host nav. The nav is OUTSIDE
+       the iframe and the stage bottom already clears it, so this is pure over-clearance
+       (old bottom-bar fix remnant), NOT safe-area. Matched to arm.html's proven 60px —
+       same host/nav, maximally removes the band (owner wants the empty space gone), and
+       keeps the two iframes consistent. Host-verified @375 that no actionable control is
+       clipped by a transient toast (bottom:64px) / install banner (bottom:70px). (The 5
+       modal bottom-sheet env(safe-area-inset-bottom) paddings are separate — untouched.) */
+    padding-bottom: 60px;
   }
   .wrap { max-width: 820px; margin: 0 auto; padding: 0 18px; }
 
