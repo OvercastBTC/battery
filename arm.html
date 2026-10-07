@@ -3466,7 +3466,7 @@
       </div>
     </li>
 
-    <li class="step" data-ex="w4" data-clip="clips/wash-stand-barehand.mp4">
+    <li class="step" data-ex="w4" data-clip="clips/wash-stand-barehand-demo.mp4">
       <div class="step-row">
         <div class="check" onclick="toggleDone(this)"></div>
         <div class="step-text" onclick="toggleOpen(this)">
@@ -8593,6 +8593,8 @@
      minimum that should ride along with that, and it also lets anyone watch the
      full session rather than the 25 seconds we chose. */
   var CLIP_SOURCE=[
+    /* VIRTUAL key — link-only w4, no file on disk; a future local re-host MUST be named wash-stand-barehand-demo.mp4 (or this key+prefix readjusted) or the credit match silently breaks. */
+    ['wash-stand-barehand-', 'Matt Antonelli / Antonelli Baseball — Ron Washington Hands Routine', 'https://youtu.be/q4kl34TtOcU'],
     ['wash-',    'Ron Washington · SF Giants — Train Like a Big League First Baseman', 'https://youtu.be/4Xm_WZrLGEY'],
     ['w2b-',     'Ron Washington · SF Giants — Train Like a Big League Second Baseman', 'https://youtu.be/FQmBV74Miyo'],
     ['gi1-',     'SF Giants — How To Train Like a Big League Infielder (2021)', 'https://youtu.be/k55JCIS1UOM'],
@@ -8661,6 +8663,7 @@
   }
   var OFFICIAL_DEMOS=[
     ['tube-','https://youtu.be/wdzV-oXLcR0'],
+    ['wash-stand-barehand-','https://youtu.be/q4kl34TtOcU'],
     ['wash-','https://youtu.be/4Xm_WZrLGEY'],
     ['tb-','https://youtu.be/xY7gEwk6Fz8'],
     ['fd-','https://youtu.be/N-kfCjoz7Hg'],
@@ -8898,7 +8901,7 @@
     var WANTED={
       t1:'tube-forward', t2:'tube-lateral', t3:'tube-overhead', t4:'tube-throwing',
       w1:'wash-knee-center', w2:'wash-knee-forehand', w3:'wash-knee-backhand',
-      w4:'wash-stand-barehand', w5:'wash-stand-glove', w6:'wash-number-hops',
+      w4:'wash-stand-barehand-demo', w5:'wash-stand-glove', w6:'wash-number-hops',
       bi1:'bi-toe-touch', bi2:'bi-squat-series', bi3:'bi-step-overs', bi4:'bi-lunge-twist', bi5:'bi-catch-footwork',
       tb1:'tb-row', tb2:'tb-pushup', tb3:'tb-oblique', tb4:'tb-deadlift', tb5:'tb-curl',
       tb6:'tb-tricep', tb7:'tb-decel-lunge', tb8:'tb-shoulder-press', tb9:'tb-xband-squat',
