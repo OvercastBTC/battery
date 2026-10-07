@@ -66,15 +66,16 @@
       radial-gradient(ellipse at 80% 100%, rgba(212,160,23,0.08) 0%, transparent 50%),
       var(--ink);
     min-height: 100vh;
-    /* S3 owner-#1 "black box" (Adam screenshot: dead black band at FUEL bottom): was
-       140px — a dead band below the FUEL footer, above the host nav. The nav is OUTSIDE
-       the iframe and the stage bottom already clears it, so this is pure over-clearance
-       (old bottom-bar fix remnant), NOT safe-area. Matched to arm.html's proven 60px —
-       same host/nav, maximally removes the band (owner wants the empty space gone), and
-       keeps the two iframes consistent. Host-verified @375 that no actionable control is
-       clipped by a transient toast (bottom:64px) / install banner (bottom:70px). (The 5
-       modal bottom-sheet env(safe-area-inset-bottom) paddings are separate — untouched.) */
-    padding-bottom: 60px;
+    /* S3 owner-#1 "black box" (Adam: "No black box. Make it go away."): the FUEL body
+       background is the dark --ink gradient, so ANY padding-bottom paints a dark band
+       below the last content. v204/v206/v207 walked it 140→72→60; owner still saw a band
+       at 60, so v208 takes it to ZERO. Safe: the host nav is OUTSIDE the iframe and the
+       iframe bottom sits AT the nav top (no overlap), so at 0 the last content meets the
+       nav cleanly with nothing hidden. The last actionable control clears the iframe
+       bottom by >200px, so a transient toast (bottom:64px) / install banner (bottom:70px)
+       never hides a control. (The 5 modal bottom-sheet env(safe-area-inset-bottom)
+       paddings are separate — left untouched.) */
+    padding-bottom: 0;
   }
   .wrap { max-width: 820px; margin: 0 auto; padding: 0 18px; }
 
@@ -1831,7 +1832,12 @@
   /* Footer */
   footer {
     margin-top: 30px;
-    padding: 20px 18px;
+    /* S3 owner-#1 "black box" (v208): body padding-bottom went to 0, but the footer's
+       own 20px bottom padding (transparent bg → dark --ink shows through) still left a
+       ~19px dark strip below "DAILY · SAVE TO HOME SCREEN", above the nav. Trimmed the
+       BOTTOM only (20→8px) so the last line sits a clean ~8px hairline above the nav —
+       no visible dark box — while keeping top/side padding. */
+    padding: 20px 18px 8px;
     border-top: 1px solid var(--line);
     text-align: center;
     font-family: 'Courier New', monospace;
