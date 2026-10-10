@@ -1315,7 +1315,7 @@
   }
   .log-undo:hover { color: var(--bone); }
   /* ===== LOG DRAWER (owner-#1: repurpose the FUEL bottom band; D spec v2, 440-verified) =====
-     Collapsed = a pinned, internally-scrollable mini-list of today's log (~3 rows,
+     Collapsed = a pinned, internally-scrollable mini-list of today's log (2 rows,
      newest-first). Expanded = bottom-sheet modal holding the REAL #log-list that
      refreshLog() renders (pin ★ + Undo + Reset Day). It is pinned to the iframe's OWN
      bottom edge, which the host already places at the nav top — deliberately NO
@@ -1337,7 +1337,7 @@
   .logbar-head .logbar-hint { flex: 1; text-align: right; font-family: 'Courier New', monospace; font-size: 9px;
     font-weight: 600; color: var(--dim); letter-spacing: .3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .logbar-head .logbar-chev { color: var(--dim); font-size: 13px; }
-  .logbar-list { list-style: none; margin: 0; padding: 0 14px 8px; max-height: 96px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .logbar-list { list-style: none; margin: 0; padding: 0 14px 8px; max-height: 55px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .logbar-list li { display: flex; align-items: center; gap: 7px; padding: 5px 0; border-top: 1px solid var(--line);
     font-family: 'Courier New', monospace; font-size: 12px; font-weight: 600; }
   .logbar-list li:first-child { border-top: none; }
@@ -1351,6 +1351,17 @@
   .logbar-list .d .tag.protein { color: var(--gold); border-color: var(--gold); }
   .logbar-list .d .tag.electrolyte { color: var(--green); border-color: var(--green); }
   .logbar-list .logbar-empty { color: var(--dim); font-style: italic; }
+  /* 2.2: FULL-COLLAPSE (body.logbar-min) = header + the single newest row only. The list is
+     already newest-first and already youth-filtered by refreshLog(), so row 1 here is
+     always a youth-safe row; the grab handle is hidden too. State = fuel-logbar-min. */
+  body.logbar-min .logbar-list { max-height: none; overflow: hidden; }
+  body.logbar-min .logbar-list li:nth-child(n+2) { display: none; }
+  body.logbar-min .logbar-grab { display: none; }
+  body.logbar-min .logbar-head { padding-top: 6px; }
+  .logbar-min-btn { position: relative; background: none; border: 1px solid var(--line-bright); color: var(--dim);
+    font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; line-height: 1; width: 26px; height: 22px;
+    border-radius: 6px; padding: 0; cursor: pointer; flex: none; }
+  .logbar-min-btn::before { content: ''; position: absolute; inset: -11px -6px; }  /* 44px hit area, visual unchanged */
   #logmodal-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none;
     transition: opacity .22s; z-index: 35; }
   #logmodal-scrim.open { opacity: 1; pointer-events: auto; }
@@ -3160,7 +3171,8 @@
   <div class="logbar-grab" id="logbar-grab" title="Swipe up to expand"></div>
   <div class="logbar-head" id="logbar-head" onclick="openLogModal()" role="button" aria-expanded="false" aria-controls="logmodal">
     <span class="logbar-title">◆ Log</span><span class="logbar-count" id="logbar-count"></span>
-    <span class="logbar-hint">scroll to scan · tap or swipe ↑ for details</span>
+    <span class="logbar-hint">tap or swipe ↑ for details</span>
+    <button type="button" class="logbar-min-btn" id="logbar-min-btn" onclick="event.stopPropagation();toggleLogBarMin()" aria-pressed="false" aria-label="Collapse log to latest entry" title="Collapse / expand">▾</button>
     <span class="logbar-chev">▲</span>
   </div>
   <ul class="logbar-list" id="logbar-list"></ul>
@@ -5770,6 +5782,19 @@
     apply();
     requestAnimationFrame(apply);
   }
+  // 2.2 full-collapse: header + newest entry only. Persisted under the existing fuel- prefix.
+  function _logbarApplyMin(on) {
+    document.body.classList.toggle('logbar-min', !!on);
+    var b = document.getElementById('logbar-min-btn');
+    if (b) { b.textContent = on ? '▴' : '▾'; b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.setAttribute('aria-label', on ? 'Expand log to two entries' : 'Collapse log to latest entry'); }
+    _logbarMeasure();
+  }
+  function toggleLogBarMin() {
+    var on = !document.body.classList.contains('logbar-min');
+    try { storeSet('fuel-logbar-min', on ? '1' : '0'); } catch (e) {}
+    _logbarApplyMin(on);
+  }
   function openLogModal() {
     var m = document.getElementById('logmodal'), s = document.getElementById('logmodal-scrim'), h = document.getElementById('logbar-head');
     if (!m) return;
@@ -5794,13 +5819,25 @@
         if ((dir === 'up' && -dy > 30) || (dir === 'down' && dy > 40)) fn();
       }, { passive: true });
     }
-    swipe(document.getElementById('logbar-head'), 'up', openLogModal);
-    swipe(document.getElementById('logbar-grab'), 'up', openLogModal);
+    // swipe ↓ on the bar header = full-collapse; swipe ↑ while fully collapsed = back to 2 rows first
+    function swipeBar(el) {
+      if (!el) return;
+      el.addEventListener('touchstart', function (e) { ty = e.touches[0].clientY; }, { passive: true });
+      el.addEventListener('touchend', function (e) {
+        var dy = e.changedTouches[0].clientY - ty, min = document.body.classList.contains('logbar-min');
+        if (-dy > 30) { if (min) toggleLogBarMin(); else openLogModal(); }
+        else if (dy > 40 && !min) toggleLogBarMin();
+      }, { passive: true });
+    }
+    swipeBar(document.getElementById('logbar-head'));
+    swipeBar(document.getElementById('logbar-grab'));
     swipe(document.getElementById('logmodal-grab'), 'down', closeLogModal);
     swipe(document.getElementById('logmodal-head'), 'down', closeLogModal);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLogModal(); });
     window.addEventListener('resize', _logbarMeasure);
     window.openLogModal = openLogModal; window.closeLogModal = closeLogModal;
+    window.toggleLogBarMin = toggleLogBarMin;
+    try { _logbarApplyMin(storeGet('fuel-logbar-min', '0') === '1'); } catch (e) {}
   })();
 
   /* ===== FAVORITES ===== */
