@@ -8913,7 +8913,9 @@
     try { img.src = parent.location.href.replace(/[^/]*$/,'') + 'clips/previews/preview-' + key + '.webp'; }
     catch(e) { img.src = 'clips/previews/preview-' + key + '.webp'; }
     img.alt = ''; img.setAttribute('aria-hidden','true');
-    img.onerror = function(){ this.onerror=null; this.style.display='none'; };
+    /* Hide ONLY on a real load failure (404). The off-screen observer pauses by blanking src;
+       that fires a spurious error which must NOT hide the preview (it never came back). */
+    img.onerror = function(){ if(this._paused) return; this.onerror=null; this.style.display='none'; };
     prev.appendChild(img);
     var badge = document.createElement('div'); badge.className='clip-loop-badge';
     var dot = document.createElement('span'); dot.className='clip-loop-dot';
@@ -9073,9 +9075,9 @@
           var img = e.target.querySelector('.clip-preview-img');
           if(!img) return;
           if(e.isIntersecting){
-            if(img._lazySrc && !img.src) img.src = img._lazySrc;
+            if(img._paused){ img._paused = false; img.style.display=''; img.src = img._lazySrc; }
           } else {
-            if(img.src){ img._lazySrc = img.src; img.src = ''; }
+            if(!img._paused && img.src && img.style.display!=='none'){ img._lazySrc = img.src; img._paused = true; img.removeAttribute('src'); }
           }
         });
       }, { threshold: 0.05 });
