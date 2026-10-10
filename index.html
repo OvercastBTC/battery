@@ -27,7 +27,7 @@ backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px}
 #prof-name-static{font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--dim);padding:6px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 #prof-name-static.youth{color:var(--green)}
 #prof-select{background:var(--steel);border:1px solid var(--line);color:var(--bone);font:inherit;font-size:12px;font-weight:700;letter-spacing:.5px;padding:6px 10px;border-radius:16px;max-width:100%;text-align:center}
-#stage{position:absolute;top:0;left:0;right:0;bottom:calc(50px + env(safe-area-inset-bottom));}
+#stage{position:absolute;top:0;left:0;right:0;bottom:var(--stage-b,50px);}
 iframe{position:absolute;top:calc(env(safe-area-inset-top) + 122px);left:0;right:0;bottom:0;width:100%;height:calc(100% - env(safe-area-inset-top) - 122px);border:0;display:none;background:var(--ink)}
 iframe.on{display:block}
 #view-game{position:absolute;inset:0;display:none;overflow-y:auto;
@@ -112,7 +112,8 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 #first-run .fr-or{color:var(--dim);font-size:11px;margin:6px 0 12px;letter-spacing:1px}
 #first-run .fr-restore{background:#161b22;border:1px solid var(--green,#3fb950);color:var(--green,#3fb950)}
 #first-run .fr-demo{background:none;border:1px dashed var(--line);color:var(--dim)}
-/* NO-SAFE-INSET bottom nav (v210, owner directive): the nav extends edge-to-edge to the TRUE
+/* [SUPERSEDED at ≤600px by the v219 floating pill below — the nav no longer applies env(safe-area-inset-bottom).]
+   NO-SAFE-INSET bottom nav (v210, owner directive): the nav extends edge-to-edge to the TRUE
    screen bottom — its background fills DOWN through the home-indicator zone via padding-bottom,
    so there's no dark resting strip below it. Buttons stay in the top (above the indicator);
    owner accepts the indicator line overlapping the nav's bottom. #stage reserves the same
@@ -124,7 +125,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
    reach it. So the nav uses that SAME --ink: in mobile mode v210 fills the zone with nav bg, and in
    the latched state the OS strip + nav are one continuous color = no visible bar either way.
    (Only the nav bg changes; html/body/top-inset untouched.) */
-#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;background:var(--ink);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);backdrop-filter:blur(10px)}
+#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;background:var(--ink);border-top:1px solid var(--line);backdrop-filter:blur(10px)}
 #tabbar button{flex:1;height:50px;background:none;border:none;color:var(--faint);padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:"SF Mono",monospace}
 #tabbar button .ico{display:flex;align-items:center;justify-content:center;height:24px}#tabbar button .lb{font-size:9px;letter-spacing:1.5px;white-space:nowrap}
 #tabbar{overflow:hidden}
@@ -243,6 +244,35 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 #tabbar button{position:relative}
 #tabbar button.warn .ico::after{content:'';position:absolute;top:4px;margin-left:16px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
 #tabbar button.todo .ico::after{content:none}
+/* ===== v219 (owner, 2026-10-10): FLOATING / INSET PILL tab bar, "Option 2" — MOBILE ONLY (≤600px). =====
+   Supersedes the v210 safe-area fill + the (never-shipped) edge-to-edge 2.0 bar at this width. STANDALONE and
+   REVERTIBLE: it is ONE self-contained @media block + the --stage-b var; removing the block restores v218's
+   flush nav (the base #tabbar rule above is unchanged except it no longer applies env() padding).
+   Owner direction (verbatim intent):
+   • position:fixed to the LAYOUT-viewport bottom with a FIXED lift (--tb-lift, NOT env-based);
+   • IGNORE safe-area-inset-bottom ENTIRELY — no env(safe-area-inset-bottom) anywhere in the nav's
+     position/padding (or the content offsets that follow it): the lifted pill simply clears the home-indicator
+     zone. (Also the double-count lesson: feedback-safe-area. Firefox reports env()=0 anyway.)
+   • z-index: above ALL in-page content (hostbar 60, section-back 61, banners 70, toasts 90) but BELOW the two
+     full-screen modals (#first-run 200, #bmodal 300) so their actions are never buried — "always on top" means
+     on top of content, not of its own modals. (A gate asserts nav z < both modals.)
+   • v213 colour-match kept: pill bg = --ink = page bg; the pill is told apart by its border + soft shadow.
+   • Fixed dims, no flex/gaps: two 50% blocks, icon block + label block stacked. Everything is driven by
+     --tb-h (inner height), --tb-rad (radial size), --tb-lift (bottom gap), --tb-gap-x (side margin). */
+:root{--stage-b:50px;--tb-h:50px}   /* base values; --tb-h doubles as the gate's feature marker */
+@media(max-width:600px){
+:root{--tb-h:41px;--tb-rad:26px;--tb-lift:10px;--tb-gap-x:14px;--stage-b:calc(var(--tb-lift) + var(--tb-h) + 2px)}
+#tabbar{position:fixed;bottom:var(--tb-lift);inset-inline:0;margin:0 auto;width:min(calc(100% - 2 * var(--tb-gap-x)),420px);z-index:100;display:block;box-sizing:border-box;height:calc(var(--tb-h) + 2px);padding:0;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.55)}
+#tabbar button{display:block;float:left;width:50%;height:var(--tb-h);box-sizing:border-box;padding:2px 0 0;margin:0}
+#tabbar button .ico{display:block;height:var(--tb-rad);margin:0}
+#tabbar button .ico>svg{display:block;margin:0 auto}
+#tabbar .rad,#tabbar .rad-svg{width:var(--tb-rad);height:var(--tb-rad);margin:0 auto}
+#tabbar .rad-ico svg{width:calc(var(--tb-rad)*.65);height:calc(var(--tb-rad)*.65)}
+#tabbar button[data-v=fuel] .rad-ico svg{width:calc(var(--tb-rad)*.56);height:calc(var(--tb-rad)*.56)}
+#tabbar button .lb{display:block;margin:1px 0 0;line-height:10px;height:10px;text-align:center}
+/* warn-dot: pinned to the glyph's top-right (it used the flex row's centred static position before) */
+#tabbar button.warn .ico::after{left:50%;top:3px;margin-left:calc(var(--tb-rad)/2 - 4px)}
+}
 #install{position:fixed;left:14px;right:14px;bottom:70px;z-index:70;display:none;background:var(--steel);border:1px solid var(--gold);border-radius:13px;padding:13px 15px;font-size:12px;line-height:1.5;box-shadow:0 10px 30px #00000060}
 #install b{color:var(--goldb)}#install .x{position:absolute;top:8px;right:11px;color:var(--dim);cursor:pointer;font-size:16px}
 #fx-hint{position:fixed;left:14px;right:14px;bottom:70px;z-index:70;display:none;background:var(--steel);border:1px solid var(--gold);border-radius:13px;padding:13px 15px;font-size:12px;line-height:1.5;box-shadow:0 10px 30px #00000060}#fx-hint b{color:var(--goldb)}#fx-hint .x{position:absolute;top:8px;right:11px;color:var(--dim);cursor:pointer;font-size:16px}
@@ -355,14 +385,14 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 #picker-today-btn{display:block;width:100%;background:none;border:1px solid var(--gold);color:var(--goldb);font-family:"SF Mono",monospace;font-size:12px;letter-spacing:1px;padding:8px;border-radius:8px;cursor:pointer}
 #host-date-label{font-size:10px;letter-spacing:.5px;color:var(--dim);font-family:"SF Mono",monospace;white-space:nowrap;flex-shrink:0;min-width:32px;text-align:right}
 #today-pill{background:var(--gold);color:var(--ink);border:none;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:.5px;padding:4px 9px;cursor:pointer;font-family:"SF Mono",monospace;flex-shrink:0;display:none}
-body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top) + 122px);left:0;right:0;bottom:calc(50px + env(safe-area-inset-bottom));background:rgba(12,35,64,.18);pointer-events:none;z-index:50}
+body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top) + 122px);left:0;right:0;bottom:var(--stage-b,50px);background:rgba(12,35,64,.18);pointer-events:none;z-index:50}
 </style></head><body>
 <script>/* §4.3 FAIL-SAFE BOOT: set the youth surface BEFORE the iframes below parse, so a youth never flashes adult content during the boot race. Defaults SAFE (youth) on any uncertainty; only an explicit tier:'adult' profile is treated as adult. */
 (function(){try{var id=localStorage.getItem('battery-profile');var ppl=JSON.parse(localStorage.getItem('battery-people')||'[]');var me=(id&&Array.isArray(ppl))?ppl.find(function(p){return p&&p.id===id;}):null;var isYouth=!(me&&me.tier==='adult');document.body.classList.toggle('youth',isYouth);localStorage.setItem('battery-boot-tier',isYouth?'youth':'adult');}catch(e){try{document.body.classList.add('youth');localStorage.setItem('battery-boot-tier','youth');}catch(_){}}})();
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.10.218</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.10.219</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
