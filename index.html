@@ -41,9 +41,17 @@ padding:calc(env(safe-area-inset-top) + 124px) 14px 64px;-webkit-overflow-scroll
    this build has to the review's "day strip") to return ~150px of vertical
    space to the resume action + rows. Celebrate animation is unchanged --
    ringflare/chargeburst read off the element's own box, not a hardcoded size. */
-#today-ring{width:64px;height:64px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--rc,var(--green)) calc(var(--p,0)*1%), var(--line) 0)}
-#today-ring .inner{width:50px;height:50px;border-radius:50%;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center}
-#today-ring .score{font-size:16px;font-weight:800;font-family:&quot;SF Mono&quot;,monospace;line-height:1;color:var(--bone)}
+/* v223 GLASS HERO (D's NAV-ICONS-PRODUCTION-SPEC section G): readiness = a glossy-glass diamond. Same rendering as the nav FUEL
+   diamond (tracks/tubes/beads defined once with the nav rules); the tone gradient follows readiness via data-tone. */
+#today-ring{position:relative;width:64px;height:64px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:none}
+#today-ring svg{position:absolute;inset:0;width:64px;height:64px;overflow:visible}
+#today-ring .rad-trk.t1{stroke-width:3.9}#today-ring .rad-trk.t2{stroke-width:2.65}#today-ring .rad-trk.t3{stroke-width:.68}
+#today-ring .rad-prg.g1{stroke-width:3.9}#today-ring .rad-prg.g2{stroke-width:2.72}#today-ring .rad-prg.g3{stroke-width:.88}
+#today-ring[data-tone=green] .rad-prg.g1{stroke:#04230f}#today-ring[data-tone=green] .rad-prg.g2{stroke:url(#gGreen)}
+#today-ring[data-tone=gold]  .rad-prg.g1{stroke:#6a4608}#today-ring[data-tone=gold]  .rad-prg.g2{stroke:url(#gAmber)}
+#today-ring[data-tone=red]   .rad-prg.g1{stroke:#3d0a09}#today-ring[data-tone=red]   .rad-prg.g2{stroke:url(#gRed)}
+#today-ring .inner{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;background:none;width:auto;height:auto}
+#today-ring .score{font:800 15px "SF Mono",monospace;line-height:1;color:var(--bone)}
 #today-ring .lbl{font-size:6px;letter-spacing:1.5px;color:var(--dim);margin-top:1px}
 #view-data{position:absolute;inset:0;display:none;overflow-y:auto;
 padding:calc(env(safe-area-inset-top) + 124px) 14px 64px;-webkit-overflow-scrolling:touch}
@@ -131,18 +139,36 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 #tabbar{overflow:hidden}
 /* ===== Radial-progress tab icons (owner direction): each tab = a team-colour ring
    around its glyph; FUEL = dual ring (water outer blue + protein inner amber) + bolt. ===== */
-#tabbar button .ico{height:34px}
-.rad{position:relative;width:34px;height:34px;display:block;transition:transform .18s}
-.rad-svg{width:34px;height:34px;display:block;transform:rotate(-90deg)}
-.rad-trk{fill:none;stroke:#232b37;stroke-width:3}
-.rad-prg,.rad-prg2{fill:none;stroke:var(--rc,var(--gold));stroke-width:3;stroke-linecap:round;stroke-dasharray:87.96;stroke-dashoffset:87.96;transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)}
-.rad-prg2{stroke:var(--rc2,var(--goldb));stroke-dasharray:62.83;stroke-dashoffset:62.83}
-.rad-ico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font-size:20px;line-height:1}
-.rad-ico svg{width:22px;height:22px;display:block;fill:var(--faint);filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
-#tabbar button[data-v=fuel] .rad-ico svg{width:19px;height:19px}
-#tabbar button.on .rad-ico svg{filter:drop-shadow(0 0 3px var(--goldb)) drop-shadow(0 1px 1px rgba(0,0,0,.5))}
-.rad.charged{filter:drop-shadow(0 0 5px var(--rc,var(--gold)))}
-.rad.charged .rad-prg{animation:radpulse 1.9s ease-in-out infinite}
+/* v223 GLASS NAV ICONS (D's NAV-ICONS-PRODUCTION-SPEC section G). HOME = photoreal plate + live "HOME" text; FUEL = glossy-glass
+   diamond progress ring (adult dual water+protein, YOUTH single water). 4.3 FAIL-CLOSED: protein layers ship display:none in the
+   markup, are re-shown by JS only when proteinPct!=null (youth passes null), AND body.youth hides them with !important. */
+#tabbar button .ico{display:flex;align-items:center;justify-content:center;height:40px}
+.hp{position:relative;display:inline-block;width:36px;height:36px}
+.hp img{display:block;width:100%;height:100%}
+.hp i{position:absolute;left:50%;top:41%;transform:translate(-50%,-50%);font:800 7.2px/1 ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:.05em;color:#2b3038;text-shadow:0 1px 0 rgba(255,255,255,.75);font-style:normal;white-space:nowrap}
+#tabbar button:not(.on) .hp{filter:grayscale(.85) brightness(.58)}
+#tabbar button.on .hp{filter:drop-shadow(0 0 3px rgba(240,184,50,.55)) drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+.rad.dia{position:relative;display:block;width:40px;height:40px;transition:transform .18s}
+.rad.dia svg{display:block;width:40px;height:40px;overflow:visible}
+/* TRACK = hollow clear glass: cool light rim (t1) + dark hollow (t2) + specular edge (t3). Visible on the pill by its RIM, not a fill. */
+.rad-trk{fill:none;stroke-linejoin:round}
+.rad-trk.t1{stroke:rgba(120,170,225,.30);stroke-width:3.5}
+.rad-trk.t2{stroke:rgba(8,14,22,.78);stroke-width:2.34}
+.rad-trk.t3{stroke:url(#gHL);stroke-width:.6;opacity:.62;transform:translate(-.25px,-.38px)}
+.rad-trk2.t1{stroke-width:2.7}.rad-trk2.t2{stroke-width:1.72}.rad-trk2.t3{stroke-width:.44}
+/* TUBE = glossy liquid: rim (g1) + gradient body (g2) + specular highlight (g3). All layers of a tube share ONE dashoffset (JS). */
+.rad-prg,.rad-prg2{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 100;stroke-dashoffset:100;transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)}
+.rad-prg.g1{stroke:#06364f;stroke-width:3.5}.rad-prg.g2{stroke:url(#gBlue);stroke-width:2.4}.rad-prg.g3{stroke:url(#gHL);stroke-width:.78;opacity:.9;transform:translate(-.22px,-.32px)}
+.rad-prg2.g1{stroke:#8a4a0e;stroke-width:2.7}.rad-prg2.g2{stroke:url(#gAmber);stroke-width:1.76}.rad-prg2.g3{stroke:url(#gHL);stroke-width:.57;opacity:.9;transform:translate(-.22px,-.32px)}
+/* BEADS: bases + home plate */
+.bs .bb{fill:url(#gBaseOff);stroke:#0d1117;stroke-width:.7}.bs .bh{fill:#fff;opacity:.35}
+.bs.lit .bb{fill:url(#gBaseOn)}.bs.lit .bh{opacity:.85}
+.hpl{fill:url(#gBaseOff);stroke:#0d1117;stroke-width:.7}.hpl.lit{fill:url(#gBaseOn);filter:drop-shadow(0 0 1.2px #fff4c2)}
+.rad.dia.charged .rad-prg.g2{animation:radpulse 1.9s ease-in-out infinite}
+.rad.dia .fw{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:800 7px/1 ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:0;color:#9da7b3;font-style:normal;white-space:nowrap;pointer-events:none}
+#tabbar button.on .rad.dia .fw{color:var(--goldb)}
+body.youth .rad.dia .fw{font-size:9px}
+body.youth .rad-trk2,body.youth .rad-prg2{display:none !important}   /* 4.3 fail-closed belt: EVERY protein layer (track + tube) */
 @keyframes radpulse{0%,100%{opacity:1}50%{opacity:.5}}
 #tabbar button:active .rad{transform:scale(.86)}
 #tabbar button.on::before{content:'';position:absolute;top:0;left:24%;right:24%;height:2px;border-radius:0 0 3px 3px;background:var(--gold);box-shadow:0 0 7px var(--gold)}
@@ -219,8 +245,9 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
    a ⚡ FULLY CHARGED banner rises. Pure CSS, removed after it plays. */
 #today-ring.celebrate{animation:ringflare 1.1s ease-out}
 @keyframes ringflare{0%{transform:scale(1)}30%{transform:scale(1.08)}60%{transform:scale(.97)}100%{transform:scale(1)}}
-#today-ring.celebrate::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:3px solid var(--goldb);opacity:.9;animation:chargeburst 1.1s ease-out forwards;pointer-events:none}
+#today-ring.celebrate::after{content:'';position:absolute;inset:-8px;border-radius:14%;border:3px solid var(--goldb);opacity:.9;animation:chargeburstD 1.1s ease-out forwards;pointer-events:none}
 @keyframes chargeburst{0%{transform:scale(.7);opacity:.9;box-shadow:0 0 0 0 rgba(240,184,50,.55)}100%{transform:scale(1.5);opacity:0;box-shadow:0 0 30px 14px rgba(240,184,50,0)}}
+@keyframes chargeburstD{0%{transform:rotate(45deg) scale(.7);opacity:.9;box-shadow:0 0 0 0 rgba(240,184,50,.55)}100%{transform:rotate(45deg) scale(1.5);opacity:0;box-shadow:0 0 30px 14px rgba(240,184,50,0)}}
 #charge-banner{position:fixed;left:50%;top:38%;transform:translate(-50%,0);z-index:60;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0}
 #charge-banner.on{animation:chargebanner 2.4s ease-out forwards}
 #charge-banner .cb-bolt{font-size:54px;filter:drop-shadow(0 0 14px var(--goldb))}
@@ -239,7 +266,7 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
 .toast .t-x{flex:none;background:none;border:0;color:var(--faint);font-size:17px;line-height:1;cursor:pointer;padding:0 2px}
 @media(prefers-reduced-motion:reduce){.toast{transition:none}}
 @keyframes chargebanner{0%{opacity:0;transform:translate(-50%,18px) scale(.8)}18%{opacity:1;transform:translate(-50%,0) scale(1.04)}30%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px) scale(1)}}
-@media(max-width:390px){#tabbar button .lb{font-size:8px;letter-spacing:.4px}.rad,.rad-svg{width:30px;height:30px}}
+/* (v223: the <=390px .rad/.lb resize rule was removed - the diamond is a fixed 40px and the .lb labels no longer exist) */
 #tabbar button.on{color:var(--gold)}
 #tabbar button{position:relative}
 #tabbar button.warn .ico::after{content:'';position:absolute;top:4px;margin-left:16px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
@@ -261,17 +288,14 @@ body.youth{--gold:#2fd66b;--goldb:#6ef2a0}
      --tb-h (inner height), --tb-rad (radial size), --tb-lift (bottom gap), --tb-gap-x (side margin). */
 :root{--stage-b:50px;--tb-h:50px}   /* base values; --tb-h doubles as the gate's feature marker */
 @media(max-width:600px){
-:root{--tb-h:41px;--tb-rad:26px;--tb-lift:10px;--tb-gap-x:14px;--stage-b:calc(var(--tb-lift) + var(--tb-h) + 2px)}
+:root{--tb-h:46px;--tb-rad:40px;--tb-lift:10px;--tb-gap-x:14px;--stage-b:calc(var(--tb-lift) + var(--tb-h) + 2px)}
 #tabbar{position:fixed;bottom:var(--tb-lift);inset-inline:0;margin:0 auto;width:min(calc(100% - 2 * var(--tb-gap-x)),420px);z-index:100;display:block;box-sizing:border-box;height:calc(var(--tb-h) + 2px);padding:0;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.55)}
-#tabbar button{display:block;float:left;width:50%;height:var(--tb-h);box-sizing:border-box;padding:2px 0 0;margin:0}
+#tabbar button{display:block;float:left;width:50%;height:var(--tb-h);box-sizing:border-box;padding:3px 0 0;margin:0}
 #tabbar button .ico{display:block;height:var(--tb-rad);margin:0}
-#tabbar button .ico>svg{display:block;margin:0 auto}
-#tabbar .rad,#tabbar .rad-svg{width:var(--tb-rad);height:var(--tb-rad);margin:0 auto}
-#tabbar .rad-ico svg{width:calc(var(--tb-rad)*.65);height:calc(var(--tb-rad)*.65)}
-#tabbar button[data-v=fuel] .rad-ico svg{width:calc(var(--tb-rad)*.56);height:calc(var(--tb-rad)*.56)}
-#tabbar button .lb{display:block;margin:1px 0 0;line-height:10px;height:10px;text-align:center}
+#tabbar button .ico>.hp,#tabbar button .ico>.rad.dia{display:block;margin:0 auto}
+#tabbar button .ico>.hp{width:36px;height:36px;margin-top:2px}   /* plate is 36px (crisp at 1x/2x/3x from the 144px source) inside the 40px icon block */
 /* warn-dot: pinned to the glyph's top-right (it used the flex row's centred static position before) */
-#tabbar button.warn .ico::after{left:50%;top:3px;margin-left:calc(var(--tb-rad)/2 - 4px)}
+#tabbar button.warn .ico::after{left:50%;top:4px;margin-left:calc(var(--tb-rad)/2 - 6px)}
 }
 #install{position:fixed;left:14px;right:14px;bottom:70px;z-index:70;display:none;background:var(--steel);border:1px solid var(--gold);border-radius:13px;padding:13px 15px;font-size:12px;line-height:1.5;box-shadow:0 10px 30px #00000060}
 #install b{color:var(--goldb)}#install .x{position:absolute;top:8px;right:11px;color:var(--dim);cursor:pointer;font-size:16px}
@@ -392,7 +416,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.10.222</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.10.223</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -414,7 +438,14 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
      vertical space returned to the action + rows below. -->
 <button id="flow-btn" onclick="startFlow()" style="display:none;width:100%;margin-bottom:10px;background:#161b22;border:1px solid var(--gold);color:var(--goldb);font-family:'SF Mono',monospace;font-size:13px;letter-spacing:1px;padding:12px;border-radius:11px;cursor:pointer">▶ START TODAY'S FLOW</button>
 <div style="display:flex;align-items:center;gap:10px">
-<div id="today-ring" style="--p:0;--rc:var(--green)"><div class="inner"><span class="score" id="today-score">–</span><span class="lbl">READY</span></div></div>
+<div id="today-ring" style="--p:0;--rc:var(--green)"><svg viewBox="0 0 36 36" focusable="false">
+ <path class="rad-trk t1" d="M18 33L33 18L18 3L3 18Z"/><path class="rad-trk t2" d="M18 33L33 18L18 3L3 18Z"/><path class="rad-trk t3" d="M18 33L33 18L18 3L3 18Z"/>
+ <path class="rad-prg g1" pathLength="100" d="M18 33L33 18L18 3L3 18Z"/><path class="rad-prg g2" pathLength="100" d="M18 33L33 18L18 3L3 18Z"/><path class="rad-prg g3" pathLength="100" d="M18 33L33 18L18 3L3 18Z"/>
+ <g class="bs b1" transform="translate(33 18) rotate(45)"><rect class="bb" x="-2.7" y="-2.7" width="5.4" height="5.4" rx="1.19"/><rect class="bh" x="-2.20" y="-2.20" width="3.35" height="1.51" rx=".5"/></g>
+ <g class="bs b2" transform="translate(18 3) rotate(45)"><rect class="bb" x="-2.7" y="-2.7" width="5.4" height="5.4" rx="1.19"/><rect class="bh" x="-2.20" y="-2.20" width="3.35" height="1.51" rx=".5"/></g>
+ <g class="bs b3" transform="translate(3 18) rotate(45)"><rect class="bb" x="-2.7" y="-2.7" width="5.4" height="5.4" rx="1.19"/><rect class="bh" x="-2.20" y="-2.20" width="3.35" height="1.51" rx=".5"/></g>
+ <path class="bs hpl" d="M15.03 29.22H20.97V32.46L18 35.97L15.03 32.46Z"/>
+</svg><div class="inner"><span class="score" id="today-score">–</span><span class="lbl">READY</span></div></div>
 <div id="today-plan" style="flex:1;min-width:0"><div style="font-size:10px;letter-spacing:1px;color:var(--faint);text-transform:uppercase;margin-bottom:6px">Today's plan</div><div id="today-plan-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
 </div>
 <div id="today-why" style="display:none;margin:10px auto 0;max-width:320px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#0d1117"></div>
@@ -543,6 +574,13 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 <linearGradient id="g-fuel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#246e3a"/><stop offset="1" stop-color="#14241a"/></linearGradient>
 <linearGradient id="g-sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".55"/><stop offset=".45" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
 <linearGradient id="g-iconmetal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9dde4"/><stop offset="1" stop-color="#626974"/></linearGradient>
+<linearGradient id="gBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b4ecff"/><stop offset=".42" stop-color="#2fb8f0"/><stop offset="1" stop-color="#0a64a3"/></linearGradient>
+<linearGradient id="gAmber" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c8"/><stop offset=".4" stop-color="#ffb94a"/><stop offset="1" stop-color="#d9781a"/></linearGradient>
+<linearGradient id="gGreen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6f5c4"/><stop offset=".42" stop-color="#3fb950"/><stop offset="1" stop-color="#146228"/></linearGradient>
+<linearGradient id="gRed" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc2bc"/><stop offset=".42" stop-color="#f85149"/><stop offset="1" stop-color="#8a1b18"/></linearGradient>
+<linearGradient id="gHL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".55" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity=".1"/></linearGradient>
+<radialGradient id="gBaseOn" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fffdf2"/><stop offset=".55" stop-color="#ffe9a2"/><stop offset="1" stop-color="#c8951b"/></radialGradient>
+<radialGradient id="gBaseOff" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#8a95a2"/><stop offset=".6" stop-color="#46505b"/><stop offset="1" stop-color="#252b33"/></radialGradient>
 <symbol id="bi-arm" viewBox="0 0 128 128"><g stroke="url(#g-iconmetal)" fill="none" stroke-linecap="round"><path d="M22 88 L54 80" stroke-width="30"/><path d="M62 76 L88 40" stroke-width="24"/></g><circle cx="48" cy="66" r="20" fill="url(#g-iconmetal)"/><circle cx="94" cy="32" r="14" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/></symbol>
 <symbol id="bi-drills" viewBox="0 0 128 128"><path d="M24 30 L104 30 L104 72 L64 108 L24 72 Z" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/><path d="M40 30 L40 86 M64 30 L64 108 M88 30 L88 86 M24 48 L104 48 M24 66 L104 66" fill="none" stroke="#0f131b" stroke-width="3" stroke-opacity="0.35"/></symbol>
 <symbol id="bi-body" viewBox="0 0 128 128"><path d="M64 14 Q82 22 102 18 L98 54 Q98 96 64 114 Q30 96 30 54 L26 18 Q46 22 64 14 Z" fill="url(#g-iconmetal)" stroke="#0f131b" stroke-width="1.2" stroke-opacity="0.45"/><path d="M64 26 L64 102" fill="none" stroke="#0f131b" stroke-width="4" stroke-opacity="0.35"/></symbol>
@@ -557,8 +595,18 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </defs></svg>
 <div id="section-back"><span class="sb-arrow" onclick="go('today')">←</span><span class="sb-label" id="sb-label"></span></div>
 <div id="tabbar">
-<button class="on" data-v="today" onclick="go('today')"><span class="ico"><svg viewBox="0 0 100 100" style="width:26px;height:26px;display:block"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg></span><span class="lb">HOME</span></button>
-<button data-v="fuel" onclick="go('fuel')"><span class="ico"><span class="rad" data-v="fuel"><svg class="rad-svg" viewBox="0 0 36 36"><circle class="rad-trk" cx="18" cy="18" r="14"/><circle class="rad-trk" cx="18" cy="18" r="10"/><circle class="rad-prg" cx="18" cy="18" r="14"/><circle class="rad-prg2" cx="18" cy="18" r="10"/></svg><span class="rad-ico"><svg viewBox="0 0 24 24"><use href="#bi-fuel"/></svg></span></span></span><span class="lb">FUEL</span></button>
+<button class="on" data-v="today" onclick="go('today')" aria-label="Home"><span class="ico"><span class="hp" aria-hidden="true"><img src="data:image/webp;base64,UklGRnoFAABXRUJQVlA4WAoAAAAQAAAAjwAAjwAAQUxQSCwBAAABH8KwbSTFucss3jNGRAxhkEJOBaRMjRL7ocJbtdLhpqhp4FxAKLJpQEBCbSOpEWjJcP8FH1/kPKL/AoIi1pjfWV7yfxEH5Bg5puzTrNNtMywzzVnM3uCAJEmSIyWzqsUuGm5a/v9H/EAdNfTc1kZVoiEiJgDf97m562E93933sXe6Fdjt1XMPWztE2GV3+7oHEoEz4d////7/EntxHli93O/j8CCys70+FpsWV95NfYBvcVlCv11cn6ovcnyVNcphNn9eOCZ4nr3mBeO2rpu5Cb49NTHwll0MFDm+CDY5PjjN1chVDVKNT35SDWMnBjqnGExqACDV8EkY52ySltUg8VMuh6EF5D5Ii8jSAF4gJl2NL+SeJEhphZwlyL6C4fO0taZFPYScb3J8XwRWUDggKAQAAHAbAJ0BKpAAkAA+PRqMRCIhoaImVwrQQAeJaW4wHANIG5KH5imf4QdsP8POf19Y8l39T9nXZLtI/1D7KeEJxDxFaSP849BL9sfxA+B7OG+Uf3r2Av4z/Lv9t+ufEcfpYIoxbRT87hiYlYzKdgklnSaMRLc1E4FbSUWxEIFmRMgABEoIWgSTjUyxks0kPsbeGSR8b+NH11Ic2wBwDdaXGyKbloyD8cFuKC23P6ZF/HOF6QHSo2LUmS4sohSFzINe7t0l40VNhSEiDP+ydGFaPC2Tx9yxBez+qn/ZGhrKof8rPNY8AAD+78CXvN5Rzf6ZTzSCcw9S1EPe9/YdfJj2hF7b9kEOZ8+isK85QCU+h2ahjC1mvDmCNyjOaJ879/i8wZFnTN0A7JQRPR+lWUCXr0wPBzFy/uQ5v9Rly/ezMzLeG1+Q0+oTH+62tgwwCF9IN0wj+fkE5xMaWWw/pYCWeb8aMIQ/cSLaF48KAsWpzuG7CXGTTvftFiZ2PQV4SofOSZE+bxOKRwXP9I1IU3k58RZwqO21p3LauiVO8OZLcQCBDfjBBl2vWDWBq/r1JN0lkSrDw4cgpOZ29RqTKFGrQmMlz02IWrSzIJsuEB797a9ejGzg+6duNzMqlgN5l7ncIQd4RACD+KFxEiSgmmxvRnI+ijkSP/wYdBU7LTvC5I5QGzcbpp7ot+Qzmubx1ogdpv/NEVp7g2VIuonTyObV8/FFxW7aEbqKhzzN5aEglLqKxIJzTaIawzt47B0yNxxbG3mNF55vxY1PMtc7I2Q4253pmo8wy28eOq8KNrayz9FVnZQ11vxMlsn/BglRbxXYyc3CJIeyMprHOxGtyTK5V2tD1kSdats07vMOcQScSYAExXs1+imbm7JIhzYrw52omIS4BsqE2ufTzmYAUA7j6pQFy5CpmhHnovLD7kgTEEY+gTLImaYpxivwy6Uik+katEXUKSJ3AYb8BLmYt+aB2UCLxYqpaoPnFjerJKwMJp6+IVDuicjmPvQdBmbo3N15pZX6+93g0Pus4bOv399+dn4rW3GziNekGkVnkXQxmjj3cnrcHO+21RxSDDNqBjJd0dXlke+XESK8LwY1hy7ho7mbzQQ4LhFK+ZiaT1ALN5IZSpKRQ+fj0xXhIzQ/rCdQumvJe8G3txyV+rcu9WgGDTmUGRcYx1iBtdgkCjCTd1Z8khuYcL28qFyTWieOmMrTgM90D9xBFDrDTgLmSjLI1QYHUK5WD4U2DLWCoXNgOkLMcWVBIwft0+8Ui9wdXCXTtoJf4Go4OYnlvfwEpRGoBiKoFadSEajN7s9sa+zH8jtJkxLq/98CtfbJu1ykbD1FiOMH1/tCF86Q41Z2+0wxfrqgRA47FAVdCpKeoCrvJjt/84v/VH5K//8ZA7yPeTUq6JS58D+1wAAA" alt="" width="36" height="36"><i>HOME</i></span></span></button>
+<button data-v="fuel" onclick="go('fuel')" aria-label="Fuel"><span class="ico"><span class="rad dia" data-v="fuel" aria-hidden="true">
+ <svg viewBox="0 0 36 36" focusable="false">
+  <path class="rad-trk t1" d="M18 34.5L34.5 18L18 1.5L1.5 18Z"/><path class="rad-trk t2" d="M18 34.5L34.5 18L18 1.5L1.5 18Z"/><path class="rad-trk t3" d="M18 34.5L34.5 18L18 1.5L1.5 18Z"/>
+  <path class="rad-trk rad-trk2 t1" d="M18 30.5L30.5 18L18 5.5L5.5 18Z" style="display:none"/><path class="rad-trk rad-trk2 t2" d="M18 30.5L30.5 18L18 5.5L5.5 18Z" style="display:none"/><path class="rad-trk rad-trk2 t3" d="M18 30.5L30.5 18L18 5.5L5.5 18Z" style="display:none"/>
+  <path class="rad-prg g1" pathLength="100" d="M18 34.5L34.5 18L18 1.5L1.5 18Z"/><path class="rad-prg g2" pathLength="100" d="M18 34.5L34.5 18L18 1.5L1.5 18Z"/><path class="rad-prg g3" pathLength="100" d="M18 34.5L34.5 18L18 1.5L1.5 18Z"/>
+  <path class="rad-prg2 g1" pathLength="100" d="M18 30.5L30.5 18L18 5.5L5.5 18Z" style="display:none"/><path class="rad-prg2 g2" pathLength="100" d="M18 30.5L30.5 18L18 5.5L5.5 18Z" style="display:none"/><path class="rad-prg2 g3" pathLength="100" d="M18 30.5L30.5 18L18 5.5L5.5 18Z" style="display:none"/>
+  <g class="bs b1" transform="translate(34.5 18) rotate(45)"><rect class="bb" x="-2.2" y="-2.2" width="4.4" height="4.4" rx="0.97"/><rect class="bh" x="-1.70" y="-1.70" width="2.73" height="1.23" rx=".5"/></g>
+  <g class="bs b2" transform="translate(18 1.5) rotate(45)"><rect class="bb" x="-2.2" y="-2.2" width="4.4" height="4.4" rx="0.97"/><rect class="bh" x="-1.70" y="-1.70" width="2.73" height="1.23" rx=".5"/></g>
+  <g class="bs b3" transform="translate(1.5 18) rotate(45)"><rect class="bb" x="-2.2" y="-2.2" width="4.4" height="4.4" rx="0.97"/><rect class="bh" x="-1.70" y="-1.70" width="2.73" height="1.23" rx=".5"/></g>
+  <path class="bs hpl" d="M15.58 31.42H20.42V34.06L18 36.92L15.58 34.06Z"/>
+ </svg><i class="fw">FUEL</i></span></span></button>
 </div>
 <div id="bmodal"></div>
 <div id="install"><span class="x" onclick="document.getElementById('install').style.display='none'">✕</span>
@@ -1244,16 +1292,22 @@ function setRadial(v,pct){
 }
 function setFuelRadial(waterPct,proteinPct){
   var r=_rad('fuel'); if(!r)return;
-  r.style.setProperty('--rc','#39bdf0'); r.style.setProperty('--rc2','#f0a23c');
-  var w=r.querySelector('.rad-prg'); if(w)w.style.strokeDashoffset=(RAD_C*(1-Math.max(0,Math.min(100,waterPct))/100)).toFixed(2);
-  var pr=r.querySelector('.rad-prg2');
-  if(pr){
-    if(proteinPct==null){pr.style.display='none';}
-    else{pr.style.display='';pr.style.strokeDashoffset=(RAD_C2*(1-Math.max(0,Math.min(100,proteinPct))/100)).toFixed(2);}
-  }
-  r.dataset.water=Math.round(waterPct); r.dataset.protein=(proteinPct==null?'na':Math.round(proteinPct));
-  var full=waterPct>=100 && (proteinPct==null||proteinPct>=100);
-  r.classList.toggle('charged',full);
+  var wp=Math.max(0,Math.min(100,waterPct));
+  r.querySelectorAll('.rad-prg').forEach(function(e){e.style.strokeDashoffset=(100-wp).toFixed(2);e.style.visibility=wp>0?'visible':'hidden';});
+  var showP=(proteinPct!=null);                                    // youth => null (4.3: protein layers are never shown)
+  r.querySelectorAll('.rad-trk2').forEach(function(e){e.style.display=showP?'':'none';});
+  r.querySelectorAll('.rad-prg2').forEach(function(e){e.style.display=showP?'':'none';
+    if(showP){var pp=Math.max(0,Math.min(100,proteinPct));e.style.strokeDashoffset=(100-pp).toFixed(2);e.style.visibility=pp>0?'visible':'hidden';}});
+  setDiamondBases(r,wp);
+  r.dataset.water=Math.round(wp); r.dataset.protein=showP?Math.round(Math.max(0,Math.min(100,proteinPct))):'na';
+  r.classList.toggle('charged', wp>=100 && (!showP||proteinPct>=100));
+}
+function setDiamondBases(root,pct){[['.b1',25],['.b2',50],['.b3',75],['.hpl',100]].forEach(function(t){var e=root.querySelector(t[0]); if(e)e.classList.toggle('lit',pct>=t[1]);});}
+function setHeroDiamond(ring,score){   // readiness diamond: tone follows the score, tube + bases follow the score
+  score=Math.max(0,Math.min(100,score));
+  ring.dataset.tone=score>=75?'green':(score>=40?'gold':'red');          // same thresholds renderToday uses for --rc
+  ring.querySelectorAll('.rad-prg').forEach(function(e){e.style.strokeDashoffset=(100-score).toFixed(2);e.style.visibility=score>0?'visible':'hidden';});
+  setDiamondBases(ring,score);
 }
 function maybeAllCharged(){
   // Was: check .charged on each of the 4 tabbar radials directly. arm/drills/
@@ -1281,7 +1335,7 @@ function refreshTabIcons(){
   }
   maybeAllCharged();
 }
-window.refreshTabIcons=refreshTabIcons; window.setRadial=setRadial; window.setFuelRadial=setFuelRadial;
+window.refreshTabIcons=refreshTabIcons; window.setRadial=setRadial; window.setFuelRadial=setFuelRadial; window.setHeroDiamond=setHeroDiamond; window.setDiamondBases=setDiamondBases;
 
 /* ===== WHOLE-APP BACKUP / RESTORE (unified, all profiles) =====
    Export covers every profile's namespaced data (battery::<id>::*) plus the
@@ -3072,6 +3126,7 @@ function renderToday(){
     var rc=score>=75?'var(--green)':(score>=40?'var(--goldb)':'var(--blood)');
     ring.style.setProperty('--p',score);
     ring.style.setProperty('--rc',rc);
+    setHeroDiamond(ring,score);
     ring.style.cursor='pointer';
     ring.onclick=window.toggleReadyWhy;
     ring.title='Tap for why';
