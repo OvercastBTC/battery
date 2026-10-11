@@ -59,6 +59,7 @@
     line-height: 1.45;
     -webkit-text-size-adjust: 100%;
     overflow-x: hidden;
+    overscroll-behavior: none;   /* root must not rubber-band: WebKit drags position:fixed children (log drawer) with the bounce */
   }
   body {
     background:
