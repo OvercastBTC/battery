@@ -6280,7 +6280,7 @@
     // (Real pPct/wPct still returned for tooltips. Toggles judge ALL days incl. history:
     // a player who never tracks protein wants his week judged on water alone.)
     const trk = trackedAreas();
-    const pJ = trk.protein ? pPct : 1;
+    const pJ = (trk.protein && !fy()) ? pPct : 1;   // §4.3: youth tier is WATER-only (no protein channel)
     const wJ = trk.water ? wPct : 1;
     const both = (pJ >= 1) && (wJ >= 1);
     const partial = (pJ >= 0.8) && (wJ >= 0.8);
@@ -6300,7 +6300,7 @@
       const isToday = (i === 0);
       const tot = getTotalsForDate(key);
       const g = _goalForDate(key, isToday);
-      const both = (!trk.protein || tot.protein >= g.protein) && (!trk.water || tot.water >= g.water);
+      const both = (fy() || !trk.protein || tot.protein >= g.protein) && (!trk.water || tot.water >= g.water);   // §4.3: youth streak = water only
       if (i === 0 && !both) {
         // today not yet hit — streak can still stand on yesterday; keep going
         continue;
@@ -6321,11 +6321,12 @@
       const dk = dateKeyForOffset(i);
       const today = (i === 0);
       const sel = (dk === _selectedDate);
-      const fillPct = Math.min(100, Math.max(d.pPct, d.wPct) * 100);
+      const fillPct = Math.min(100, (fy() ? d.wPct : Math.max(d.pPct, d.wPct)) * 100);   // §4.3: youth pip height follows water only
+      const tip = fy() ? `${lbl.dayName} ${lbl.date} · W ${Math.round(d.wPct*100)}%` : `${lbl.dayName} ${lbl.date} · P ${Math.round(d.pPct*100)}% · W ${Math.round(d.wPct*100)}%`;
       let cls = '';
       if (d.tier === 'both') cls = 'both';
       else if (d.tier === 'partial') cls = 'partial';
-      html += `<div class="pip${today ? ' today' : ''}${sel ? ' selected' : ''}" data-date="${dk}" title="${lbl.dayName} ${lbl.date} · P ${Math.round(d.pPct*100)}% · W ${Math.round(d.wPct*100)}%">
+      html += `<div class="pip${today ? ' today' : ''}${sel ? ' selected' : ''}" data-date="${dk}" title="${tip}">
         <div class="pip-fill ${cls}" style="height:${fillPct}%"></div>
       </div>`;
     }
@@ -6364,7 +6365,7 @@
     var pPct = goal.protein > 0 ? tot.protein / goal.protein : 0;
     var wPct = goal.water > 0 ? tot.water / goal.water : 0;
     var trk = trackedAreas();
-    var pJ = trk.protein ? pPct : 1;
+    var pJ = (trk.protein && !fy()) ? pPct : 1;   // §4.3: youth tier is WATER-only (no protein channel)
     var wJ = trk.water ? wPct : 1;
     var both = (pJ >= 1) && (wJ >= 1);
     var partial = (pJ >= 0.8) && (wJ >= 0.8);
@@ -6380,7 +6381,7 @@
       var dk = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
       var cls = classifyDateKey(dk);
       if (cls.tier === 'future') continue;
-      map[dk] = { tier: cls.tier, p: Math.round(cls.pPct * 100), w: Math.round(cls.wPct * 100) };
+      map[dk] = { tier: cls.tier, p: fy() ? 0 : Math.round(cls.pPct * 100), w: Math.round(cls.wPct * 100) };   // §4.3 belt: youth never posts a protein %
     }
     try { parent.postMessage({ type: 'bat-day-progress', map: map }, '*'); } catch (e) {}
   }
