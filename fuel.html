@@ -6326,7 +6326,7 @@
     const bucket = type==='water'?'water':(type==='protein'?'protein':'elec');
     if(Array.isArray(favs[bucket])){
       const amt=+amount||0;
-      const i=favs[bucket].findIndex(f => (f.label||'')===(label||'') && (+f.amount||0)===amt);
+      const i=favs[bucket].findIndex(f => (f.label||'').replace(/'/g,'')===(label||'').replace(/'/g,'') && (+f.amount||0)===amt);   // chip passes the apostrophe-stripped label, so compare stripped
       if(i!==-1){ favs[bucket].splice(i,1); saveFavorites(favs); }
     }
     if(window.batteryRenderFav)try{window.batteryRenderFav();}catch(e){}
@@ -7159,7 +7159,7 @@
           const lbl=(f.label||'').replace(/\x27/g,"");
           const mark = f.manual ? '★' : '↻';
           const markCls = f.manual ? 'fav-star' : 'fav-star fav-freq';
-          const hideX = (ed && !f.manual) ? '<span title="Hide this suggestion" onclick="event.stopPropagation();window._favHideAuto(\''+encodeURIComponent(window._favKeyOf({type:type,amount:f.amount,label:f.label,w:f.w}))+'\')" style="position:absolute;top:2px;right:4px;padding:0 4px;color:#8b949e;font-weight:700;font-size:11px;cursor:pointer;z-index:3">×</span>' : '';
+          const hideX = (ed && !f.manual) ? '<span title="Hide this suggestion" onclick="event.stopPropagation();window._favHideAuto(\''+encodeURIComponent(window._favKeyOf({type:type,amount:f.amount,label:f.label,w:f.w})).replace(/'/g,'%27')+'\')" style="position:absolute;top:2px;right:4px;padding:0 4px;color:#8b949e;font-weight:700;font-size:11px;cursor:pointer;z-index:3">×</span>' : '';
           const rm = (ed && f.manual) ? '<span onclick="event.stopPropagation();removeManualFav(\''+type+'\','+f.amount+',\''+lbl+'\')" style="position:absolute;top:2px;right:4px;padding:0 4px;color:#f85149;font-weight:700;font-size:11px;cursor:pointer">×</span>' : '';
           const more = '<span onclick="event.stopPropagation();if(window._favOpenMenu)window._favOpenMenu(this.closest(\'.fav-btn\'))" '+
             'class="fav-more">⋯</span>';
