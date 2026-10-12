@@ -4739,10 +4739,12 @@
       var imgs = window.FOOD_IMAGES; if(!imgs || !label) return null;
       var pool = FUEL_ITEMS.concat(FUEL_W_ITEMS, loadCustomItems());
       var c = pool.filter(function(it){ return it.l === label; });
-      if(!c.length) return null;
+      /* label-only favorites with no catalog item id ('16oz', '+2 oz makeup', 'Cheetos 1 oz') wear their
+         FAV_IMAGES render, keyed by the favorite's label (separate store: FOOD_IMAGES keys must each be a tile). */
+      if(!c.length) return (window.FAV_IMAGES && window.FAV_IMAGES[label]) || null;
       var amt = +amount || 0;
       var pick = c.filter(function(it){ return type==='protein' ? (+it.p||0)===amt : (type==='water' ? (+it.w||0)===amt : true); })[0] || c[0];
-      return imgs[pick.id] || null;
+      return imgs[pick.id] || (window.FAV_IMAGES && window.FAV_IMAGES[label]) || null;
     }catch(e){ return null; }
   };
 
