@@ -6169,7 +6169,6 @@
     const w = +pairedOz || 0;
     const idx = favs[bucket].findIndex(f => (f.label || '') === (label || '') && (+f.amount || 0) === amt && (+f.w || 0) === w);
     if (idx !== -1) favs[bucket].splice(idx, 1);   // unpin
-    else if (/^\s*(cannot|can.?t|unable|error|failed|invalid)\b/i.test(String(label || ''))) { return; }   // never pin a toast/error string as a favorite
     else {
       if (favs[bucket].length >= 6) favs[bucket].shift();
       favs[bucket].push({ amount: amt, label: label || '', e: +elec || 0, w: +pairedOz || 0, fid: Date.now()+'-'+Math.floor(Math.random()*9999) });
