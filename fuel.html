@@ -1246,6 +1246,32 @@
   /* Favorites imagery: a favorite whose label resolves to a catalog item (_favImgFor) wears that
      item's FOOD_IMAGES render exactly like its quick-add tile (photo + scrim, text over). Text-only
      favorites (no catalog match / no image) are unchanged. */
+  /* ===== caffeine budget (youth words-only UI) ===== */
+  .qa-btn.qa-caf-locked { opacity: .55; filter: grayscale(.6); cursor: not-allowed; }
+  .qa-caf-lock { position: absolute; left: 6px; right: 6px; bottom: 6px; z-index: 6; font-size: 9.5px; line-height: 1.25; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.95); text-align: left; }
+  .caf-chip { position: absolute; top: 5px; left: 6px; z-index: 6; font-size: 9px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; padding: 2px 6px; border-radius: 999px; background: rgba(210,153,34,.92); color: #1b1300; }
+  .caf-chip.high { background: rgba(218,54,51,.94); color: #fff; }
+  .caf-tally { margin: 6px 0 4px; }
+  .caf-tally-card { background: var(--steel); border: 1px solid var(--line-bright); border-radius: 10px; padding: 8px 10px; }
+  .caf-tally-card .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .caf-tally-card .lab { font-family: 'Courier New', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--bone); }
+  .caf-tally-card .cells { display: flex; gap: 3px; }
+  .caf-tally-card .cells i { width: 18px; height: 8px; border-radius: 2px; background: var(--line-bright); display: block; }
+  .caf-tally-card .cells i.on.g { background: var(--green); } .caf-tally-card .cells i.on.a { background: #d29922; } .caf-tally-card .cells i.on.r { background: var(--blood); }
+  .caf-tally-card .txt { font-size: 12px; line-height: 1.35; color: var(--bone); margin-top: 6px; }
+  .caf-tally-card .wk { display: flex; align-items: center; gap: 4px; margin-top: 7px; font-size: 9px; letter-spacing: .5px; text-transform: uppercase; color: var(--dim); }
+  .caf-tally-card .wk span { margin-right: 4px; }
+  .caf-tally-card .wk i { width: 10px; height: 10px; border-radius: 50%; background: var(--line-bright); display: block; }
+  .caf-tally-card .wk i.g { background: var(--green); } .caf-tally-card .wk i.a { background: #d29922; } .caf-tally-card .wk i.r { background: var(--blood); }
+  #caf-sheet-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 70; }
+  #caf-sheet-scrim.on { opacity: 1; pointer-events: auto; }
+  #caf-sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 71; transform: translateY(110%); transition: transform .24s cubic-bezier(.2,.8,.2,1); background: var(--steel); border-top: 1px solid var(--line-bright); border-radius: 14px 14px 0 0; padding: 16px 16px 18px; box-shadow: 0 -10px 30px rgba(0,0,0,.6); }
+  #caf-sheet.on { transform: translateY(0); }
+  #caf-sheet h5 { margin: 0 0 6px; font-size: 15px; color: var(--bone); } #caf-sheet p { margin: 0 0 12px; font-size: 13px; line-height: 1.4; color: var(--bone); }
+  #caf-sheet .btns { display: flex; gap: 8px; } #caf-sheet .btns button { flex: 1; min-height: 44px; border-radius: 9px; border: 1px solid var(--line-bright); background: var(--ink); color: var(--bone); font-size: 14px; font-weight: 700; cursor: pointer; }
+  #caf-sheet .btns button.pri { background: #d29922; border-color: #d29922; color: #1b1300; }
+  #caf-toast { position: fixed; left: 50%; bottom: 76px; transform: translateX(-50%) translateY(20px); opacity: 0; pointer-events: none; z-index: 72; max-width: 88%; background: #3b2a06; border: 1px solid #d29922; color: #ffd98a; padding: 9px 13px; border-radius: 10px; font-size: 13px; transition: opacity .2s, transform .2s; }
+  #caf-toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
   .fav-btn.fav-has-img { min-height: 62px; justify-content: flex-end; overflow: hidden; border-color: var(--line-bright); background: #0b0f14; }
   .fav-btn.fav-has-img .fav-bg { position: absolute; inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; z-index: 0; }
   .fav-btn.fav-has-img .fav-scrim { position: absolute; inset: 0; z-index: 1; background: linear-gradient(to top, rgba(2,6,12,.92) 0%, rgba(2,6,12,.62) 42%, rgba(2,6,12,.12) 78%); }
@@ -2165,6 +2191,8 @@
       </div>
     </div>
 
+
+    <div id="caf-tally" class="caf-tally"></div>
 
     <div class="selected-banner" id="selected-banner">
       <span id="selected-label">Viewing: —</span>
@@ -4412,6 +4440,7 @@
       // e = electrolyte stick equivalents (number, e.g. 1, 0.5, 0). Boolean preserved as 1 for legacy.
       e: typeof electrolyteUnits === 'number' ? electrolyteUnits : (electrolyteUnits ? 1 : 0)
     };
+    { const _c = _takeCaf(); if (_c > 0) entry.caf = _c; }   // caffeine: exactly one entry per tap carries it
     entries.push(entry);
     _logFreshId = entry.id;   // log drawer: flash the row as it lands in the collapsed bar
     saveEntries(entries);
@@ -4489,7 +4518,7 @@
   function addMixIn(label, electrolyteUnits) {
     _stampGoalSnapshot(activeKey());
     const entries = loadEntries();
-    entries.push({
+    const _mixEntry = {
       id: Date.now() + Math.random(),
       t: entryTime(),
       type: 'electrolyte',
@@ -4497,7 +4526,9 @@
       label,
       e: electrolyteUnits,
       bundled: false   // standalone, not paired with a water entry
-    });
+    };
+    { const _c = _takeCaf(); if (_c > 0) _mixEntry.caf = _c; }
+    entries.push(_mixEntry);
     saveEntries(entries);
     refreshProgress();
     refreshLog();
@@ -4534,7 +4565,9 @@
     const entries = loadEntries();
     const ts = entryTime();
     const shakeId = Date.now() + '-' + Math.floor(Math.random() * 9999);
-    entries.push({ id: Date.now() + Math.random(),       t: ts, type: 'protein', amount: proteinG, label, e: 0, shakeId });
+    const _shk = { id: Date.now() + Math.random(),       t: ts, type: 'protein', amount: proteinG, label, e: 0, shakeId };
+    { const _c = _takeCaf(); if (_c > 0) _shk.caf = _c; }
+    entries.push(_shk);
     entries.push({ id: Date.now() + Math.random() + 1,  t: ts, type: 'water',   amount: waterOz,  label, e: 0, shakeWater: true, shakeId });
     saveEntries(entries);
     refreshProgress();
@@ -4548,7 +4581,9 @@
     const entries = loadEntries();
     const ts = entryTime();
     const shakeId = Date.now() + '-' + Math.floor(Math.random() * 9999);
-    entries.push({ id: Date.now() + Math.random(),      t: ts, type: 'protein',    amount: proteinG,  label, e: 0, shakeId });
+    const _shkE = { id: Date.now() + Math.random(),      t: ts, type: 'protein',    amount: proteinG,  label, e: 0, shakeId };
+    { const _c = _takeCaf(); if (_c > 0) _shkE.caf = _c; }
+    entries.push(_shkE);
     entries.push({ id: Date.now() + Math.random() + 1, t: ts, type: 'water',       amount: waterOz,   label, e: elecUnits, shakeWater: true, shakeId });
     entries.push({ id: Date.now() + Math.random() + 2, t: ts, type: 'electrolyte', amount: elecUnits, label, e: elecUnits, bundled: true, shakeId });
     saveEntries(entries);
@@ -4556,6 +4591,195 @@
     refreshLog();
     refreshFavorites();
   }
+
+
+  /* ===== CAFFEINE BUDGET — P1 infra (D spec 2026-10-12; Q/Adam-approved) =====
+     AWARENESS, not control: self-declared age, never verified. Youth variant of every surface is built
+     WITHOUT digits / "mg" (not CSS-hidden). `caf` = mg per logged serving; untagged items count 0
+     (the UI says "tracked caffeine"). The model below is the PURE part ported from D's mockup.
+     P1 ships with the v233 youthHide flags still ON, so no caffeinated tile is rendered for youth yet;
+     P2 (the flip) removes those flags and the generic gate below takes over. */
+  var CAF_FLAT = true;                    // Q/D FINAL default: every unlocked youth = 85 mg. false = banded 10-12:85 / 13-17:100 (parked, tested)
+  var CAF_ADULT = 400, CAF_YOUTH_FLAT = 85, CAF_REF_YOUTH = 85;
+  var CAF_BANDS = [[4, 6, 45], [7, 9, 62.5], [10, 12, 85], [13, 17, 100]];
+  var CAF_UNLOCK_AGE = 10;
+  var CAF_ADULT_TALLY = false;            // adult mg tally = P3 (not built); constant kept so the flip is one token
+  var _cafPending = 0;
+  function _takeCaf() { var c = _cafPending; _cafPending = 0; return c; }
+  // caf for a logged label (favorites / replays / past-day quick-adds carry only a label): catalog `l` match
+  function _cafForLabel(label) {
+    try {
+      if (!label) return 0;
+      var pool = FUEL_ITEMS.concat(FUEL_W_ITEMS, loadCustomItems());
+      for (var i = 0; i < pool.length; i++) if (pool[i].l === label && +pool[i].caf > 0) return +pool[i].caf;
+    } catch (e) {}
+    return 0;
+  }
+  var SUPP_CAF = { c4sport: 200 };        // C4 Pre-Workout ~135-200 (formula-dependent) -> 200 conservative; read the tub
+  function cafCeilingBanded(age) {
+    if (!age || age < 4) return null;                                   // unknown/too young => null => LOCKED (fail-closed)
+    for (var i = 0; i < CAF_BANDS.length; i++) if (age >= CAF_BANDS[i][0] && age <= CAF_BANDS[i][1]) return CAF_BANDS[i][2];
+    return 100;
+  }
+  function cafCeilingFor(tier, age) {
+    if (tier === 'adult') return CAF_ADULT;
+    return CAF_FLAT ? CAF_YOUTH_FLAT : cafCeilingBanded(age);
+  }
+  // derived age = MIN of every valid source (lowest wins): birthday-age, fuel-profile.age, battery-people[current].age.
+  // Valid = 1..119; future/unparsable birthday ignored; none => null => LOCKED.
+  function cafAgeFromBirthday(bday, today) {
+    if (!bday) return null;
+    var p = String(bday).split('-');
+    if (p.length !== 3 || p[0].length !== 4 || p[1].length !== 2 || p[2].length !== 2) return null;
+    var yy = +p[0], mm = +p[1], dd = +p[2];
+    if (isNaN(yy) || isNaN(mm) || isNaN(dd)) return null;
+    var b = new Date(yy, mm - 1, dd);
+    if (isNaN(b.getTime()) || b.getMonth() !== mm - 1 || b.getDate() !== dd) return null;   // rejects 2020-02-31 style
+    today = today || new Date();
+    var t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if (b > t) return null;                                              // future birthday ignored
+    var y = t.getFullYear() - b.getFullYear(), mo = t.getMonth() - b.getMonth();
+    if (mo < 0 || (mo === 0 && t.getDate() < b.getDate())) y--;
+    return (y >= 0 && y < 120) ? y : null;
+  }
+  function cafDerivedAge(ageIn, bday, peopleAge, today) {
+    var c = [], a = parseInt(ageIn, 10), p = parseInt(peopleAge, 10), b = cafAgeFromBirthday(bday, today);
+    if (a > 0 && a < 120) c.push(a);
+    if (p > 0 && p < 120) c.push(p);
+    if (b !== null) c.push(b);
+    return c.length ? Math.min.apply(null, c) : null;
+  }
+  function cafPeopleAge() {
+    try {
+      var id = localStorage.getItem('battery-profile'), ppl = JSON.parse(localStorage.getItem('battery-people') || '[]');
+      var me = Array.isArray(ppl) ? ppl.find(function (x) { return x && x.id === id; }) : null;
+      return me ? me.age : null;
+    } catch (e) { return null; }
+  }
+  window.fuelDerivedAge = function () {
+    try { var pr = loadProfile() || {}; return cafDerivedAge(pr.age, pr.birthday, cafPeopleAge()); } catch (e) { return null; }
+  };
+  function cafUnlockedForYouth(age) { return !!age && age >= CAF_UNLOCK_AGE; }       // generic: ANY caf>0 item needs this
+  function cafChipFor(caf) { if (!(caf > 0)) return null; return caf < 0.6 * CAF_REF_YOUTH ? 'some' : 'high'; }   // absolute: <51 mg 'some', else HIGH
+  function cafStateFor(total, ceil) { if (!ceil) return 'locked'; var f = total / ceil; return f >= 1 ? 'over' : f >= 0.5 ? 'near' : f > 0 ? 'low' : 'none'; }
+  function cafCellsFor(total, ceil) { if (!ceil || total <= 0) return 0; return Math.min(4, Math.ceil(total / ceil * 4)); }
+  function cafProjected(total, caf) { return total + (caf || 0); }
+  function cafNeedsHeadsUp(total, caf, ceil) { return !!ceil && caf > 0 && cafProjected(total, caf) >= ceil; }
+  function cafCrossedNear(total, caf, ceil) { return !!ceil && caf > 0 && total / ceil < 0.5 && cafProjected(total, caf) / ceil >= 0.5 && cafProjected(total, caf) < ceil; }
+  // Reader: sum of entry.caf  +  SUPP_CAF for ids in fuel-supp-done-<date> (the supp checklist writes ids, not entries).
+  // Follows activeKey() so date-nav works. NEVER added to bat-fuel / bat-day-progress (mg stays inside the iframe).
+  window.fuelCaffeineFor = function (dateKey) {
+    var key = dateKey || activeKey(), mg = 0, n = 0;
+    try {
+      loadEntries(key).forEach(function (e) { if (e && +e.caf > 0) { mg += +e.caf; n++; } });
+      var done = storeGet('fuel-supp-done-' + key, '');
+      (done ? String(done).split(',') : []).forEach(function (id) { if (SUPP_CAF[id] > 0) { mg += SUPP_CAF[id]; n++; } });
+    } catch (e) {}
+    return { mg: mg, n: n };
+  };
+  window.__cafModel = { ceilingFor: cafCeilingFor, ceilingBanded: cafCeilingBanded, derivedAge: cafDerivedAge, ageFromBirthday: cafAgeFromBirthday,
+    unlocked: cafUnlockedForYouth, chipFor: cafChipFor, stateFor: cafStateFor, cellsFor: cafCellsFor, projected: cafProjected,
+    needsHeadsUp: cafNeedsHeadsUp, crossedNear: cafCrossedNear, SUPP_CAF: SUPP_CAF,
+    setFlat: function (v) { CAF_FLAT = !!v; }, getFlat: function () { return CAF_FLAT; } };
+
+
+  /* ----- caffeine UI (youth words-only; adult tally = P3, off) ----- */
+  function _cafAgeNow() { try { return window.fuelDerivedAge(); } catch (e) { return null; } }
+  // generic gate: ANY caf>0 item is locked for a youth until a derived age >= 10 exists (fail-closed on any error)
+  function _cafLockedFor(it) {
+    if (!it || !(+it.caf > 0) || !fy()) return false;
+    try { return !cafUnlockedForYouth(_cafAgeNow()); } catch (e) { return true; }
+  }
+  function _cafDecorateTile(b, it, nm) {
+    if (!it || !(+it.caf > 0) || !fy()) return;
+    var nameOnly = String(nm || it.l || '');
+    if (_cafLockedFor(it)) {
+      b.disabled = true; b.classList.add('qa-caf-locked');
+      b.setAttribute('aria-label', nameOnly + ', locked');
+      var lk = document.createElement('span'); lk.className = 'qa-caf-lock';
+      lk.textContent = 'Locked - set your age or birthday in Settings > Data';
+      b.appendChild(lk);
+      return;
+    }
+    var chip = null; try { chip = cafChipFor(+it.caf); } catch (e) {}
+    if (chip) {
+      var c = document.createElement('span'); c.className = 'caf-chip ' + chip;
+      c.textContent = '⚡ ' + (chip === 'high' ? 'High caffeine' : 'Caffeine');
+      b.appendChild(c);
+      b.setAttribute('aria-label', nameOnly + (chip === 'high' ? ', high caffeine' : ', has caffeine'));
+    }
+  }
+  var CAF_LADDER_Y = { low: 'A little caffeine today.', near: "Getting close to a full day's worth of caffeine for your age.",
+    over: "That's a full day's worth of caffeine for your age, or more. Water, food and sleep are the move now." };
+  var CAF_OVER_BIG_Y = "Way past a full day's worth. Skip more caffeine today and tell a parent or coach if you feel jittery or sick.";
+  function cafLadderYouth(total, ceil) {
+    var s = cafStateFor(total, ceil);
+    if (s === 'over' && total / ceil >= 1.5) return CAF_OVER_BIG_Y;
+    return CAF_LADDER_Y[s] || '';
+  }
+  function cafHeadsUpYouth(total, ceil) {
+    return total / ceil >= 1 ? "You're already past a full day's worth of caffeine today." : "That's more than a full day's caffeine for your age.";
+  }
+  function cafDayClass(total, ceil) { var s = cafStateFor(total, ceil); return s === 'over' ? 'r' : s === 'near' ? 'a' : s === 'low' ? 'g' : ''; }
+  window.__cafYouthText = { ladder: cafLadderYouth, headsUp: cafHeadsUpYouth, ladderStrings: [CAF_LADDER_Y, CAF_OVER_BIG_Y] };
+  function renderCafTally() {
+    var host = document.getElementById('caf-tally'); if (!host) return;
+    try {
+      if (!fy()) { host.innerHTML = ''; return; }                 // adult mg tally = P3 (CAF_ADULT_TALLY=false)
+      var ceil = cafCeilingFor('youth', _cafAgeNow());
+      if (!ceil) { host.innerHTML = ''; return; }                 // fail-closed: no usable ceiling => nothing (tiles are locked anyway)
+      var today = window.fuelCaffeineFor(activeKey()).mg, any = today > 0, dots = '';
+      for (var i = 6; i >= 0; i--) {
+        var mg = window.fuelCaffeineFor(dateKeyForOffset(i)).mg; if (mg > 0) any = true;
+        dots += '<i class="' + cafDayClass(mg, ceil) + '" title="caffeine day"></i>';
+      }
+      if (!any) { host.innerHTML = ''; return; }                  // no nagging: widget appears once caffeine is logged in the last 7 days
+      var st = cafStateFor(today, ceil), n = cafCellsFor(today, ceil), col = st === 'over' ? 'r' : st === 'near' ? 'a' : 'g', cells = '';
+      for (var k = 0; k < 4; k++) cells += '<i class="' + (k < n ? 'on ' + col : '') + '"></i>';
+      var aria = 'Caffeine today: ' + (st === 'over' ? 'over a full day for your age' : st === 'near' ? 'close to a full day for your age' : st === 'low' ? 'a little' : 'none');
+      host.innerHTML = '<div class="caf-tally-card s-' + st + '" role="group" aria-label="' + aria + '"><div class="top"><span class="lab">⚡ Caffeine today</span><div class="cells">' + cells + '</div></div>'
+        + (st !== 'none' ? '<div class="txt">' + cafLadderYouth(today, ceil) + '</div>' : '')
+        + '<div class="wk"><span>this week</span>' + dots + '</div></div>';
+    } catch (e) { host.innerHTML = ''; }
+  }
+  window.renderCafTally = renderCafTally;
+  function _cafToast(msg) {
+    var t = document.getElementById('caf-toast');
+    if (!t) { t = document.createElement('div'); t.id = 'caf-toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+    t.textContent = msg; t.classList.add('on'); clearTimeout(t._h);
+    t._h = setTimeout(function () { t.classList.remove('on'); }, 3500);
+  }
+  function _cafCloseSheet() {
+    var s = document.getElementById('caf-sheet'), sc = document.getElementById('caf-sheet-scrim');
+    if (s) s.classList.remove('on'); if (sc) sc.classList.remove('on');
+  }
+  function _cafShowSheet(total, ceil, commit) {
+    var s = document.getElementById('caf-sheet'), sc = document.getElementById('caf-sheet-scrim');
+    if (!s) {
+      sc = document.createElement('div'); sc.id = 'caf-sheet-scrim'; sc.addEventListener('click', _cafCloseSheet); document.body.appendChild(sc);
+      s = document.createElement('div'); s.id = 'caf-sheet'; s.setAttribute('role', 'dialog'); s.setAttribute('aria-modal', 'true'); s.setAttribute('aria-label', 'Caffeine heads up');
+      s.innerHTML = '<h5>Heads up ⚡</h5><p id="caf-sheet-p"></p><div class="btns"><button type="button" id="caf-sheet-no">Not now</button><button type="button" class="pri" id="caf-sheet-yes">Log it anyway</button></div>';
+      document.body.appendChild(s);
+      document.getElementById('caf-sheet-no').addEventListener('click', _cafCloseSheet);
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') _cafCloseSheet(); });
+    }
+    document.getElementById('caf-sheet-p').textContent = cafHeadsUpYouth(total, ceil);
+    document.getElementById('caf-sheet-yes').onclick = function () { _cafCloseSheet(); try { commit(); } catch (e) {} };   // never refuses: "Log it anyway"
+    s.classList.add('on'); sc.classList.add('on');
+  }
+  // One entry point for a caffeinated tile tap. Adult / non-caffeinated: commit untouched.
+  function _cafTap(it, commit) {
+    if (!it || !(+it.caf > 0) || !fy()) { commit(); return; }
+    var age = _cafAgeNow(), ceil = null;
+    try { ceil = cafCeilingFor('youth', age); } catch (e) {}
+    if (!ceil || !cafUnlockedForYouth(age)) return;               // fail-closed: locked => nothing logs
+    var before = window.fuelCaffeineFor().mg, caf = +it.caf;
+    if (cafNeedsHeadsUp(before, caf, ceil)) { _cafShowSheet(before, ceil, commit); return; }
+    var near = cafCrossedNear(before, caf, ceil);
+    commit();
+    if (near) _cafToast("Heads-up: getting close to a full day's worth of caffeine.");
+  }
+  window.__cafTap = _cafTap;
 
 
   /* ===== FUEL ITEM CATALOG (owner ask, 26.08.26) =====
@@ -4782,16 +5006,16 @@
     {id:'liquid-iv-sf-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV Sugar-Free',n:'Liquid IV ⚡ sugar-free'},
     /* 2026-10-11 (Adam/D): Mtn Ops HYDRATE Lemonade stick — hydration class, no caffeine → same gating as plain Liquid IV (mixins grid). */
     {id:'mtn-ops-lemonade-0-1-0',g:'mixins',w:0,e:1,l:'Mtn Ops Lemonade',n:'Mtn Ops Lemonade ⚡ stick'},
-    {id:'liquid-iv-energy-0-1-0',g:'mixins',youthHide:1,w:0,e:1,l:'Liquid IV Energy',n:'Liquid IV Energy ⚡'},
+    {id:'liquid-iv-energy-0-1-0',g:'mixins',youthHide:1,caf:100,w:0,e:1,l:'Liquid IV Energy',n:'Liquid IV Energy ⚡'},
     /* 5.3b: 4 sizes collapsed to ONE portrait tile + ⋯ "Log a size" stepper (shipped
        v191 pattern) + sticky (fuel-size-<id>). Median default = Standard 20oz (defSize 1).
        Each size swaps the size-accurate render (SIZE_IMAGES sd-size-*) + oz/elec. */
     {id:'sport-drink',g:'sportdrink',orient:'portrait',w:20,e:0.5,l:'Sport drink',n:'Sport drink · Standard 20oz',defSize:1,sizes:[{l:'Small',w:12,e:0.3,img:'sd-size-12'},{l:'Standard',w:20,e:0.5,img:'sd-size-20'},{l:'Large',w:28,e:0.7,img:'sd-size-28'},{l:'XL',w:32,e:0.8,img:'sd-size-32'}]},
     {id:'28oz-shaker-liquid-iv-28-0',g:'shaker',w:28,e:1,l:'28oz shaker + Liquid IV',n:'28oz shaker + Liquid IV',z:1},
-    {id:'28oz-shaker-liquid-iv-ener',g:'shaker',youthHide:1,w:28,e:1,l:'28oz shaker + Liquid IV Energy',n:'28oz shaker + Liquid IV Energy',z:1},
+    {id:'28oz-shaker-liquid-iv-ener',g:'shaker',youthHide:1,caf:100,w:28,e:1,l:'28oz shaker + Liquid IV Energy',n:'28oz shaker + Liquid IV Energy',z:1},
     /* 5.2b: C4 Energy + Aminos -- adult (stimulant). Logs 12oz hydration; group 'energy'
        grid is qa-adult so youth never sees it. Image c4-energy -> blue water tone (gate-safe). */
-    {id:'c4-energy',g:'energy',youthHide:1,w:12,e:0,l:'C4 Energy',n:'C4 Energy + Aminos · 12oz'},
+    {id:'c4-energy',g:'energy',youthHide:1,caf:100,cafNote:'natural',w:12,e:0,l:'C4 Energy',n:'C4 Energy + Aminos · 12oz'},
     /* 5.2b: Yeti AM combo (adult). 28oz water + Liquid IV -> addWater(28,·,1); creatine is
        identity-only (not a tracked macro), image carries the "creatine's in here" reminder. */
     {id:'yeti-creatine-liv',g:'energy',w:28,e:1,l:'Yeti + Creatine + LIV',n:'Yeti · creatine + Liquid IV · 28oz'},
@@ -4801,10 +5025,10 @@
        stick as a single undoable entry (addItem → addShakeWithElec, the yeti-liv-collagen path).
        p/w/e are DATA fields; the tile shows only n's first two " · " segments, so no grams in
        n/l ([[youth-gram-label]]). */
-    {id:'c4-combo',g:'energy',youthHide:1,p:22,w:28,e:1,l:'C4 + Collagen + Creatine + LIV',n:'C4 combo · collagen + creatine + Liquid IV · 28oz'},
+    {id:'c4-combo',g:'energy',youthHide:1,caf:100,cafNote:'natural',p:22,w:28,e:1,l:'C4 + Collagen + Creatine + LIV',n:'C4 combo · collagen + creatine + Liquid IV · 28oz'},
     /* 2026-10-11 (Adam): C4 Energy + a 28oz (blue) Yeti of water. Water is the tracked part (w28); C4 itself carries no tracked macro.
        Lives in the 'energy' grid so it INHERITS C4's current youth gating (B1 caffeine call is Adam's, pending) — no gating change here. */
-    {id:'c4-yeti-28-0-0',g:'energy',orient:'portrait',youthHide:1,w:28,e:0,l:'C4 Energy + Yeti',n:'C4 Energy + Yeti · 28oz'}
+    {id:'c4-yeti-28-0-0',g:'energy',orient:'portrait',youthHide:1,caf:100,cafNote:'natural',w:28,e:0,l:'C4 Energy + Yeti',n:'C4 Energy + Yeti · 28oz'}
   ];
   /* 5.3b size-family sticky: the collapsed tile shows the user's last-picked size
      (fuel-size-<id>, default = it.defSize/median). Image swaps from SIZE_IMAGES (separate
@@ -4880,6 +5104,7 @@
           nm.className = 'qa-name'; nm.textContent = it.n;
           b.appendChild(amt); b.appendChild(nm);
         }
+        _cafDecorateTile(b, it, (it.n||'').split(' · ')[0] || it.l);
         var dot=document.createElement('span'); dot.className='qa-menu-dot'; dot.textContent='⋯';
         /* 5.3b: pass `it` so the ⋯ menu offers the size stepper for sized drinks (sport-drink). */
         dot.addEventListener('click', function(ev){ ev.stopPropagation(); if(window._qaGridMenu) window._qaGridMenu(b,'water',it.l,+it.w||0,+it.e||0,0,it); });
@@ -4889,14 +5114,16 @@
              protein rides along when the row carries p (c4-combo: collagen in a drink
              combo) so addItem can route p+w+e to the one-entry shake path — every other
              water row has no p → 0 → unchanged routing. */
+          if (b.disabled) return;   // locked caffeinated tile (youth, no usable age) logs nothing
           var _lw = _sized ? +_si.w||0 : +it.w||0, _le = _sized ? +_si.e||0 : +it.e||0;
-          addItem({ water: _lw, elec: _le, protein: +it.p || 0, label: it.l });
+          _cafTap(it, function(){ addItem({ water: _lw, elec: _le, protein: +it.p || 0, label: it.l, caf: +it.caf || 0 }); });
         });
         host.appendChild(b);
       });
     });
   }
   window.renderWaterQuickAdds = renderWaterQuickAdds;
+  window.__FUEL_W_ITEMS = FUEL_W_ITEMS;   // test hook: gate clears youthHide in-test to exercise the caffeine UI before the P2 flip
   if(document.readyState !== 'loading') setTimeout(function(){ try{ renderWaterQuickAdds(); }catch(e){} }, 60);
   else document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ try{ renderWaterQuickAdds(); }catch(e){} }, 60); });
 
@@ -5076,11 +5303,14 @@
     o = o || {};
     var w = +o.water || 0, p = +o.protein || 0, el = +o.elec || 0;
     var label = o.label || 'Item';
-    if (p > 0 && w > 0 && el > 0) { addShakeWithElec(p, w, label, el); return; }
-    if (p > 0 && w > 0)            { addShake(p, w, label); return; }
-    if (p > 0)                       { addProtein(p, label); return; }
-    if (w > 0)                       { addWater(w, label, el); return; }
-    if (el > 0)                      { addMixIn(label, el); return; }
+    _cafPending = (o.caf !== undefined) ? (+o.caf || 0) : _cafForLabel(label);   // favorites/replays carry no caf field -> resolve by label
+    try {
+      if (p > 0 && w > 0 && el > 0) { addShakeWithElec(p, w, label, el); return; }
+      if (p > 0 && w > 0)            { addShake(p, w, label); return; }
+      if (p > 0)                       { addProtein(p, label); return; }
+      if (w > 0)                       { addWater(w, label, el); return; }
+      if (el > 0)                      { addMixIn(label, el); return; }
+    } finally { _cafPending = 0; }   // never leak into the next, unrelated write
   }
   /* ===== 1.2: RELATIONAL WATER — estimate presets (sourced; see est-info copy) =====
      Adult single swallow ~20-30mL (~1oz) [Nilsson 1996, n=292]; controlled sip ~0.5oz
@@ -5774,6 +6004,7 @@
       _logFreshId = null;
       _logbarMeasure();
     }
+    try { if (window.renderCafTally) window.renderCafTally(); } catch (e) {}
     // ---- expanded modal: the REAL list, row template unchanged (pin ★ + Undo) ----
     if (!list) return;
     if (rows.length === 0) {
@@ -7501,12 +7732,15 @@
         const id=Date.now()+Math.random();
         if(type==='water'){
           arr.push({id, t:'—', type:'water', amount:+amount, label:label||'Water', e:+elec||0});
+          { var _dc=_cafForLabel(label); if(_dc>0) arr[arr.length-1].caf=_dc; }
           if(+elec>0) arr.push({id:id+0.0001, t:'—', type:'electrolyte', amount:+elec, label:label||'Electrolyte', e:+elec, bundled:true});
         } else if(type==='protein'){
           arr.push({id, t:'—', type:'protein', amount:+amount, label:label||'Protein', e:0});
+          { var _dp=_cafForLabel(label); if(_dp>0) arr[arr.length-1].caf=_dp; }
           if(+w>0) arr.push({id:id+0.0001, t:'—', type:'water', amount:+w, label:'(paired)', e:0});
         } else if(type==='electrolyte'){
           arr.push({id, t:'—', type:'electrolyte', amount:+amount, label:label||'Electrolyte', e:+amount});
+          { var _de=_cafForLabel(label); if(_de>0) arr[arr.length-1].caf=_de; }
         } else { return; }
         save(key,arr); render(); refreshPanels();
       };
