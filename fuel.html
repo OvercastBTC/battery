@@ -4599,7 +4599,7 @@
      WITHOUT digits / "mg" (not CSS-hidden). `caf` = mg per logged serving; untagged items count 0
      (the UI says "tracked caffeine"). The model below is the PURE part ported from D's mockup.
      P1 shipped with the v233 youthHide flags ON (dormant). P2 (this build) removed those flags: the generic gate below now governs —
-     youth with a derived age >= 10 get the tiles + tally/sheet/toast; known age < 10 sees no caffeinated tile; no age => text-only locked tile. */
+     youth with a derived age >= 10 get the tiles + tally/sheet/toast; ANY youth without a derived age >= 10 (none set, known < 10, or a resolver error) sees NO caffeinated tile — deliberately NOT a locked tile (an 'enter your age to unlock' tile would be an incentive to fake an age; the only cue is the host Settings status line). Do not restore a lock tile. */
   var CAF_FLAT = true;                    // Q/D FINAL default: every unlocked youth = 85 mg. false = banded 10-12:85 / 13-17:100 (parked, tested)
   var CAF_ADULT = 400, CAF_YOUTH_FLAT = 85, CAF_REF_YOUTH = 85;
   var CAF_BANDS = [[4, 6, 45], [7, 9, 62.5], [10, 12, 85], [13, 17, 100]];
@@ -4781,6 +4781,15 @@
     if (near) _cafToast("Heads-up: getting close to a full day's worth of caffeine.");
   }
   window.__cafTap = _cafTap;
+  // The quick-add grids only render on init / size change, so an age edit made elsewhere (host Settings writes fuel-profile / battery-people in
+  // ANOTHER document) would leave a stale tile visible (fail-open window) or a new one missing. localStorage 'storage' events fire here for those
+  // cross-document writes: re-render every age-gated surface. Idempotent with the host's direct window.fuelAgeChanged() push.
+  window.addEventListener('storage', function (e) {
+    if (e.key !== null && e.key !== 'fuel-profile' && e.key !== 'battery-people' && e.key !== 'battery-profile') return;
+    try { renderWaterQuickAdds(); } catch (x) {}
+    try { if (typeof renderSuppCard === 'function') renderSuppCard(); } catch (x) {}
+    try { renderCafTally(); } catch (x) {}
+  });
 
 
   /* ===== FUEL ITEM CATALOG (owner ask, 26.08.26) =====
