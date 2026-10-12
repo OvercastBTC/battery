@@ -3757,7 +3757,8 @@
   // Recompute DAY_TARGETS from the profile. Returns details for the "how was this calculated" panel.
   function recomputeDayTargets() {
     const p = loadProfile();
-    if (!p) {
+    // an incomplete profile (no positive weight) is treated like NO profile: default targets, never NaN in every goal/summary/suggestion
+    if (!p || !(+p.weightLb > 0)) {
       DAY_TARGETS = JSON.parse(JSON.stringify(DEFAULT_DAY_TARGETS));
       return null;
     }
@@ -7227,7 +7228,8 @@
     if (!badge) return;
 
     if (p) {
-      const label = p.name ? `${p.name} · ${p.weightLb}lb` : `Saved · ${p.weightLb}lb`;
+      const _wTxt = (+p.weightLb > 0) ? `${p.weightLb}lb` : 'add weight';   // incomplete profile: never 'undefinedlb'
+      const label = p.name ? `${p.name} · ${_wTxt}` : `Saved · ${_wTxt}`;
       badge.textContent = label;
       badge.style.color = 'var(--green)';
       badge.style.borderColor = 'var(--green)';
@@ -7255,10 +7257,11 @@
 
     // Details panel — use saved profile or fall back to the pre-filled defaults object
     const details = recomputeDayTargets();
-    const src = p || {
+    // incomplete profile (no positive weight) => same pre-filled defaults as no profile (youth: the 80 lb default kid), never NaN/undefined in the panel
+    const src = (p && +p.weightLb > 0) ? p : (isYouthFuel3 ? { weightLb: 80, name: 'defaults' } : {
       weightLb: 300, hot: true,
       name: 'defaults'
-    };
+    });
     if (details) {
       const adjParts = [];
       if (details.sexAdj) adjParts.push(`${details.sexAdj > 0 ? '+' : ''}${details.sexAdj}oz (sex)`);
@@ -7269,7 +7272,7 @@
       document.getElementById('pd-baseline').innerHTML =
         `<b>Water baseline:</b> ${Math.round(src.weightLb/2)}oz (½ × ${src.weightLb}lb)${adjStr} = <b>${details.baseWater}oz</b>`;
       document.getElementById('pd-protein').innerHTML =
-        `<b>Protein baseline:</b> ${details.kg}kg × ${details.gkg} g/kg (${p ? p.goal : 'preserve'}) × ${details.frameMult} frame${details.kg > 100 ? ' · >100kg attenuated' : ''} = <b>${details.baseProtein}g</b>`;
+        `<b>Protein baseline:</b> ${details.kg}kg × ${details.gkg} g/kg (${(p && p.goal) || 'preserve'}) × ${details.frameMult} frame${details.kg > 100 ? ' · >100kg attenuated' : ''} = <b>${details.baseProtein}g</b>`;
       document.getElementById('pd-adjust').innerHTML =
         `<b>Day scaling:</b> Rest −20g/±0oz · Light −10g/+20oz · Train baseline/+50oz · Heavy +15g/+${src.hot ? '110' : '80'}oz · Game +10g/+${src.hot ? '120' : '90'}oz · Travel +10g/+25oz`;
       document.getElementById('pd-final').innerHTML =
@@ -7994,7 +7997,8 @@
          fuel-youth-show-supps key. Default off => youth unchanged => gate passes as-is. */
       try{ var _ys=(window.YOUTH_SHOW_SUPPS===true)||(storeGet('fuel-youth-show-supps','0')==='1'); document.body.classList.toggle('youth-supps', _ys); }catch(e){}
       if ((window.BATTERY_TIER||'youth') !== 'youth') return _orig();
-      const p = loadProfile() || {weightLb:80, age:6};
+      const _lp = loadProfile();
+      const p = (_lp && +_lp.weightLb > 0) ? _lp : {weightLb:80, age:6};   // incomplete profile => the default youth profile, never NaN
       const kg = p.weightLb / 2.20462;
       let prot = Math.round(kg * 1.1 / 5) * 5;        // active kid, food-based
       let water = Math.round(p.weightLb * 0.5 / 5) * 5;
