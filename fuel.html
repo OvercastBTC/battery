@@ -4782,16 +4782,16 @@
     {id:'liquid-iv-sf-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV Sugar-Free',n:'Liquid IV ⚡ sugar-free'},
     /* 2026-10-11 (Adam/D): Mtn Ops HYDRATE Lemonade stick — hydration class, no caffeine → same gating as plain Liquid IV (mixins grid). */
     {id:'mtn-ops-lemonade-0-1-0',g:'mixins',w:0,e:1,l:'Mtn Ops Lemonade',n:'Mtn Ops Lemonade ⚡ stick'},
-    {id:'liquid-iv-energy-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV Energy',n:'Liquid IV Energy ⚡'},
+    {id:'liquid-iv-energy-0-1-0',g:'mixins',youthHide:1,w:0,e:1,l:'Liquid IV Energy',n:'Liquid IV Energy ⚡'},
     /* 5.3b: 4 sizes collapsed to ONE portrait tile + ⋯ "Log a size" stepper (shipped
        v191 pattern) + sticky (fuel-size-<id>). Median default = Standard 20oz (defSize 1).
        Each size swaps the size-accurate render (SIZE_IMAGES sd-size-*) + oz/elec. */
     {id:'sport-drink',g:'sportdrink',orient:'portrait',w:20,e:0.5,l:'Sport drink',n:'Sport drink · Standard 20oz',defSize:1,sizes:[{l:'Small',w:12,e:0.3,img:'sd-size-12'},{l:'Standard',w:20,e:0.5,img:'sd-size-20'},{l:'Large',w:28,e:0.7,img:'sd-size-28'},{l:'XL',w:32,e:0.8,img:'sd-size-32'}]},
     {id:'28oz-shaker-liquid-iv-28-0',g:'shaker',w:28,e:1,l:'28oz shaker + Liquid IV',n:'28oz shaker + Liquid IV',z:1},
-    {id:'28oz-shaker-liquid-iv-ener',g:'shaker',w:28,e:1,l:'28oz shaker + Liquid IV Energy',n:'28oz shaker + Liquid IV Energy',z:1},
+    {id:'28oz-shaker-liquid-iv-ener',g:'shaker',youthHide:1,w:28,e:1,l:'28oz shaker + Liquid IV Energy',n:'28oz shaker + Liquid IV Energy',z:1},
     /* 5.2b: C4 Energy + Aminos -- adult (stimulant). Logs 12oz hydration; group 'energy'
        grid is qa-adult so youth never sees it. Image c4-energy -> blue water tone (gate-safe). */
-    {id:'c4-energy',g:'energy',w:12,e:0,l:'C4 Energy',n:'C4 Energy + Aminos · 12oz'},
+    {id:'c4-energy',g:'energy',youthHide:1,w:12,e:0,l:'C4 Energy',n:'C4 Energy + Aminos · 12oz'},
     /* 5.2b: Yeti AM combo (adult). 28oz water + Liquid IV -> addWater(28,·,1); creatine is
        identity-only (not a tracked macro), image carries the "creatine's in here" reminder. */
     {id:'yeti-creatine-liv',g:'energy',w:28,e:1,l:'Yeti + Creatine + LIV',n:'Yeti · creatine + Liquid IV · 28oz'},
@@ -4801,7 +4801,7 @@
        stick as a single undoable entry (addItem → addShakeWithElec, the yeti-liv-collagen path).
        p/w/e are DATA fields; the tile shows only n's first two " · " segments, so no grams in
        n/l ([[youth-gram-label]]). */
-    {id:'c4-combo',g:'energy',p:22,w:28,e:1,l:'C4 + Collagen + Creatine + LIV',n:'C4 combo · collagen + creatine + Liquid IV · 28oz'},
+    {id:'c4-combo',g:'energy',youthHide:1,p:22,w:28,e:1,l:'C4 + Collagen + Creatine + LIV',n:'C4 combo · collagen + creatine + Liquid IV · 28oz'},
     /* 2026-10-11 (Adam): C4 Energy + a 28oz (blue) Yeti of water. Water is the tracked part (w28); C4 itself carries no tracked macro.
        Lives in the 'energy' grid so it INHERITS C4's current youth gating (B1 caffeine call is Adam's, pending) — no gating change here. */
     {id:'c4-yeti-28-0-0',g:'energy',orient:'portrait',youthHide:1,w:28,e:0,l:'C4 Energy + Yeti',n:'C4 Energy + Yeti · 28oz'}
@@ -8069,7 +8069,7 @@
        forgetting to deny it. Scope = "things we all already know youth already use" — C4
        (energy/pre-workout), creatine, fish oil, vitamin D, magnesium. Undefined/empty here
        falls back to the denylist-only behavior above (the pre-allowlist default). */
-    if(typeof window.YOUTH_SUPP_ALLOW==='undefined') window.YOUTH_SUPP_ALLOW=['c4sport','creatine-hmb','fishoil','vitD','magnesium','collagen','joint','zinc-copper','shroom','animalpak','animal-nonstim'];
+    if(typeof window.YOUTH_SUPP_ALLOW==='undefined') window.YOUTH_SUPP_ALLOW=['creatine-hmb','fishoil','vitD','magnesium','collagen','joint','zinc-copper','shroom','animalpak','animal-nonstim'];
 
     function suppDoseHint(id, prof){
       var w=(prof&&prof.weightLb)||150;
