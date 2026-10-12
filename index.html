@@ -416,7 +416,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.12.235</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.12.236</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -1722,12 +1722,35 @@ function setDemo(id,o){try{o.savedAt=Date.now();const s=JSON.stringify(o);
     if(id===profile)localStorage.setItem('fuel-profile',s);
     localStorage.setItem('battery::'+id+'::fuel-profile',s);
   }catch(e){}}
+/* ===== v235 caffeine-budget HOST HALF (D's CAFFEINE-BUDGET-SPEC §3b + §H; profile-entry-mockup.html) =====
+   splitIn / joinIn / ftOptions / derivedAge are D's mockup functions, ported verbatim. The caffeine gate (FUEL side, Lane A) reads the SAME three sources:
+   fuel-profile.birthday (ISO, local-date) / fuel-profile.age / battery-people[id].age -> derived age = MIN of the VALID ones; none valid => LOCKED (fail-closed).
+   NOTE (E deviation from spec step 3, on purpose): we do NOT write the derived MIN back into battery-people.age. A persisted copy of a derived value becomes a
+   third min() input that can only ever LOWER the result: age typed 9 -> corrected to 11 would stay locked at 9 forever, and a birthday passing would never unlock.
+   Only the age the user actually TYPED is mirrored (setProfileAge(id, typed)) so Pitch Smart's age and this card never disagree. Birthday is additive in the
+   existing fuel-profile object (no new key). */
+function splitIn(total){ const t=parseFloat(total); if(!(t>=0))return {ft:'',inch:''}; let ft=Math.floor(t/12), inch=Math.round(t-ft*12); if(inch===12){ft+=1;inch=0} return {ft,inch}; }
+function joinIn(ft,inch){ if(ft===''||ft==null)return ''; const f=parseInt(ft,10), i=(inch===''||inch==null)?0:parseInt(inch,10); return f*12+i; }   // blank inches => 0; blank feet => cleared ('')
+function ftOptions(cur){ const o=[3,4,5,6,7]; if(cur!=='' && !o.includes(cur)) o.push(cur); return o.sort((a,b)=>a-b); }                 // an out-of-range stored value stays selectable (never silently lost)
+function derivedAge(ageIn,bday,today){ const c=[]; const a=parseInt(ageIn,10); if(a>0&&a<120)c.push(a);
+  if(bday){ const b=new Date(bday+'T00:00:00'); if(!isNaN(b)&&b<=today){ let y=today.getFullYear()-b.getFullYear(); const m=today.getMonth()-b.getMonth(); if(m<0||(m===0&&today.getDate()<b.getDate()))y--; if(y>=0&&y<120)c.push(y);} }
+  return c.length?Math.min.apply(null,c):null; }
+/* host derived age for the status line: min over the card age + birthday (derivedAge) AND the registry age (battery-people) — same three sources as FUEL */
+function demoDerivedAge(id){ const p=getDemo(id); const d=derivedAge(p.age,p.birthday,new Date()); const pa=profileAge(id); return d==null?pa:(pa==null?d:Math.min(d,pa)); }
+/* a stored birthday must be a real, non-future local calendar date (YYYY-MM-DD); anything else is rejected to '' (cleared) — Feb-31 style rollovers included */
+function demoBirthdayOk(v){ if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v))return ''; const b=new Date(v+'T00:00:00'); if(isNaN(b)||b>new Date())return '';
+  if(b.getFullYear()!==+v.slice(0,4)||b.getMonth()!==+v.slice(5,7)-1||b.getDate()!==+v.slice(8,10))return ''; return v; }
+window.demoDerivedAge=demoDerivedAge; window.demoBirthdayOk=demoBirthdayOk; window.splitIn=splitIn; window.joinIn=joinIn; window.ftOptions=ftOptions; window.derivedAge=derivedAge;
+window.demoHeight=function(fromInch){ const f=document.getElementById('demo-ft'), i=document.getElementById('demo-in'); if(!f||!i)return; if(fromInch&&f.value==='')return;
+  const v=joinIn(f.value,i.value); demoSave('heightIn', v===''?'':String(v)); };
 window.demoSave=function(field,val){
   if(!profile)return;
   var p=getDemo(profile);
   if(field==='weightLb'||field==='heightIn'||field==='age'){val=val===''?'':Math.max(0,parseFloat(val)||0);}
   if(field==='stim'||field==='hot')val=!!val;
+  if(field==='birthday')val=demoBirthdayOk(val);
   p[field]=val; setDemo(profile,p);
+  if(field==='age'){ try{ setProfileAge(profile,val); }catch(e){} }   /* v235: mirror the TYPED age only (never the derived min) — see the note above demoSave */
   // keep the live fuel iframe in sync (recompute targets) without a full reload.
   try{var w=FRAMES.fuel.contentWindow;if(w){if(w.recomputeDayTargets)w.recomputeDayTargets();if(w.refreshAll)w.refreshAll();}}catch(e){}
   renderDemoCard();
@@ -1784,9 +1807,22 @@ function renderDemoCard(){
   var lab='flex:1;min-width:120px;font-size:11px;color:var(--dim)';
   function num(field,label,unit){return '<label style="'+lab+'">'+label+(unit?' ('+unit+')':'')+'<br><input type="number" step="1" min="0" value="'+escHtml(p[field]==null?'':p[field])+'" onchange="demoSave(\''+field+'\',this.value)" style="'+ins+'"></label>';}
   var html='<p class="dmeta" style="margin:0 0 10px">These details power '+(youth?'water + growth-based food targets':'your fuel, hydration &amp; readiness math')+' for <b>'+escHtml(profileName(profile))+'</b>. One source of truth — the FUEL tab reads the same numbers.</p>';
-  html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+num('heightIn','Height','in')+num('weightLb','Weight','lb')+'</div>';
+  var _sp=splitIn(p.heightIn);
+  var _fo='<option value="">—</option>'+ftOptions(_sp.ft).map(function(f){return '<option value="'+f+'"'+(f===_sp.ft?' selected':'')+'>'+f+' ft</option>';}).join('');
+  var _io='<option value="">—</option>'+[0,1,2,3,4,5,6,7,8,9,10,11].map(function(i){return '<option value="'+i+'"'+(i===_sp.inch?' selected':'')+'>'+i+' in</option>';}).join('');
+  var _hsel='<label style="'+lab+'">Height<br><div style="display:flex;gap:6px"><select id="demo-ft" aria-label="Height feet" onchange="demoHeight()" style="'+ins+'">'+_fo+'</select><select id="demo-in" aria-label="Height inches" onchange="demoHeight(true)" style="'+ins+'">'+_io+'</select></div></label>';
+  html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+_hsel+num('weightLb','Weight','lb')+'</div>';
   html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+num('age','Age','yrs')+
+    (youth?'<label style="'+lab+'">or Birthday<br><input type="date" id="demo-bday" value="'+escHtml(p.birthday||'')+'" max="'+_todayStr()+'" onchange="demoSave(\'birthday\',this.value)" style="'+ins+'"></label>':'')+
     '<label style="'+lab+'">Sex<br><select onchange="demoSave(\'sex\',this.value)" style="'+ins+'"><option value=""'+(!p.sex?' selected':'')+'>—</option><option value="male"'+(p.sex==='male'?' selected':'')+'>Male</option><option value="female"'+(p.sex==='female'?' selected':'')+'>Female</option></select></label></div>';
+  if(youth){
+    var _typed=parseInt(p.age,10)>0?parseInt(p.age,10):null, _bd=derivedAge('',p.birthday,new Date()), _pa=profileAge(profile), _da=demoDerivedAge(profile);
+    var _vals=[_typed,_bd,_pa].filter(function(v){return v!=null;}), _conf=_vals.some(function(v){return v!==_vals[0];});
+    html+='<div id="demo-derived" class="dmeta" style="margin:-2px 0 10px">'+(_da==null
+      ?'Caffeine tiles: <b>locked</b> — enter your age or birthday.'
+      :'Age: <b>'+_da+'</b>'+(_bd!=null?(' (from '+(_conf?'your birthday — lower of the entries':'birthday')+')'):'')+(_conf?' <span style="color:var(--gold)">· your entries do not match, so the lowest is used</span>':''))+
+      '<br><span style="opacity:.7">A birthday is stored on this device and is included in exported backups.</span></div>';
+  }
   // hot-climate affects the water target for BOTH tiers (youth water is never
   // exempt, only protein/macros are §4.3-hidden) -- not youth-gated below.
   html+='<label class="fr-check" style="margin:2px 0 10px"><input type="checkbox" '+(p.hot?'checked':'')+' onchange="demoSave(\'hot\',this.checked)"> Hot-climate / outdoor — adds extra water on top</label>';
