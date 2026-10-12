@@ -4776,6 +4776,10 @@
     {id:'glass-8-0-0',g:'containers',w:8,e:0,orient:'portrait',l:'Glass',n:'Glass / cup'},
     {id:'liquid-iv-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV',n:'Liquid IV ⚡ full'},
     {id:'liquid-iv-0-0-5',g:'mixins',w:0,e:0.5,l:'Liquid IV ½',n:'Liquid IV ⚡ half'},
+    /* 2026-10-11 (Adam): Sugar-Free alongside the regular (both Lemon Lime). New id/label; same hydration class + e:1 as plain Liquid IV. */
+    {id:'liquid-iv-sf-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV Sugar-Free',n:'Liquid IV ⚡ sugar-free'},
+    /* 2026-10-11 (Adam/D): Mtn Ops HYDRATE Lemonade stick — hydration class, no caffeine → same gating as plain Liquid IV (mixins grid). */
+    {id:'mtn-ops-lemonade-0-1-0',g:'mixins',w:0,e:1,l:'Mtn Ops Lemonade',n:'Mtn Ops Lemonade ⚡ stick'},
     {id:'liquid-iv-energy-0-1-0',g:'mixins',w:0,e:1,l:'Liquid IV Energy',n:'Liquid IV Energy ⚡'},
     /* 5.3b: 4 sizes collapsed to ONE portrait tile + ⋯ "Log a size" stepper (shipped
        v191 pattern) + sticky (fuel-size-<id>). Median default = Standard 20oz (defSize 1).
@@ -4795,7 +4799,10 @@
        stick as a single undoable entry (addItem → addShakeWithElec, the yeti-liv-collagen path).
        p/w/e are DATA fields; the tile shows only n's first two " · " segments, so no grams in
        n/l ([[youth-gram-label]]). */
-    {id:'c4-combo',g:'energy',p:22,w:28,e:1,l:'C4 + Collagen + Creatine + LIV',n:'C4 combo · collagen + creatine + Liquid IV · 28oz'}
+    {id:'c4-combo',g:'energy',p:22,w:28,e:1,l:'C4 + Collagen + Creatine + LIV',n:'C4 combo · collagen + creatine + Liquid IV · 28oz'},
+    /* 2026-10-11 (Adam): C4 Energy + a 28oz (blue) Yeti of water. Water is the tracked part (w28); C4 itself carries no tracked macro.
+       Lives in the 'energy' grid so it INHERITS C4's current youth gating (B1 caffeine call is Adam's, pending) — no gating change here. */
+    {id:'c4-yeti-28-0-0',g:'energy',orient:'portrait',w:28,e:0,l:'C4 Energy + Yeti',n:'C4 Energy + Yeti · 28oz'}
   ];
   /* 5.3b size-family sticky: the collapsed tile shows the user's last-picked size
      (fuel-size-<id>, default = it.defSize/median). Image swaps from SIZE_IMAGES (separate
