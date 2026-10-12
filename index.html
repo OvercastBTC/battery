@@ -416,7 +416,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.11.233</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.11.234</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -855,7 +855,7 @@ function vpSnap(tag) {
 }
 window.vpSnap = vpSnap; window.__vp = __vp;
 (function () {
-  var t = null; function lazy(tag) { clearTimeout(t); t = setTimeout(function () { vpSnap(tag); }, 120); }
+  var t = null; function lazy(tag) { try { applyDefComp(); requestAnimationFrame(applyDefComp); } catch (e) {} clearTimeout(t); t = setTimeout(function () { vpSnap(tag); }, 120); }
   try { if (window.visualViewport) { visualViewport.addEventListener('resize', function () { lazy('vv.resize'); }); visualViewport.addEventListener('scroll', function () { lazy('vv.scroll'); }); } } catch (e) {}
   window.addEventListener('resize', function () { lazy('resize'); });
   window.addEventListener('pageshow', function () { lazy('pageshow'); });
@@ -873,7 +873,11 @@ function vpNudgeToggle(){
   try{ renderDeviceCard(); }catch(e){}
 }
 window.vpNudgeOn=vpNudgeOn; window.vpNudgeToggle=vpNudgeToggle;
-/* v231 DEFICIT-COMP (opt-in DEVICE TEST, default OFF = zero behaviour change). v228-trace finding (Adam's iPhone, Safari standalone): the layout
+/* v234: PROMOTED to AUTOMATIC (default ON; battery-vp-defcomp='0' = explicit OFF override in the Device card). Adam's on-device recording (v232) showed WebKit
+   PAINTS the stage beyond its viewport rect, so the comp fills the T62 gap — the in-browser fix. It only acts in the T62-shortfall state (guards below) and
+   no-ops otherwise. To minimise the launch flash it is applied EARLY: at first layout, and IMMEDIATELY (not via the 120ms-debounced trace) on every
+   resize / visualViewport resize / pageshow / orientationchange / load, plus a rAF re-apply.
+   v231 DEFICIT-COMP (was an opt-in DEVICE TEST). v228-trace finding (Adam's iPhone, Safari standalone): the layout
    viewport is SHORTER than the screen by ~the top safe-area (innerHeight 778 vs 956/1.15 = 831 CSS px), origin at the screen TOP, so the bottom-fixed
    pill rides ~60pt too high. vpDefMeasure() = screen.height/visualViewport.scale - innerHeight. When the switch is ON *and* the app is standalone
    *and* 0 < deficit <= 100 *and* the top inset is reported and equals the deficit (see v231b below; a desktop toolbar/dock gap is never mistaken for it), --vp-def = deficit and the whole bottom stack drops by it
@@ -882,7 +886,7 @@ window.vpNudgeOn=vpNudgeOn; window.vpNudgeToggle=vpNudgeToggle;
 function vpDefMeasure(){
   try{ var vv=window.visualViewport, sc=(vv&&vv.scale)||1; return Math.max(0, Math.round(screen.height/sc - innerHeight)); }catch(e){ return 0; }
 }
-function vpDefOn(){ try{ return localStorage.getItem('battery-vp-defcomp')==='1'; }catch(e){ return false; } }
+function vpDefOn(){ try{ return localStorage.getItem('battery-vp-defcomp')!=='0'; }catch(e){ return true; } }
 function applyDefComp(){
   var d=vpDefMeasure(), ap=0;
   /* v231b: apply ONLY in the engine's "state A" — viewport origin at the screen top (top inset REPORTED, ins.t>0) with the height cut by exactly that inset
@@ -903,6 +907,7 @@ function vpDefToggle(){
   try{ renderDeviceCard(); }catch(e){}
 }
 window.vpDefMeasure=vpDefMeasure; window.vpDefOn=vpDefOn; window.applyDefComp=applyDefComp; window.vpDefToggle=vpDefToggle;
+try{ applyDefComp(); }catch(e){} document.addEventListener('DOMContentLoaded', function(){ try{ applyDefComp(); }catch(e){} }); window.addEventListener('load', function(){ try{ applyDefComp(); }catch(e){} });
 /* Device & Install card — live per-device readout: CSS viewport, raw screen px, DPR, the four
    env(safe-area-inset-*) in px, and UA. The safe-area readout is a real per-device diagnostic for
    the bottom-nav/safe-area (H-1) work. Re-renders live on resize / orientationchange. */
@@ -921,9 +926,9 @@ function renderDeviceCard(){
     '<div style="margin-top:12px;font-size:11px">Viewport nudge: <b style="color:'+(vpNudgeOn()?'var(--green)':'var(--gold)')+'">'+(vpNudgeOn()?'ON':'OFF')+'</b> '+
       '<button id="vp-nudge-btn" onclick="vpNudgeToggle()" style="margin-left:6px;background:none;border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:5px 10px;font:inherit;font-size:11px;cursor:pointer">'+(vpNudgeOn()?'Turn OFF (test)':'Turn ON')+'</button>'+
       '<div style="opacity:.7;margin-top:3px">A/B test for the Safari bottom-bar bug. ON = normal. OFF = the app never rewrites the viewport on view switches.</div></div>'+
-    '<div style="margin-top:12px;font-size:11px">Deficit comp: <b style="color:'+(vpDefOn()?'var(--green)':'var(--gold)')+'">'+(vpDefOn()?'ON':'OFF')+'</b> <span style="opacity:.7">(measured shortfall '+vpDefMeasure()+'px)</span> '+
-      '<button id="vp-defcomp-btn" onclick="vpDefToggle()" style="margin-left:6px;background:none;border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:5px 10px;font:inherit;font-size:11px;cursor:pointer">'+(vpDefOn()?'Turn OFF':'Turn ON (test)')+'</button>'+
-      '<div style="opacity:.7;margin-top:3px">TEST for the Safari-app bar sitting too high (installed app only; acts only when the top inset is reported and equals the shortfall). ON = drops the bottom bar into the gap below the Safari page area. This asks one question: does Safari paint a fixed bar beyond its page area, or cut it off? If it paints, the gap fills and the bar sits right. If it cuts the bar off or nothing changes, turn it OFF — that tells us the page area is owned by Safari and only a native wrapper can fix it.</div></div>'+
+    '<div style="margin-top:12px;font-size:11px">Deficit comp: <b style="color:'+(vpDefOn()?'var(--green)':'var(--gold)')+'">'+(vpDefOn()?'AUTO':'OFF')+'</b> <span style="opacity:.7">(measured shortfall '+vpDefMeasure()+'px)</span> '+
+      '<button id="vp-defcomp-btn" onclick="vpDefToggle()" style="margin-left:6px;background:none;border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:5px 10px;font:inherit;font-size:11px;cursor:pointer">'+(vpDefOn()?'Turn OFF (override)':'Turn ON (auto)')+'</button>'+
+      '<div style="opacity:.7;margin-top:3px">AUTOMATIC fix for the Safari-app bar sitting too high (installed app only). It acts only when the top inset is reported and equals the shortfall, and does nothing in any other state. If anything looks wrong, turn it OFF here and tell Adam.</div></div>'+
     '<div style="margin-top:10px;font-size:11px;color:var(--gold)"><b>Viewport trace</b> <span style="opacity:.7">(newest last — screenshot this after the bar appears)</span></div>'+
     '<pre style="margin:4px 0 0;font:9.5px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all;opacity:.9">'+escHtml(__vp.slice(-16).join('\n'))+'</pre>';
 }
