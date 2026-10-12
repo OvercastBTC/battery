@@ -416,7 +416,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.10.226</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.10.227</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -830,6 +830,35 @@ function deviceInfo(){
     sa:_safeInsets(),ua:navigator.userAgent};
 }
 window.isStandalone=isStandalone; window.deviceInfo=deviceInfo;
+/* v227 DIAGNOSTIC (read-only; device-only bug hunt). A ring buffer of VIEWPORT snapshots, shown at the bottom of Settings →
+   Device & Install. Taken at boot, on EVERY view switch (immediately, +0.4s, +1.6s) and on resize / visualViewport / pageshow /
+   orientationchange. Purpose: on a real iPhone the bottom stack changes after HOME → ARM-CARE (Safari only) while headless shows every
+   metric constant — this records exactly WHAT the engine changed (innerHeight? visualViewport? safe-area insets? the pill's own
+   position?). It changes no layout and no data. Remove with `git revert` once the culprit is known. */
+var __vp = [];
+function vpSnap(tag) {
+  try {
+    var vv = window.visualViewport, tb = document.getElementById('tabbar'), hb = document.getElementById('hostbar'), st = document.getElementById('stage');
+    var r = tb ? tb.getBoundingClientRect() : null, sa = _safeInsets(), d = new Date();
+    var ts = ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2) + '.' + ('00' + d.getMilliseconds()).slice(-3, -1);
+    __vp.push(ts + ' ' + tag + ' | in ' + innerWidth + 'x' + innerHeight +
+      ' vv ' + (vv ? Math.round(vv.width) + 'x' + Math.round(vv.height) + ' t' + Math.round(vv.offsetTop) + ' s' + vv.scale.toFixed(2) : 'n/a') +
+      ' scr ' + screen.height + ' | ins T' + sa.t + ' B' + sa.b + ' | pill ' + (r ? Math.round(r.top) + '-' + Math.round(r.bottom) : '?') +
+      ' gap' + (r ? Math.round(innerHeight - r.bottom) : '?') + ' hb' + (hb ? Math.round(hb.getBoundingClientRect().top) : '?') +
+      ' stg' + (st ? Math.round(st.getBoundingClientRect().bottom) : '?') + (isStandalone() ? ' PWA' : ' web'));
+    if (__vp.length > 40) __vp.shift();
+    if (document.getElementById('data-device')) renderDeviceCard();
+  } catch (e) {}
+}
+window.vpSnap = vpSnap; window.__vp = __vp;
+(function () {
+  var t = null; function lazy(tag) { clearTimeout(t); t = setTimeout(function () { vpSnap(tag); }, 120); }
+  try { if (window.visualViewport) { visualViewport.addEventListener('resize', function () { lazy('vv.resize'); }); visualViewport.addEventListener('scroll', function () { lazy('vv.scroll'); }); } } catch (e) {}
+  window.addEventListener('resize', function () { lazy('resize'); });
+  window.addEventListener('pageshow', function () { lazy('pageshow'); });
+  window.addEventListener('orientationchange', function () { lazy('orient'); });
+  window.addEventListener('load', function () { setTimeout(function () { vpSnap('load'); }, 300); setTimeout(function () { vpSnap('load+2s'); }, 2000); });
+})();
 /* Device & Install card — live per-device readout: CSS viewport, raw screen px, DPR, the four
    env(safe-area-inset-*) in px, and UA. The safe-area readout is a real per-device diagnostic for
    the bottom-nav/safe-area (H-1) work. Re-renders live on resize / orientationchange. */
@@ -844,7 +873,9 @@ function renderDeviceCard(){
     '<div>Viewport (CSS): <b>'+di.vw+'×'+di.vh+'</b> · Screen (raw): '+di.sw+'×'+di.sh+' · DPR '+di.dpr+'×</div>'+
     '<div>Safe-area insets: <b>T '+di.sa.t+' · R '+di.sa.r+' · B '+di.sa.b+' · L '+di.sa.l+'</b> px <span style="opacity:.6">(live)</span></div>'+
     '<div>Likely device: <b>'+escHtml(di.guess)+'</b> <span style="opacity:.6">(inferred — iOS hides the exact model)</span></div>'+
-    '<div style="margin-top:6px;opacity:.7;font-size:11px;word-break:break-all">UA: '+escHtml(di.ua)+'</div>';
+    '<div style="margin-top:6px;opacity:.7;font-size:11px;word-break:break-all">UA: '+escHtml(di.ua)+'</div>'+
+    '<div style="margin-top:10px;font-size:11px;color:var(--gold)"><b>Viewport trace</b> <span style="opacity:.7">(newest last — screenshot this after the bar appears)</span></div>'+
+    '<pre style="margin:4px 0 0;font:9.5px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all;opacity:.9">'+escHtml(__vp.slice(-16).join('\n'))+'</pre>';
 }
 window.renderDeviceCard=renderDeviceCard;
 (function(){ var _r=function(){ try{ if(document.getElementById('data-device')) renderDeviceCard(); }catch(e){} }; window.addEventListener('resize',_r); window.addEventListener('orientationchange',_r); })();
@@ -1052,6 +1083,7 @@ function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(
  // counter only the host can see -- an actual FUEL *open* -- same fuel-obs-<date>
  // key, same shape, so Lane A's end-of-week read-out picks it up automatically.
  if(v==='fuel'){try{var ok='fuel-obs-'+todayPlanKey(),oo=JSON.parse(localStorage.getItem(ok)||'{}');oo.fuelOpen=(oo.fuelOpen||0)+1;localStorage.setItem(ok,JSON.stringify(oo));}catch(e){}}
+ try{vpSnap('go:'+v);setTimeout(function(){vpSnap('go:'+v+' +.4s')},400);setTimeout(function(){vpSnap('go:'+v+' +1.6s')},1600);}catch(e){}
  try{reassertViewport();}catch(e){} /* 2.1 Tier1: SPA view-switch is where the iOS viewport latch re-breaks — re-assert here */}
 /* iOS WebKit layout-viewport latch fix (BOTTOM-BAR-FIX-2.1, Tier 1). Safari/Chrome iOS
    (both WKWebView) can stick the layout viewport at landscape width and never reset to
