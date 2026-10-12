@@ -4719,6 +4719,21 @@
      Match: exact it.l across the protein catalog + water catalog + custom items; if several rows share
      a label (e.g. 'Bowl' x2) prefer the one whose p (protein fav) / w (water fav) equals the amount;
      else the first. Returns the image URL/data-URI or null (text-only favorite). */
+  /* 2.2 FOLD (owner-approved): old history logged shakes protein-only (pre pairedOz fix), so
+     'Core Power Elite|42|w0' / 'Sports Research 2 scoops|50|w0' surface as separate most-used favorites
+     next to their water-counting versions. Candidates = catalog items with water (w>0) and the SAME
+     protein grams whose label equals — or (name fold, >=8 chars) is prefixed by — the old label,
+     compared normalised ('scoops'->'sc', alnum only). Caller picks the most-used candidate. */
+  function _favNorm(s){ return String(s||'').toLowerCase().replace(/scoops?/g,'sc').replace(/[^a-z0-9]/g,''); }
+  window._favFoldTargets = function(label, amount){
+    try{
+      var nl=_favNorm(label), amt=+amount||0; if(nl.length<8 || amt<=0) return [];
+      return FUEL_ITEMS.concat(loadCustomItems()).filter(function(it){
+        if(!((+it.w||0)>0) || (+it.p||0)!==amt) return false;
+        var nc=_favNorm(it.l); return nc===nl || nc.indexOf(nl)===0;
+      }).map(function(it){ return {label:it.l, w:+it.w}; });
+    }catch(e){ return []; }
+  };
   window._favImgFor = function(type, amount, label, w){
     try{
       var imgs = window.FOOD_IMAGES; if(!imgs || !label) return null;
@@ -5886,7 +5901,10 @@
     const favs = loadFavorites();
     const f = favs[type][idx];
     if (!f) return;
-    if (type === 'water') addWater(f.amount, f.label);
+    // Same one-tap path as the top strip: honours the favorite's paired water (w) and electrolyte (e),
+    // so this older list no longer drops the water half of a pinned shake.
+    if (window.useFavStripItem) window.useFavStripItem(type, +f.amount || 0, f.label, +f.e || 0, +f.w || 0);
+    else if (type === 'water') addWater(f.amount, f.label);
     else addProtein(f.amount, f.label);
   }
 
@@ -5901,9 +5919,15 @@
       }
       row.style.display = 'block';
       list.innerHTML = favs[type].map((f, i) => {
+        // §4.3: this older list never filtered for youth — do it here (same rule as the top strip), and
+        // youth never see the protein-gram amount (same as the strip's amtHtml).
+        if (fy() && !_favIsYouthSafe({ type: type, amount: +f.amount || 0, label: f.label || '', e: +f.e || 0 })) return '';
         const unit = type === 'water' ? 'oz' : 'g';
         const lbl = (f.label || '').replace(/'/g, '');
-        return `<button class="fav-btn ${type}" onclick="useFavorite('${type}', ${i})"><span class="qa-amt">+${f.amount}<span class="u">${unit}</span></span><span class="qa-name">${lbl}</span><span class="fav-star">★</span><span class="fav-more" onclick="event.stopPropagation(); removeFavorite('${type}', ${i})">⋯</span></button>`;
+        const fimg = window._favImgFor ? window._favImgFor(type, f.amount, f.label, f.w) : null;
+        const fimgHtml = fimg ? '<span class="fav-bg" style="background-image:url(' + fimg + ')"></span><span class="fav-scrim"></span>' : '';
+        const amtHtml = (type === 'protein' && fy()) ? '' : `<span class="qa-amt">+${f.amount}<span class="u">${unit}</span></span>`;
+        return `<button class="fav-btn ${type}${fimg ? ' fav-has-img' : ''}" onclick="useFavorite('${type}', ${i})">${fimgHtml}${amtHtml}<span class="qa-name">${lbl}</span><span class="fav-star">★</span><span class="fav-more" onclick="event.stopPropagation(); removeFavorite('${type}', ${i})">⋯</span></button>`;
       }).join('');
     });
     collapseRedundantSections();
@@ -6029,6 +6053,25 @@
         });
       }
     } catch (e) {}
+    // 2.2 fold: water-less protein items fold into their water-counting variant (display-only;
+    // history is never rewritten). Counts merge so the variant ranks by combined use.
+    try {
+      Object.keys(counts).forEach(k => {
+        const m = meta[k];
+        if (!m || m.type !== 'protein' || (+m.w || 0) > 0 || !window._favFoldTargets) return;
+        const cands = window._favFoldTargets(m.label, m.amount);
+        if (!cands.length) return;
+        let best = null, bestN = -1;
+        cands.forEach(c => {
+          const ck = _favKey({ type: 'protein', label: c.label, amount: m.amount, w: c.w });
+          const n = counts[ck] || 0;
+          if (n > bestN) { bestN = n; best = { c, ck }; }
+        });
+        counts[best.ck] = (counts[best.ck] || 0) + counts[k];
+        if (!meta[best.ck]) meta[best.ck] = { type: 'protein', amount: m.amount, label: best.c.label, e: 0, w: best.c.w };
+        delete counts[k]; delete meta[k];
+      });
+    } catch (e) {}
     return Object.keys(counts)
       .sort((a, b) => counts[b] - counts[a])
       .map(k => Object.assign({ count: counts[k], manual: false }, meta[k]))
@@ -6066,11 +6109,28 @@
   }
   // Merge manual pins (win / marked) with most-used auto items, youth-filtered.
   // Manual pins first; auto items fill remaining slots, deduped against pins.
+  // 2.1: dismiss an AUTO (most-used ↻) favorite. Display-only hide list under the fuel- prefix
+  // (fuel-favhide = [_favKey,...]); history/entries/pins are never touched. Manual pins use ×/unpin.
+  function _favHiddenList() { try { const a = JSON.parse(storeGet('fuel-favhide', '[]')); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  window._favHideAuto = function (encKey) {
+    let k = ''; try { k = decodeURIComponent(encKey || ''); } catch (e) {}
+    if (!k) return;
+    const a = _favHiddenList();
+    if (a.indexOf(k) < 0) { a.push(k); storeSet('fuel-favhide', JSON.stringify(a)); }
+    if (window.batteryRenderFav) try { window.batteryRenderFav(); } catch (e) {}
+  };
+  window._favUnhideAll = function () {
+    storeSet('fuel-favhide', '[]');
+    if (window.batteryRenderFav) try { window.batteryRenderFav(); } catch (e) {}
+  };
+  window._favHiddenCount = function () { return _favHiddenList().length; };
+  window._favKeyOf = function (it) { return _favKey(it); };
   function _favMerged(limit) {
     const manual = _favManualList().filter(_favIsYouthSafe);
     const seen = {};
     manual.forEach(m => { seen[_favKey(m)] = true; });
-    const auto = _favAutoFrozen(12).filter(a => _favIsYouthSafe(a) && !seen[_favKey(a)]);
+    const hid = _favHiddenList();
+    const auto = _favAutoFrozen(12).filter(a => _favIsYouthSafe(a) && !seen[_favKey(a)] && hid.indexOf(_favKey(a)) < 0);
     return manual.concat(auto).slice(0, limit || 8);
   }
   // Re-log a fav via the generic addItem one-tap path (4.2). Design item 3
@@ -6109,6 +6169,7 @@
     const w = +pairedOz || 0;
     const idx = favs[bucket].findIndex(f => (f.label || '') === (label || '') && (+f.amount || 0) === amt && (+f.w || 0) === w);
     if (idx !== -1) favs[bucket].splice(idx, 1);   // unpin
+    else if (/^\s*(cannot|can.?t|unable|error|failed|invalid)\b/i.test(String(label || ''))) { return; }   // never pin a toast/error string as a favorite
     else {
       if (favs[bucket].length >= 6) favs[bucket].shift();
       favs[bucket].push({ amount: amt, label: label || '', e: +elec || 0, w: +pairedOz || 0, fid: Date.now()+'-'+Math.floor(Math.random()*9999) });
@@ -7099,6 +7160,7 @@
           const lbl=(f.label||'').replace(/\x27/g,"");
           const mark = f.manual ? '★' : '↻';
           const markCls = f.manual ? 'fav-star' : 'fav-star fav-freq';
+          const hideX = (ed && !f.manual) ? '<span title="Hide this suggestion" onclick="event.stopPropagation();window._favHideAuto(\''+encodeURIComponent(window._favKeyOf({type:type,amount:f.amount,label:f.label,w:f.w}))+'\')" style="position:absolute;top:2px;right:4px;padding:0 4px;color:#8b949e;font-weight:700;font-size:11px;cursor:pointer;z-index:3">×</span>' : '';
           const rm = (ed && f.manual) ? '<span onclick="event.stopPropagation();removeManualFav(\''+type+'\','+f.amount+',\''+lbl+'\')" style="position:absolute;top:2px;right:4px;padding:0 4px;color:#f85149;font-weight:700;font-size:11px;cursor:pointer">×</span>' : '';
           const more = '<span onclick="event.stopPropagation();if(window._favOpenMenu)window._favOpenMenu(this.closest(\'.fav-btn\'))" '+
             'class="fav-more">⋯</span>';
@@ -7111,7 +7173,7 @@
             amtHtml+
             '<span class="qa-name">'+(f.label||'')+'</span>'+
             '<span class="'+markCls+'">'+mark+'</span>'+
-            (ed?rm:more)+
+            (ed?(rm||hideX):more)+
             '</button>';
       };
       // Design item 4: bundles ride above the per-type favorites -- one tap
@@ -7163,6 +7225,8 @@
         h += '<div style="font-size:9px;color:#484f58;font-family:\'SF Mono\',monospace;'+
           'letter-spacing:.5px;margin-top:8px;text-align:center">HOLD A BUTTON OR TAP ⋯ TO EDIT, PIN OR REORDER</div>';
       }
+      var _nh = (ed && window._favHiddenCount) ? window._favHiddenCount() : 0;
+      if (_nh > 0) h += '<button onclick="window._favUnhideAll()" style="background:none;border:1px dashed #444c56;color:#8b949e;border-radius:8px;padding:5px 10px;margin-top:8px;font-family:\'SF Mono\',monospace;font-size:10px;cursor:pointer">Restore hidden suggestions (' + _nh + ')</button>';
       host.innerHTML=h;
     }
 
