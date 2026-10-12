@@ -1243,6 +1243,15 @@
     color: #6e7681; font-weight: 700; font-size: 11px; line-height: 1.2;
     opacity: 0.4;
   }
+  /* Favorites imagery: a favorite whose label resolves to a catalog item (_favImgFor) wears that
+     item's FOOD_IMAGES render exactly like its quick-add tile (photo + scrim, text over). Text-only
+     favorites (no catalog match / no image) are unchanged. */
+  .fav-btn.fav-has-img { min-height: 62px; justify-content: flex-end; overflow: hidden; border-color: var(--line-bright); background: #0b0f14; }
+  .fav-btn.fav-has-img .fav-bg { position: absolute; inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; z-index: 0; }
+  .fav-btn.fav-has-img .fav-scrim { position: absolute; inset: 0; z-index: 1; background: linear-gradient(to top, rgba(2,6,12,.92) 0%, rgba(2,6,12,.62) 42%, rgba(2,6,12,.12) 78%); }
+  .fav-btn.fav-has-img .qa-amt, .fav-btn.fav-has-img .qa-name { position: relative; z-index: 2; text-shadow: 0 1px 3px rgba(0,0,0,.95); }
+  .fav-btn.fav-has-img .qa-name { color: rgba(255,255,255,.92); }
+  .fav-btn.fav-has-img .fav-star, .fav-btn.fav-has-img .fav-more { z-index: 3; }
   .fav-btn:hover .fav-more { opacity: 1; }
   @media (hover: none) { .fav-btn .fav-more { opacity: 0.6; } }
   /* History log */
@@ -4704,6 +4713,23 @@
   }
   function saveCustomItems(a){ storeSet('fuel-items-custom', JSON.stringify(a||[])); }
   window.fuelAllItems = function(){ return FUEL_ITEMS.concat(loadCustomItems()); };
+  /* Favorites -> catalog item -> image. Favorites are LABEL-keyed (fuel-favorites / entry log store
+     the label string; that contract never changes) while FOOD_IMAGES is keyed by item.id. This is a
+     read-only LOOKUP over the existing catalogs by (label, then amount) — no store/key is touched.
+     Match: exact it.l across the protein catalog + water catalog + custom items; if several rows share
+     a label (e.g. 'Bowl' x2) prefer the one whose p (protein fav) / w (water fav) equals the amount;
+     else the first. Returns the image URL/data-URI or null (text-only favorite). */
+  window._favImgFor = function(type, amount, label, w){
+    try{
+      var imgs = window.FOOD_IMAGES; if(!imgs || !label) return null;
+      var pool = FUEL_ITEMS.concat(FUEL_W_ITEMS, loadCustomItems());
+      var c = pool.filter(function(it){ return it.l === label; });
+      if(!c.length) return null;
+      var amt = +amount || 0;
+      var pick = c.filter(function(it){ return type==='protein' ? (+it.p||0)===amt : (type==='water' ? (+it.w||0)===amt : true); })[0] || c[0];
+      return imgs[pick.id] || null;
+    }catch(e){ return null; }
+  };
 
 
   /* ===== WATER + ELECTROLYTE CATALOG (stage 3) =====
@@ -7077,8 +7103,11 @@
           const more = '<span onclick="event.stopPropagation();if(window._favOpenMenu)window._favOpenMenu(this.closest(\'.fav-btn\'))" '+
             'class="fav-more">⋯</span>';
           const amtHtml = (type==='protein' && fy()) ? '' : '<span class="qa-amt">+'+f.amount+'<span class="u">'+u+'</span>'+(f.w?' +'+f.w+'<span class="u">oz</span>':'')+' </span>';
-          return '<button class="fav-btn '+type+'" data-ft="'+type+'" data-fa="'+f.amount+'" data-fl="'+lbl+'" data-fe="'+(f.e||0)+'" data-fw="'+(f.w||0)+'" data-fm="'+(f.manual?1:0)+'" onclick="'+(ed?'':'useFavStripItem(\''+type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+','+(f.w||0)+')')+'" '+
+          const fimg = window._favImgFor ? window._favImgFor(type, f.amount, f.label, f.w) : null;
+          const fimgHtml = fimg ? '<span class="fav-bg" style="background-image:url('+fimg+')"></span><span class="fav-scrim"></span>' : '';
+          return '<button class="fav-btn '+type+(fimg?' fav-has-img':'')+'" data-ft="'+type+'" data-fa="'+f.amount+'" data-fl="'+lbl+'" data-fe="'+(f.e||0)+'" data-fw="'+(f.w||0)+'" data-fm="'+(f.manual?1:0)+'" onclick="'+(ed?'':'useFavStripItem(\''+type+'\','+f.amount+',\''+lbl+'\','+(f.e||0)+','+(f.w||0)+')')+'" '+
             'title="'+(f.manual?'Pinned favorite':'Most-used')+'">'+
+            fimgHtml+
             amtHtml+
             '<span class="qa-name">'+(f.label||'')+'</span>'+
             '<span class="'+markCls+'">'+mark+'</span>'+
