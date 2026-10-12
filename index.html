@@ -286,10 +286,10 @@ body.youth .rad-trk2,body.youth .rad-prg2{display:none !important}   /* 4.3 fail
    • v213 colour-match kept: pill bg = --ink = page bg; the pill is told apart by its border + soft shadow.
    • Fixed dims, no flex/gaps: two 50% blocks, icon block + label block stacked. Everything is driven by
      --tb-h (inner height), --tb-rad (radial size), --tb-lift (bottom gap), --tb-gap-x (side margin). */
-:root{--stage-b:50px;--tb-h:50px}   /* base values; --tb-h doubles as the gate's feature marker */
+:root{--stage-b:50px;--tb-h:50px;--vp-def:0px}   /* base values; --tb-h doubles as the gate's feature marker. --vp-def (v231) = measured Safari-standalone viewport shortfall, 0 unless the opt-in Deficit-comp switch is ON */
 @media(max-width:600px){
-:root{--tb-h:46px;--tb-rad:40px;--tb-lift:10px;--tb-gap-x:14px;--stage-b:calc(var(--tb-lift) + var(--tb-h) + 2px)}
-#tabbar{position:fixed;bottom:var(--tb-lift);inset-inline:0;margin:0 auto;width:min(calc(100% - 2 * var(--tb-gap-x)),420px);z-index:100;display:block;box-sizing:border-box;height:calc(var(--tb-h) + 2px);padding:0;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.55)}
+:root{--tb-h:46px;--tb-rad:40px;--tb-lift:10px;--tb-gap-x:14px;--stage-b:calc(var(--tb-lift) + var(--tb-h) + 2px - var(--vp-def))}
+#tabbar{position:fixed;bottom:calc(var(--tb-lift) - var(--vp-def));inset-inline:0;margin:0 auto;width:min(calc(100% - 2 * var(--tb-gap-x)),420px);z-index:100;display:block;box-sizing:border-box;height:calc(var(--tb-h) + 2px);padding:0;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.55)}
 #tabbar button{display:block;float:left;width:50%;height:var(--tb-h);box-sizing:border-box;padding:3px 0 0;margin:0}
 #tabbar button .ico{display:block;height:var(--tb-rad);margin:0}
 #tabbar button .ico>.hp,#tabbar button .ico>.rad.dia{display:block;margin:0 auto}
@@ -416,7 +416,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.11.231</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.11.232</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -841,13 +841,14 @@ function vpSnap(tag) {
     var vv = window.visualViewport, tb = document.getElementById('tabbar'), hb = document.getElementById('hostbar'), st = document.getElementById('stage');
     var r = tb ? tb.getBoundingClientRect() : null, sa = _safeInsets(), d = new Date();
     var mm = document.querySelector('meta[name=viewport]'), mc = (mm && mm.getAttribute('content')) || '';
+    var _ap = applyDefComp(); r = tb ? tb.getBoundingClientRect() : null;
     var ts = ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2) + '.' + ('00' + d.getMilliseconds()).slice(-3, -1);
     __vp.push(ts + ' ' + tag + ' | in ' + innerWidth + 'x' + innerHeight +
       ' vv ' + (vv ? Math.round(vv.width) + 'x' + Math.round(vv.height) + ' t' + Math.round(vv.offsetTop) + ' s' + vv.scale.toFixed(2) : 'n/a') +
       ' scr ' + screen.height + ' | ins T' + sa.t + ' B' + sa.b + ' | pill ' + (r ? Math.round(r.top) + '-' + Math.round(r.bottom) : '?') +
       ' gap' + (r ? Math.round(innerHeight - r.bottom) : '?') + ' hb' + (hb ? Math.round(hb.getBoundingClientRect().top) : '?') +
       ' stg' + (st ? Math.round(st.getBoundingClientRect().bottom) : '?') + (isStandalone() ? ' PWA' : ' web') +
-      ' vf' + (/viewport-fit=cover/.test(mc) ? 1 : 0) + ' sh' + (/shrink-to-fit/.test(mc) ? 1 : 0) + ' nud' + (vpNudgeOn() ? 'ON' : 'OFF'));
+      ' vf' + (/viewport-fit=cover/.test(mc) ? 1 : 0) + ' sh' + (/shrink-to-fit/.test(mc) ? 1 : 0) + ' nud' + (vpNudgeOn() ? 'ON' : 'OFF') + ' def' + vpDefMeasure() + ' dc' + (vpDefOn() ? 'ON' : 'OFF') + ' ap' + _ap);
     if (__vp.length > 40) __vp.shift();
     if (document.getElementById('data-device')) renderDeviceCard();
   } catch (e) {}
@@ -872,6 +873,36 @@ function vpNudgeToggle(){
   try{ renderDeviceCard(); }catch(e){}
 }
 window.vpNudgeOn=vpNudgeOn; window.vpNudgeToggle=vpNudgeToggle;
+/* v231 DEFICIT-COMP (opt-in DEVICE TEST, default OFF = zero behaviour change). v228-trace finding (Adam's iPhone, Safari standalone): the layout
+   viewport is SHORTER than the screen by ~the top safe-area (innerHeight 778 vs 956/1.15 = 831 CSS px), origin at the screen TOP, so the bottom-fixed
+   pill rides ~60pt too high. vpDefMeasure() = screen.height/visualViewport.scale - innerHeight. When the switch is ON *and* the app is standalone
+   *and* 0 < deficit <= 100 *and* the top inset is reported and equals the deficit (see v231b below; a desktop toolbar/dock gap is never mistaken for it), --vp-def = deficit and the whole bottom stack drops by it
+   (pill bottom + --stage-b + every floater that keys off --stage-b). A fixed element pushed below the layout viewport MAY CLIP on device — that is
+   what this test finds out. Not a commit: if it clips, the held levers apply. Device-local key (not profile data, not mirrored), like battery-vp-nudge. */
+function vpDefMeasure(){
+  try{ var vv=window.visualViewport, sc=(vv&&vv.scale)||1; return Math.max(0, Math.round(screen.height/sc - innerHeight)); }catch(e){ return 0; }
+}
+function vpDefOn(){ try{ return localStorage.getItem('battery-vp-defcomp')==='1'; }catch(e){ return false; } }
+function applyDefComp(){
+  var d=vpDefMeasure(), ap=0;
+  /* v231b: apply ONLY in the engine's "state A" — viewport origin at the screen top (top inset REPORTED, ins.t>0) with the height cut by exactly that inset
+     (|deficit - ins.t/scale| <= 8). In "state B" (viewport sits below the top inset, ins.t==0, runs to the screen bottom) the pill is already right and the
+     measured deficit is still ~54 — compensating there would push it off-screen. */
+  var _vv=window.visualViewport, _sc=(_vv&&_vv.scale)||1, _t=0; try{ _t=_safeInsets().t||0; }catch(e){}
+  if(vpDefOn() && isStandalone() && d>0 && d<=100 && _t>0 && Math.abs(d-_t/_sc)<=8) ap=d;
+  try{
+    var st=document.documentElement.style;
+    if(ap>0){ if(st.getPropertyValue('--vp-def')!==ap+'px') st.setProperty('--vp-def', ap+'px'); }
+    else if(st.getPropertyValue('--vp-def')) st.removeProperty('--vp-def');
+  }catch(e){}
+  return ap;
+}
+function vpDefToggle(){
+  try{ localStorage.setItem('battery-vp-defcomp', vpDefOn()?'0':'1'); }catch(e){}
+  try{ applyDefComp(); vpSnap('defcomp->'+(vpDefOn()?'ON':'OFF')); }catch(e){}
+  try{ renderDeviceCard(); }catch(e){}
+}
+window.vpDefMeasure=vpDefMeasure; window.vpDefOn=vpDefOn; window.applyDefComp=applyDefComp; window.vpDefToggle=vpDefToggle;
 /* Device & Install card — live per-device readout: CSS viewport, raw screen px, DPR, the four
    env(safe-area-inset-*) in px, and UA. The safe-area readout is a real per-device diagnostic for
    the bottom-nav/safe-area (H-1) work. Re-renders live on resize / orientationchange. */
@@ -890,6 +921,9 @@ function renderDeviceCard(){
     '<div style="margin-top:12px;font-size:11px">Viewport nudge: <b style="color:'+(vpNudgeOn()?'var(--green)':'var(--gold)')+'">'+(vpNudgeOn()?'ON':'OFF')+'</b> '+
       '<button id="vp-nudge-btn" onclick="vpNudgeToggle()" style="margin-left:6px;background:none;border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:5px 10px;font:inherit;font-size:11px;cursor:pointer">'+(vpNudgeOn()?'Turn OFF (test)':'Turn ON')+'</button>'+
       '<div style="opacity:.7;margin-top:3px">A/B test for the Safari bottom-bar bug. ON = normal. OFF = the app never rewrites the viewport on view switches.</div></div>'+
+    '<div style="margin-top:12px;font-size:11px">Deficit comp: <b style="color:'+(vpDefOn()?'var(--green)':'var(--gold)')+'">'+(vpDefOn()?'ON':'OFF')+'</b> <span style="opacity:.7">(measured shortfall '+vpDefMeasure()+'px)</span> '+
+      '<button id="vp-defcomp-btn" onclick="vpDefToggle()" style="margin-left:6px;background:none;border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:5px 10px;font:inherit;font-size:11px;cursor:pointer">'+(vpDefOn()?'Turn OFF':'Turn ON (test)')+'</button>'+
+      '<div style="opacity:.7;margin-top:3px">TEST for the Safari-app bar sitting too high (installed app only; acts only when the top inset is reported and equals the shortfall). ON = drops the bottom bar into the gap below the Safari page area. This asks one question: does Safari paint a fixed bar beyond its page area, or cut it off? If it paints, the gap fills and the bar sits right. If it cuts the bar off or nothing changes, turn it OFF — that tells us the page area is owned by Safari and only a native wrapper can fix it.</div></div>'+
     '<div style="margin-top:10px;font-size:11px;color:var(--gold)"><b>Viewport trace</b> <span style="opacity:.7">(newest last — screenshot this after the bar appears)</span></div>'+
     '<pre style="margin:4px 0 0;font:9.5px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all;opacity:.9">'+escHtml(__vp.slice(-16).join('\n'))+'</pre>';
 }
