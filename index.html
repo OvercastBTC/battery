@@ -458,7 +458,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.13.242</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.13.243</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -657,7 +657,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 On iPhone, add to Home Screen from Safari, Chrome, or DuckDuckGo for the <b>Battery</b> icon — Firefox iOS shows a plain letter tile (Apple limitation).</div>
 <div id="bday-nudge" role="region" aria-label="Birthday reminder"><div class="bn-t">Add your birthday 🎂</div><div class="bn-b">So BATTERY can fit your plan to you.</div><div class="bn-row"><button type="button" class="bn-add" onclick="bdayNudgeAdd()">Add</button><button type="button" class="bn-later" onclick="bdayNudgeLater()">Not now</button></div></div>
 <div id="ui-drawer" role="dialog" aria-modal="true" aria-label="Sections"><div class="ud-scrim"></div><div class="ud-sheet"></div></div>
-<script src="section-images.js"></script>
+<script>document.write('<script src="section-images.js?v='+((document.getElementById('ver-stamp')||{textContent:'0'}).textContent||'0').replace(/[^0-9]/g,'').slice(-3)+'"><\/script>');</script>
 <div id="first-run"><div class="fr-card">
 <h2>Welcome to BATTERY</h2>
 <p>Create your first athlete to get started — or restore everything from a backup.</p>
@@ -1190,7 +1190,8 @@ function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(
  // key, same shape, so Lane A's end-of-week read-out picks it up automatically.
  if(v==='fuel'){try{var ok='fuel-obs-'+todayPlanKey(),oo=JSON.parse(localStorage.getItem(ok)||'{}');oo.fuelOpen=(oo.fuelOpen||0)+1;localStorage.setItem(ok,JSON.stringify(oo));}catch(e){}}
  try{vpSnap('go:'+v);setTimeout(function(){vpSnap('go:'+v+' +.4s')},400);setTimeout(function(){vpSnap('go:'+v+' +1.6s')},1600);}catch(e){}
- try{reassertViewport();}catch(e){} /* 2.1 Tier1: SPA view-switch is where the iOS viewport latch re-breaks — re-assert here */}
+ try{reassertViewport();}catch(e){} /* 2.1 Tier1: SPA view-switch is where the iOS viewport latch re-breaks — re-assert here */
+ try{bdayNudgeRefresh();}catch(e){} /* O1: nudge is HOME-only (bdayNudgeEligible gates on _curTab) — re-evaluate on every view switch so it never overlaps ARM's #sec-dock */}
 /* iOS WebKit layout-viewport latch fix (BOTTOM-BAR-FIX-2.1, Tier 1). Safari/Chrome iOS
    (both WKWebView) can stick the layout viewport at landscape width and never reset to
    device-width on SPA nav, stretching the full-width fixed chrome (hostbar/tabbar/strip).
@@ -3802,6 +3803,7 @@ function bdayNudgeEligible(){
     var bm=document.getElementById('bmodal'); if(bm&&bm.style.display&&bm.style.display!=='none'&&bm.children.length)return false;
     var ins=document.getElementById('install'), fx=document.getElementById('fx-hint');   /* same slot as the install hints: never stack on them */
     if((ins&&ins.style.display==='block')||(fx&&fx.style.display==='block'))return false;
+    if(typeof _curTab!=='undefined'&&_curTab&&_curTab!=='today')return false;   /* O1: HOME-only — never render over ARM's #sec-dock (or any non-home view) */
     return true;
   }catch(e){return false;}
 }
@@ -3846,6 +3848,8 @@ function sectionImg(id){ try{ return (window.SECTION_IMAGES&&window.SECTION_IMAG
 function areaImg(area){ try{ var m=window.SECTION_AREA_IMAGES||{}; return sectionImg(m['area_'+area]); }catch(e){ return null; } }
 function wireSectionImages(){
   try{
+    /* NOTE: wireSectionImages is a PURE painter — it reads window.SECTION_IMAGES as-is (so the missing-script fallback = empty object = text-only still holds). Callers that need
+       the youth filter applied call applyYouthTileHold() FIRST (setProfile / setProfileTier / the boot re-run in restoreLastView). The F5/R3 reload-path fix is that boot re-run, not a self-call here. */
     document.querySelectorAll('.sec-pill .ico[data-area]').forEach(function(sp){
       var src=areaImg(sp.getAttribute('data-area')), lb=sp.parentNode&&sp.parentNode.querySelector('.lb');
       sp.textContent=''; if(!src)return;
@@ -3867,11 +3871,18 @@ window.wireSectionImages=wireSectionImages; window.sectionImg=sectionImg;
    #today-section-menu youth assertion to arm-drawer-host. With the empty hold today there is no leak. */
 var YOUTH_TILE_HOLD=[];
 var _SECTION_IMAGES_ALL=window.SECTION_IMAGES||{};
+var _SECTION_AREA_IMAGES_ALL=window.SECTION_AREA_IMAGES||{};
 function applyYouthTileHold(){
   try{
-    var youth=!!profile&&profileTier(profile)==='youth', out={};
-    for(var k in _SECTION_IMAGES_ALL){ if(youth&&YOUTH_TILE_HOLD.indexOf(k)>-1)continue; out[k]=_SECTION_IMAGES_ALL[k]; }
+    /* lazy-capture the FULL sets ONCE (robust even if section-images.js parsed after this file; never re-capture a set we've already narrowed) */
+    if(!_SECTION_IMAGES_ALL||!Object.keys(_SECTION_IMAGES_ALL).length){ if(window.SECTION_IMAGES&&Object.keys(window.SECTION_IMAGES).length)_SECTION_IMAGES_ALL=window.SECTION_IMAGES; }
+    if(!_SECTION_AREA_IMAGES_ALL||!Object.keys(_SECTION_AREA_IMAGES_ALL).length){ if(window.SECTION_AREA_IMAGES&&Object.keys(window.SECTION_AREA_IMAGES).length)_SECTION_AREA_IMAGES_ALL=window.SECTION_AREA_IMAGES; }
+    var youth=!!profile&&profileTier(profile)==='youth', k, out={};
+    for(k in _SECTION_IMAGES_ALL){ if(youth&&YOUTH_TILE_HOLD.indexOf(k)>-1)continue; out[k]=_SECTION_IMAGES_ALL[k]; }
     window.SECTION_IMAGES=out;
+    /* F5/R3: the HOME-pill area surface draws from SECTION_AREA_IMAGES (area_* -> a SECTION_IMAGES key). Drop any area whose target key is held, so a future NON-empty hold reaches the home pills too (not just the drawer/dock). Empty hold => no-op. */
+    var ao={}; for(k in _SECTION_AREA_IMAGES_ALL){ var tgt=_SECTION_AREA_IMAGES_ALL[k]; if(youth&&YOUTH_TILE_HOLD.indexOf(tgt)>-1)continue; ao[k]=tgt; }
+    window.SECTION_AREA_IMAGES=ao;
   }catch(e){}
 }
 window.applyYouthTileHold=applyYouthTileHold; window.YOUTH_TILE_HOLD=YOUTH_TILE_HOLD;
@@ -4115,6 +4126,7 @@ window.maybeFeedbackToast=maybeFeedbackToast;
     var valid={arm:1,drills:1,body:1,fuel:1,game:1,data:1,today:1};
     if(v&&valid[v]){ if(v!=='arm')go(v); }
     else { go('today'); }   // brand-new / no stored view → TODAY home landing
+    try{applyYouthTileHold();wireSectionImages();}catch(e){}   /* F5/R3: final re-wire once `profile` is fully resolved — the HOME pills were first painted at parse before the profile resolved, so re-honor the youth hold here */
   }catch(e){}
   setTimeout(function(){try{window.maybeIconNudge&&window.maybeIconNudge();}catch(e){}},2200);
   setTimeout(function(){try{window.maybeFeedbackToast&&window.maybeFeedbackToast();}catch(e){}},5200);
