@@ -396,6 +396,30 @@
     background: rgba(255,200,50,0.06);
   }
 
+  /* ARM UX 2A — SECTION DRAWER NAV. ARM_DRAWER_NAV (JS const) hides the tab strip and shows the docked section header ONLY when the host
+     provides parent.openSectionDrawer(); otherwise body.drawer-nav is never set and the old strip is untouched (one-token rollback). The .tab
+     buttons stay in the DOM — the drawer and switchTab read them. */
+  /* html/body carry overflow-x:hidden, which makes body a (non-scrolling) scroll container and silently breaks position:sticky for EVERYTHING
+     inside — the old tab strip never actually pinned either. In drawer mode use overflow-x:clip (no scroll container) so the dock really pins.
+     Older engines without clip ignore this line and keep the old behaviour (dock simply scrolls). */
+  html.drawer-nav, body.drawer-nav { overflow-x: clip; }
+  body.drawer-nav .tabs { display: none; }
+  #sec-dock { display: none; }
+  body.drawer-nav #sec-dock {
+    display: flex; align-items: center; gap: 10px; width: calc(100% + 36px); margin: 20px -18px 0; padding: 6px 18px; min-height: 48px;
+    position: sticky; top: 0; z-index: 10; background: var(--ink); border: 0; border-bottom: 1px solid var(--line);
+    color: var(--bone); font-family: 'Courier New', monospace; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  #sec-dock .sd-tile { flex: none; width: 28px; height: 28px; border-radius: 8px; background-size: cover; background-position: center; background-color: var(--line); }
+  #sec-dock .sd-tile.noimg { display: none; }
+  #sec-dock .sd-title { flex: 1; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); opacity: 0; transition: opacity .15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #sec-dock.t-on .sd-title { opacity: 1; }
+  #sec-dock .sd-chev { flex: none; color: var(--dim); font-size: 16px; line-height: 1; }
+  #sec-dock:active { background: rgba(255,200,50,0.06); }
+  .page.settle { animation: sd-settle .15s ease-out; }
+  @keyframes sd-settle { from { opacity: .55; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { #sec-dock .sd-title { transition: none; } .page.settle { animation: none; } }
+
   /* PAGE — each tab is its own scrollable page */
   .page {
     display: none;
@@ -1435,6 +1459,7 @@
   <button class="tab" data-tab="lifting">Lifting</button>
   <button class="tab" data-tab="history">History</button>
 </nav>
+<button type="button" id="sec-dock" aria-haspopup="dialog" aria-label="Sections menu"><span class="sd-tile noimg" aria-hidden="true"></span><span class="sd-title"></span><span class="sd-chev" aria-hidden="true">&#8964;</span></button>
 
 <!-- ============== OVERVIEW ============== -->
 <div class="page active" id="page-overview">
@@ -6947,6 +6972,9 @@
      COMPLETION IS ONE SHARED STORE keyed by data-ex (arm-care-done-*): an exercise is
      recorded once no matter which group surfaces it. If a drill ever needs to live in
      both contexts, give it the SAME data-ex and it stays in sync automatically. */
+  /* ARM UX 2A: ONE-TOKEN ROLLBACK. false => the old tab strip, exactly. true => strip hidden + docked header, but ONLY when the host exposes
+     parent.openSectionDrawer() (feature-detected; without it the strip stays so navigation is never stranded). */
+  var ARM_DRAWER_NAV = true;
   const TAB_GROUPS = { washington:'drills', fieldwork:'drills', pitching:'drills', recovery:'body', extras:'body', lifting:'body', warmup:'arm' };
   function tabGroup(id){ return TAB_GROUPS[id] || 'arm'; }
   let activeGroup = 'arm';
@@ -7480,7 +7508,44 @@
     // Persist last tab (global + per-group so each bottom tab remembers its own page)
     storeSet('arm-care-last-tab', tabName);
     storeSet('arm-care-last-tab-' + tabGroup(tabName), tabName);
+    try { refreshDock(tabName, true); } catch (e) {}
   }
+
+  /* ===== ARM UX 2A: docked section header ===== */
+  var _dockIO = null;
+  function drawerNavOn() { try { return !!ARM_DRAWER_NAV && typeof parent.openSectionDrawer === 'function'; } catch (e) { return false; } }
+  function refreshDock(tabName, entering) {
+    var on = drawerNavOn(); document.body.classList.toggle('drawer-nav', on); document.documentElement.classList.toggle('drawer-nav', on);
+    var d = document.getElementById('sec-dock'); if (!d) return;
+    if (_dockIO) { try { _dockIO.disconnect(); } catch (e) {} _dockIO = null; }
+    if (!on) return;
+    var act = document.querySelector('.tab.active'); var name = tabName || (act && act.dataset.tab) || 'overview';
+    var btn = document.querySelector('.tab[data-tab="' + name + '"]'); var label = btn ? btn.textContent.trim() : name;
+    d.querySelector('.sd-title').textContent = label;
+    d.setAttribute('aria-label', 'Sections menu, current section: ' + label);
+    var tile = d.querySelector('.sd-tile'), src = null;
+    try { src = (parent.SECTION_IMAGES || {})[name] || null; } catch (e) {}   // shared host copy (same-origin) — no second copy of the data
+    tile.style.backgroundImage = src ? 'url(' + src + ')' : ''; tile.classList.toggle('noimg', !src);   // missing key => text-only, never a broken image
+    // large-title collapse: the page h2 scrolls away, then the dock title fades in (no layout jump — the dock height is constant)
+    var h = document.querySelector('#page-' + name + ' h2');
+    d.classList.toggle('t-on', !h);
+    if (h && 'IntersectionObserver' in window) {
+      _dockIO = new IntersectionObserver(function (es) { var e = es[0]; d.classList.toggle('t-on', !e.isIntersecting && e.boundingClientRect.top < 60); }, { rootMargin: '-52px 0px 0px 0px' });
+      _dockIO.observe(h);
+    }
+    if (entering) {
+      var pg = document.getElementById('page-' + name);
+      if (pg && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) { pg.classList.remove('settle'); void pg.offsetWidth; pg.classList.add('settle'); setTimeout(function () { pg.classList.remove('settle'); }, 200); }
+    }
+  }
+  (function () {
+    var d = document.getElementById('sec-dock');
+    if (d) d.addEventListener('click', function () { try { parent.openSectionDrawer(); } catch (e) {} });
+    // the host may register openSectionDrawer after this frame boots: re-evaluate shortly after load too (strip stays until it exists)
+    window.addEventListener('load', function () { refreshDock(); setTimeout(function () { refreshDock(); }, 1200); });
+    window.addEventListener('pageshow', function () { refreshDock(); });
+    refreshDock();
+  })();
 
   tabs.forEach(t => {
     t.addEventListener('click', () => switchTab(t.dataset.tab));
