@@ -458,7 +458,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.13.240</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.13.241</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -1072,6 +1072,7 @@ function setProfileTier(id,tier){
   setPeople(getPeople().map(function(x){return x.id===id?Object.assign({},x,{tier:t}):x;}));
   if(profile===id){ document.body.classList.toggle('youth',t==='youth'); reloadFrames(); }
   renderSwitch(); try{renderDataView();}catch(e){} try{renderToday();}catch(e){}
+  try{applyYouthTileHold();wireSectionImages();}catch(e){}
   try{bdayNudgeRefresh();}catch(e){}
 }
 window.newPerson=newPerson; window.removePerson=removePerson; window.renderSwitch=renderSwitch;
@@ -1171,6 +1172,7 @@ function setProfile(p){if(p===profile)return;var _prev=profile;snapshotCurrent()
  renderSwitch();
  document.body.classList.toggle('youth',profileTier(p)==='youth');restoreProfile();reloadFrames();buildGameDay();buildOutlook();
  try{if(_prev)showToast('Switched to '+(typeof profileName==='function'?profileName(p):p),{icon:'👤'});}catch(e){}
+ try{applyYouthTileHold();wireSectionImages();}catch(e){}
  try{bdayNudgeRefresh();}catch(e){}}
 function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(e){}var armish=(v==='arm'||v==='drills'||v==='body');FRAMES.arm.classList.toggle('on',armish);FRAMES.fuel.classList.toggle('on',v==='fuel');
  document.getElementById('view-game').classList.toggle('on',v==='game');
@@ -3855,6 +3857,22 @@ function wireSectionImages(){
   }catch(e){}
 }
 window.wireSectionImages=wireSectionImages; window.sectionImg=sectionImg;
+/* YOUTH TILE HOLD (Q/Adam 2026-10-13, §4.3 child-safety — a SAFE TIGHTENING, shipped ahead of the owner's call): three of D's section tiles are shirtless MUSCULAR adult figures
+   (arm = flexed bare arm, lifting = bare-chested man with a barbell, recovery = bare-chested man in lotus). Until Adam decides whether kids should see them, a YOUTH profile
+   gets NO image for those three keys: the HOME pills / ALL-SECTIONS strip / drawer rows / A's dock tile all read window.SECTION_IMAGES, so filtering that ONE object holds
+   every surface (they fall back to the text label, never a broken image). Adults are unaffected. To RELEASE: empty YOUTH_TILE_HOLD (the gate's youth-hold suite then asserts the
+   opposite automatically). A per-tier alternate image can later ship under the same keys. Re-applied on every profile / tier switch. */
+var YOUTH_TILE_HOLD=['arm','lifting','recovery'];
+var _SECTION_IMAGES_ALL=window.SECTION_IMAGES||{};
+function applyYouthTileHold(){
+  try{
+    var youth=!!profile&&profileTier(profile)==='youth', out={};
+    for(var k in _SECTION_IMAGES_ALL){ if(youth&&YOUTH_TILE_HOLD.indexOf(k)>-1)continue; out[k]=_SECTION_IMAGES_ALL[k]; }
+    window.SECTION_IMAGES=out;
+  }catch(e){}
+}
+window.applyYouthTileHold=applyYouthTileHold; window.YOUTH_TILE_HOLD=YOUTH_TILE_HOLD;
+applyYouthTileHold();
 wireSectionImages();
 /* --- unit 2: UIDrawer (pure render from data; no ARM knowledge) + the ARM adapter. The drawer reads ARM's LIVE .tab list straight from the same-origin iframe, so it is
    never stale and the area filter / youth / optional gates are respected automatically (it only ever shows what .tab shows). NO new postMessage types. --- */
