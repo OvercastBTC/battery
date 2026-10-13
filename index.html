@@ -275,6 +275,36 @@ body.youth .rad-trk2,body.youth .rad-prg2{display:none !important}   /* 4.3 fail
 @keyframes bnPulse{0%{box-shadow:0 0 0 0 rgba(255,200,70,.65)}100%{box-shadow:0 0 0 14px rgba(255,200,70,0)}}
 #bday-confetti{position:fixed;inset:0;z-index:95;pointer-events:none;overflow:hidden}
 #bday-confetti i{position:absolute;top:-12px;width:7px;height:11px;border-radius:2px;opacity:0;animation:bnFall 1.1s ease-in forwards}
+.sec-pill .ico .sec-img{width:34px;height:34px;border-radius:10px;display:block;object-fit:cover}
+#all-sections-toggle .icos img{width:20px;height:20px;border-radius:6px;margin:0 1px;vertical-align:middle}
+#ui-drawer{position:fixed;inset:0;z-index:150;display:none}
+#ui-drawer.show{display:block}
+#ui-drawer .ud-scrim{position:absolute;inset:0;background:rgba(5,8,12,.62);opacity:0;transition:opacity .2s}
+#ui-drawer.on .ud-scrim{opacity:1}
+#ui-drawer .ud-sheet{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;max-height:64vh;display:flex;flex-direction:column;background:var(--ink);border:1px solid var(--line);border-bottom:none;border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .22s ease,max-height .2s ease;padding-bottom:max(12px,env(safe-area-inset-bottom));box-shadow:0 -8px 28px rgba(0,0,0,.55)}
+#ui-drawer.on .ud-sheet{transform:none}
+#ui-drawer .ud-sheet.large{max-height:92vh}
+#ui-drawer .ud-grab{flex:none;width:100%;height:22px;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#ui-drawer .ud-grab i{display:block;width:42px;height:5px;border-radius:3px;background:var(--line)}
+#ui-drawer .ud-head{flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px 8px}
+#ui-drawer .ud-head b{font-size:15px;letter-spacing:.3px}
+#ui-drawer .ud-x{min-width:44px;min-height:44px;border:0;background:none;color:var(--dim);font-size:18px;cursor:pointer}
+#ui-drawer .ud-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:0 12px 6px}
+#ui-drawer .ud-glabel{font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);margin:12px 6px 4px}
+#ui-drawer .ud-row{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:6px 10px;margin:2px 0;border-radius:12px;border:1px solid transparent;background:none;color:var(--bone);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+#ui-drawer .ud-row:focus-visible,#ui-drawer .ud-area button:focus-visible,#ui-drawer .ud-x:focus-visible,#ui-drawer .ud-grab:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+#ui-drawer .ud-row[aria-current="true"]{background:#161b22;border-color:var(--gold)}
+#ui-drawer .ud-tile{flex:none;width:40px;height:40px;border-radius:10px;background:#161b22 center/cover no-repeat}
+#ui-drawer .ud-tile img{width:100%;height:100%;border-radius:10px;display:block;object-fit:cover}
+#ui-drawer .ud-lb{flex:1;min-width:0}
+#ui-drawer .ud-ck{color:var(--gold);font-size:15px}
+#ui-drawer .ud-area{flex:none;border-top:1px solid var(--line);padding:8px 12px 2px}
+#ui-drawer .ud-area .ud-glabel{margin:4px 4px 6px}
+#ui-drawer .ud-area .ud-aw{display:flex;gap:6px}
+#ui-drawer .ud-area button{flex:1 1 0;min-width:0;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 2px;border-radius:12px;border:1px solid var(--line);background:#161b22;color:var(--dim);font:inherit;font-size:9px;letter-spacing:.4px;cursor:pointer}
+#ui-drawer .ud-area button .ud-tile{width:30px;height:30px}
+#ui-drawer .ud-area button[aria-current="true"]{border-color:var(--gold);color:var(--bone)}
+@media(prefers-reduced-motion:reduce){#ui-drawer .ud-scrim,#ui-drawer .ud-sheet{transition:none}}
 @keyframes bnFall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(105vh) rotate(540deg)}}
 @media(prefers-reduced-motion:reduce){#demo-card.bn-pulse{animation:none}#bday-confetti{display:none}}
 @keyframes chargebanner{0%{opacity:0;transform:translate(-50%,18px) scale(.8)}18%{opacity:1;transform:translate(-50%,0) scale(1.04)}30%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px) scale(1)}}
@@ -428,7 +458,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.13.239</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.13.240</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -467,13 +497,13 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
      streams today's day-type turned off (a Rest day would have NO path to
      LIFT). This always-visible single line is the escape hatch -- direct
      reach to all five sections, one tap, without changing the plan. -->
-<button id="all-sections-toggle" class="dbtn bk home" onclick="toggleAllSections()"><span class="icos" aria-hidden="true">🦾🧤🧘🏋️⚾</span><span class="lbl">ALL SECTIONS ›</span></button>
+<button id="all-sections-toggle" class="dbtn bk home" onclick="toggleAllSections()"><span class="icos" aria-hidden="true" data-icos="arm,drills,body,lift,game"></span><span class="lbl">ALL SECTIONS ›</span></button>
 <div id="today-section-menu">
-<div class="sec-pill" onclick="go('arm')"><span class="ico">🦾</span><span class="lb">ARM</span></div>
-<div class="sec-pill" onclick="go('drills')"><span class="ico">🧤</span><span class="lb">DRILLS</span></div>
-<div class="sec-pill" onclick="go('body')"><span class="ico">🧘</span><span class="lb">RECOVERY</span></div>
-<div class="sec-pill" onclick="goTab('body','lifting')"><span class="ico">🏋️</span><span class="lb">LIFT</span></div>
-<div class="sec-pill" onclick="go('game')"><span class="ico">⚾</span><span class="lb">GAME</span></div>
+<div class="sec-pill" onclick="go('arm')"><span class="ico" data-area="arm"></span><span class="lb">ARM</span></div>
+<div class="sec-pill" onclick="go('drills')"><span class="ico" data-area="drills"></span><span class="lb">DRILLS</span></div>
+<div class="sec-pill" onclick="go('body')"><span class="ico" data-area="body"></span><span class="lb">RECOVERY</span></div>
+<div class="sec-pill" onclick="goTab('body','lifting')"><span class="ico" data-area="lift"></span><span class="lb">LIFT</span></div>
+<div class="sec-pill" onclick="go('game')"><span class="ico" data-area="game"></span><span class="lb">GAME</span></div>
 </div>
 <div id="today-note" class="dmeta" style="margin-top:8px"></div>
 <div id="today-sleep-adv" style="display:none;margin-top:8px;font-size:12px;line-height:1.45;border-radius:10px;padding:8px 11px"></div>
@@ -626,6 +656,8 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 <div id="fx-hint"><span class="x" onclick="document.getElementById('fx-hint').style.display='none'">✕</span>
 On iPhone, add to Home Screen from Safari, Chrome, or DuckDuckGo for the <b>Battery</b> icon — Firefox iOS shows a plain letter tile (Apple limitation).</div>
 <div id="bday-nudge" role="region" aria-label="Birthday reminder"><div class="bn-t">Add your birthday 🎂</div><div class="bn-b">So BATTERY can fit your plan to you.</div><div class="bn-row"><button type="button" class="bn-add" onclick="bdayNudgeAdd()">Add</button><button type="button" class="bn-later" onclick="bdayNudgeLater()">Not now</button></div></div>
+<div id="ui-drawer" role="dialog" aria-modal="true" aria-label="Sections"><div class="ud-scrim"></div><div class="ud-sheet"></div></div>
+<script src="section-images.js"></script>
 <div id="first-run"><div class="fr-card">
 <h2>Welcome to BATTERY</h2>
 <p>Create your first athlete to get started — or restore everything from a backup.</p>
@@ -3804,6 +3836,136 @@ function bdayNudgeAfterSave(field,val,hadBday){
     bdayNudgeRefresh();
   }catch(e){}
 }
+
+/* ===== ARM UX units 2 + 3 (D's BUILD-SPECS): section DRAWER + section images ===== */
+/* --- unit 3: the 5 HOME area emojis -> photoreal tiles (window.SECTION_IMAGES / SECTION_AREA_IMAGES from section-images.js, ONE shared copy; arm.html's dock reads
+   parent.SECTION_IMAGES). Missing key/script => the span stays EMPTY and the text label remains (never a broken-image icon). --- */
+function sectionImg(id){ try{ return (window.SECTION_IMAGES&&window.SECTION_IMAGES[id])||null; }catch(e){ return null; } }
+function areaImg(area){ try{ var m=window.SECTION_AREA_IMAGES||{}; return sectionImg(m['area_'+area]); }catch(e){ return null; } }
+function wireSectionImages(){
+  try{
+    document.querySelectorAll('.sec-pill .ico[data-area]').forEach(function(sp){
+      var src=areaImg(sp.getAttribute('data-area')), lb=sp.parentNode&&sp.parentNode.querySelector('.lb');
+      sp.textContent=''; if(!src)return;
+      var im=new Image(); im.className='sec-img'; im.decoding='async'; im.alt=(lb?lb.textContent:'').trim(); im.src=src; sp.appendChild(im);
+    });
+    document.querySelectorAll('#all-sections-toggle .icos[data-icos]').forEach(function(ic){
+      ic.textContent=''; (ic.getAttribute('data-icos')||'').split(',').forEach(function(a){ var src=areaImg(a); if(!src)return; var im=new Image(); im.decoding='async'; im.alt=''; im.src=src; ic.appendChild(im); });
+    });
+  }catch(e){}
+}
+window.wireSectionImages=wireSectionImages; window.sectionImg=sectionImg;
+wireSectionImages();
+/* --- unit 2: UIDrawer (pure render from data; no ARM knowledge) + the ARM adapter. The drawer reads ARM's LIVE .tab list straight from the same-origin iframe, so it is
+   never stale and the area filter / youth / optional gates are respected automatically (it only ever shows what .tab shows). NO new postMessage types. --- */
+var UIDrawer=(function(){
+  var el=null,sheet=null,opened=false,opener=null,viaPop=false,cfg=null,startY=0;
+  function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function tileHtml(src){ return '<span class="ud-tile" aria-hidden="true">'+(src?'<img alt="" decoding="async" src="'+src+'">':'')+'</span>'; }
+  function render(){
+    if(!sheet||!cfg)return;
+    var h='<button type="button" class="ud-grab" aria-label="Expand or collapse the sections list"><i></i></button>'+
+      '<div class="ud-head"><b id="ud-title">'+esc(cfg.title||'Sections')+'</b><button type="button" class="ud-x" aria-label="Close sections menu">✕</button></div><div class="ud-body">';
+    (cfg.groups||[]).forEach(function(g){
+      if(g.label)h+='<div class="ud-glabel">'+esc(g.label)+'</div>';
+      (g.items||[]).forEach(function(it){
+        h+='<button type="button" class="ud-row" data-id="'+esc(it.id)+'"'+(it.id===cfg.current?' aria-current="true"':'')+' aria-label="'+esc(it.label)+(it.id===cfg.current?', current section':'')+'">'+
+          tileHtml(it.img)+'<span class="ud-lb">'+esc(it.label)+'</span>'+(it.id===cfg.current?'<span class="ud-ck" aria-hidden="true">✓</span>':'')+'</button>';
+      });
+    });
+    h+='</div>';
+    if(cfg.areas&&cfg.areas.length){
+      h+='<div class="ud-area"><div class="ud-glabel">Switch area</div><div class="ud-aw">';
+      cfg.areas.forEach(function(a){ h+='<button type="button" data-area="'+esc(a.id)+'"'+(a.current?' aria-current="true"':'')+' aria-label="'+esc(a.label)+(a.current?', current area':'')+'">'+tileHtml(a.img)+'<span>'+esc(a.label)+'</span></button>'; });
+      h+='</div></div>';
+    }
+    sheet.innerHTML=h;
+    sheet.querySelectorAll('.ud-row').forEach(function(b){ b.onclick=function(){ var id=b.getAttribute('data-id'); close(); try{ cfg.onSelect&&cfg.onSelect(id); }catch(e){} }; });
+    sheet.querySelectorAll('.ud-area button').forEach(function(b){ b.onclick=function(){ var id=b.getAttribute('data-area'); close(); try{ cfg.onArea&&cfg.onArea(id); }catch(e){} }; });
+    sheet.querySelector('.ud-x').onclick=function(){ close(); };
+    sheet.querySelector('.ud-grab').onclick=function(){ sheet.classList.toggle('large'); };
+  }
+  function focusables(){ return [].slice.call(sheet.querySelectorAll('button')).filter(function(b){ return b.offsetParent!==null||b===document.activeElement; }); }
+  function keydown(e){
+    if(!opened)return;
+    if(e.key==='Escape'){ e.preventDefault(); close(); return; }
+    if(e.key!=='Tab')return;
+    var f=focusables(); if(!f.length)return;
+    var first=f[0], last=f[f.length-1], a=document.activeElement;
+    if(e.shiftKey&&(a===first||!sheet.contains(a))){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey&&(a===last||!sheet.contains(a))){ e.preventDefault(); first.focus(); }
+  }
+  function touchStart(e){ if(e.touches&&e.touches[0])startY=e.touches[0].clientY; }
+  function touchEnd(e){ var t=e.changedTouches&&e.changedTouches[0]; if(!t)return; var dy=t.clientY-startY; if(dy>70)close(); else if(dy<-50)sheet.classList.add('large'); }
+  function mount(c){
+    cfg=c; el=document.getElementById('ui-drawer'); if(!el)return;
+    sheet=el.querySelector('.ud-sheet'); render();
+    if(!el._wired){ el._wired=true;
+      el.querySelector('.ud-scrim').addEventListener('click',function(){ close(); });
+      document.addEventListener('keydown',keydown);
+      sheet.addEventListener('touchstart',touchStart,{passive:true}); sheet.addEventListener('touchend',touchEnd,{passive:true});
+      window.addEventListener('popstate',function(){ if(opened){ viaPop=true; close(); viaPop=false; } });
+    }
+  }
+  function open(){
+    if(!el||opened)return; opened=true; opener=document.activeElement;
+    sheet.classList.remove('large'); el.classList.add('show');
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('on'); }); });
+    try{ history.pushState({ud:1},''); }catch(e){}
+    setTimeout(function(){ var cur=sheet.querySelector('.ud-row[aria-current="true"]')||sheet.querySelector('.ud-row'); if(cur){ cur.focus(); try{ cur.scrollIntoView({block:'nearest'}); }catch(e){} } },60);
+  }
+  function close(){
+    if(!el||!opened)return; opened=false; el.classList.remove('on');
+    var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(function(){ if(!opened)el.classList.remove('show'); },reduce?0:230);
+    try{ if(!viaPop&&history.state&&history.state.ud)history.back(); }catch(e){}
+    try{ if(opener&&opener.focus)opener.focus(); }catch(e){} opener=null;
+  }
+  function isOpen(){ return opened; }
+  return { mount:mount, open:open, close:close, update:function(c){ if(c){ for(var k in c)cfg[k]=c[k]; } render(); }, isOpen:isOpen };
+})();
+window.UIDrawer=UIDrawer;
+/* ARM adapter: live .tab list -> groups. Group labels follow D's spec for the ARM area; DRILLS / RECOVERY areas are one group each. */
+var ARM_FLOW_IDS=['warmup','tube','jbands','plyo','long'], ARM_INFO_IDS=['gameday','schedule','history','sources'];
+var ARM_AREA_ORDER=[{id:'arm',label:'ARM',key:'arm'},{id:'drills',label:'DRILLS',key:'drills'},{id:'body',label:'RECOVERY',key:'body'},{id:'lift',label:'LIFT',key:'lift'},{id:'game',label:'GAME',key:'game'}];
+function armLiveTabs(){
+  var out=[], cur=null;
+  try{
+    var d=FRAMES.arm.contentDocument, w=FRAMES.arm.contentWindow; if(!d||!w)return {tabs:out,current:cur};
+    [].slice.call(d.querySelectorAll('.tab')).forEach(function(t){
+      var id=t.getAttribute('data-tab'); if(!id)return;
+      if(t.style.display==='none'||w.getComputedStyle(t).display==='none')return;          // area filter + youth/optional gates: only what .tab shows
+      out.push({id:id,label:(t.textContent||'').replace(/\s+/g,' ').trim()});
+      if(t.classList.contains('active'))cur=id;
+    });
+  }catch(e){}
+  return {tabs:out,current:cur};
+}
+function armDrawerData(){
+  var live=armLiveTabs(), tabs=live.tabs, ids=tabs.map(function(t){return t.id;});
+  var area=(ids.indexOf('washington')>-1||ids.indexOf('fieldwork')>-1||ids.indexOf('pitching')>-1)?'drills':((ids.indexOf('recovery')>-1||ids.indexOf('extras')>-1||ids.indexOf('lifting')>-1)?'body':'arm');
+  function item(t){ return {id:t.id,label:t.label,img:sectionImg(t.id)}; }
+  var groups=[];
+  if(area==='arm'){
+    var ov=tabs.filter(function(t){return t.id==='overview';}), fl=tabs.filter(function(t){return ARM_FLOW_IDS.indexOf(t.id)>-1;}), inf=tabs.filter(function(t){return ARM_INFO_IDS.indexOf(t.id)>-1;});
+    var rest=tabs.filter(function(t){return t.id!=='overview'&&ARM_FLOW_IDS.indexOf(t.id)<0&&ARM_INFO_IDS.indexOf(t.id)<0;});
+    if(ov.length)groups.push({label:'',items:ov.map(item)});
+    if(fl.length)groups.push({label:'Today’s flow',items:fl.map(item)});
+    if(inf.length)groups.push({label:'Plan & info',items:inf.map(item)});
+    if(rest.length)groups.push({label:'More',items:rest.map(item)});
+  } else { groups.push({label:'',items:(area==='body'?tabs.slice().sort(function(a,b){return (a.id==='recovery'?-1:0)-(b.id==='recovery'?-1:0);}):tabs).map(item)}); }
+  var activeArea=(_curTab==='arm'||_curTab==='drills'||_curTab==='body'||_curTab==='game')?_curTab:area;
+  if(activeArea==='body'&&live.current==='lifting')activeArea='lift';
+  return { title:({arm:'ARM',drills:'DRILLS',body:'RECOVERY'})[area]||'Sections', groups:groups, current:live.current,
+    areas:ARM_AREA_ORDER.map(function(a){ return {id:a.id,label:a.label,img:areaImg(a.key),current:a.id===activeArea}; }),
+    onSelect:function(id){ goTab(area,id); },
+    onArea:function(id){ if(id==='lift')goTab('body','lifting'); else go(id); } };
+}
+function openSectionDrawer(){
+  try{ UIDrawer.mount(armDrawerData()); UIDrawer.open(); }catch(e){}
+}
+window.openSectionDrawer=openSectionDrawer; window.armDrawerData=armDrawerData;
+
 window.bdayNudgeRefresh=bdayNudgeRefresh; window.bdayNudgeEligible=bdayNudgeEligible; window.bdayNudgeAdd=bdayNudgeAdd; window.bdayNudgeLater=bdayNudgeLater; window.bdayNudgeAfterSave=bdayNudgeAfterSave;
 setTimeout(bdayNudgeRefresh,1500); window.addEventListener('load',function(){setTimeout(bdayNudgeRefresh,1500);});
 (function checkForUpdate(){
