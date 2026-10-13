@@ -10,13 +10,28 @@ Project rules in §1–§8 below layer on top; where they conflict, the project 
 
 ## 1. What BATTERY Is
 
-Split-build installable PWA: three hand-edited files — `index.html` (host shell, ~2 950 lines), `arm.html` (ARM iframe, ~8 400 lines), `fuel.html` (FUEL iframe, ~7 000 lines). No bundler.
+Split-build installable PWA: three hand-edited files — `index.html` (host shell, ~3 870 lines), `arm.html` (ARM iframe, ~9 340 lines), `fuel.html` (FUEL iframe, ~8 990 lines) — measured 26.10.12 with `wc -l`; they drift every release, so re-measure rather than trust these. No bundler.
 Deployed via GitHub Pages from branch `master`: **<https://overcastbtc.github.io/battery/>**
 Baseball arm-care + nutrition/hydration tracker (profiles: adult / youth).
 
+## 1.1 Standing rule — NO BACKEND (owner decision, Adam 2026-10-12: "absolutely, 100%")
+
+BATTERY has **no backend, no server-side storage, no accounts, no analytics/telemetry endpoint, and no third-party data collector**. Every byte of user data lives in the
+browser's `localStorage` on the device; the only way data leaves the device is a **user-initiated export file** (Settings → Backup). This is locked so it stops being re-litigated.
+
+**Why (youth privacy / COPPA):** the app is used by children. A backend would make the operator a *collector* of children's personal information — names, birthdays
+(`fuel-profile.birthday`), body measurements, nutrition and training logs, health-adjacent signals like sleep and caffeine intake. For under-13s that triggers COPPA obligations
+(verifiable parental consent, notice, retention and deletion duties, breach liability) and a standing security burden — none of which a personal training tracker should take on.
+No server also means nothing to breach, subpoena, or sell. The youth protections in §4 are only as strong as this rule: a device-local app can show a child nothing that a
+server then logs.
+
+**Consequences to respect:** no feature may POST user data to any endpoint; no "sync", "share-to-coach", "leaderboard" or cloud-backup feature without a new owner decision;
+third-party scripts/fonts/embeds that phone home are *not* covered by this rule's letter but cut against its spirit (e.g. an embedded third-party video player contacts its host from a child's device) — treat any such addition, including the planned `CLIP_EMBED` slot, as needing an explicit owner call, not a default. **The only sanctioned exception path** is a
+future cross-device-sync decision, which is a *separate, explicit owner decision* with its own privacy review — never an incremental drift.
+
 ## 2. Architecture
 
-**Split build (as of `q/split-monolith` branch):** three files — `index.html` (host shell, ~2 700 lines), `arm.html` (ARM iframe), `fuel.html` (FUEL iframe). Iframes use `src=`, NOT `srcdoc=`. All three share the parent origin + localStorage (same-origin, no CORS).
+**Split build (as of `q/split-monolith` branch):** three files — `index.html` (host shell, ~3 870 lines), `arm.html` (ARM iframe), `fuel.html` (FUEL iframe). Iframes use `src=`, NOT `srcdoc=`. All three share the parent origin + localStorage (same-origin, no CORS).
 
 | File | iframe id | title | Notes |
 |------|-----------|-------|-------|
@@ -355,8 +370,10 @@ return a negative has not confirmed anything.**
   | Key | Written by | Read by | Values |
   |---|---|---|---|
   | `arm-care-feel-<date>` | ARM iframe (`setArmFeel`) | host youth card; ARM History trend | `'3'` great · `'2'` ok · `'1'` sore — **numeric codes as strings**, not words |
+  | `fuel-profile.birthday` | host `demoSave('birthday')` (Settings → Athlete Details, **youth card only**) | host `demoDerivedAge()`; FUEL `fuelDerivedAge()` (caffeine gate) | **ISO `YYYY-MM-DD` string**, local-date semantics; a future / unparsable / Feb-31 value is rejected to `''` |
 
   This table exists because Lane E's host card independently guessed a `good`/`okay`/`rough` word vocabulary for these exact three values. Both the type and the words were wrong, so `if(feel==='good')` could never match — no error, no test failure. Caught only by reading the shipped source after merge. **If you add a cross-seam key, add a row and a test asserting the real values.**
+- **`fuel-profile.birthday` (shipped v236, live v238) — additive field inside the existing `fuel-profile` object; NO new key.** Written only through the host `demoSave('birthday', 'YYYY-MM-DD')` funnel (validated by `demoBirthdayOk`), so it rides the live key, the `battery::<id>::fuel-profile` mirror, and the **exported backup** (a child's birthday is PII that appears in backup files — the card says so). **Derived age = MIN of the VALID values of {age-from-birthday, `fuel-profile.age`, `battery-people[id].age`}** (valid = 1–119; a future/unparsable birthday is ignored); **none valid ⇒ `null` ⇒ youth caffeine surfaces are absent (fail-closed)**. Host (`demoDerivedAge`, index.html) and FUEL (`fuelDerivedAge`, fuel.html) must compute it identically — `caffeine-host.test.mjs` asserts they agree across 7 cases. **Do NOT persist the derived minimum anywhere** (the registry mirror `setProfileAge` writes only the age the user TYPED): a stored derived copy becomes a third `min()` input that can only ever lower the result, so a corrected age or a passing birthday would never unlock. After any age/birthday change the host calls `fuelAgeChanged()` so FUEL re-renders its gated tiles immediately; FUEL also self-refreshes on `storage` events. Height edits use feet/inches selects that write the unchanged `fuel-profile.heightIn` (total inches).
 - Migrations must be one-time idempotent guards. Plan-v2 example: `battery-plan-<date>` used to store a single preset string (full/throwing/hitting/lift/rest); `getActivePlan()` migrates a legacy string value to the new `{arm,drills,body,lift}` JSON flag object the first time it's read, then rewrites it as JSON so migration only runs once per date key.
 
 ## 7.5 Active-date / date context (the 4.1 fix — v185–v187)

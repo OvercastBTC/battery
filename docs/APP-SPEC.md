@@ -19,8 +19,9 @@ youth athlete's development. The multi-profile system supports both on one
 device.
 
 **Platform:** Mobile-first (iPhone primary), installable via "Add to Home
-Screen." Works offline via Service Worker. No app store. No backend server.
-All data is stored in the browser's `localStorage`.
+Screen." Works offline through **cached files** (verified in airplane mode); the service worker
+file exists but is **dormant** (see §3.5). No app store. **No backend server — a standing rule
+(CLAUDE.md §1.1).** All data is stored in the browser's `localStorage`.
 
 ---
 
@@ -69,7 +70,7 @@ All data is stored in the browser's `localStorage`.
 | Bundler | None — hand-edited, no build step |
 | Framework | None — vanilla DOM manipulation |
 | Storage | `localStorage` (all data client-side) |
-| Offline | Service Worker (`sw.js`) with cache-on-fetch strategy |
+| Offline | Browser/HTTP cache of the static files (works in airplane mode). `sw.js` exists but is **dormant** — `index.html` unregisters every service worker on boot and never registers one (§3.5) |
 | Hosting | GitHub Pages (static files from `master` branch) |
 | Deploy | `git push` to `master` — instant deploy |
 
@@ -197,9 +198,21 @@ Builds a fused prep schedule working backward from first pitch:
 
 ### 3.5 PWA Infrastructure
 
-- **Service Worker** (`sw.js`) — Cache-first strategy. Caches every
-  fetched URL on first load. Cache name `battery-v<NN>` bumped on
-  every release to invalidate stale content.
+- **Offline behavior — what is actually true.** The app works offline
+  because the browser/OS keeps the already-fetched files (Adam verified
+  this in airplane mode). It is **NOT** "offline-first by design": the
+  service worker (`sw.js`, cache-first, cache name `battery-v<NN>`
+  bumped every release) is **DORMANT** — `index.html` calls
+  `navigator.serviceWorker.getRegistrations()` and unregisters every
+  worker on boot, and no `register()` call exists, so `sw.js` never
+  runs. Consequence: **there is no guarantee of offline availability
+  after a cache eviction** (iOS may evict storage under pressure or
+  after long disuse); a fresh load with no network and no cached copy
+  fails. This is why large assets that must work offline (e.g. food
+  images) are **inline base64** in a cached script rather than separate
+  fetches. Re-enabling the worker would be a deliberate decision, not a
+  config flip (it interacts with the iframe `src=` split and cache
+  invalidation).
 - **Install prompt** — iOS Safari: "Share → Add to Home Screen" banner.
   Shown once, dismissible.
 - **Viewport fix** — Workaround for WebKit `env(safe-area-inset-bottom)`
@@ -483,8 +496,10 @@ battery/
   with no proportional benefit.
 - **localStorage for everything.** No backend, no auth, no server costs.
   For a personal training tracker, this is exactly right.
-- **PWA with Service Worker.** Offline-first is the correct architecture
-  for a training app used at the field.
+- **PWA, offline via cached files.** Offline use matters for a training app
+  used at the field, and it works today through the browser cache — but the
+  service worker is dormant, so it is *not* guaranteed after a cache eviction
+  (see §3.5). Treat "offline-first" as an aspiration, not a property.
 - **iframe isolation.** ARM and FUEL have genuinely separate concerns.
   Iframes give them separate DOMs and prevent CSS/JS collision.
 - **Multi-profile via namespacing.** Simple, effective, no backend needed.
