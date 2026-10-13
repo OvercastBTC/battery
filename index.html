@@ -271,7 +271,39 @@ body.youth .rad-trk2,body.youth .rad-prg2{display:none !important}   /* 4.3 fail
 #bday-nudge .bn-row{display:flex;gap:10px;margin-top:10px}
 #bday-nudge button{flex:1;min-height:44px;border-radius:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--line);background:none;color:var(--bone)}
 #bday-nudge button.bn-add{background:var(--gold);border-color:var(--gold);color:#0d1117}
-#demo-card.bn-pulse{animation:bnPulse 1.2s ease-out 1}
+/* ===== Youth-visibility authorization (tile-card) ===== */
+/* §4.3 belt-and-braces: a youth profile NEVER sees the card or the owner nudge (the
+   JS also renders zero DOM for youth, this is the CSS belt). */
+body.youth #yva-card,body.youth #yva-nudge{display:none!important}
+#yva-nudge{display:none;position:fixed;left:14px;right:14px;bottom:calc(var(--stage-b,50px) + 12px);z-index:80;max-width:420px;margin:0 auto;align-items:center;gap:10px;background:var(--steel);border:1px solid var(--gold);border-radius:14px;padding:11px 13px;box-shadow:0 6px 22px rgba(0,0,0,.55)}
+#yva-nudge .yvn-t{flex:1;font-size:12.5px;line-height:1.35;color:var(--goldb);font-weight:700}
+#yva-nudge .yvn-go{min-height:40px;padding:0 14px;border-radius:10px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;background:var(--gold);border:1px solid var(--gold);color:#0d1117}
+#yva-card .yva-item{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0 0 10px;background:#0d1117}
+#yva-card .yva-ths{display:flex;gap:8px;margin-bottom:8px}
+#yva-card .yva-th{width:52px;height:52px;object-fit:cover;border-radius:9px;border:1px solid var(--line)}
+#yva-card .yva-title{font-size:14px;font-weight:800;color:var(--bone)}
+#yva-card .yva-sees{font-size:12px;line-height:1.45;color:var(--dim);margin-top:4px}
+#yva-card .yva-meta{font-size:11px;color:var(--faint);margin-top:4px;letter-spacing:.3px}
+#yva-card .yva-row{display:flex;gap:10px;margin-top:10px}
+#yva-card .yva-row .dbtn{flex:1;margin:0}
+#yva-card .yva-sect{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--faint);margin:12px 0 6px}
+#yva-card .yva-active{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--bone);padding:6px 0;border-top:1px solid var(--line)}
+#yva-card .yva-active .yva-ok{color:var(--green);font-weight:800}
+#yva-card .yva-active .yva-at{flex:1;line-height:1.3}
+#yva-card .yva-rev{margin:0;padding:6px 12px;min-width:0;flex:0 0 auto}
+#yva-card .yva-hist{font-size:11px;color:var(--faint);margin-top:12px;letter-spacing:.3px}
+.yva-code{display:flex;align-items:center;gap:10px;margin-top:4px}
+.yva-code code{flex:1;font-family:'SF Mono',ui-monospace,monospace;font-size:15px;letter-spacing:1px;color:var(--goldb);background:#0d1117;border:1px solid var(--line);border-radius:8px;padding:9px 11px;word-break:break-all}
+#yva-pin{display:none;position:fixed;inset:0;z-index:120;align-items:center;justify-content:center}
+#yva-pin .yvp-scrim{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+#yva-pin .yvp-sheet{position:relative;z-index:1;width:min(340px,88vw);background:var(--steel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+#yva-pin .yvp-title{font-size:16px;font-weight:800;color:var(--bone)}
+#yva-pin .yvp-sub{font-size:12px;color:var(--dim);margin-top:4px}
+#yva-pin #yva-pin-input{width:100%;margin-top:12px;background:#0d1117;border:1px solid var(--line);color:var(--bone);border-radius:10px;padding:12px;font-size:20px;letter-spacing:6px;text-align:center}
+#yva-pin .yvp-err{min-height:16px;font-size:12px;color:#ff6b68;margin-top:6px}
+#yva-pin .yvp-row{display:flex;gap:10px;margin-top:8px}
+#yva-pin .yvp-row .dbtn{flex:1;margin:0}
+#demo-card.bn-pulse,#yva-card.bn-pulse{animation:bnPulse 1.2s ease-out 1}
 @keyframes bnPulse{0%{box-shadow:0 0 0 0 rgba(255,200,70,.65)}100%{box-shadow:0 0 0 14px rgba(255,200,70,0)}}
 #bday-confetti{position:fixed;inset:0;z-index:95;pointer-events:none;overflow:hidden}
 #bday-confetti i{position:absolute;top:-12px;width:7px;height:11px;border-radius:2px;opacity:0;animation:bnFall 1.1s ease-in forwards}
@@ -306,7 +338,7 @@ body.youth .rad-trk2,body.youth .rad-prg2{display:none !important}   /* 4.3 fail
 #ui-drawer .ud-area button[aria-current="true"]{border-color:var(--gold);color:var(--bone)}
 @media(prefers-reduced-motion:reduce){#ui-drawer .ud-scrim,#ui-drawer .ud-sheet{transition:none}}
 @keyframes bnFall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(105vh) rotate(540deg)}}
-@media(prefers-reduced-motion:reduce){#demo-card.bn-pulse{animation:none}#bday-confetti{display:none}}
+@media(prefers-reduced-motion:reduce){#demo-card.bn-pulse,#yva-card.bn-pulse{animation:none}#bday-confetti{display:none}}
 @keyframes chargebanner{0%{opacity:0;transform:translate(-50%,18px) scale(.8)}18%{opacity:1;transform:translate(-50%,0) scale(1.04)}30%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px) scale(1)}}
 /* (v223: the <=390px .rad/.lb resize rule was removed - the diamond is a fixed 40px and the .lb labels no longer exist) */
 #tabbar button.on{color:var(--gold)}
@@ -458,7 +490,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 </script>
 <div id="hostbar">
 <svg class="bolt" onclick="go('today')" style="cursor:pointer" viewBox="0 0 100 100"><path d="M56 12 L30 54 L48 54 L42 88 L72 42 L52 42 Z" fill="#f0b832"/></svg>
-<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.13.244</span></div>
+<div style="display:flex;flex-direction:column;line-height:1"><h1 style="margin:0">BATTERY</h1><span id="ver-stamp" onclick="batteryRestoreSeed()" style="font-size:8px;letter-spacing:1px;color:#6e7681;font-family:'SF Mono',monospace;margin-top:2px;cursor:pointer;white-space:nowrap" title="Tap to restore bundled data">26.10.13.245</span></div>
 <div id="prof-switch"></div>
 <span id="host-date-label"></span><button id="today-pill" onclick="goToToday()">Today</button>
 <button id="host-gear" onclick="go('data')" title="Profiles, settings &amp; backup" aria-label="Profiles, settings and backup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/><path d="M10.6 2.2a1 1 0 0 0-.96.73l-.37 1.3a7.6 7.6 0 0 0-1.5.87l-1.27-.42a1 1 0 0 0-1.18.45l-1.4 2.42a1 1 0 0 0 .22 1.26l1 .87a7.7 7.7 0 0 0 0 1.74l-1 .87a1 1 0 0 0-.22 1.26l1.4 2.42a1 1 0 0 0 1.18.45l1.27-.42c.46.35.97.64 1.5.87l.37 1.3a1 1 0 0 0 .96.73h2.8a1 1 0 0 0 .96-.73l.37-1.3c.53-.23 1.04-.52 1.5-.87l1.27.42a1 1 0 0 0 1.18-.45l1.4-2.42a1 1 0 0 0-.22-1.26l-1-.87a7.7 7.7 0 0 0 0-1.74l1-.87a1 1 0 0 0 .22-1.26l-1.4-2.42a1 1 0 0 0-1.18-.45l-1.27.42a7.6 7.6 0 0 0-1.5-.87l-.37-1.3a1 1 0 0 0-.96-.73zm.75 2h1.3l.3 1.05a1 1 0 0 0 .67.68c.66.2 1.28.56 1.8 1.04a1 1 0 0 0 .95.22l1.03-.34.65 1.12-.81.7a1 1 0 0 0-.34.9 5.7 5.7 0 0 1 0 2.08 1 1 0 0 0 .34.9l.81.7-.65 1.12-1.03-.34a1 1 0 0 0-.95.22c-.52.48-1.14.84-1.8 1.04a1 1 0 0 0-.67.68l-.3 1.05h-1.3l-.3-1.05a1 1 0 0 0-.67-.68 5.6 5.6 0 0 1-1.8-1.04 1 1 0 0 0-.95-.22l-1.03.34-.65-1.12.81-.7a1 1 0 0 0 .34-.9 5.7 5.7 0 0 1 0-2.08 1 1 0 0 0-.34-.9l-.81-.7.65-1.12 1.03.34a1 1 0 0 0 .95-.22c.52-.48 1.14-.84 1.8-1.04a1 1 0 0 0 .67-.68z"/></svg></button></div>
@@ -576,6 +608,7 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 <h3 style="margin-bottom:6px">Profiles On This Device</h3>
 <div id="data-profiles" class="dmeta"></div>
 </div>
+<div class="gd-card" id="yva-card" style="display:none"></div>
 <div class="gd-card" id="demo-card" style="display:none">
 <h3 style="margin-bottom:6px;display:flex;align-items:center;gap:8px">Athlete Details<span id="demo-saved" style="opacity:0;transition:opacity .2s;font-size:11px;letter-spacing:1px;color:var(--green);font-weight:700">✓ SAVED</span></h3>
 <div id="demo-body"></div>
@@ -656,7 +689,10 @@ body.past-date::after{content:'';position:fixed;top:calc(env(safe-area-inset-top
 <div id="fx-hint"><span class="x" onclick="document.getElementById('fx-hint').style.display='none'">✕</span>
 On iPhone, add to Home Screen from Safari, Chrome, or DuckDuckGo for the <b>Battery</b> icon — Firefox iOS shows a plain letter tile (Apple limitation).</div>
 <div id="bday-nudge" role="region" aria-label="Birthday reminder"><div class="bn-t">Add your birthday 🎂</div><div class="bn-b">So BATTERY can fit your plan to you.</div><div class="bn-row"><button type="button" class="bn-add" onclick="bdayNudgeAdd()">Add</button><button type="button" class="bn-later" onclick="bdayNudgeLater()">Not now</button></div></div>
+<div id="yva-nudge" role="region" aria-label="Youth visibility reminder"><span class="yvn-t">A youth-visibility change awaits your OK</span><button type="button" class="yvn-go" onclick="yvaNudgeReview()">Review</button></div>
 <div id="ui-drawer" role="dialog" aria-modal="true" aria-label="Sections"><div class="ud-scrim"></div><div class="ud-sheet"></div></div>
+<div id="yva-pin" role="dialog" aria-modal="true" aria-label="Owner PIN" data-mode="unlock"><div class="yvp-scrim" onclick="yvaPinCancel()"></div><div class="yvp-sheet"><div class="yvp-title">Enter owner PIN</div><div class="yvp-sub">4–6 digits.</div><input id="yva-pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="6" aria-label="PIN" onkeydown="if(event.key==='Enter')yvaPinSubmit()"><div class="yvp-err" role="alert"></div><div class="yvp-row"><button type="button" class="dbtn rs" onclick="yvaPinCancel()">Cancel</button><button type="button" class="dbtn bk" onclick="yvaPinSubmit()">OK</button></div></div></div>
+<script>document.write('<script src="youth-auth.js?v='+((document.getElementById('ver-stamp')||{textContent:'0'}).textContent||'0').replace(/[^0-9]/g,'').slice(-3)+'"><\/script>');</script>
 <script>document.write('<script src="section-images.js?v='+((document.getElementById('ver-stamp')||{textContent:'0'}).textContent||'0').replace(/[^0-9]/g,'').slice(-3)+'"><\/script>');</script>
 <div id="first-run"><div class="fr-card">
 <h2>Welcome to BATTERY</h2>
@@ -1173,7 +1209,8 @@ function setProfile(p){if(p===profile)return;var _prev=profile;snapshotCurrent()
  document.body.classList.toggle('youth',profileTier(p)==='youth');restoreProfile();reloadFrames();buildGameDay();buildOutlook();
  try{if(_prev)showToast('Switched to '+(typeof profileName==='function'?profileName(p):p),{icon:'👤'});}catch(e){}
  try{applyYouthTileHold();wireSectionImages();}catch(e){}
- try{bdayNudgeRefresh();}catch(e){}}
+ try{bdayNudgeRefresh();}catch(e){}
+ try{yvaNudgeRefresh();}catch(e){}}
 function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(e){}var armish=(v==='arm'||v==='drills'||v==='body');FRAMES.arm.classList.toggle('on',armish);FRAMES.fuel.classList.toggle('on',v==='fuel');
  document.getElementById('view-game').classList.toggle('on',v==='game');
  document.getElementById('view-data').classList.toggle('on',v==='data');
@@ -1191,7 +1228,8 @@ function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(
  if(v==='fuel'){try{var ok='fuel-obs-'+todayPlanKey(),oo=JSON.parse(localStorage.getItem(ok)||'{}');oo.fuelOpen=(oo.fuelOpen||0)+1;localStorage.setItem(ok,JSON.stringify(oo));}catch(e){}}
  try{vpSnap('go:'+v);setTimeout(function(){vpSnap('go:'+v+' +.4s')},400);setTimeout(function(){vpSnap('go:'+v+' +1.6s')},1600);}catch(e){}
  try{reassertViewport();}catch(e){} /* 2.1 Tier1: SPA view-switch is where the iOS viewport latch re-breaks — re-assert here */
- try{bdayNudgeRefresh();}catch(e){} /* O1: nudge is HOME-only (bdayNudgeEligible gates on _curTab) — re-evaluate on every view switch so it never overlaps ARM's #sec-dock */}
+ try{bdayNudgeRefresh();}catch(e){} /* O1: nudge is HOME-only (bdayNudgeEligible gates on _curTab) — re-evaluate on every view switch so it never overlaps ARM's #sec-dock */
+ try{yvaNudgeRefresh();}catch(e){} /* same HOME-only gate for the youth-visibility owner nudge */}
 /* iOS WebKit layout-viewport latch fix (BOTTOM-BAR-FIX-2.1, Tier 1). Safari/Chrome iOS
    (both WKWebView) can stick the layout viewport at landscape width and never reset to
    device-width on SPA nav, stretching the full-width fixed chrome (hostbar/tabbar/strip).
@@ -1482,7 +1520,10 @@ window.refreshTabIcons=refreshTabIcons; window.setRadial=setRadial; window.setFu
    active-profile pointer, people registry, live-owner, and seed/migration
    guards — so a restore reproduces the exact multi-profile state and does NOT
    re-seed demo data over the imported data. */
-const BACKUP_META_KEYS=['battery-profile','battery-people','battery-live-owner','battery-seeded-v11','battery-fix-v16','battery-migrate-v17','battery-last-backup','battery-lift-split-day','battery-lift-split-last'];
+const BACKUP_META_KEYS=['battery-profile','battery-people','battery-live-owner','battery-seeded-v11','battery-fix-v16','battery-migrate-v17','battery-last-backup','battery-lift-split-day','battery-lift-split-last','battery-youth-auth','battery-owner'];
+/* NB: battery-owner-pin + battery-owner-secret are DELIBERATELY absent — the PIN
+   and the owner secret never leave the device (not mirrored: not in PREFIXES; not
+   exported: not here). The ledger (battery-youth-auth) + owner id DO ride backup. */
 function batteryCollectAll(){
   // Flush the active profile's live keys into its namespace first.
   try{snapshotCurrent();}catch(e){}
@@ -1714,6 +1755,7 @@ function renderDataView(){
   try{renderDemoCard();}catch(e){}
   try{renderConsistencyCard();}catch(e){}
   try{renderWeekCard();}catch(e){}
+  try{renderYouthAuthCard();}catch(e){}
 }
 
 /* TRT-aware hydration (ADULT profiles only) — informational, NOT medical advice.
@@ -3841,6 +3883,281 @@ function bdayNudgeAfterSave(field,val,hadBday){
   }catch(e){}
 }
 
+/* ============================================================================
+   YOUTH-VISIBILITY AUTHORIZATION (tile-card, unit 1 — host side)
+   The shared data + resolver live in youth-auth.js (loaded before this block,
+   same document.write pattern as section-images.js). Everything below is HOST-
+   ONLY: the owner designation, the PIN + owner-secret, the hash-chained device
+   ledger, the code mint/verify, the DATA-view card, the PIN + confirm sheets,
+   and the HOME nudge. NONE of it ships inside the iframes.
+
+   No-backend honesty (CLAUDE.md §1.1): there is no server and no PKI, so this is
+   tamper-EVIDENT + owner-issued, never "unforgeable". Only the owner device holds
+   the secret, so only it can mint or recognise a code; other devices TRUST THE
+   BUILD (single-writer-of-master + green gate), not the code.
+
+   Keys (all battery- prefixed; NONE in PREFIXES so none are per-profile mirrored):
+     battery-youth-auth    device ledger — append-only, hash-chained. RIDES BACKUP
+                           (added to BACKUP_META_KEYS).
+     battery-owner         owner profile id. Rides backup (not sensitive).
+     battery-owner-pin     salt:sha256(salt|pin). NEVER exported, never mirrored.
+     battery-owner-secret  128-bit hex. NEVER exported, never mirrored.
+   ========================================================================== */
+
+/* --- crypto helpers (crypto.subtle; localhost + https are secure contexts, so it
+   is present in the gate AND on Pages). The ALLOW decision (youthVisAllowed, in
+   youth-auth.js) is pure-sync and never touches crypto — only the tamper-evidence
+   (chain verify) and the owner code (mint) are async here. --- */
+function _yvaHexOf(buf){ var b=new Uint8Array(buf),s=''; for(var i=0;i<b.length;i++)s+=('0'+b[i].toString(16)).slice(-2); return s; }
+function _yvaHexToBytes(h){ h=String(h||''); var a=new Uint8Array(Math.floor(h.length/2)); for(var i=0;i<a.length;i++)a[i]=parseInt(h.substr(i*2,2),16); return a; }
+function _yvaRandHex(nbytes){ var a=new Uint8Array(nbytes); try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<a.length;i++)a[i]=Math.floor(Math.random()*256);} return _yvaHexOf(a.buffer); }
+async function _yvaSha256Hex(str){ var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(str))); return _yvaHexOf(buf); }
+async function _yvaHmacBytes(secretHex,msg){ var key=await crypto.subtle.importKey('raw',_yvaHexToBytes(secretHex),{name:'HMAC',hash:'SHA-256'},false,['sign']); var sig=await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(String(msg))); return new Uint8Array(sig); }
+function _yvaB32(bytes){ var A='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',bits=0,val=0,out=''; for(var i=0;i<bytes.length;i++){ val=(val<<8)|bytes[i]; bits+=8; while(bits>=5){ out+=A[(val>>>(bits-5))&31]; bits-=5; } } return out; }
+
+/* --- canonical record + hash chain. canon() covers only the stable identifying
+   scalars (NOT prev/hash/code), with sorted keys, so any edit to a recorded field
+   changes the hash and breaks the chain. --- */
+function _yvaCanon(rec){ var o={n:rec.n,changeId:rec.changeId,action:rec.action,at:rec.at,profile:rec.profile,build:rec.build},ks=Object.keys(o).sort(),p={}; ks.forEach(function(k){p[k]=o[k];}); return JSON.stringify(p); }
+async function _yvaHashRec(prev,rec){ return _yvaSha256Hex((prev||'')+'|'+_yvaCanon(rec)); }
+async function verifyYouthLedger(){
+  try{
+    var recs=window.youthAuthLedgerRecords(),prev='';
+    for(var i=0;i<recs.length;i++){ var r=recs[i];
+      if((r.prev||'')!==prev) return false;
+      var h=await _yvaHashRec(prev,r);
+      if(h!==r.hash) return false;
+      prev=r.hash;
+    }
+    return true;
+  }catch(e){ return false; }
+}
+window.verifyYouthLedger=verifyYouthLedger;
+
+/* --- owner / PIN / secret --- */
+function yvaOwnerId(){ try{ return localStorage.getItem('battery-owner')||''; }catch(e){ return ''; } }
+function yvaHasPin(){ try{ return !!localStorage.getItem('battery-owner-pin'); }catch(e){ return false; } }
+function yvaIsOwnerProfile(){ return !!profile && profileTier(profile)==='adult' && yvaOwnerId()===profile; }
+function yvaIsUnclaimed(){ return !!profile && profileTier(profile)==='adult' && !yvaOwnerId(); }
+async function _yvaHashPin(salt,pin){ return _yvaSha256Hex(salt+'|'+pin); }
+var _yvaUnlockedUntil=0,_yvaFails=0,_yvaLockUntil=0;
+function youthAuthUnlocked(){ return Date.now()<_yvaUnlockedUntil; }
+function youthAuthLocked(){ return Date.now()<_yvaLockUntil; }
+function youthAuthLock(){ _yvaUnlockedUntil=0; try{renderYouthAuthCard();}catch(e){} }
+/* set / reset PIN. First adult to set one BECOMES the owner (+ generates the secret).
+   An adult who is not the owner cannot set it. */
+async function youthAuthSetPin(pin){
+  if(!profile||profileTier(profile)!=='adult') return false;
+  var owner=yvaOwnerId(); if(owner&&owner!==profile) return false;
+  if(!/^\d{4,6}$/.test(String(pin==null?'':pin))) return false;
+  if(!owner){ try{localStorage.setItem('battery-owner',profile);}catch(e){} }
+  try{ if(!localStorage.getItem('battery-owner-secret')) localStorage.setItem('battery-owner-secret',_yvaRandHex(16)); }catch(e){}
+  var salt=_yvaRandHex(8);
+  try{ localStorage.setItem('battery-owner-pin',salt+':'+await _yvaHashPin(salt,pin)); }catch(e){ return false; }
+  _yvaUnlockedUntil=Date.now()+5*60*1000;
+  return true;
+}
+async function youthAuthUnlock(pin){
+  if(youthAuthLocked()) return false;
+  if(!yvaIsOwnerProfile()) return false;
+  var stored=''; try{stored=localStorage.getItem('battery-owner-pin')||'';}catch(e){} var ix=stored.indexOf(':'); if(ix<0) return false;
+  var salt=stored.slice(0,ix),want=stored.slice(ix+1);
+  var got=await _yvaHashPin(salt,String(pin==null?'':pin));
+  if(got===want){ _yvaUnlockedUntil=Date.now()+5*60*1000; _yvaFails=0; return true; }
+  _yvaFails++; if(_yvaFails>=5){ _yvaLockUntil=Date.now()+15*60*1000; _yvaFails=0; }
+  return false;
+}
+/* PIN reset: long-press the card title → clears the LOCAL authorizations + pin/secret
+   on this device (build-baked ones stay in effect). Honest + recoverable. */
+async function youthAuthResetPin(){
+  if(!yvaIsOwnerProfile()&&!yvaIsUnclaimed()) return false;
+  if(!await modalConfirm('Reset owner PIN?','This also clears the <b>local</b> authorizations on this device. Build-baked authorizations stay in effect. You will set a new PIN next.',{okLabel:'Reset',danger:true})) return false;
+  try{ localStorage.removeItem('battery-owner-pin'); localStorage.removeItem('battery-owner-secret'); localStorage.removeItem('battery-youth-auth'); }catch(e){}
+  _yvaUnlockedUntil=0;_yvaFails=0;_yvaLockUntil=0;
+  try{ applyYouthTileHold(); wireSectionImages(); }catch(e){}
+  try{ renderYouthAuthCard(); yvaNudgeRefresh(); }catch(e){}
+  yvaOpenPin('set');
+  return true;
+}
+
+/* --- ledger append + code mint (owner, unlocked only; enforced by _yvaWrite) --- */
+async function _yvaMintCode(changeId,action,at,build,n){
+  try{ var secret=localStorage.getItem('battery-owner-secret'); if(!secret) return '';
+    var mac=await _yvaHmacBytes(secret,[changeId,action,at,build,n].join('|'));
+    var pfx=(action==='revoke'?'YVR-':'YVA-')+String(changeId).split('-')[0].toUpperCase()+'-';
+    return pfx+_yvaB32(mac).slice(0,6);
+  }catch(e){ return ''; }
+}
+async function _yvaAppend(changeId,action){
+  var L=window.youthAuthLedger(); if(!L.ledgerId) L.ledgerId='L-'+_yvaRandHex(6);
+  var recs=L.records; var prev=recs.length?recs[recs.length-1].hash:''; var n=recs.length+1;
+  var rec={ n:n, changeId:changeId, action:action, at:new Date().toISOString(), profile:profile||'', build:appVersion()||'' };
+  rec.prev=prev; rec.hash=await _yvaHashRec(prev,rec); rec.code=await _yvaMintCode(changeId,action,rec.at,rec.build,n);
+  recs.push(rec);
+  try{ localStorage.setItem('battery-youth-auth',JSON.stringify(L)); }catch(e){}
+  return rec;
+}
+/* THE WRITE WALLS — adult + owner + unlocked + a registered change, every call. A
+   youth / non-owner / locked call is a no-op that returns false (gate asserts the
+   ledger is unchanged). */
+async function _yvaWrite(changeId,action){
+  if(!profile||profileTier(profile)!=='adult'){ try{console.warn('[yva] blocked: not adult');}catch(e){} return false; }
+  if(!yvaIsOwnerProfile()){ try{console.warn('[yva] blocked: not owner');}catch(e){} return false; }
+  if(!youthAuthUnlocked()){ try{console.warn('[yva] blocked: locked');}catch(e){} return false; }
+  if(!(window.youthVisChange&&window.youthVisChange(changeId))){ try{console.warn('[yva] blocked: unknown change');}catch(e){} return false; }
+  var rec=await _yvaAppend(changeId,action);
+  try{ applyYouthTileHold(); wireSectionImages(); }catch(e){}   /* re-derive the tile hold live (iframes pick it up via the storage event) */
+  try{ renderYouthAuthCard(); yvaNudgeRefresh(); }catch(e){}
+  return { ok:true, code:rec.code, action:action };
+}
+async function youthAuthAuthorize(changeId){ return _yvaWrite(changeId,'authorize'); }
+async function youthAuthRevoke(changeId){ return _yvaWrite(changeId,'revoke'); }
+window.youthAuthSetPin=youthAuthSetPin; window.youthAuthUnlock=youthAuthUnlock; window.youthAuthLock=youthAuthLock; window.youthAuthResetPin=youthAuthResetPin;
+window.youthAuthAuthorize=youthAuthAuthorize; window.youthAuthRevoke=youthAuthRevoke; window.youthAuthUnlocked=youthAuthUnlocked; window.yvaIsOwnerProfile=yvaIsOwnerProfile;
+
+/* --- change bucketing for the card --- */
+function _yvaPending(){ if(!window.youthVisAuthorized) return []; return (window.YOUTH_VIS_CHANGES||[]).filter(function(c){ return c&&!window.youthVisAuthorized(c.id); }); }
+function _yvaActive(){ if(!window.youthVisAuthorized) return []; return (window.YOUTH_VIS_CHANGES||[]).filter(function(c){ return c&&window.youthVisAuthorized(c.id); }); }
+function _yvaTileThumbs(ch){
+  /* real section-tile assets (§3: owner authorizes what he SEES, not a description) */
+  try{
+    if(ch.kind!=='section-tiles'||!window._SECTION_IMAGES_ALL) return '';
+    var m=window._SECTION_AREA_IMAGES_ALL||{},h='';
+    (ch.what||[]).forEach(function(area){ var key=m['area_'+area], src=key&&window._SECTION_IMAGES_ALL[key]; if(src)h+='<img class="yva-th" alt="" decoding="async" src="'+src+'">'; });
+    return h?'<div class="yva-ths">'+h+'</div>':'';
+  }catch(e){ return ''; }
+}
+function _yvaFmtDate(iso){ try{ var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }catch(e){ return ''; } }
+function _yvaChangeAt(id){ /* the authorizing record's timestamp (baked or local), latest */
+  var best=0,baked=window.YOUTH_VIS_AUTH||[],i; for(i=0;i<baked.length;i++){ if(baked[i].changeId===id){ var t=Date.parse(baked[i].at)||0; if(t>best)best=t; } }
+  var recs=window.youthAuthLedgerRecords(); for(i=0;i<recs.length;i++){ if(recs[i].changeId===id){ var u=Date.parse(recs[i].at)||0; if(u>best)best=u; } }
+  return best?new Date(best).toISOString():'';
+}
+function _yvaIsRetro(id){ var baked=window.YOUTH_VIS_AUTH||[]; for(var i=0;i<baked.length;i++){ if(baked[i].changeId===id&&baked[i].retro) return true; } return false; }
+
+/* --- the DATA-view card --- */
+function renderYouthAuthCard(){
+  var card=document.getElementById('yva-card'); if(!card) return;
+  /* WALL 1: youth tier ⇒ NO DOM at all (absent, not display:none). */
+  if(!profile||profileTier(profile)!=='adult'){ card.style.display='none'; card.innerHTML=''; return; }
+  var owner=yvaOwnerId();
+  /* adult, but another profile is the owner ⇒ one read-only line, no controls. */
+  if(owner&&owner!==profile){
+    card.style.display=''; card.className='gd-card';
+    card.innerHTML='<h3 style="margin-bottom:6px">👥 Youth Visibility</h3>'+
+      '<p class="dmeta">Managed by the owner profile (<b>'+escHtml(profileName(owner)||owner)+'</b>) · '+_yvaActive().length+' active.</p>';
+    return;
+  }
+  var pending=_yvaPending(), active=_yvaActive();
+  card.style.display=''; card.className='gd-card'+(pending.length?' gold':'');
+  var h='<h3 style="margin-bottom:6px;display:flex;align-items:center;gap:8px" title="Long-press to reset the owner PIN" ontouchstart="yvaTitlePressStart()" ontouchend="yvaTitlePressEnd()" onmousedown="yvaTitlePressStart()" onmouseup="yvaTitlePressEnd()" onmouseleave="yvaTitlePressEnd()">👥 Youth Visibility <span style="font-size:10px;color:var(--faint);letter-spacing:1px">OWNER</span></h3>';
+  /* unclaimed: offer to claim by setting a PIN */
+  if(!owner){
+    h+='<p class="dmeta" style="margin:0 0 10px">Set a PIN to manage what youth profiles can see. The first adult to set one becomes the owner profile.</p>'+
+       '<button class="dbtn bk" onclick="yvaOpenPin(\'set\')">Set a PIN</button>';
+    card.innerHTML=h; return;
+  }
+  /* owner, locked */
+  if(!youthAuthUnlocked()){
+    h+='<p class="dmeta" style="margin:0 0 10px">'+(pending.length?('<b style="color:var(--goldb)">'+pending.length+(pending.length===1?' change is':' changes are')+' waiting for your OK.</b> '):'')+'Enter your PIN to review and manage youth visibility · '+active.length+' active.</p>'+
+       (youthAuthLocked()?'<p class="dmeta" style="color:#ff6b68">Too many tries — locked for a few minutes.</p>':'<button class="dbtn bk" id="yva-unlock-btn" onclick="yvaOpenPin(\'unlock\')">🔒 Enter PIN</button>');
+    card.innerHTML=h; return;
+  }
+  /* owner, unlocked — the full card */
+  if(pending.length) h+='<p class="dmeta" style="color:var(--goldb);margin:0 0 10px">'+pending.length+(pending.length===1?' change is':' changes are')+' waiting for your OK.</p>';
+  pending.forEach(function(ch){
+    h+='<div class="yva-item">'+_yvaTileThumbs(ch)+
+       '<div class="yva-title">'+escHtml(ch.title)+'</div>'+
+       '<div class="yva-sees">Youth sees: '+escHtml(ch.youthSees)+'</div>'+
+       '<div class="yva-meta">Shipped in '+escHtml(ch.shippedIn||'')+'</div>'+
+       '<div class="yva-row"><button class="dbtn rs" onclick="renderYouthAuthCard()">Not now</button>'+
+       '<button class="dbtn bk" onclick="yvaDoAuthorize(\''+ch.id+'\')">✓ Authorize</button></div></div>';
+  });
+  h+='<div class="yva-sect">ACTIVE ('+active.length+')</div>';
+  if(!active.length) h+='<p class="dmeta">None yet.</p>';
+  active.forEach(function(ch){
+    h+='<div class="yva-active"><span class="yva-ok">✓</span> <span class="yva-at">'+escHtml(ch.title)+(_yvaChangeAt(ch.id)?' · '+_yvaFmtDate(_yvaChangeAt(ch.id)):'')+(_yvaIsRetro(ch.id)?' · recorded on install':'')+'</span>'+
+       '<button class="dbtn rs yva-rev" onclick="yvaDoRevoke(\''+ch.id+'\')">Revoke</button></div>';
+  });
+  var recN=window.youthAuthLedgerRecords().length;
+  h+='<div class="yva-hist" id="yva-hist">History · ledger · '+recN+(recN===1?' record':' records')+' · chain <span id="yva-chain">checking…</span></div>'+
+     '<button class="dbtn rs" style="margin-top:10px" onclick="youthAuthLock()">Lock</button>';
+  card.innerHTML=h;
+  /* async tamper-evidence patch */
+  verifyYouthLedger().then(function(ok){ var s=document.getElementById('yva-chain'); if(s){ s.textContent=ok?'✓':'⚠ altered'; s.style.color=ok?'var(--green)':'#ff6b68'; } });
+}
+window.renderYouthAuthCard=renderYouthAuthCard;
+
+/* long-press the title → reset PIN */
+var _yvaPressT=0;
+function yvaTitlePressStart(){ _yvaPressT=setTimeout(function(){ youthAuthResetPin(); },3000); }
+function yvaTitlePressEnd(){ if(_yvaPressT){ clearTimeout(_yvaPressT); _yvaPressT=0; } }
+window.yvaTitlePressStart=yvaTitlePressStart; window.yvaTitlePressEnd=yvaTitlePressEnd;
+
+/* --- authorize / revoke taps → PIN if needed, then the write, then the confirm sheet --- */
+async function yvaDoAuthorize(id){ if(!youthAuthUnlocked()){ yvaOpenPin('unlock'); return; } var r=await youthAuthAuthorize(id); if(r&&r.ok) yvaConfirmSheet(id,r.code,'authorize'); }
+async function yvaDoRevoke(id){
+  if(!youthAuthUnlocked()){ yvaOpenPin('unlock'); return; }
+  if(!await modalConfirm('Re-hold this from youth?','Youth profiles will stop seeing it on this device now. Send the revoke code to your release lane to apply it fleet-wide.',{okLabel:'Revoke',danger:true})) return;
+  var r=await youthAuthRevoke(id); if(r&&r.ok) yvaConfirmSheet(id,r.code,'revoke');
+}
+window.yvaDoAuthorize=yvaDoAuthorize; window.yvaDoRevoke=yvaDoRevoke;
+function yvaConfirmSheet(id,code,action){
+  var ch=window.youthVisChange(id)||{title:id};
+  var verb=action==='revoke'?'Re-held on this device':'Authorized on this device';
+  var line=action==='revoke'?'Youth profiles here no longer see it.':'Youth profiles here see it now.';
+  var body='<p class="dmeta" style="margin:0 0 10px">'+escHtml(verb)+' — '+escHtml(line)+'</p>'+
+    '<p class="dmeta" style="margin:0 0 6px">Send this code to your release lane so every device gets it:</p>'+
+    '<div class="yva-code"><code id="yva-code">'+escHtml(code||'(no code — set a PIN first)')+'</code>'+
+    (code?'<button class="dbtn bk" onclick="yvaCopyCode(\''+escHtml(code)+'\')">Copy</button>':'')+'</div>'+
+    '<p class="dmeta" style="margin:10px 0 0;color:var(--faint)">Nothing leaves this device unless you send it. Settings → Backup carries the record.</p>';
+  try{ modalAlert('✓ '+escHtml(ch.title),body); }catch(e){}
+}
+function yvaCopyCode(code){ try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(code); showToast('Code copied ✓'); } else { showToast('Select and copy: '+code); } }catch(e){} }
+window.yvaConfirmSheet=yvaConfirmSheet; window.yvaCopyCode=yvaCopyCode;
+
+/* --- the PIN sheet (functional; D polishes to a keypad in unit 3) --- */
+function yvaOpenPin(mode){
+  var el=document.getElementById('yva-pin'); if(!el) return;
+  el.setAttribute('data-mode',mode||'unlock');
+  var isSet=(mode==='set');
+  el.querySelector('.yvp-title').textContent=isSet?'Set owner PIN':'Enter owner PIN';
+  el.querySelector('.yvp-sub').textContent=isSet?'4–6 digits. This becomes the key to manage youth visibility.':'4–6 digits.';
+  var inp=el.querySelector('#yva-pin-input'); inp.value=''; el.querySelector('.yvp-err').textContent='';
+  el.style.display='flex'; setTimeout(function(){try{inp.focus();}catch(e){}},50);
+}
+function yvaPinCancel(){ var el=document.getElementById('yva-pin'); if(el) el.style.display='none'; }
+async function yvaPinSubmit(){
+  var el=document.getElementById('yva-pin'); if(!el) return;
+  var mode=el.getAttribute('data-mode'), pin=(el.querySelector('#yva-pin-input').value||'').trim(), err=el.querySelector('.yvp-err');
+  if(!/^\d{4,6}$/.test(pin)){ err.textContent='Enter 4–6 digits.'; return; }
+  var ok=(mode==='set')?await youthAuthSetPin(pin):await youthAuthUnlock(pin);
+  if(ok){ el.style.display='none'; renderYouthAuthCard(); yvaNudgeRefresh(); }
+  else { err.textContent=(mode==='set')?'Could not set a PIN (another adult may be the owner).':(youthAuthLocked()?'Too many tries — locked for a few minutes.':'Wrong PIN.'); el.querySelector('#yva-pin-input').value=''; }
+}
+window.yvaOpenPin=yvaOpenPin; window.yvaPinCancel=yvaPinCancel; window.yvaPinSubmit=yvaPinSubmit;
+
+/* --- HOME nudge (owner only; shown only when a change is pending; HOME view only) --- */
+function yvaNudgeEligible(){
+  try{
+    if(!yvaIsOwnerProfile()) return false;
+    if(!_yvaPending().length) return false;
+    var fr=document.getElementById('first-run'); if(fr&&fr.classList.contains('on')) return false;
+    var ins=document.getElementById('install'), fx=document.getElementById('fx-hint'), bd=document.getElementById('bday-nudge');
+    if((ins&&ins.style.display==='block')||(fx&&fx.style.display==='block')) return false;
+    if(bd&&bd.style.display==='block') return false;
+    if(typeof _curTab!=='undefined'&&_curTab&&_curTab!=='today') return false;   /* HOME-only, like the bday nudge */
+    return true;
+  }catch(e){ return false; }
+}
+function yvaNudgeRefresh(){ var el=document.getElementById('yva-nudge'); if(!el) return; var on=yvaNudgeEligible(); el.style.display=on?'flex':'none'; if(on){ var n=_yvaPending().length; var t=el.querySelector('.yvn-t'); if(t) t.textContent=n+(n===1?' youth-visibility change awaits your OK':' youth-visibility changes await your OK'); } }
+function yvaNudgeReview(){
+  go('data');
+  setTimeout(function(){ var card=document.getElementById('yva-card'); try{ if(card){ card.scrollIntoView({block:'start'}); if(!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)){ card.classList.remove('bn-pulse'); void card.offsetWidth; card.classList.add('bn-pulse'); setTimeout(function(){card.classList.remove('bn-pulse');},1300); } } }catch(e){} },160);
+}
+window.yvaNudgeRefresh=yvaNudgeRefresh; window.yvaNudgeEligible=yvaNudgeEligible; window.yvaNudgeReview=yvaNudgeReview;
+setTimeout(yvaNudgeRefresh,1600); window.addEventListener('load',function(){setTimeout(yvaNudgeRefresh,1600);});
+
 /* ===== ARM UX units 2 + 3 (D's BUILD-SPECS): section DRAWER + section images ===== */
 /* --- unit 3: the 5 HOME area emojis -> photoreal tiles (window.SECTION_IMAGES / SECTION_AREA_IMAGES from section-images.js, ONE shared copy; arm.html's dock reads
    parent.SECTION_IMAGES). Missing key/script => the span stays EMPTY and the text label remains (never a broken-image icon). --- */
@@ -3861,14 +4178,16 @@ function wireSectionImages(){
   }catch(e){}
 }
 window.wireSectionImages=wireSectionImages; window.sectionImg=sectionImg;
-/* YOUTH TILE HOLD — owner lever, kept per Adam's direction. RELEASED 2026-10-13 on Adam's DIRECT in-session word to E ("unblock the youth hold body stuff"): array is EMPTY, so a
-   YOUTH profile now sees all 21 section tiles, including the 3 figure tiles (arm = flexed arm, lifting = bare-chest + barbell, recovery = bare-chest lotus). This was an
-   owner-authorized §4.3 youth-VISIBILITY relaxation — his direct word is the authorization. The lever is retained for future per-key withholding: add a SECTION_IMAGES key below and
-   a youth profile loses that image (text label falls back). Re-applied on every profile / tier switch.
-   ⚠️ KNOWN GAP IF EVER RE-HELD (Q render-review 2026-10-13): applyYouthTileHold filters ONLY window.SECTION_IMAGES — that covers the drawer rows, the ALL-SECTIONS strip and A's dock
-   tile, but NOT the HOME-pill area surface (#today-section-menu), which draws from SECTION_AREA_IMAGES. So with a NON-empty hold the home pills still leaked the figure to youth
-   (a "surface the gate never visited" leak). Before re-holding: extend applyYouthTileHold to ALSO filter SECTION_AREA_IMAGES (map a held SECTION_IMAGES key -> its area) and add a
-   #today-section-menu youth assertion to arm-drawer-host. With the empty hold today there is no leak. */
+/* YOUTH TILE HOLD — now DERIVED from the youth-visibility authorization registry
+   (tile-card, youth-auth.js), no longer a hand-edited array. The 3 figure tiles
+   (arm = flexed arm, lifting = barbell lifter, recovery = seated athlete) are held
+   from a YOUTH profile UNLESS the 'tiles-figures-2026-10-13' change is authorized.
+   The build-baked retro row in YOUTH_VIS_AUTH preserves v242's shipped release
+   (Adam direct 2026-10-13 → youth see all 21 tiles); a card Revoke re-holds them
+   (R's "re-hold lever", now one owner tap). Recomputed every profile / tier switch.
+   The held-key filter covers window.SECTION_IMAGES (drawer rows, ALL-SECTIONS strip,
+   A's dock tile) AND window.SECTION_AREA_IMAGES (the HOME-pill #today-section-menu),
+   so a non-empty hold reaches every figure surface (the F5/R3 fix). */
 var YOUTH_TILE_HOLD=[];
 var _SECTION_IMAGES_ALL=window.SECTION_IMAGES||{};
 var _SECTION_AREA_IMAGES_ALL=window.SECTION_AREA_IMAGES||{};
@@ -3877,6 +4196,14 @@ function applyYouthTileHold(){
     /* lazy-capture the FULL sets ONCE (robust even if section-images.js parsed after this file; never re-capture a set we've already narrowed) */
     if(!_SECTION_IMAGES_ALL||!Object.keys(_SECTION_IMAGES_ALL).length){ if(window.SECTION_IMAGES&&Object.keys(window.SECTION_IMAGES).length)_SECTION_IMAGES_ALL=window.SECTION_IMAGES; }
     if(!_SECTION_AREA_IMAGES_ALL||!Object.keys(_SECTION_AREA_IMAGES_ALL).length){ if(window.SECTION_AREA_IMAGES&&Object.keys(window.SECTION_AREA_IMAGES).length)_SECTION_AREA_IMAGES_ALL=window.SECTION_AREA_IMAGES; }
+    /* DERIVE the held keys from the authorization registry (fail-closed: resolver
+       missing or change unauthorized ⇒ hold the figure keys). */
+    try{
+      var _figCh=(window.youthVisChange&&window.youthVisChange('tiles-figures-2026-10-13'))||null;
+      var _figKeys=(_figCh&&_figCh.what)||['arm','lifting','recovery'];
+      var _figOk=window.youthVisAuthorized?window.youthVisAuthorized('tiles-figures-2026-10-13'):false;
+      YOUTH_TILE_HOLD=_figOk?[]:_figKeys.slice(); window.YOUTH_TILE_HOLD=YOUTH_TILE_HOLD;
+    }catch(_e){ YOUTH_TILE_HOLD=['arm','lifting','recovery']; window.YOUTH_TILE_HOLD=YOUTH_TILE_HOLD; }
     var youth=!!profile&&profileTier(profile)==='youth', k, out={};
     for(k in _SECTION_IMAGES_ALL){ if(youth&&YOUTH_TILE_HOLD.indexOf(k)>-1)continue; out[k]=_SECTION_IMAGES_ALL[k]; }
     window.SECTION_IMAGES=out;
