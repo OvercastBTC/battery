@@ -89,7 +89,7 @@ A youth-tier profile must **never** see: supplement / stimulant / dosing / quant
 ## 5. How to Test
 
 Test harness (authoritative): `~/battery-tests/run.sh`
-Runs the **full Playwright gate (51 suites as of 26.10.13)** against the staged build — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. (Live `run.sh` has 51 `node x.test.mjs` lines — 36 at v187 + `week-strip-rings.test.mjs` at v188 + `clip-player.test.mjs` at v194 + `youth-supp-flag.test.mjs` at v198 + `reminders.test.mjs` at v201/v202. Lane E keeps this integer synced with run.sh under a standing owner OK — Adam 2026-10-05 — since the line itself defers to run.sh; it is the only part of CLAUDE.md E edits without a fresh owner request.) `run.sh` uses an EXPLICIT suite list (not a glob) — a new `.mjs` needs a `node "${HERE}/x.test.mjs"` line added.
+Runs the **full Playwright gate (50 suites as of 26.10.13)** against the staged build — `run.sh` is the authoritative list, always trust it over this count if they ever disagree. (Live `run.sh` has 50 `node x.test.mjs` lines — 36 at v187 + `week-strip-rings.test.mjs` at v188 + `clip-player.test.mjs` at v194 + `youth-supp-flag.test.mjs` at v198 + `reminders.test.mjs` at v201/v202. Lane E keeps this integer synced with run.sh under a standing owner OK — Adam 2026-10-05 — since the line itself defers to run.sh; it is the only part of CLAUDE.md E edits without a fresh owner request.) `run.sh` uses an EXPLICIT suite list (not a glob) — a new `.mjs` needs a `node "${HERE}/x.test.mjs"` line added.
 
 **Suites added since the 36 baseline, each guarding a "derived UI whose correctness nothing asserts" / "silent-data-wrong" class (writes/renders the wrong thing with no error and no failing test — exactly how the bugs below shipped unnoticed):**
 - `derived-ui.test.mjs` §4b (+v183): the host month picker (`#picker-grid`) must compute `display:grid` and lay out 7 columns — guards the v183 single-column bug (CSS rule was `.picker-grid` but the element is `id="picker-grid"`, so `display:grid` never applied).
@@ -278,6 +278,14 @@ source, no drift between what Lane M checks and what the Mac checks.
 **Comms:** All lanes are on AM06 — use CCD `send_message` with session IDs from COMMS.md.
 No SSH relay needed.
 
+### Lane R — Claude (Fable) session on AM06 (architecture / programming review — ADVISORY ONLY)
+
+Standing role, owner-created 2026-10-13. R is the **rebuild-lens reviewer**: it reads the repo and asks what a clean rebuild would do differently — architecture, data model, the three-file split and its seams, test strategy, tech debt, programming practice — and writes **dated review documents** under `docs/` (`docs/*.md`). It routes findings to **Q**, who triages them to Lane A / Lane E to execute.
+
+**Hard boundary (the §8 external-review boundary, promoted to a standing lane):** R has **no worktree**; it makes **no edits** to `index.html`, `arm.html`, `fuel.html`, any test, or any config; it **never pushes `master`**; and it does **not** run or gate releases. The reason is the same specific one as §8: R cannot run the Playwright gate, and §3's silent-failure class (a change that renders nothing, errors nowhere, and passes every static check) is invisible without it. Single-writer-of-master plus a green gate is why that has never shipped; do not add a writer that cannot gate. R's only writes are review documents in `docs/`.
+
+**Flow:** R's findings land in a dated doc → R tells Q → Q routes to Lane A (iframe content) or Lane E (host + release) → they gate and ship. Findings are *inputs*, not gated deliverables: they get no release slot until A/E adopt them.
+
 ### Q (formerly Session Dispatch) — NOT A LANE
 
 The session that triages owner requests and routes work between lanes.
@@ -401,12 +409,13 @@ The app has an **active date** (host `_activeDate`, null = today) chosen from th
 Complete reference for how to reach any lane: CCD send_message session IDs,
 topology, rules. **Every lane reads this file.**
 
-**Lane roster** (4 active lanes on AM06 as of 2026-09-19):
+**Lane roster** (active lanes on AM06 as of 2026-10-13):
 
 - **Q** — AM06, sysadmin/triage/routing (no worktree).
 - **Lane A** — AM06, FUEL + ARM iframe content (`C:\Users\bacona\battery-laneA`).
 - **Lane E** — AM06, host shell + **sole release engineer** (`C:\Users\bacona\battery-laneE`).
 - **Lane M** — AM06, clips/sourcing/encoding (`C:\Users\bacona\battery-laneM`).
+- **Lane R** — AM06, architecture / programming review (rebuild lens), **advisory only**: writes `docs/*.md`, no worktree, no master push, no gate (§6).
 
 **Comms:** All lanes are CCD sessions on AM06 — use `send_message` with session IDs from COMMS.md. No cross-machine relay needed.
 
