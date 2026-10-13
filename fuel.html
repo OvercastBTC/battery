@@ -2031,7 +2031,12 @@
   .qa-btn.qa-has-img .qa-menu-dot { z-index:5; color:rgba(255,255,255,.7); }
   .qa-btn.qa-has-img .qa-menu-dot:hover { color:#fff; }
 </style>
-<script>document.write('<script src="food-images.js?v='+(((window.URLSearchParams&&new URLSearchParams(location.search).get('v'))||'0'))+'"><\/script>');</script>
+<script>(function(){var v=((window.URLSearchParams&&new URLSearchParams(location.search).get('v'))||'0');document.write('<script src="food-images.js?v='+v+'"><\/script><script src="youth-auth.js?v='+v+'"><\/script>');})();</script>
+<script>
+/* tile-card unit 2: youth-visibility levers resolve through youthVisAllowed(changeId) (youth-auth.js).
+   FAIL-CLOSED: resolver missing / throws / returns anything but true => NOT allowed => youth lever hides. */
+window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed==='function' && window.youthVisAllowed(changeId)===true; }catch(e){ return false; } };
+</script>
 </head>
 <body>
 
@@ -4660,7 +4665,8 @@
   window.fuelDerivedAge = function () {
     try { var pr = loadProfile() || {}; return cafDerivedAge(pr.age, pr.birthday, cafPeopleAge()); } catch (e) { return null; }
   };
-  function cafUnlockedForYouth(age) { return !!age && age >= CAF_UNLOCK_AGE; }       // generic: ANY caf>0 item needs this
+  /* tile-card unit 2: the caffeine relaxation is AUTHORIZED (youth-auth.js 'caffeine-tiles-2026-10-12'); unauthorized => locked for every age (fail-closed) */
+  function cafUnlockedForYouth(age) { return !!age && age >= CAF_UNLOCK_AGE && window.__yvAllowed('caffeine-tiles-2026-10-12'); }       // generic: ANY caf>0 item needs this
   function cafChipFor(caf) { if (!(caf > 0)) return null; return caf < 0.6 * CAF_REF_YOUTH ? 'some' : 'high'; }   // absolute: <51 mg 'some', else HIGH
   function cafStateFor(total, ceil) { if (!ceil) return 'locked'; var f = total / ceil; return f >= 1 ? 'over' : f >= 0.5 ? 'near' : f > 0 ? 'low' : 'none'; }
   function cafCellsFor(total, ceil) { if (!ceil || total <= 0) return 0; return Math.min(4, Math.ceil(total / ceil * 4)); }
@@ -8021,7 +8027,8 @@
          only by the release engineer on the owner's DIRECT in-session word -- via the
          window.YOUTH_SHOW_SUPPS const (one-line, documented at SUPP_CATALOG) or the
          fuel-youth-show-supps key. Default off => youth unchanged => gate passes as-is. */
-      try{ var _ys=(window.YOUTH_SHOW_SUPPS===true)||(storeGet('fuel-youth-show-supps','0')==='1'); document.body.classList.toggle('youth-supps', _ys); }catch(e){}
+      /* tile-card unit 2: the flag only takes effect while the relaxation is AUTHORIZED (youth-auth.js 'supps-youth-2026-10-06'; fail-closed) */
+      try{ var _ys=((window.YOUTH_SHOW_SUPPS===true)||(storeGet('fuel-youth-show-supps','0')==='1')) && window.__yvAllowed('supps-youth-2026-10-06'); document.body.classList.toggle('youth-supps', _ys); }catch(e){ try{ document.body.classList.remove('youth-supps'); }catch(e2){} }
       if ((window.BATTERY_TIER||'youth') !== 'youth') return _orig();
       const _lp = loadProfile();
       const p = (_lp && +_lp.weightLb > 0) ? _lp : {weightLb:80, age:6};   // incomplete profile => the default youth profile, never NaN
@@ -8480,6 +8487,7 @@
     function _youthHideSupp(id){
       try{
         if(!document.body.classList.contains('fuel-youth')) return false;
+        if(!window.__yvAllowed('supps-youth-2026-10-06')) return true; /* tile-card unit 2: unauthorized => hidden (fail-closed) */
         /* caffeine budget: a caffeinated supp (SUPP_CAF) is hidden from youth until a derived age >= 10 exists — same generic gate as the tiles */
         try{ var _m=window.__cafModel; if(_m && _m.SUPP_CAF[id]>0 && !_m.unlocked(window.fuelDerivedAge())) return true; }catch(e){ if(window.__cafModel && window.__cafModel.SUPP_CAF[id]>0) return true; }
         return !_youthSuppVisible(id);
