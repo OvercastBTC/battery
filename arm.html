@@ -1160,7 +1160,7 @@ document.write('<link rel="stylesheet" href="lib/tokens.css?v='+(((window.URLSea
     background:var(--steel); cursor:pointer; }
   .seq-step.done { border-left-color: var(--green); background: rgba(63,185,80,0.07); }
   .seq-step.now  { border-left-color: var(--gold); background: rgba(212,160,23,0.09); }
-  .seq-n { font-family:'Courier New',monospace; font-size:11px; color:var(--faint); width:14px; flex:none; }
+  .seq-n { font-family:'Courier New',monospace; font-size:11px; color:var(--dim); width:14px; flex:none; }
   .seq-step.done .seq-n { color: var(--green); }
   .seq-step.now .seq-n { color: var(--gold); }
   .seq-name { flex:1; font-size:13px; color:var(--bone); }
@@ -8125,7 +8125,7 @@ document.write('<link rel="stylesheet" href="lib/tokens.css?v='+(((window.URLSea
     host.appendChild(form);
 
     var hint = document.createElement('div');
-    hint.style.cssText='font-size:11px;color:var(--faint);margin-top:8px';
+    hint.style.cssText='font-size:11px;color:var(--dim);margin-top:8px';
     hint.textContent='Leave weight blank for bodyweight. Tap a set to remove it.';
     host.appendChild(hint);
     syncLiftLogDone();
