@@ -10,23 +10,11 @@
 })();
 </script>
 <title>Bauer Arm Care · Protocol</title>
+<script>/* design tokens: ONE canonical copy (lib/tokens.css). Render-blocking, loaded before this document's own stylesheet. */
+document.write('<link rel="stylesheet" href="lib/tokens.css?v='+(((window.URLSearchParams&&new URLSearchParams(location.search).get('v'))||'0'))+'">');</script>
 <style>
+  /* SHARED design tokens + the body.youth gold->green re-skin: lib/tokens.css (ONE canonical copy). Only ARM-only tokens are declared here. */
   :root {
-    --ink: #0d1117;
-    --steel: #161b22;
-    --steel-2: #1c2128;
-    --line: #2d333b;
-    --line-bright: #444c56;
-    --bone: #e6edf3;
-    --dim: #8b949e;
-    --gold: #d4a017;
-    --gold-bright: #f0b832;
-    --blood: #da3633;
-    --blood-dim: rgba(218,54,51,0.15);
-    --green: #3fb950;
-    --blue: #58a6ff;
-    --purple: #bc8cff;
-
     /* position accents */
     --p-pitcher: #f85149;
     --p-1b:      #d4a017;
@@ -39,22 +27,6 @@
     /* Washington Drills accent */
     --wash:    #ff6b35;
     --wash-dim: rgba(255,107,53,0.15);
-  }
-
-  /* ===== design review §6: HIS ACCENT IS GREEN =====
-     Green primary where gold is yours, same near-black steel and monospace.
-     The cheapest identity win available: gold is a token, so the whole tier
-     re-skins by redefining two variables. Nothing else changes -- same steel,
-     same type, same layout. His app, not a redacted copy of the adult one.
-
-     Deliberately NOT --green (#3fb950). That token means done / hit-your-goal
-     everywhere in both frames, and reusing it as the accent would make every
-     border and heading read as a success state. This is a distinctly brighter,
-     more saturated green so the two stay tellable apart. If the owner wants a
-     different hue it is these two lines and nothing else. */
-  body.youth {
-    --gold: #2fd66b;
-    --gold-bright: #6ef2a0;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }

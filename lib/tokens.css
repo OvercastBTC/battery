@@ -1,0 +1,55 @@
+/* BATTERY design tokens — the SHARED set, ONE canonical copy (rewrite Step 1, P1).
+   Loaded by index.html (host), arm.html and fuel.html: the host via a static <link>, the iframes via the
+   document.write + ?v= loader (same cache-bust pattern as youth-auth.js / section-images.js).
+
+   Before this file the same :root block was hand-copied into all three documents, so every visual change was a
+   3-file edit and the copies could drift. Values here are copied BYTE-FOR-BYTE from those blocks (the gate's
+   tokens-parity suite holds the golden table and fails on any drift or any re-declaration elsewhere).
+
+   OWNERSHIP RULE: this file owns a token iff TWO OR MORE documents declare it with the same value. A token only one
+   document uses stays in that document (ARM keeps --p-* / --wash*, FUEL keeps --d-* / --metal-* / --*-dim / --orange,
+   the HOST keeps --event / --faint and its layout/runtime vars). The gate fails if any token is declared in more than
+   one place, so the next drift is caught the day it is introduced.
+
+   NOT in this file, on purpose:
+   · the HOST dialect aliases --steel2 / --goldb (same values as --steel-2 / --gold-bright, different NAMES) and --faint /
+     --event: arm.html and fuel.html reference --faint / --goldb bare although they never define them (a latent bug — they
+     resolve to nothing today, five spots). Defining them here would silently start styling those spots, which is a
+     visual decision, not a Step-1 extraction. They stay host-local; the host re-skins --goldb itself under body.youth.
+   · --stage-b / --tb-h / --vp-def: runtime/layout STATE written by host JS, not design. */
+:root {
+  --ink: #0d1117;
+  --steel: #161b22;
+  --steel-2: #1c2128;
+  --line: #2d333b;
+  --line-bright: #444c56;
+  --bone: #e6edf3;
+  --dim: #8b949e;
+  --gold: #d4a017;
+  --gold-bright: #f0b832;
+  --blood: #da3633;
+  --blood-dim: rgba(218,54,51,0.15);
+  --green: #3fb950;
+  --blue: #58a6ff;
+  --purple: #bc8cff;
+}
+
+/* ===== design review §6: THE YOUTH ACCENT IS GREEN =====
+   Green primary where gold is yours, same near-black steel and monospace. Gold is a token, so the whole tier
+   re-skins by redefining two variables. Nothing else changes -- same steel, same type, same layout.
+
+   Deliberately NOT --green (#3fb950). That token means done / hit-your-goal everywhere in every frame, and reusing
+   it as the accent would make every border and heading read as a success state. This is a distinctly brighter,
+   more saturated green so the two stay tellable apart. If the owner wants a different hue it is these lines.
+
+   Two selectors because the two documents tag their <body> differently: the host and ARM use body.youth, FUEL uses
+   body.fuel-youth. (FUEL also re-points its own --metal-gold at --metal-green; that stays in fuel.html next to the
+   --metal-* tokens it belongs to. The host re-skins its own --goldb alias locally.) */
+body.youth {
+  --gold: #2fd66b;
+  --gold-bright: #6ef2a0;
+}
+body.fuel-youth {
+  --gold: #2fd66b;
+  --gold-bright: #6ef2a0;
+}
