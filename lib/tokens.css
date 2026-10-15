@@ -8,14 +8,18 @@
 
    OWNERSHIP RULE: this file owns a token iff TWO OR MORE documents declare it with the same value. A token only one
    document uses stays in that document (ARM keeps --p-* / --wash*, FUEL keeps --d-* / --metal-* / --*-dim / --orange,
-   the HOST keeps --event / --faint and its layout/runtime vars). The gate fails if any token is declared in more than
-   one place, so the next drift is caught the day it is introduced.
+   the HOST keeps --event and its layout/runtime vars). The gate fails if any token is declared in more than one
+   place, so the next drift is caught the day it is introduced.
+
+   --faint (v248): promoted here on purpose, NOT by the ownership rule. arm.html and fuel.html referenced var(--faint)
+   in four places (ARM .seq-n + a hint, FUEL .rec-from-note + a 4px border-top) without ever defining it — a latent bug,
+   they resolved to nothing (so, e.g., FUEL's disclosure triangle never rendered). Defining it here is a VISIBLE change,
+   which is why it shipped on its own as v248 and not inside the zero-change Step 1.
 
    NOT in this file, on purpose:
-   · the HOST dialect aliases --steel2 / --goldb (same values as --steel-2 / --gold-bright, different NAMES) and --faint /
-     --event: arm.html and fuel.html reference --faint / --goldb bare although they never define them (a latent bug — they
-     resolve to nothing today, five spots). Defining them here would silently start styling those spots, which is a
-     visual decision, not a Step-1 extraction. They stay host-local; the host re-skins --goldb itself under body.youth.
+   · the HOST dialect aliases --steel2 / --goldb (same values as --steel-2 / --gold-bright, different NAMES) and --event.
+     The one FUEL use of --goldb was retargeted to the iframe-native --gold-bright rather than spreading the host
+     dialect; the host re-skins --goldb itself under body.youth.
    · --stage-b / --tb-h / --vp-def: runtime/layout STATE written by host JS, not design. */
 :root {
   --ink: #0d1117;
@@ -25,6 +29,7 @@
   --line-bright: #444c56;
   --bone: #e6edf3;
   --dim: #8b949e;
+  --faint: #6e7681;
   --gold: #d4a017;
   --gold-bright: #f0b832;
   --blood: #da3633;
