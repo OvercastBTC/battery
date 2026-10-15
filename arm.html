@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <script>/* §4.3 — read tier from host's shared localStorage key (synchronous, zero-flash) */
 (function(){
-  var tier = localStorage.getItem('battery-boot-tier');
-  window.BATTERY_TIER = (tier === 'youth') ? 'youth' : 'adult';
+  var tier = null; try { tier = localStorage.getItem('battery-boot-tier'); } catch (e) {}   // unreadable => null => youth (fail-closed)
+  window.BATTERY_TIER = (tier === 'adult') ? 'adult' : 'youth';   // §4.3 FAIL-CLOSED: only an explicit 'adult' is adult; missing/unknown => youth
 })();
 </script>
 <title>Bauer Arm Care · Protocol</title>
@@ -9137,6 +9137,10 @@ document.write('<link rel="stylesheet" href="lib/tokens.css?v='+(((window.URLSea
     // Matches FUEL's (BATTERY_TIER||'youth') default.
     var isYouth=true;
     try{ isYouth = parent.document.body.classList.contains('youth'); }catch(e){ isYouth=true; }
+    // Standalone load (parent === this window): parent.document.body IS this body, whose 'youth'
+    // class is not set yet -> would read adult. Also honour the fail-closed boot tier (line 9):
+    // youth if EITHER the host says youth OR the tier is anything but an explicit 'adult'.
+    if (window.BATTERY_TIER !== 'adult') isYouth = true;
     document.body.classList.toggle('youth', isYouth);
   }
   if(document.readyState!=='loading') gatePlyoYouth();

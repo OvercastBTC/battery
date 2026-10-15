@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <script>/* §4.3 — read tier from host's shared localStorage key (synchronous, zero-flash) */
 (function(){
-  var tier = localStorage.getItem('battery-boot-tier');
-  window.BATTERY_TIER = (tier === 'youth') ? 'youth' : 'adult';
+  var tier = null; try { tier = localStorage.getItem('battery-boot-tier'); } catch (e) {}   // unreadable => null => youth (fail-closed)
+  window.BATTERY_TIER = (tier === 'adult') ? 'adult' : 'youth';   // §4.3 FAIL-CLOSED: only an explicit 'adult' is adult; missing/unknown => youth
 })();
 </script>
 <title>Fuel Stack · Protein + Hydration</title>
