@@ -45,6 +45,9 @@ export BATTERY_APP="${APP}"
 node "${HERE}/srcdoc-integrity.test.mjs"
 echo
 node "${HERE}/clip-config.test.mjs"
+echo
+# rewrite Step 2: modules.json <-> modules/ contract (node-only; verifies the manifest shape and that no module file is unlisted)
+node "${HERE}/modules-manifest.test.mjs"
 
 echo
 echo "STATIC GATE PASSED — necessary, NOT sufficient."

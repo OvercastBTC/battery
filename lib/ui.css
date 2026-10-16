@@ -1,0 +1,4 @@
+/* BATTERY control styles (rewrite Step 2: lib bootstrap) — loaded after lib/tokens.css, before the document own <style>.
+   Step 2 ships this file EMPTY on purpose: no rule has moved yet, so there is no visual change. The shared visual primitives every document re-declares today
+   (.gd-card, buttons, chips, badges, rings, sheet, week-strip, clip-card frame) migrate here later, mechanically, one primitive per release, with the gate render checks as the
+   acceptance test. Tokens never live here: they belong to lib/tokens.css. */
