@@ -12,6 +12,8 @@
 <title>Bauer Arm Care · Protocol</title>
 <script>/* lib: design tokens (lib/tokens.css) + control styles (lib/ui.css) + the BATTERY namespace (lib/battery.js), all versioned by this document's own ?v=. Render-blocking, loaded before this document's own stylesheet. */
 (function(){var v=((window.URLSearchParams&&new URLSearchParams(location.search).get('v'))||'0');document.write('<link rel="stylesheet" href="lib/tokens.css?v='+v+'"><link rel="stylesheet" href="lib/ui.css?v='+v+'"><script src="lib/battery.js?v='+v+'"><\/script>');})();</script>
+<script>/* Step 3: ARM section registry (modules/arm/sections.js, data only) - loaded SYNCHRONOUSLY so nav.tabs, TAB_GROUPS and the page flags can be built at parse time. */
+(function(){var v=((window.URLSearchParams&&new URLSearchParams(location.search).get('v'))||'0');document.write('<script src="modules/arm/sections.js?v='+v+'"><\/script>');})();</script>
 <style>
   /* SHARED design tokens + the body.youth gold->green re-skin: lib/tokens.css (ONE canonical copy). Only ARM-only tokens are declared here. */
   :root {
@@ -1413,28 +1415,13 @@
 
 <div class="wrap">
 
-<nav class="tabs">
-  <button class="tab active" data-tab="overview">Overview</button>
-  <button class="tab" data-tab="warmup">Warm Up</button>
-  <button class="tab" data-tab="jbands">J-Bands</button>
-  <button class="tab" data-tab="tube">Shoulder Tube</button>
-  <button class="tab" data-tab="plyo">PlyoCare</button>
-  <button class="tab" data-tab="long">Long Toss</button>
-  <button class="tab" data-tab="gameday">Game Day</button>
-  <button class="tab" data-tab="washington">Wash Drills</button>
-  <button class="tab" data-tab="fieldwork">Field Work</button>
-  <button class="tab" data-tab="pitching">Pitching</button>
-  <button class="tab" data-tab="recovery">Recovery</button>
-  <button class="tab" data-tab="schedule">Schedule</button>
-  <button class="tab" data-tab="sources">Sources</button>
-  <button class="tab" data-tab="extras">Daily Extras</button>
-  <button class="tab" data-tab="lifting">Lifting</button>
-  <button class="tab" data-tab="history">History</button>
-</nav>
+<nav class="tabs"><script>/* Step 3: the 16 tabs are generated from BATTERY.items('arm.section') (youth filtered through BATTERY.youth.allow, fail-closed). Output is identical to the former static markup. */
+(function(){var rows=(window.BATTERY&&BATTERY.items('arm.section'))||[];var out=rows.slice().sort(function(a,b){return a.order-b.order;}).filter(function(r){return BATTERY.youth.allow(r);}).map(function(r){return '  <button class="tab'+(r.default?' active':'')+'" data-tab="'+BATTERY.esc(r.id)+'">'+BATTERY.esc(r.label)+'</button>\n';}).join('');if(!out)document.documentElement.setAttribute('data-sections-missing','1');var me=document.currentScript;document.write('\n'+out);if(me&&me.parentNode)me.parentNode.removeChild(me);})();
+</script></nav>
 <button type="button" id="sec-dock" aria-haspopup="dialog" aria-label="Sections menu"><span class="sd-tile noimg" aria-hidden="true"></span><span class="sd-title"></span><span class="sd-chev" aria-hidden="true">&#8964;</span></button>
 
 <!-- ============== OVERVIEW ============== -->
-<div class="page active" id="page-overview">
+<div class="page" id="page-overview">
   <h2>The System</h2>
   <div class="seq" id="today-seq"></div>
 
@@ -2868,7 +2855,7 @@
      bonus, the same treatment Daily Extras gets. A fully correct fix would make the
      requirement CONDITIONAL on the calendar having a game today, but the calendar
      lives in the host, so that is a seam change rather than an iframe one. -->
-<div class="page" id="page-gameday" data-optional="1">
+<div class="page" id="page-gameday">
   <h2>Game Day Warm-Up</h2>
 
   <div class="plyo-youth-only">
@@ -4835,7 +4822,7 @@
 
 
 <!-- ============== PITCHING (drills group, data-optional) ============== -->
-<div class="page" id="page-pitching" data-optional="1">
+<div class="page" id="page-pitching">
   <h2>Pitching</h2>
   <p class="lede">Pitching mechanics, pitch design, drills, warmup, and strategy. Sources include Trevor Bauer, Joe Zeller, and game-breakdown vlogs from the Long Island Ducks, Japan, and Mexico seasons.</p>
 
@@ -5727,7 +5714,7 @@
 </div>
 
 <!-- ============== DAILY EXTRAS (PLACEHOLDER) ============== -->
-<div class="page" id="page-extras" data-optional="1">
+<div class="page" id="page-extras">
   <h2>Daily Extras</h2>
   <p class="lede">Non-arm-care recommended additions. Bauer's international training principles and dedicated flexibility protocols. Layered on top of arm care, not in place of it. <b>These are optional</b> — tracked and counted (you'll see a <b>+N</b> on your daily count) if you do them, but they don't block your core arm-care completion.</p>
 
@@ -6919,6 +6906,9 @@
   <div style="margin-top: 6px;">DAILY · ALL POSITIONS · SAVE TO HOME SCREEN</div>
 </footer>
 
+<script>/* Step 3: page-wrapper flags come from the section rows: .active on the default section, data-optional="1" on the optional ones (read by stepOptional()). */
+(function(){var rows=(window.BATTERY&&BATTERY.items('arm.section'))||[];rows.forEach(function(r){var p=document.getElementById('page-'+r.id);if(!p)return;if(r.default)p.classList.add('active');if(r.optional)p.setAttribute('data-optional','1');});})();
+</script>
 <script>document.write('<script src="youth-auth.js?v='+(((window.URLSearchParams&&new URLSearchParams(location.search).get('v'))||'0'))+'"><\/script>');</script>
 <script>
   /* ===== HOST MODAL BRIDGE — use the app modal when reachable, native fallback when standalone ===== */
@@ -6948,7 +6938,7 @@
   /* ARM UX 2A: ONE-TOKEN ROLLBACK. false => the old tab strip, exactly. true => strip hidden + docked header, but ONLY when the host exposes
      parent.openSectionDrawer() (feature-detected; without it the strip stays so navigation is never stranded). */
   var ARM_DRAWER_NAV = true;
-  const TAB_GROUPS = { washington:'drills', fieldwork:'drills', pitching:'drills', recovery:'body', extras:'body', lifting:'body', warmup:'arm' };
+  const TAB_GROUPS = (function(){ var m = {}; BATTERY.items('arm.section').forEach(function(r){ m[r.id] = r.group; }); return m; })();   // Step 3: read from the section registry (tabGroup() still defaults to 'arm')
   function tabGroup(id){ return TAB_GROUPS[id] || 'arm'; }
   let activeGroup = 'arm';
   function stepGroup(step){
