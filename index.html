@@ -1161,7 +1161,8 @@ setInterval(persistLive, 4000);                       // mirror every 4s
 window.addEventListener('pagehide', persistLive);     // and on background/close
 window.addEventListener('visibilitychange', ()=>{ if(document.hidden) persistLive(); });
 function reloadFrames(){const tier=profileTier(profile);
- FRAMES.arm.onload=()=>{try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:((_curTab==='drills'||_curTab==='body')?_curTab:'arm')},'*');}catch(e){}};
+ FRAMES.arm.onload=()=>{try{FRAMES.arm.contentWindow.postMessage({type:'bat-group',group:((_curTab==='drills'||_curTab==='body')?_curTab:'arm')},'*');}catch(e){}
+   try{ if(_curTab==='arm'||_curTab==='drills'||_curTab==='body')armSectionsWatch(); }catch(e){} /* v252: a profile switch / tier flip reloads ARM without go(); re-arm the in-app fail-visible watch */};
  FRAMES.fuel.onload=()=>{try{FRAMES.fuel.contentWindow.BATTERY_TIER=tier;const w=FRAMES.fuel.contentWindow;if(w.recomputeDayTargets)w.recomputeDayTargets();if(w.refreshAll)w.refreshAll();if(w.batteryRelayout)setTimeout(w.batteryRelayout,200);
    // Design item 1, second ordering hazard (Lane A, 2026-08-18): syncFuelDayFromPlan()
    // only ever fired from setActivePlan() -- on plan CHANGE, never on load. A DERIVED
@@ -4390,7 +4391,7 @@ window.maybeFeedbackToast=maybeFeedbackToast;
     if(fr&&fr.classList.contains('on'))return;
     var v=localStorage.getItem('battery-last-view');
     var valid={arm:1,drills:1,body:1,fuel:1,game:1,data:1,today:1};
-    if(v&&valid[v]){ if(v!=='arm')go(v); }
+    if(v&&valid[v]){ if(v!=='arm')go(v); else { try{armSectionsWatch();}catch(e){} } }   /* ARM is the markup default so go() is skipped - but a COLD LAUNCH into ARM must still arm the in-app fail-visible watch (R's cold-restore finding) */
     else { go('today'); }   // brand-new / no stored view → TODAY home landing
     try{applyYouthTileHold();wireSectionImages();}catch(e){}   /* F5/R3: final re-wire once `profile` is fully resolved — the HOME pills were first painted at parse before the profile resolved, so re-honor the youth hold here */
   }catch(e){}
