@@ -1416,7 +1416,7 @@
 <div class="wrap">
 
 <nav class="tabs"><script>/* Step 3: the 16 tabs are generated from BATTERY.items('arm.section') (youth filtered through BATTERY.youth.allow, fail-closed). Output is identical to the former static markup. */
-(function(){var rows=(window.BATTERY&&BATTERY.items('arm.section'))||[];var out=rows.slice().sort(function(a,b){return a.order-b.order;}).filter(function(r){return BATTERY.youth.allow(r);}).map(function(r){return '  <button class="tab'+(r.default?' active':'')+'" data-tab="'+BATTERY.esc(r.id)+'">'+BATTERY.esc(r.label)+'</button>\n';}).join('');if(!out)document.documentElement.setAttribute('data-sections-missing','1');var me=document.currentScript;document.write('\n'+out);if(me&&me.parentNode)me.parentNode.removeChild(me);})();
+(function(){var rows=(window.BATTERY&&BATTERY.items('arm.section'))||[];var out=rows.slice().sort(function(a,b){return a.order-b.order;}).filter(function(r){return BATTERY.youth.allow(r);}).map(function(r){return '  <button class="tab'+(r.default?' active':'')+'" data-tab="'+BATTERY.esc(r.id)+'">'+BATTERY.esc(r.label)+'</button>\n';}).join('');if(!out){document.documentElement.setAttribute('data-sections-missing','1');out='<div class="sections-failed" role="alert" style="padding:14px 16px;color:var(--text,#e6edf3);font-size:14px">Sections failed to load. <a href="#" onclick="location.reload();return false" style="color:var(--gold-bright,#f0b832)">Reload</a></div>';}var me=document.currentScript;document.write('\n'+out);if(me&&me.parentNode)me.parentNode.removeChild(me);})();
 </script></nav>
 <button type="button" id="sec-dock" aria-haspopup="dialog" aria-label="Sections menu"><span class="sd-tile noimg" aria-hidden="true"></span><span class="sd-title"></span><span class="sd-chev" aria-hidden="true">&#8964;</span></button>
 
@@ -6938,7 +6938,7 @@
   /* ARM UX 2A: ONE-TOKEN ROLLBACK. false => the old tab strip, exactly. true => strip hidden + docked header, but ONLY when the host exposes
      parent.openSectionDrawer() (feature-detected; without it the strip stays so navigation is never stranded). */
   var ARM_DRAWER_NAV = true;
-  const TAB_GROUPS = (function(){ var m = {}; BATTERY.items('arm.section').forEach(function(r){ m[r.id] = r.group; }); return m; })();   // Step 3: read from the section registry (tabGroup() still defaults to 'arm')
+  const TAB_GROUPS = (function(){ var m = {}; ((window.BATTERY && BATTERY.items('arm.section')) || []).forEach(function(r){ m[r.id] = r.group; }); return m; })();   // Step 3: read from the section registry (tabGroup() still defaults to 'arm')
   function tabGroup(id){ return TAB_GROUPS[id] || 'arm'; }
   let activeGroup = 'arm';
   function stepGroup(step){
