@@ -1,4 +1,7 @@
 {
   "schema": 1,
-  "modules": []
+  "modules": [
+    { "file": "modules/arm/sections.js", "frame": "arm", "kind": "arm.section", "load": "sync" },
+    { "file": "modules/arm/sections.js", "frame": "host", "kind": "arm.section", "load": "sync" }
+  ]
 }
