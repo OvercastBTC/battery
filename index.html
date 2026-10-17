@@ -1202,7 +1202,8 @@ function go(v){_curTab=v;try{localStorage.setItem('battery-last-view',v);}catch(
  try{vpSnap('go:'+v);setTimeout(function(){vpSnap('go:'+v+' +.4s')},400);setTimeout(function(){vpSnap('go:'+v+' +1.6s')},1600);}catch(e){}
  try{reassertViewport();}catch(e){} /* 2.1 Tier1: SPA view-switch is where the iOS viewport latch re-breaks — re-assert here */
  try{bdayNudgeRefresh();}catch(e){} /* O1: nudge is HOME-only (bdayNudgeEligible gates on _curTab) — re-evaluate on every view switch so it never overlaps ARM's #sec-dock */
- try{yvaNudgeRefresh();}catch(e){} /* same HOME-only gate for the youth-visibility owner nudge */}
+ try{yvaNudgeRefresh();}catch(e){} /* same HOME-only gate for the youth-visibility owner nudge */
+ try{ if(armish)armSectionsWatch(); }catch(e){} /* v252: in-app fail-visible for a failed ARM sections registry (drawer-nav hides ARM's own alert) */}
 /* iOS WebKit layout-viewport latch fix (BOTTOM-BAR-FIX-2.1, Tier 1). Safari/Chrome iOS
    (both WKWebView) can stick the layout viewport at landscape width and never reset to
    device-width on SPA nav, stretching the full-width fixed chrome (hostbar/tabbar/strip).
@@ -4212,16 +4213,38 @@ function armLiveTabs(){
    Order matters and DIFFERS from the old literals: flow items follow `flowOrder` (warmup,tube,jbands,plyo,long); info items follow `order` (gameday,schedule,sources,history -
    the old ARM_INFO_IDS literal listed history before sources, which was never the rendered order). If the registry is absent (a failed sections.js load) the drawer degrades to ONE
    ungrouped list of the live tabs rather than throwing. */
+/* FAIL-VISIBLE, IN-APP (v252, found by R's verify of the first v252 build). arm.html shows a 'Sections failed to load. Reload' alert inside nav.tabs, but in-app ARM runs in
+   drawer-nav mode (body.drawer-nav .tabs{display:none}), so that alert is HIDDEN behind the host: the user got a silently empty drawer. The host therefore owns the in-app signal:
+   ARM raises html[data-sections-missing] when its registry is empty (or BATTERY is missing); a fully loaded ARM document with ZERO tabs is the same failure from an older cache.
+   Surfaces: a persistent toast with a Reload action when the user enters an ARM view, and ONE explicit failure row in the drawer instead of an empty body. */
+var _armFailShown=false;
+function armSectionsFailed(){
+  try{
+    var d=FRAMES.arm.contentDocument; if(!d||!d.documentElement)return false;
+    if(d.documentElement.hasAttribute('data-sections-missing'))return true;
+    return d.readyState==='complete'&&!!d.body&&d.body.innerHTML.length>500&&d.querySelectorAll('.tab[data-tab]').length===0;
+  }catch(e){ return false; }
+}
+function armSectionsReload(){ try{ FRAMES.arm.contentWindow.location.reload(); }catch(e){ try{ location.reload(); }catch(x){} } }
+function armSectionsNotify(){
+  var bad=armSectionsFailed();
+  if(!bad){ _armFailShown=false; return; }
+  if(_armFailShown)return; _armFailShown=true;
+  try{ showToast('Sections failed to load',{icon:'⚠️',dur:12000,actionLabel:'Reload',action:armSectionsReload}); }catch(e){}
+}
+function armSectionsWatch(){ [1400,3500].forEach(function(ms){ setTimeout(armSectionsNotify,ms); }); }   // ARM's iframe may still be parsing at the first check
+window.armSectionsFailed=armSectionsFailed; window.armSectionsNotify=armSectionsNotify;
 function armSectionRows(){ var m={}; try{ ((window.BATTERY&&window.BATTERY.items&&window.BATTERY.items('arm.section'))||[]).forEach(function(r){ m[r.id]=r; }); }catch(e){} return m; }
 function armDrawerData(){
-  var live=armLiveTabs(), tabs=live.tabs, rows=armSectionRows(), haveRows=Object.keys(rows).length>0;
+  var live=armLiveTabs(), tabs=live.tabs, rows=armSectionRows(), haveRows=Object.keys(rows).length>0, failed=!tabs.length&&armSectionsFailed();
   function grpOf(t){ var r=rows[t.id]; return (r&&r.drawerGroup)||''; }
   function inGroup(g){ return tabs.some(function(t){ var r=rows[t.id]; return r&&r.group===g; }); }
   function sortedBy(list,key){ return list.map(function(t,i){ var r=rows[t.id]; return {t:t,i:i,k:(r&&r[key])||0}; }).sort(function(a,b){ return a.k-b.k||a.i-b.i; }).map(function(x){ return x.t; }); }
   var area=haveRows?(inGroup('drills')?'drills':(inGroup('body')?'body':'arm')):((_curTab==='drills'||_curTab==='body')?_curTab:'arm');
   function item(t){ return {id:t.id,label:t.label,img:sectionImg(t.id)}; }
   var groups=[];
-  if(area==='arm'&&haveRows){
+  if(failed){ groups.push({label:'',items:[{id:'__sections-failed',label:'Sections failed to load — tap to reload',img:null}]}); }   // an explicit failure row, never an empty body
+  else if(area==='arm'&&haveRows){
     var ov=tabs.filter(function(t){return grpOf(t)==='lead';}), fl=sortedBy(tabs.filter(function(t){return grpOf(t)==='flow';}),'flowOrder'), inf=sortedBy(tabs.filter(function(t){return grpOf(t)==='info';}),'order');
     var rest=tabs.filter(function(t){var g=grpOf(t); return g!=='lead'&&g!=='flow'&&g!=='info';});
     if(ov.length)groups.push({label:'',items:ov.map(item)});
@@ -4233,7 +4256,7 @@ function armDrawerData(){
   if(activeArea==='body'&&live.current==='lifting')activeArea='lift';
   return { title:({arm:'ARM',drills:'DRILLS',body:'RECOVERY'})[area]||'Sections', groups:groups, current:live.current,
     areas:ARM_AREA_ORDER.map(function(a){ return {id:a.id,label:a.label,img:areaImg(a.key),current:a.id===activeArea}; }),
-    onSelect:function(id){ goTab(area,id); },
+    onSelect:function(id){ if(id==='__sections-failed'){ armSectionsReload(); return; } goTab(area,id); },
     onArea:function(id){ if(id==='lift')goTab('body','lifting'); else go(id); } };
 }
 function openSectionDrawer(){
