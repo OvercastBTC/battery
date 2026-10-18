@@ -8895,6 +8895,15 @@
      arm-care-clipspeed store and the absolute base for clips/. Kept a 2-arg GLOBAL function - both call sites below and the clip-player gate drive window.buildClipCard.
      The modal (openClip / applyClipRate / clipFailed) is a separate surface and still shares arm-care-clipspeed through the same key. */
   function buildClipCard(file, label){
+    /* fail-VISIBLE: ARM now depends on lib/ui.js for the card. If it is missing (404 / blank / cache skew) say so in words instead of throwing a bare ReferenceError when a step expands. */
+    if(!window.ClipCard || typeof ClipCard.create!=='function'){
+      var miss=document.createElement('div'); miss.className='clip-card-missing'; miss.setAttribute('role','alert');
+      miss.style.cssText='padding:10px 12px;font-size:12px;color:var(--gold-bright,#f0b832)';
+      miss.appendChild(document.createTextNode('Clip player failed to load. '));
+      var rl=document.createElement('a'); rl.href='#'; rl.textContent='Reload'; rl.style.color='inherit';
+      rl.addEventListener('click', function(ev){ ev.preventDefault(); location.reload(); }); miss.appendChild(rl);
+      return miss;
+    }
     return ClipCard.create({
       file: file,
       label: label,
