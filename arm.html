@@ -11,7 +11,7 @@
 </script>
 <title>Bauer Arm Care · Protocol</title>
 <script>/* lib: design tokens (lib/tokens.css) + control styles (lib/ui.css) + the BATTERY namespace (lib/battery.js) + (Step 3) the ARM section registry modules/arm/sections.js + (Step 4) the ARM step registry modules/arm/steps.js, loaded SYNCHRONOUSLY in the same write so they execute right after battery.js and before every parse-time consumer; all versioned by this document's own ?v=. Render-blocking, loaded before this document's own stylesheet. */
-(function(){var v=((window.URLSearchParams&&new URLSearchParams(location.search).get('v'))||'0');document.write('<link rel="stylesheet" href="lib/tokens.css?v='+v+'"><link rel="stylesheet" href="lib/ui.css?v='+v+'"><script src="lib/battery.js?v='+v+'"><\/script><script src="modules/arm/sections.js?v='+v+'"><\/script><script src="modules/arm/steps.js?v='+v+'"><\/script>');})();</script>
+(function(){var v=((window.URLSearchParams&&new URLSearchParams(location.search).get('v'))||'0');document.write('<link rel="stylesheet" href="lib/tokens.css?v='+v+'"><link rel="stylesheet" href="lib/ui.css?v='+v+'"><script src="lib/battery.js?v='+v+'"><\/script><script src="lib/ui.js?v='+v+'"><\/script><script src="modules/arm/sections.js?v='+v+'"><\/script><script src="modules/arm/steps.js?v='+v+'"><\/script>');})();</script>
 <style>
   /* SHARED design tokens + the body.youth gold->green re-skin: lib/tokens.css (ONE canonical copy). Only ARM-only tokens are declared here. */
   :root {
@@ -8886,146 +8886,26 @@
      The 4.1 animated webp is the poster; tap -> native <video controls playsinline> in
      the SAME 16:9 box (no reflow); ⤢ corner button OR double-tap -> goBig (iOS
      webkitEnterFullscreen, else card.requestFullscreen() with a .catch() -> CSS .big
-     expand so the control is never silently dead). Single player at a time (clipStopOthers).
+     expand so the control is never silently dead). Single player at a time (ClipCard stop-others, lib/ui.js).
      Local re-hosted clips play inline; a missing/external clip flips to the official-source
      link-out (same classifier the modal used: try local, link out on <video> error). The
      source credit (CLIP_SOURCE) stays visible for licensing. openClip (modal) is left intact
      for any direct callers; the cards no longer route through it. Zero deps, no SW change. */
-  function clipStopOthers(except){
-    var cards=document.querySelectorAll('.clip-card-anim.playing');
-    for(var i=0;i<cards.length;i++){ if(cards[i]===except) continue;
-      var v=cards[i].querySelector('video'); if(v){ try{v.pause();}catch(e){} }
-      cards[i].classList.remove('playing'); }
-  }
-  function clipEnsureBigChrome(){
-    if(document.getElementById('clip-scrim')) return;
-    var s=document.createElement('div'); s.id='clip-scrim';
-    s.addEventListener('click', clipExitAllBig); document.body.appendChild(s);
-    var x=document.createElement('button'); x.id='clip-exitbig'; x.type='button';
-    x.textContent='✕ Close'; x.addEventListener('click', clipExitAllBig); document.body.appendChild(x);
-  }
-  function clipExitAllBig(){
-    var big=document.querySelectorAll('.clip-card-anim.big');
-    for(var i=0;i<big.length;i++) big[i].classList.remove('big');
-    var s=document.getElementById('clip-scrim'); if(s) s.classList.remove('open');
-    var x=document.getElementById('clip-exitbig'); if(x) x.classList.remove('show');
-  }
-  function clipBigFallback(card){
-    clipEnsureBigChrome(); card.classList.add('big');
-    var s=document.getElementById('clip-scrim'); if(s) s.classList.add('open');
-    var x=document.getElementById('clip-exitbig'); if(x) x.classList.add('show');
-  }
-  function clipGoBig(card){
-    var v=card.querySelector('video');
-    if(v && typeof v.webkitEnterFullscreen==='function'){ try{ v.webkitEnterFullscreen(); return; }catch(e){} }
-    var fn=card.requestFullscreen||card.webkitRequestFullscreen;
-    if(!fn){ clipBigFallback(card); return; }
-    var p=null; try{ p=fn.call(card); }catch(e){ clipBigFallback(card); return; }
-    if(p && typeof p.then==='function'){ p.catch(function(){ clipBigFallback(card); }); }
-  }
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape') clipExitAllBig(); });
-
+  /* Step 5b: the card itself now lives in lib/ui.js (window.ClipCard.create, DI). This is the ARM adapter: it injects ARM's credit tables (sourceFor / officialFor), the
+     arm-care-clipspeed store and the absolute base for clips/. Kept a 2-arg GLOBAL function - both call sites below and the clip-player gate drive window.buildClipCard.
+     The modal (openClip / applyClipRate / clipFailed) is a separate surface and still shares arm-care-clipspeed through the same key. */
   function buildClipCard(file, label){
-    var key = file.replace(/\.mp4$/,'');
-    var srcInfo = sourceFor(file);
-    var card = document.createElement('div');
-    card.className = 'clip-card-anim';
-    card.setAttribute('role','button'); card.tabIndex = 0;
-    card.setAttribute('aria-label', 'Play clip: ' + (label || key.replace(/-/g,' ')));
-    var prev = document.createElement('div');
-    prev.className = 'clip-preview';
-    var img = document.createElement('img');
-    img.className = 'clip-preview-img';
-    img.loading = 'lazy';
-    try { img.src = parent.location.href.replace(/[^/]*$/,'') + 'clips/previews/preview-' + key + '.webp'; }
-    catch(e) { img.src = 'clips/previews/preview-' + key + '.webp'; }
-    img.alt = ''; img.setAttribute('aria-hidden','true');
-    /* Hide ONLY on a real load failure (404). The off-screen observer pauses by blanking src;
-       that fires a spurious error which must NOT hide the preview (it never came back). */
-    img.onerror = function(){ if(this._paused) return; this.onerror=null; this.style.display='none'; };
-    prev.appendChild(img);
-    var badge = document.createElement('div'); badge.className='clip-loop-badge';
-    var dot = document.createElement('span'); dot.className='clip-loop-dot';
-    badge.appendChild(dot); badge.appendChild(document.createTextNode('Preview'));
-    prev.appendChild(badge);
-    var ovr = document.createElement('div'); ovr.className='clip-play-overlay';
-    var pbtn = document.createElement('div'); pbtn.className='clip-play-btn';
-    var tri = document.createElement('div'); tri.className='clip-play-tri';
-    pbtn.appendChild(tri); ovr.appendChild(pbtn); prev.appendChild(ovr);
-    var fsb = document.createElement('button'); fsb.className='clip-fsbtn'; fsb.type='button';
-    fsb.setAttribute('aria-label','Expand to full screen'); fsb.textContent='⤢';
-    prev.appendChild(fsb);
-    /* 4.2: explicit slow-mo control (coaching feature; iOS native controls hide speed) */
-    var speed = document.createElement('div'); speed.className='clip-speed-inline';
-    [['1','1×'],['0.5','½×'],['0.25','¼×']].forEach(function(p){
-      var sb=document.createElement('button'); sb.type='button'; sb.className='cs-ib';
-      sb.setAttribute('data-rate',p[0]); sb.setAttribute('aria-label','Play at '+p[1]); sb.textContent=p[1];
-      sb.addEventListener('click', function(ev){ ev.stopPropagation(); setInlineRate(parseFloat(p[0])); });
-      speed.appendChild(sb);
+    return ClipCard.create({
+      file: file,
+      label: label,
+      sourceFor: sourceFor,
+      officialFor: officialFor,
+      rate: {
+        get: function(){ return parseFloat(storeGet('arm-care-clipspeed','1')); },
+        set: function(r){ try{ storeSet('arm-care-clipspeed', String(r)); }catch(e){} }
+      },
+      baseUrl: (function(){ try{ return parent.location.href.replace(/[^/]*$/,''); }catch(e){ return ''; } })()
     });
-    prev.appendChild(speed);
-    function savedRate(){ var r=parseFloat(storeGet('arm-care-clipspeed','1')); return (r===0.5||r===0.25)?r:1; }
-    function syncSpeedBtns(r){ var bs=speed.querySelectorAll('.cs-ib');
-      for(var i=0;i<bs.length;i++){ bs[i].classList.toggle('on', parseFloat(bs[i].getAttribute('data-rate'))===r); } }
-    function setInlineRate(r){ try{ storeSet('arm-care-clipspeed', String(r)); }catch(e){}
-      if(video){ try{ video.playbackRate=r; }catch(e){} } syncSpeedBtns(r); }
-    card.appendChild(prev);
-    var footer = document.createElement('div'); footer.className='clip-card-footer';
-    var lbl = document.createElement('span'); lbl.className='clip-card-label';
-    lbl.textContent = label || key.replace(/-/g,' ');
-    footer.appendChild(lbl);
-    if(srcInfo){
-      var cr=document.createElement('a'); cr.className='clip-card-full';
-      cr.href=srcInfo[2]; cr.target='_blank'; cr.rel='noopener';
-      cr.textContent=srcInfo[1]+' ↗';
-      cr.addEventListener('click', function(ev){ ev.stopPropagation(); });
-      footer.appendChild(cr);
-    } else {
-      var full=document.createElement('span'); full.className='clip-card-full'; full.textContent='Full video';
-      footer.appendChild(full);
-    }
-    card.appendChild(footer);
-
-    var video=null, failed=false;
-    function linkOut(){
-      if(failed) return; failed=true;
-      var url=officialFor(file) || (srcInfo?srcInfo[2]:null);
-      var a=document.createElement('a'); a.className='clip-linkout';
-      a.href=url||'#'; a.target='_blank'; a.rel='noopener';
-      a.appendChild(document.createTextNode('▶ Watch official demo ↗'));
-      a.addEventListener('click', function(ev){ ev.stopPropagation(); });
-      prev.appendChild(a); card.classList.add('playing');
-    }
-    function play(){
-      if(failed){ var u=officialFor(file)||(srcInfo?srcInfo[2]:null); if(u) window.open(u,'_blank','noopener'); return; }
-      clipStopOthers(card);
-      if(!video){
-        video=document.createElement('video');
-        video.setAttribute('controls',''); video.setAttribute('playsinline',''); video.preload='metadata';
-        try { video.src = parent.location.href.replace(/[^/]*$/,'') + 'clips/' + file; }
-        catch(e) { video.src = 'clips/' + file; }
-        video.addEventListener('error', function(){
-          if(video && video.parentNode) video.parentNode.removeChild(video);
-          video=null; card.classList.remove('playing'); linkOut();
-        });
-        prev.appendChild(video);
-        try { video.playbackRate = savedRate(); } catch(e){}
-      }
-      card.classList.add('playing');
-      syncSpeedBtns(savedRate());
-      var pr=video.play(); if(pr && pr.catch) pr.catch(function(){});
-    }
-    pbtn.addEventListener('click', function(ev){ ev.stopPropagation(); play(); });
-    ovr.addEventListener('click', function(ev){ ev.stopPropagation(); play(); });
-    card.addEventListener('click', function(){ if(!card.classList.contains('playing')) play(); });
-    card.addEventListener('dblclick', function(){ if(!card.classList.contains('playing')) play(); clipGoBig(card); });
-    fsb.addEventListener('click', function(ev){ ev.stopPropagation(); clipGoBig(card); });
-    card.addEventListener('keydown', function(e){
-      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); play(); }
-      else if(e.key==='f' || e.key==='F'){ clipGoBig(card); }
-      else if(e.key==='Escape'){ clipExitAllBig(); }
-    });
-    return card;
   }
 
   /* Inject ▶ Demo buttons for every exercise whose clip is on the TODO-CLIPS wish-list.
