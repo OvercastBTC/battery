@@ -1,0 +1,184 @@
+/* BATTERY control library - the clip player's STYLES (rewrite Step 5b v257). Co-located with lib/clip.js
+   (the ClipCard inline player + the ClipModal overlay) per the one-file-per-control pattern. Lifted VERBATIM
+   from arm.html's <style> (the card+fullscreen block and the #clip-modal block); rule text byte-identical, so
+   the open modal and a fresh card render unchanged (gated by clip-preview-paint + clip-player + a computed-
+   style parity check, both tiers). Loaded by arm.html via <link> in its lib document.write (after tokens.css,
+   whose --blue/--gold/--line vars these rules use). NOT loaded by host or FUEL. NOTE: .clip-btn is a GENERAL
+   ARM button (used by non-clip nav buttons + #clip-official too), so it stays in arm.html - it is not clip CSS. */
+
+  /* REQ-041: animated clip preview cards */
+  .clip-card-anim {
+    display: block; border-radius: 8px; overflow: hidden;
+    background: #0a1828; cursor: pointer;
+    margin: 7px 0 8px; max-width: 320px;
+    border: 1px solid var(--line);
+    transition: border-color 0.15s;
+  }
+  .clip-card-anim:hover { border-color: var(--blue); }
+  .clip-preview {
+    width: 100%; aspect-ratio: 16/9;
+    position: relative; overflow: hidden; background: #0a1828;
+  }
+  .clip-preview-img { width:100%; height:100%; object-fit:cover; display:block; }
+  .clip-loop-badge {
+    position:absolute; top:6px; left:6px;
+    background:rgba(0,0,0,0.55); color:rgba(255,255,255,0.65);
+    font-size:9px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    padding:3px 7px; border-radius:4px;
+    display:flex; align-items:center; gap:4px;
+  }
+  .clip-loop-dot {
+    width:5px; height:5px; background:var(--gold,#f0b832);
+    border-radius:50%; flex-shrink:0;
+    animation: clip-loop-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes clip-loop-pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.4; transform:scale(0.75); }
+  }
+  .clip-play-overlay {
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,0.12);
+  }
+  .clip-play-btn {
+    width:44px; height:44px;
+    background:rgba(255,255,255,0.18); border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.35);
+    display:flex; align-items:center; justify-content:center;
+    transition: transform 0.12s, background 0.12s;
+  }
+  .clip-card-anim:hover .clip-play-btn {
+    transform:scale(1.1);
+    background:rgba(240,184,50,0.65); border-color:transparent;
+  }
+  .clip-play-tri {
+    border-left:14px solid rgba(255,255,255,0.95);
+    border-top:9px solid transparent; border-bottom:9px solid transparent;
+    margin-left:4px;
+  }
+  .clip-card-footer {
+    padding:5px 8px 7px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:10px; color:rgba(255,255,255,0.55);
+  }
+  .clip-card-full { font-size:9px; color:rgba(255,255,255,0.3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:62%; }
+  a.clip-card-full { color:var(--blue); text-decoration:none; }
+  a.clip-card-full:hover { text-decoration:underline; }
+  .clip-card-label { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* REQ-042 4.2 (D spec): the preview card IS an inline player.
+     The 16:9 .clip-preview box already has height (aspect-ratio), so an absolute
+     <video> fills it without the 0x0 collapse. Poster = cover; video = contain so a
+     portrait clip letterboxes in the same box instead of stretching (mixed list never
+     reflows). */
+  .clip-preview video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; display:block; z-index:1; }
+  .clip-fsbtn { position:absolute; top:6px; right:6px; z-index:4;
+    width:30px; height:30px; border-radius:8px; border:1px solid rgba(255,255,255,0.18);
+    background:rgba(13,17,23,0.6); color:#fff; cursor:pointer; display:none;
+    align-items:center; justify-content:center; font-size:16px; line-height:1; padding:0; }
+  .clip-fsbtn:hover { background:rgba(13,17,23,0.85); }
+  /* R-1 (S3 375px): expand touch target to >=44px WITHOUT growing the visible button
+     (D flagged the 30x30 ⤢ and the 19px-tall speed buttons as sub-44px on touch). A
+     transparent ::before enlarges the hit area only. */
+  .clip-fsbtn::before { content:''; position:absolute; inset:-7px; }
+  /* 4.2: explicit slow-mo buttons on the inline player — slow-mo is a core coaching
+     feature and iOS native <video> controls don't reliably expose playback speed, so we
+     keep prominent 1x/half/quarter buttons rather than relying on native controls. */
+  .clip-speed-inline { position:absolute; top:6px; left:6px; z-index:4; display:none; gap:3px; }
+  .clip-card-anim.playing .clip-speed-inline { display:flex; }
+  .clip-speed-inline .cs-ib { background:rgba(13,17,23,0.6); border:1px solid rgba(255,255,255,0.18);
+    color:#fff; border-radius:7px; padding:3px 7px; font-size:11px; font-weight:700; cursor:pointer;
+    font-family:inherit; line-height:1; position:relative; }
+  /* R-1: 44px-tall transparent hit area spanning each speed button's own width
+     (vertical-only so adjacent buttons don't steal each other's taps). Visual size unchanged. */
+  .clip-speed-inline .cs-ib::before { content:''; position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); height:44px; }
+  .clip-speed-inline .cs-ib:hover { background:rgba(13,17,23,0.85); }
+  .clip-speed-inline .cs-ib.on { background:var(--gold,#f0b832); color:#0a0f14; border-color:transparent; }
+  .clip-card-anim.playing .clip-play-overlay,
+  .clip-card-anim.playing .clip-preview-img,
+  .clip-card-anim.playing .clip-loop-badge { display:none; }
+  .clip-card-anim.playing .clip-fsbtn { display:flex; }
+  .clip-linkout { position:absolute; inset:0; z-index:3; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:6px; background:#0a1828; color:var(--blue);
+    text-decoration:none; font-size:12px; font-weight:700; text-align:center; padding:12px; }
+  /* BIG (fullscreen-API fallback / sandboxed-iframe path) */
+  #clip-scrim { position:fixed; inset:0; background:rgba(2,4,8,0.82); z-index:50; display:none; }
+  #clip-scrim.open { display:block; }
+  #clip-exitbig { position:fixed; top:14px; right:16px; z-index:52; display:none;
+    background:var(--panel,#161b22); border:1px solid var(--line); color:var(--fg,#e6edf3);
+    border-radius:9px; padding:8px 13px; font-size:12.5px; font-weight:600; cursor:pointer; }
+  #clip-exitbig.show { display:inline-flex; }
+  .clip-card-anim.big { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:min(94vw,1000px); max-width:none; margin:0; z-index:51; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+  .clip-card-anim.big .clip-preview { aspect-ratio:16/9; }
+  .clip-card-anim.big .clip-card-footer { display:none; }
+
+  /* Shared in-iframe demo-clip modal (dark overlay, matches host #bmodal) */
+  #clip-modal {
+    display: none;
+    position: fixed; inset: 0; z-index: 400;
+    background: rgba(13,17,23,0.9);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  #clip-modal.on { display: flex; }
+  #clip-modal .clip-card {
+    width: 100%; max-width: 560px;
+    background: var(--steel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 18px 50px #000a;
+  }
+  #clip-modal .clip-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  #clip-modal .clip-title {
+    font-family: 'Courier New', monospace;
+    font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--gold);
+  }
+  #clip-modal .clip-close {
+    background: var(--steel-2); border: 1px solid var(--line);
+    color: var(--bone); border-radius: 8px;
+    font-size: 16px; line-height: 1; font-weight: 700;
+    width: 32px; height: 32px; cursor: pointer; flex: none;
+  }
+  #clip-modal video {
+    width: 100%; max-height: 70vh; display: block;
+    background: #000; border-radius: 8px;
+  }
+  #clip-modal .clip-soon {
+    display: none;
+    font-size: 13px; color: var(--dim);
+    text-align: center; padding: 40px 16px;
+    border: 1px dashed var(--line); border-radius: 8px;
+  }
+  #clip-modal.no-clip video { display: none; }
+  #clip-speed {
+    display: flex; align-items: center; gap: 6px; margin-top: 9px;
+  }
+  #clip-speed .cs-label {
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--dim); margin-right: 2px;
+  }
+  #clip-speed .cs-btn {
+    flex: 1; padding: 8px 0; border-radius: 9px; cursor: pointer;
+    background: var(--steel); border: 1px solid var(--line-bright); color: var(--dim);
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+    font-size: 13px; font-weight: 700;
+  }
+  #clip-speed .cs-btn.on {
+    background: var(--gold); border-color: var(--gold); color: var(--ink);
+  }
+  #clip-credit {
+    font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.6;
+    color: var(--dim); margin: 0 0 8px;
+  }
+  #clip-credit a { color: var(--gold); text-decoration: none; }
+  #clip-credit a:hover { text-decoration: underline; }
+  #clip-modal.no-clip .clip-soon { display: block; }
