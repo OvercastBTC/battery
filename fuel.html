@@ -7659,6 +7659,9 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
           }).join('');
         }
         var _allExIds=Object.keys(_nameMap);
+        /* §4.3: ARM hides .plyo-heavy and .youth-hide steps from a youth profile; this ADD list must not offer (or leak the names of) the same steps. A step id is
+           youth-hidden when EVERY .step carrying it sits inside one of those wrappers (same rule ARM's CSS applies). Fail-closed: if ARM cannot be inspected, a youth gets none. */
+        if(fy()){ var _yh=_youthHiddenExSet(); _allExIds=(_yh===null)?[]:_allExIds.filter(function(id){ return !_yh[id]; }); }
         var _missingEx=_allExIds.filter(function(id){ return _armIds.indexOf(id)<0; });
         if(_missingEx.length){
           armExSec+='<div style="margin-top:6px;display:flex;gap:6px">'+
@@ -7798,10 +7801,21 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
         try{window.parent.batPoll();}catch(e){}
         render(); refreshPanels();
       };
+      /* §4.3: ids ARM hides from youth (all carrying steps inside .plyo-heavy / .youth-hide). Computed from the live ARM DOM; null = ARM not inspectable (=> fail-closed). */
+      function _youthHiddenExSet(){
+        try{
+          var d=window.parent.document.querySelector('#f-arm').contentDocument, seen={}, vis={}, out={};
+          d.querySelectorAll('.step').forEach(function(s){ var id=s.dataset.ex; if(!id)return; seen[id]=1; if(!s.closest('.plyo-heavy,.youth-hide')) vis[id]=1; });
+          Object.keys(seen).forEach(function(id){ if(!vis[id]) out[id]=1; });
+          return out;
+        }catch(e){ return null; }
+      }
+      function _exYouthHidden(id){ var h=_youthHiddenExSet(); return h===null ? true : !!h[id]; }
       window._dayArmAdd=function(){
         var sel=document.getElementById('_dayArmSel');
         if(!sel||!sel.value)return;
         var id=sel.value;
+        if(fy() && _exYouthHidden(id))return;   /* §4.3: belt-and-braces - a youth can never add a step ARM hides from them */
         var parts=key.split('-');
         var ak='arm-care-done-'+parseInt(parts[0],10)+'-'+parseInt(parts[1],10)+'-'+parseInt(parts[2],10);
         var raw=''; try{raw=localStorage.getItem(ak)||'';}catch(e){}
