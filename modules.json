@@ -2,6 +2,8 @@
   "schema": 1,
   "modules": [
     { "file": "modules/arm/sections.js", "frame": "arm", "kind": "arm.section", "load": "sync" },
-    { "file": "modules/arm/sections.js", "frame": "host", "kind": "arm.section", "load": "sync" }
+    { "file": "modules/arm/sections.js", "frame": "host", "kind": "arm.section", "load": "sync" },
+    { "file": "modules/arm/steps.js", "frame": "arm", "kind": "arm.steps", "load": "sync" },
+    { "file": "modules/arm/steps.js", "frame": "fuel", "kind": "arm.steps", "load": "sync" }
   ]
 }
