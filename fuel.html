@@ -7648,11 +7648,17 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
         try{ var _armRaw=localStorage.getItem(_armKey); _armIds=_armRaw?_armRaw.split(',').filter(Boolean):[]; }catch(e){}
         var _nameMap={};
         try{ _nameMap=window.parent.document.querySelector('#f-arm').contentWindow.buildExNameMap(); }catch(e){}
+        /* §4.3: ONE filter for the logged rows AND the add-select. For a youth, a step id is shown only if ARM can be inspected, the id is in the name map, and NOT every
+           carrying .step sits inside .plyo-heavy/.youth-hide. A logged-but-hidden step (stale record) renders neither its name NOR its raw id (_exLabel prints the id on a
+           map miss, so such ids are dropped, never relabelled). Fail-closed: youth + lookup error => EMPTY. Adult: untouched. */
+        var _yh=fy()?_youthHiddenExSet():null;
+        var _exShown=function(id){ if(!fy())return true; return _yh!==null && Object.prototype.hasOwnProperty.call(_nameMap,id) && !_yh[id]; };
+        var _armIdsShown=_armIds.filter(_exShown);
         var _exLabel=function(id){var n=_nameMap[id]||id;return n.replace(/^[A-Z]+-?\d+\w?\s*·\s*/i,'');};
         var armExSec='<div style="border-top:1px solid #2d333b;margin-top:12px;padding-top:12px">'+
-          '<div style="font-size:10px;letter-spacing:1px;color:#8b949e;font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px">ARM Exercises · '+_armIds.length+' logged</div>';
-        if(_armIds.length){
-          armExSec+=_armIds.map(function(id){
+          '<div style="font-size:10px;letter-spacing:1px;color:#8b949e;font-family:\'SF Mono\',monospace;text-transform:uppercase;margin-bottom:6px">ARM Exercises · '+_armIdsShown.length+' logged</div>';
+        if(_armIdsShown.length){
+          armExSec+=_armIdsShown.map(function(id){
             return '<div style="display:flex;align-items:center;gap:8px;padding:6px 11px;background:#0d1117;border:1px solid #2d333b;border-radius:9px;margin-bottom:4px">'+
               '<span style="color:#3fb950;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+_exLabel(id)+'</span>'+
               '<button onclick="window._dayArmRemove(\''+id+'\')" style="background:none;border:1px solid #da3633;color:#da3633;border-radius:7px;padding:3px 8px;font-size:11px;cursor:pointer">✕</button></div>';
@@ -7661,7 +7667,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
         var _allExIds=Object.keys(_nameMap);
         /* §4.3: ARM hides .plyo-heavy and .youth-hide steps from a youth profile; this ADD list must not offer (or leak the names of) the same steps. A step id is
            youth-hidden when EVERY .step carrying it sits inside one of those wrappers (same rule ARM's CSS applies). Fail-closed: if ARM cannot be inspected, a youth gets none. */
-        if(fy()){ var _yh=_youthHiddenExSet(); _allExIds=(_yh===null)?[]:_allExIds.filter(function(id){ return !_yh[id]; }); }
+        if(fy()) _allExIds=_allExIds.filter(_exShown);
         var _missingEx=_allExIds.filter(function(id){ return _armIds.indexOf(id)<0; });
         if(_missingEx.length){
           armExSec+='<div style="margin-top:6px;display:flex;gap:6px">'+
