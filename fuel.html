@@ -7663,6 +7663,8 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
               '<button onclick="window._dayArmRemove(\''+id+'\')" style="background:none;border:1px solid #da3633;color:#da3633;border-radius:7px;padding:3px 8px;font-size:11px;cursor:pointer">✕</button></div>';
           }).join('');
         }
+        /* fail-VISIBLE: if the arm.steps registry is missing/empty (steps.js 404 / blank / lib down) say so in words - never a silently empty exercise list. Words only (no digits), so it is youth-safe; the youth map above is already fail-closed to {}. */
+        if(!_armStepsLoaded()) armExSec+='<div role="alert" style="margin-top:6px;font-size:12px;color:#e3b341">Exercise list failed to load. <a href="#" onclick="location.reload();return false" style="color:#f0b832">Reload</a></div>';
         var _allExIds=Object.keys(_nameMap);
         /* §4.3: the map is already tier-filtered (see _armStepMap); the youth filter below is belt-and-braces so the ADD list can never offer a step ARM hides from a youth. */
         if(fy()) _allExIds=_allExIds.filter(_exShown);
@@ -7808,6 +7810,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       /* arm.steps registry (modules/arm/steps.js, loaded in this document's lib write) -> { stepId: name } for the steps THIS tier may see. Replaces the cross-frame
          buildExNameMap() hop (R row 17) and the live-DOM wrapper walk. BATTERY.youth.allow reads the tier at CALL time and fails closed to youth: youth => the 172 steps ARM renders
          for them (no heavy:true, youth:'safe' only), adult => all 282. Any error / missing registry => {} (a youth gets nothing; an adult gets an empty list, never a throw). */
+      function _armStepsLoaded(){ try{ return BATTERY.items('arm.steps').length>0; }catch(e){ return false; } }
       function _armStepMap(){
         var m={};
         try{ BATTERY.items('arm.steps').filter(function(s){ return BATTERY.youth.allow(s); }).forEach(function(s){ m[s.id]=s.name; }); }
