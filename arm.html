@@ -8805,82 +8805,32 @@
     ['jband-','https://jaegersports.com/j-bands-exercises-baseball-workout'],
     ['pullapart-','https://youtu.be/MnDpmNYUjbc?t=1']
   ];
-  var _curClip='';
   function officialFor(name){
     for(var i=0;i<OFFICIAL_DEMOS.length;i++){ if(name.indexOf(OFFICIAL_DEMOS[i][0])===0) return OFFICIAL_DEMOS[i][1]; }
     return null;
   }
+  /* Step 5b Stage-2: the demo-clip modal's LOGIC lives in lib/clip.js (window.ClipModal.mount, DI); the #clip-modal MARKUP stays right here, untouched, so every inline
+     onclick/onerror and the ~40 clip-btn openClip() calls keep working. This mounts the control once (the markup above is already parsed; clip.js loaded in the lib write)
+     and keeps the six historic GLOBAL names as thin shims. It shares arm-care-clipspeed with the inline card through the same key. The lib owns Esc-to-close. */
+  var _clipModal = (window.ClipModal && ClipModal.mount) ? ClipModal.mount({
+    doc: document,
+    ids: { modal:'clip-modal', video:'clip-video', official:'clip-official', credit:'clip-credit', speed:'clip-speed' },
+    sourceFor: sourceFor,
+    officialFor: officialFor,
+    rate: { get: function(){ return parseFloat(storeGet('arm-care-clipspeed','1')); },
+            set: function(r){ try{ storeSet('arm-care-clipspeed', String(r)); }catch(e){} } },
+    baseUrl: (function(){ try{ return parent.location.href.replace(/[^/]*$/,''); }catch(e){ return ''; } })()
+  }) : null;
+  /* fail-VISIBLE: with lib/clip.js missing the modal control is absent. A demo button must not go silently dead - fall back to the official source link-out (same target the
+     modal's own error path offers) instead of doing nothing. */
   function openClip(name){
-    var m=document.getElementById('clip-modal');
-    var v=document.getElementById('clip-video');
-    if(!m||!v)return;
-    _curClip=name||'';
-    m.classList.remove('no-clip');
-    var a=document.getElementById('clip-official'); if(a) a.style.display='none';
-    var src;
-    try{ src = parent.location.href.replace(/[^/]*$/,'') + 'clips/' + name; }
-    catch(e){ src = 'clips/' + name; }
-    v.src = src;
-    /* credit line above the player, built with textContent + a real anchor so a
-       source title can never inject markup */
-    var cr=document.getElementById('clip-credit');
-    if(cr){
-      cr.textContent='';
-      var srcInfo=sourceFor(_curClip);
-      if(srcInfo){
-        cr.appendChild(document.createTextNode('Cut from: '));
-        var lk=document.createElement('a');
-        lk.href=srcInfo[2]; lk.target='_blank'; lk.rel='noopener';
-        lk.textContent=srcInfo[1]+' ↗';
-        cr.appendChild(lk);
-        cr.style.display='block';
-      } else { cr.style.display='none'; }
-    }
-    try{ v.load(); }catch(e){}
-    applyClipRate();
-    m.classList.add('on');
+    if(_clipModal){ _clipModal.open(name); return; }
+    var u=officialFor(name||'')||((sourceFor(name||'')||[])[2]||null);
+    if(u){ try{ window.open(u,'_blank','noopener'); }catch(e){} }
   }
-  /* Slow-motion without shipping a second copy of anything.
-
-     playbackRate survives a src change on some engines and resets on others, so it
-     is re-applied on every open rather than set once -- otherwise a clip opened
-     after a slowed one plays at the wrong speed with the buttons showing the right
-     one, which is worse than either. */
-  function clipRate(){
-    var r = parseFloat(storeGet('arm-care-clipspeed', '1'));
-    return (r === 0.5 || r === 0.25) ? r : 1;
-  }
-  function applyClipRate(){
-    var v = document.getElementById('clip-video');
-    var r = clipRate();
-    if (v) { try { v.playbackRate = r; } catch(e){} }
-    document.querySelectorAll('#clip-speed .cs-btn').forEach(function(b){
-      b.classList.toggle('on', parseFloat(b.getAttribute('data-rate')) === r);
-    });
-  }
-  window.setClipRate = function(r){
-    storeSet('arm-care-clipspeed', String(r));
-    applyClipRate();
-  };
-  function clipFailed(){
-    var m=document.getElementById('clip-modal');
-    if(m) m.classList.add('no-clip');
-    var a=document.getElementById('clip-official');
-    if(a){
-      var u=officialFor(_curClip);
-      if(u){ a.href=u; a.style.display='inline-block'; }
-      else { a.style.display='none'; }
-    }
-  }
-  function closeClip(){
-    var m=document.getElementById('clip-modal');
-    var v=document.getElementById('clip-video');
-    if(v){ try{ v.pause(); }catch(e){} v.removeAttribute('src'); try{ v.load(); }catch(e){} }
-    if(m){ m.classList.remove('on'); m.classList.remove('no-clip'); }
-    var a=document.getElementById('clip-official'); if(a) a.style.display='none';
-    var cr=document.getElementById('clip-credit'); if(cr) cr.style.display='none';
-  }
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeClip(); });
+  function closeClip(){ if(_clipModal) _clipModal.close(); }
+  window.setClipRate = function(r){ if(_clipModal) _clipModal.setRate(r); };
+  function clipFailed(){ if(_clipModal) _clipModal.failed(); }
 
   /* REQ-042 4.2 (D verified spec): the REQ-041 preview card IS an inline player.
      The 4.1 animated webp is the poster; tap -> native <video controls playsinline> in
@@ -8893,7 +8843,7 @@
      for any direct callers; the cards no longer route through it. Zero deps, no SW change. */
   /* Step 5b: the card itself now lives in lib/clip.js (window.ClipCard.create, DI). This is the ARM adapter: it injects ARM's credit tables (sourceFor / officialFor), the
      arm-care-clipspeed store and the absolute base for clips/. Kept a 2-arg GLOBAL function - both call sites below and the clip-player gate drive window.buildClipCard.
-     The modal (openClip / applyClipRate / clipFailed) is a separate surface and still shares arm-care-clipspeed through the same key. */
+     The modal (openClip / closeClip / setClipRate / clipFailed) is mounted from lib/clip.js too (ClipModal) and shares arm-care-clipspeed through the same key. */
   function buildClipCard(file, label){
     /* fail-VISIBLE: ARM now depends on lib/clip.js for the card. If it is missing (404 / blank / cache skew) say so in words instead of throwing a bare ReferenceError when a step expands. */
     if(!window.ClipCard || typeof ClipCard.create!=='function'){
