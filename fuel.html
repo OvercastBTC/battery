@@ -10,8 +10,8 @@
 })();
 </script>
 <title>Fuel Stack · Protein + Hydration</title>
-<script>/* lib: design tokens (lib/tokens.css) + control styles (lib/ui.css) + the BATTERY namespace (lib/battery.js), all versioned by this document's own ?v=. Render-blocking, loaded before this document's own stylesheet. */
-(function(){var v=((window.URLSearchParams&&new URLSearchParams(location.search).get('v'))||'0');document.write('<link rel="stylesheet" href="lib/tokens.css?v='+v+'"><link rel="stylesheet" href="lib/ui.css?v='+v+'"><script src="lib/battery.js?v='+v+'"><\/script>');})();</script>
+<script>/* lib: design tokens (lib/tokens.css) + control styles (lib/ui.css) + the BATTERY namespace (lib/battery.js) + (Step 4) the ARM step registry modules/arm/steps.js (loaded synchronously in the same write; replaces the cross-frame buildExNameMap() hop), all versioned by this document's own ?v=. Render-blocking, loaded before this document's own stylesheet. */
+(function(){var v=((window.URLSearchParams&&new URLSearchParams(location.search).get('v'))||'0');document.write('<link rel="stylesheet" href="lib/tokens.css?v='+v+'"><link rel="stylesheet" href="lib/ui.css?v='+v+'"><script src="lib/battery.js?v='+v+'"><\/script><script src="modules/arm/steps.js?v='+v+'"><\/script>');})();</script>
 <style>
   /* SHARED design tokens + the body.fuel-youth gold->green re-skin: lib/tokens.css (ONE canonical copy). Only FUEL-only tokens are declared here. */
   :root {
@@ -7647,12 +7647,11 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
         var _armIds=[];
         try{ var _armRaw=localStorage.getItem(_armKey); _armIds=_armRaw?_armRaw.split(',').filter(Boolean):[]; }catch(e){}
         var _nameMap={};
-        try{ _nameMap=window.parent.document.querySelector('#f-arm').contentWindow.buildExNameMap(); }catch(e){}
-        /* §4.3: ONE filter for the logged rows AND the add-select. For a youth, a step id is shown only if ARM can be inspected, the id is in the name map, and NOT every
-           carrying .step sits inside .plyo-heavy/.youth-hide. A logged-but-hidden step (stale record) renders neither its name NOR its raw id (_exLabel prints the id on a
-           map miss, so such ids are dropped, never relabelled). Fail-closed: youth + lookup error => EMPTY. Adult: untouched. */
-        var _yh=fy()?_youthHiddenExSet():null;
-        var _exShown=function(id){ if(!fy())return true; return _yh!==null && Object.prototype.hasOwnProperty.call(_nameMap,id) && !_yh[id]; };
+        _nameMap=_armStepMap();
+        /* §4.3: ONE filter for the logged rows AND the add-select. _armStepMap() already holds ONLY the steps this tier may see (BATTERY.youth.allow over the arm.steps registry:
+           youth 172 / adult 282), so for a youth a step id is shown only if it is IN that map. A logged-but-hidden step (stale record) renders neither its name NOR its raw id
+           (_exLabel prints the id on a map miss, so such ids are dropped, never relabelled). Fail-closed: youth + registry missing/erroring => EMPTY. Adult: untouched. */
+        var _exShown=function(id){ if(!fy())return true; return Object.prototype.hasOwnProperty.call(_nameMap,id); };
         var _armIdsShown=_armIds.filter(_exShown);
         var _exLabel=function(id){var n=_nameMap[id]||id;return n.replace(/^[A-Z]+-?\d+\w?\s*·\s*/i,'');};
         var armExSec='<div style="border-top:1px solid #2d333b;margin-top:12px;padding-top:12px">'+
@@ -7665,8 +7664,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
           }).join('');
         }
         var _allExIds=Object.keys(_nameMap);
-        /* §4.3: ARM hides .plyo-heavy and .youth-hide steps from a youth profile; this ADD list must not offer (or leak the names of) the same steps. A step id is
-           youth-hidden when EVERY .step carrying it sits inside one of those wrappers (same rule ARM's CSS applies). Fail-closed: if ARM cannot be inspected, a youth gets none. */
+        /* §4.3: the map is already tier-filtered (see _armStepMap); the youth filter below is belt-and-braces so the ADD list can never offer a step ARM hides from a youth. */
         if(fy()) _allExIds=_allExIds.filter(_exShown);
         var _missingEx=_allExIds.filter(function(id){ return _armIds.indexOf(id)<0; });
         if(_missingEx.length){
@@ -7807,21 +7805,20 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
         try{window.parent.batPoll();}catch(e){}
         render(); refreshPanels();
       };
-      /* §4.3: ids ARM hides from youth (all carrying steps inside .plyo-heavy / .youth-hide). Computed from the live ARM DOM; null = ARM not inspectable (=> fail-closed). */
-      function _youthHiddenExSet(){
-        try{
-          var d=window.parent.document.querySelector('#f-arm').contentDocument, seen={}, vis={}, out={};
-          d.querySelectorAll('.step').forEach(function(s){ var id=s.dataset.ex; if(!id)return; seen[id]=1; if(!s.closest('.plyo-heavy,.youth-hide')) vis[id]=1; });
-          Object.keys(seen).forEach(function(id){ if(!vis[id]) out[id]=1; });
-          return out;
-        }catch(e){ return null; }
+      /* arm.steps registry (modules/arm/steps.js, loaded in this document's lib write) -> { stepId: name } for the steps THIS tier may see. Replaces the cross-frame
+         buildExNameMap() hop (R row 17) and the live-DOM wrapper walk. BATTERY.youth.allow reads the tier at CALL time and fails closed to youth: youth => the 172 steps ARM renders
+         for them (no heavy:true, youth:'safe' only), adult => all 282. Any error / missing registry => {} (a youth gets nothing; an adult gets an empty list, never a throw). */
+      function _armStepMap(){
+        var m={};
+        try{ BATTERY.items('arm.steps').filter(function(s){ return BATTERY.youth.allow(s); }).forEach(function(s){ m[s.id]=s.name; }); }
+        catch(e){ return {}; }
+        return m;
       }
-      function _exYouthHidden(id){ var h=_youthHiddenExSet(); return h===null ? true : !!h[id]; }
       window._dayArmAdd=function(){
         var sel=document.getElementById('_dayArmSel');
         if(!sel||!sel.value)return;
         var id=sel.value;
-        if(fy() && _exYouthHidden(id))return;   /* §4.3: belt-and-braces - a youth can never add a step ARM hides from them */
+        if(fy() && !Object.prototype.hasOwnProperty.call(_armStepMap(),id))return;   /* §4.3: belt-and-braces - a youth can never add a step ARM hides from them */
         var parts=key.split('-');
         var ak='arm-care-done-'+parseInt(parts[0],10)+'-'+parseInt(parts[1],10)+'-'+parseInt(parts[2],10);
         var raw=''; try{raw=localStorage.getItem(ak)||'';}catch(e){}
