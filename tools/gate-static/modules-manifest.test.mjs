@@ -64,6 +64,17 @@ function check(manifest, onDisk, read, html) {
     if (modPos < 0) problems.push(`${e.file}: load:"sync" but ${file} never loads it (no document.write / <script src>) — listed-but-unloaded means an EMPTY registry at parse time (a section list that silently never appears)`);
     else if (bat < 0 || modPos < bat) problems.push(`${e.file}: it is loaded in ${file} BEFORE lib/battery.js (or battery.js is absent) — BATTERY.register would not exist yet`);
   });
+  // REVERSE direction (v267): a module a document loads ITSELF must be listed in modules.json for THAT frame, as load:"sync". The two hand-kept lists (the manifest and each document's
+  // lib write / script tags) therefore cannot drift apart in either direction: loaded-but-unlisted (the gate would never see its contract) and listed-async-but-also-written (the loader
+  // would inject a SECOND copy and re-register -> duplicate-id throw) are both RED here.
+  Object.keys(html || {}).forEach((fr) => {
+    const t = stripHtml(html[fr] || ''), file = FRAME_FILE[fr];
+    [...new Set([...t.matchAll(/modules\/[a-z0-9_\/.-]+\.js/g)].map((m) => m[0]))].forEach((f) => {
+      const e = v.ok.find((x) => x.file === f && x.frame === fr);
+      if (!e) problems.push(`${file} loads ${f} but modules.json has no entry for frame "${fr}" — loaded-but-unlisted: the manifest gate would never inspect its contract`);
+      else if (e.load !== 'sync') problems.push(`${file} loads ${f} itself but its manifest entry is not load:"sync" — the loader would inject a second copy and re-register it`);
+    });
+  });
   return problems;
 }
 const FRAME_FILE = { host: 'index.html', arm: 'arm.html', fuel: 'fuel.html' };
@@ -108,6 +119,12 @@ log(run(SECM, { [SEC]: SECSRC }, { arm: BAT }).some((p) => /never loads it/.test
 const ONEW = (a, b) => "<script>document.write('" + a + b + "');</script>", TB = '<script src="lib/battery.js?v=1"><\/script>', TM = '<script src="modules/arm/sections.js?v=1"><\/script>';
 log(run(SECM, { [SEC]: SECSRC }, { arm: ONEW(TB, TM) }).length === 0, 'NEG-CONTROL (sync): battery.js and the module in the SAME document.write, battery.js first, PASSES (the form arm.html actually uses)');
 log(run(SECM, { [SEC]: SECSRC }, { arm: ONEW(TM, TB) }).some((p) => /BEFORE lib\/battery\.js/.test(p)), 'NEG-CONTROL (sync): the module BEFORE battery.js inside one write is RED');
+// REVERSE direction (v267): the document's own module list vs the manifest
+const GHOST = "<script src=\"modules/arm/ghost.js?v=1\"><\/script>";
+log(run(SECM, { [SEC]: SECSRC }, { arm: ONEW(TB, TM + GHOST) }).some((p) => /loads modules\/arm\/ghost\.js but modules\.json has no entry/.test(p)), 'NEG-CONTROL (reverse): a module the document loads that modules.json does NOT list is RED (loaded-but-unlisted)');
+log(run(SECM, { [SEC]: SECSRC }, { arm: ONEW(TB, TM) }).filter((p) => /loads modules/.test(p)).length === 0, 'NEG-CONTROL (reverse) baseline: the same document with ONLY the listed module raises no reverse problem');
+log(run({ schema: 1, modules: [{ file: SEC, frame: 'arm', kind: 'arm.section' }] }, { [SEC]: SECSRC }, { arm: ONEW(TB, TM) }).some((p) => /not load:"sync"/.test(p)), 'NEG-CONTROL (reverse): a module the document writes whose manifest entry is not load:"sync" is RED (the loader would double-inject it)');
+log(run(SECM, { [SEC]: SECSRC }, { arm: ONEW(TB, "/* modules/arm/ghost.js is only a comment */") + ONEW(TB, TM) }).filter((p) => /ghost/.test(p)).length === 0, 'NEG-CONTROL (reverse): a module path inside a COMMENT does not false-positive');
 log(run(SECM, { [SEC]: SECSRC }, { arm: WR + BAT }).some((p) => /BEFORE lib\/battery\.js/.test(p)), 'NEG-CONTROL (sync): a document.write placed BEFORE lib/battery.js is RED (BATTERY.register would not exist yet)');
 // the host loads the same module with a plain static tag, and the same FILE may be listed once per frame
 const SECH = { schema: 1, modules: [{ file: SEC, frame: 'arm', kind: 'arm.section', load: 'sync' }, { file: SEC, frame: 'host', kind: 'arm.section', load: 'sync' }] };
