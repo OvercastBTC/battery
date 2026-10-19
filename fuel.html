@@ -7,6 +7,9 @@
 (function(){
   var tier = null; try { tier = localStorage.getItem('battery-boot-tier'); } catch (e) {}   // unreadable => null => youth (fail-closed)
   window.BATTERY_TIER = (tier === 'adult') ? 'adult' : 'youth';   // §4.3 FAIL-CLOSED: only an explicit 'adult' is adult; missing/unknown => youth
+  /* PRE-PAINT GATE (v263, same shape as ARM v262): the youth CSS gates keyed ONLY on body.fuel-youth, which is toggled ~6000 lines of markup later (and the JS-rewritten readouts after
+     that), so a youth got painted frames with adult-only tabs/banking rows and gram numerals visible. <html> exists now; tag it from the already fail-closed tier. */
+  try { if (window.BATTERY_TIER !== 'adult') document.documentElement.classList.add('fuel-youth'); } catch (e) {}
 })();
 </script>
 <title>Fuel Stack · Protein + Hydration</title>
@@ -941,7 +944,7 @@
   .qa-btn .qa-ico svg { width: 13px; height: 13px; display: block; }
   /* Youth safety gate (§4.3): adult surfaces hidden for youth -- EXCEPT the opt-in
      supplement/energy ITEM surfaces (.qa-supp-optin) governed by the v198 flag below. */
-  body.fuel-youth .qa-adult:not(.qa-supp-optin) { display: none !important; }
+  html.fuel-youth .qa-adult:not(.qa-supp-optin), body.fuel-youth .qa-adult:not(.qa-supp-optin) { display: none !important; }
   /* v198 youth-visibility (owner policy change, DEFAULT OFF / INERT): the opt-in supp/
      energy ITEM surfaces are hidden from youth UNLESS body.youth-supps is set. The flag
      flips ON only on the owner's DIRECT in-session word to the release engineer (a peer
@@ -949,24 +952,24 @@
      exactly today's set = youth-fuel-gate passes with no test change. Either way the VALUE
      surfaces (.supp-dose / .supp-detail / .qa-igram / .qa-amt) stay hidden -- the hard
      §4.3 line that must survive the flag flip. */
-  body.fuel-youth:not(.youth-supps) .qa-supp-optin { display: none !important; }
+  html.fuel-youth body:not(.youth-supps) .qa-supp-optin, body.fuel-youth:not(.youth-supps) .qa-supp-optin { display: none !important; }   /* .youth-supps lives on <body>: the html variant must test the BODY or it would hide the owner-approved opt-in tiles forever */
   /* The "👥 Youth can see" admin control is ADULT-ONLY — it lives inside the supp card
      (.qa-supp-optin), which becomes youth-visible when the flag is on, so it needs its OWN
      hard hide: a youth must never reach the control that governs youth visibility. */
-  body.fuel-youth #supp-youth-vis { display: none !important; }
+  html.fuel-youth #supp-youth-vis, body.fuel-youth #supp-youth-vis { display: none !important; }
   .youth-fuel-only { display: none; }
-  body.fuel-youth .youth-fuel-only { display: inline; }
+  html.fuel-youth .youth-fuel-only, body.fuel-youth .youth-fuel-only { display: inline; }
   /* §4.3 + design review §6: a youth screen counts OBJECTS, never macros.
      The food NAME is what a kid needs; the gram numeral is the part the gate
      forbids. Keep the button, drop the number -- the entry still logs its real
      grams underneath, so the parent-facing history is unchanged. */
-  body.fuel-youth .quickadd-section.protein .qa-amt { display: none; }
+  html.fuel-youth .quickadd-section.protein .qa-amt, body.fuel-youth .quickadd-section.protein .qa-amt { display: none; }
   /* §4.3: the image-tile gram readout (5.0) is hidden for youth, same as .qa-amt above */
-  body.fuel-youth .quickadd-section.protein .qa-igram { display: none; }
+  html.fuel-youth .quickadd-section.protein .qa-igram, body.fuel-youth .quickadd-section.protein .qa-igram { display: none; }
   /* §4.3 (5.2): the ⋯ grid menu exposes gram amounts (header "+Xg" + the size/count
      steppers), and the menu-dot is not otherwise youth-gated. Hide it for youth on the
      protein section so youth can't open a macro surface. Water dots (oz) are unaffected. */
-  body.fuel-youth .quickadd-section.protein .qa-menu-dot { display: none; }
+  html.fuel-youth .quickadd-section.protein .qa-menu-dot, body.fuel-youth .quickadd-section.protein .qa-menu-dot { display: none; }
   /* stage 2: user-created items */
   .qa-btn { position: relative; }
   .qa-btn .qa-menu-dot {
@@ -1012,21 +1015,21 @@
     width: 100%; background: none; border: none; color: #8b949e; padding: 10px;
     font-size: 13px; cursor: pointer; margin-top: 2px;
   }
-  body.fuel-youth .qa-gram { display: none; }
-  body.fuel-youth #protein-pct { display: none; }
+  html.fuel-youth .qa-gram, body.fuel-youth .qa-gram { display: none; }
+  html.fuel-youth #protein-pct, body.fuel-youth #protein-pct { display: none; }
   /* v197 (youth-visibility policy): when youth SEE supplements (item name+image), their
      VALUE surfaces stay hidden — the non-negotiable §4.3 line. Hides the supp-checklist
      dose/mg/scoop line, the expandable dose-rationale detail, and its chevron so youth
      can't open it. Supplement quick-add tile grams ride the existing .qa-igram hide;
      drink oz (volume, not a dose) stays visible per owner. */
-  body.fuel-youth .supp-dose,
-  body.fuel-youth .supp-detail,
-  body.fuel-youth .supp-detail-chev { display: none !important; }
+  html.fuel-youth .supp-dose, body.fuel-youth .supp-dose,
+  html.fuel-youth .supp-detail, body.fuel-youth .supp-detail,
+  html.fuel-youth .supp-detail-chev, body.fuel-youth .supp-detail-chev { display: none !important; }
   /* v198: the mix-in info panel (Liquid IV "≈500mg Na + 11g sugar", LMNT "≈1000mg Na") is
      a VALUE surface -- stays youth-hidden even when the mixins group is visible, and so is
      its (?) toggle so youth can't open it. The hard line survives the item-visibility flip. */
-  body.fuel-youth .qa-mixin-info,
-  body.fuel-youth .qa-info-toggle { display: none !important; }
+  html.fuel-youth .qa-mixin-info, body.fuel-youth .qa-mixin-info,
+  html.fuel-youth .qa-info-toggle, body.fuel-youth .qa-info-toggle { display: none !important; }
   /* ===== REMINDERS — general in-app reminder capability (REQ-052 2.0) =====
      Youth-visible by design (general/game-day/practice). No g/mg/mcg content:
      the only numerals are day-counts ("every 3 days") and dates, so the §4.3
@@ -1943,8 +1946,8 @@
 
   /* ===== HEAT SAFETY ===== */
   .heat-youth { display: none; }
-  body.fuel-youth .heat-youth { display: block; }
-  body.fuel-youth .heat-adult { display: none; }
+  html.fuel-youth .heat-youth, body.fuel-youth .heat-youth { display: block; }
+  html.fuel-youth .heat-adult, body.fuel-youth .heat-adult { display: none; }
   .heat-risk { border-radius: 14px; padding: 15px; margin: 12px 0; border: 1px solid; }
   .heat-risk-low { background: #0d1f17; border-color: #2ea04366; }
   .heat-risk-elevated { background: #211d0d; border-color: #d4a01766; }
@@ -2047,7 +2050,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       </div>
       <div class="summary-pill trk-prot">
         <span class="summary-label">P</span>
-        <span class="summary-val protein" id="summary-protein">0/180g</span>
+        <span class="summary-val protein" id="summary-protein">–</span>
       </div>
       <div class="summary-pill trk-water">
         <span class="summary-label">H₂O</span>
@@ -2098,7 +2101,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       <div class="goal-row">
         <div class="goal-pill protein">
           <div class="lbl">Protein target</div>
-          <div class="val" id="goal-protein">180<span class="unit"> g</span></div>
+          <div class="val" id="goal-protein">–</div>
         </div>
         <div class="goal-pill water">
           <div class="lbl">Water target</div>
@@ -2172,7 +2175,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       </div>
       <div class="mini-stat">
         <div class="mini-stat-label"><span class="qa-adult">7d P avg</span><span class="youth-fuel-only">7d food</span></div>
-        <div class="mini-stat-val protein" id="mini-p-avg">0<span class="u">g</span></div>
+        <div class="mini-stat-val protein" id="mini-p-avg">–</div>
       </div>
       <div class="mini-stat">
         <div class="mini-stat-label">7d H₂O avg</div>
@@ -2195,7 +2198,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       <div class="progress-label">
         <span class="name"><b class="qa-adult">Protein</b><b class="youth-fuel-only">Food</b> · <span id="progress-day-label">today</span></span>
         <span class="vals" id="protein-vals">
-          <span class="cur" id="protein-cur">0</span><span class="div">/</span><span class="goal" id="protein-goal">180g</span>
+          <span class="cur" id="protein-cur">0</span><span class="div">/</span><span class="goal" id="protein-goal">–</span>
           <span class="pct" id="protein-pct">0%</span>
         </span>
       </div>
@@ -8028,7 +8031,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     window.recomputeDayTargets = recomputeDayTargets = function(){
       // Youth safety gate (§4.3): hide supplement/stimulant quick-add (.qa-adult)
       // for youth profiles. Runs on every recompute incl. tier change + onload.
-      try{ document.body.classList.toggle('fuel-youth', (window.BATTERY_TIER||'youth')==='youth'); }catch(e){}
+      try{ document.body.classList.toggle('fuel-youth', (window.BATTERY_TIER||'youth')==='youth'); document.documentElement.classList.toggle('fuel-youth', (window.BATTERY_TIER||'youth')==='youth'); }catch(e){}
       /* v198 youth-visibility flag (DEFAULT OFF). body.youth-supps un-hides the opt-in
          supp/energy ITEM surfaces for youth (VALUES stay hidden regardless). Flipped ON
          only by the release engineer on the owner's DIRECT in-session word -- via the
