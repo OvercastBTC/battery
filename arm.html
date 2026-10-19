@@ -7,6 +7,10 @@
 (function(){
   var tier = null; try { tier = localStorage.getItem('battery-boot-tier'); } catch (e) {}   // unreadable => null => youth (fail-closed)
   window.BATTERY_TIER = (tier === 'adult') ? 'adult' : 'youth';   // §4.3 FAIL-CLOSED: only an explicit 'adult' is adult; missing/unknown => youth
+  /* PRE-PAINT GATE (v262): the CSS youth gates used to key ONLY on body.youth, which gatePlyoYouth sets at DOMContentLoaded -- AFTER first paint, and the very first switchTab() runs before
+     gatePlyoYouth even exists, so a youth got frames with .plyo-heavy / .youth-hide content RENDERED (shown by default, hidden only under body.youth). <html> exists now; tag it from the
+     already-fail-closed tier so the gates are active from the first frame. gatePlyoYouth() keeps it in sync with the host afterwards. */
+  try { if (window.BATTERY_TIER !== 'adult') document.documentElement.classList.add('youth'); } catch (e) {}
 })();
 </script>
 <title>Bauer Arm Care · Protocol</title>
@@ -1040,8 +1044,8 @@
 
   /* PLYO youth gate (§4.3): heavy plyo is training load — hidden for kids */
   .plyo-youth-only { display: none; }
-  body.youth .plyo-youth-only { display: block; }
-  body.youth .plyo-heavy { display: none; }
+  html.youth .plyo-youth-only, body.youth .plyo-youth-only { display: block; }
+  html.youth .plyo-heavy, body.youth .plyo-heavy { display: none; }
   /* generic youth gates (4.3) — same mechanism, page-agnostic */
   /* Today's Sequence — the ordered spine. The owner asked for a better flow of
      warmups to arm-care to workout: the app had every piece but presented them
@@ -1113,16 +1117,16 @@
     font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.6;
     color: var(--dim); margin-top: 6px;
   }
-  body.youth .youth-only { display: block; }
-  body.youth .youth-hide { display: none; }
+  html.youth .youth-only, body.youth .youth-only { display: block; }
+  html.youth .youth-hide, body.youth .youth-hide { display: none; }
   /* kid-voice one-liners inside step details (5.x) — youth sees them, adults don't */
   .kid-cue { display: none; }
-  body.youth .kid-cue { display: block; margin-top: 6px; padding: 7px 10px; border-left: 3px solid var(--gold); background: rgba(212,160,23,0.08); font-size: 12px; color: var(--bone); border-radius: 0 6px 6px 0; }
+  html.youth .kid-cue, body.youth .kid-cue { display: block; margin-top: 6px; padding: 7px 10px; border-left: 3px solid var(--gold); background: rgba(212,160,23,0.08); font-size: 12px; color: var(--bone); border-radius: 0 6px 6px 0; }
 
 
   /* ===== 5.0 SURPRISE: YOUTH STICKER SHELF (youth-only) ===== */
   #sticker-shelf { display: none; }
-  body.youth #sticker-shelf { display: block; margin: 4px 0 18px; }
+  html.youth #sticker-shelf, body.youth #sticker-shelf { display: block; margin: 4px 0 18px; }
   .sticker-shelf-card { background: linear-gradient(160deg,#161b22,#0f2233); border: 1px solid #2d6cb0; border-radius: 16px; padding: 16px; }
   .sticker-shelf-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
   .sticker-shelf-title { font-size: 15px; font-weight: 800; color: #79c0ff; letter-spacing: .5px; }
@@ -8846,6 +8850,7 @@
     // youth if EITHER the host says youth OR the tier is anything but an explicit 'adult'.
     if (window.BATTERY_TIER !== 'adult') isYouth = true;
     document.body.classList.toggle('youth', isYouth);
+    document.documentElement.classList.toggle('youth', isYouth);   // v262: keep the pre-paint class in step with the host's live answer (adult removes it)
   }
   if(document.readyState!=='loading') gatePlyoYouth();
   else document.addEventListener('DOMContentLoaded', gatePlyoYouth);
