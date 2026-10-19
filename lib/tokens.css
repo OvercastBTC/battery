@@ -50,11 +50,11 @@
    Two selectors because the two documents tag their <body> differently: the host and ARM use body.youth, FUEL uses
    body.fuel-youth. (FUEL also re-points its own --metal-gold at --metal-green; that stays in fuel.html next to the
    --metal-* tokens it belongs to. The host re-skins its own --goldb alias locally.) */
-body.youth {
+html.youth, body.youth {   /* html.* too (v269): ARM / FUEL tag <html> from the head script before first paint (§4.3 pre-paint gate), so the accent is green from the FIRST frame, not gold-then-green */
   --gold: #2fd66b;
   --gold-bright: #6ef2a0;
 }
-body.fuel-youth {
+html.fuel-youth, body.fuel-youth {
   --gold: #2fd66b;
   --gold-bright: #6ef2a0;
 }

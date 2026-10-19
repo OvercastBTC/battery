@@ -36,7 +36,7 @@
     --d-travel: #bc8cff;
   }
   /* §6: the youth gold->green re-skin is in lib/tokens.css; the Liquid Metal protein rim follows it here, next to the --metal-* tokens it points at */
-  body.fuel-youth {
+  html.fuel-youth, body.fuel-youth {   /* html.* too (v269): the class is on <html> from the first frame */
     /* keep the youth green-accent convention on the Liquid Metal protein rim too */
     --metal-gold: var(--metal-green);
   }
