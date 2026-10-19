@@ -10,7 +10,7 @@ Project rules in §1–§8 below layer on top; where they conflict, the project 
 
 ## 1. What BATTERY Is
 
-Split-build installable PWA: three hand-edited files — `index.html` (host shell, ~3 870 lines), `arm.html` (ARM iframe, ~9 340 lines), `fuel.html` (FUEL iframe, ~8 990 lines) — measured 26.10.12 with `wc -l`; they drift every release, so re-measure rather than trust these. No bundler.
+Split-build installable PWA: three documents — `index.html` (host shell, ~3 870 lines), `arm.html` (ARM iframe, ~9 340 lines), `fuel.html` (FUEL iframe, ~8 990 lines) — hand-edited, EXCEPT the exercise-step regions of `arm.html` (between `<!-- gen:arm-region ID -->` / `<!-- /gen:arm-region ID -->` marker pairs): those are GENERATED from the data in `src/arm/` by `node tools/gen-arm.mjs` and the output is committed. Edit the data, regenerate, commit both; a hand edit inside a marked region fails the gate (committed ≠ generated). Line counts measured 26.10.12 with `wc -l`; they drift every release, so re-measure rather than trust these. No bundler and no build step in the deploy path — the committed files are exactly what ships.
 Deployed via GitHub Pages from branch `master`: **<https://overcastbtc.github.io/battery/>**
 Baseball arm-care + nutrition/hydration tracker (profiles: adult / youth).
 
@@ -166,7 +166,7 @@ cd /tmp/bt-laneX && BATTERY_REPO="$HOME/battery-laneX" bash run.sh
 ### Lane A — Claude Code Desktop session on AM06 (iframe content developer)
 
 - Worktree: `C:\Users\bacona\battery-laneA`, on a `laneA/*` branch.
-- Scope: FUEL + ARM/PlyoCare iframe content; iframe side of the postMessage seam.
+- Scope: FUEL + ARM/PlyoCare iframe content; iframe side of the postMessage seam. Exercise steps are edited in `src/arm/*`, never inside generated regions of arm.html.
 - Runs `~/battery-tests/run.sh` as a sanity check.
 - Posts `READY` via CCD send_message to Q when done.
 - **Does NOT** commit to `master`, bump the release stamp, push, or deploy.
