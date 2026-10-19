@@ -2,8 +2,8 @@
    Extracted 2026-10-18 from the AUTHORED arm.html @ c297d19 (pre-boot DOM, JS off, immutable committed snapshot). Do not hand-reformat: regenerate with stage2/build-src-arm.mjs, re-verify with verify-src-arm.mjs.
    kind 'arm.layout' · one payload per section · region = ONE direct child of #page-<section> that contains steps; id = '<section>#<index among the page's element children>'. Step order = AUTHORED order.
    Blocks (keys exactly): {step:id} · {el, attrs:{…authored attribute order…}, blocks} · {html:<whitespace-collapsed outerHTML>, [mech:'heavy'|'youthHide'], [altCard:true]} · any block may carry note:'<text>'.
-   v259 = wrappers are EXPLICIT ordinary blocks {el:'div', attrs:{class:'plyo-heavy'|'youth-hide'}, blocks} placed exactly where the authored DOM has them (incl. a region whose root IS the wrapper, and the two inside washington's <ul>).
-   Steps/islands inside a wrapper keep their flag/mech (redundant now by design: the v259 gate asserts wrapper class ⇔ flag/mech both ways; v260 deletes the wrapper els and derives them).
+   v260 = NO wrapper nodes. The 6 authored §4.3 wrappers ({el:'div', attrs:{class:'plyo-heavy'|'youth-hide'}}) are REMOVED and their children promoted IN PLACE into the parent list (a region whose root was a wrapper now lists its children directly); the generator DERIVES them: each maximal run of sibling blocks with the same non-safe mech (steps: arm.steps heavy/youthHide; islands: mech) is wrapped in the matching div, exactly where the v259 data had them.
+   Island mech stays (it is the island's own §4.3 flag). A wrapper's trailing comment already rode the wrapper's LAST LEAF, so every note survives.
    note = an authored HTML comment, verbatim whitespace-collapsed, attached to the block it immediately followed (a wrapper's trailing comment rides the wrapper's LAST LEAF so it stays valid after v260). notes-audit.txt lists all of them.
    Pure data calls: no logic, no cross-frame or DOM tokens. */
 BATTERY.register('arm.layout', { section: "warmup", regions: [
@@ -85,49 +85,45 @@ BATTERY.register('arm.layout', { section: "tube", regions: [
 ] });
 BATTERY.register('arm.layout', { section: "plyo", regions: [
   { id: "plyo#3", blocks: [
-    { el: "div", attrs: {"class":"plyo-heavy"}, blocks: [
-      { html: "<div class=\"card gold\"> <div class=\"card-head\"> <div class=\"card-title\">The 6-Ball Set</div> <span class=\"badge gold\">From the video</span> </div> <ul> <li><b>2000 g · 71 oz</b> — Bauer's \"4 lb\" — kneeling reverse + spiral warm-up</li> <li><b>1000 g · 35 oz</b> — Bauer's \"2 lb\" — sequence drills (standing / stomp / hop-step)</li> <li><b>450 g · 16 oz</b> — Bauer's \"1 lb\" — drop-step pickoffs</li> <li><b>225 g · 8 oz</b> — drop drill</li> <li><b>150 g · 5 oz</b> — step-behind w/ arm swing</li> <li><b>100 g · 3.5 oz</b> — mound / stretch throws</li> </ul> <div class=\"cue\">Weights ramp the routine from <b>heavy &amp; slow</b> (rotational warm-up) down to <b>light &amp; fast</b> (full-delivery throws) — heavier first to groove the pattern, lighter last to add speed.</div> </div>", mech: "heavy" },
-      { html: "<h3>The Routine (in order)</h3>", mech: "heavy" },
-      { el: "ul", attrs: {"class":"steplist"}, blocks: [
-        { step: "plyo-reverse" },
-        { step: "plyo-spiral" },
-        { step: "plyo-ramp-light" },
-        { step: "plyo-seq-standing" },
-        { step: "plyo-seq-stomp" },
-        { step: "plyo-seq-hop" },
-        { step: "plyo-dropstep" },
-        { step: "plyo-drop" },
-        { step: "plyo-stepbehind" },
-        { step: "plyo-mound" },
-        { step: "plyo-humpty" }
-      ] }
+    { html: "<div class=\"card gold\"> <div class=\"card-head\"> <div class=\"card-title\">The 6-Ball Set</div> <span class=\"badge gold\">From the video</span> </div> <ul> <li><b>2000 g · 71 oz</b> — Bauer's \"4 lb\" — kneeling reverse + spiral warm-up</li> <li><b>1000 g · 35 oz</b> — Bauer's \"2 lb\" — sequence drills (standing / stomp / hop-step)</li> <li><b>450 g · 16 oz</b> — Bauer's \"1 lb\" — drop-step pickoffs</li> <li><b>225 g · 8 oz</b> — drop drill</li> <li><b>150 g · 5 oz</b> — step-behind w/ arm swing</li> <li><b>100 g · 3.5 oz</b> — mound / stretch throws</li> </ul> <div class=\"cue\">Weights ramp the routine from <b>heavy &amp; slow</b> (rotational warm-up) down to <b>light &amp; fast</b> (full-delivery throws) — heavier first to groove the pattern, lighter last to add speed.</div> </div>", mech: "heavy" },
+    { html: "<h3>The Routine (in order)</h3>", mech: "heavy" },
+    { el: "ul", attrs: {"class":"steplist"}, blocks: [
+      { step: "plyo-reverse" },
+      { step: "plyo-spiral" },
+      { step: "plyo-ramp-light" },
+      { step: "plyo-seq-standing" },
+      { step: "plyo-seq-stomp" },
+      { step: "plyo-seq-hop" },
+      { step: "plyo-dropstep" },
+      { step: "plyo-drop" },
+      { step: "plyo-stepbehind" },
+      { step: "plyo-mound" },
+      { step: "plyo-humpty" }
     ] }
   ] }
 ] });
 BATTERY.register('arm.layout', { section: "gameday", regions: [
   { id: "gameday#2", blocks: [
-    { el: "div", attrs: {"class":"plyo-heavy"}, blocks: [
-      { html: "<div id=\"gd-tabs\" style=\"display:flex;gap:8px;margin:0 0 16px\"> <button class=\"gd-tab-btn active\" data-gdtab=\"pitcher\" onclick=\"switchGdTab('pitcher')\" style=\"flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--line);background:var(--gold);color:var(--bg);font-weight:700;font-size:13px;cursor:pointer\">⚾ Pitcher</button> <button class=\"gd-tab-btn\" data-gdtab=\"catcher\" onclick=\"switchGdTab('catcher')\" style=\"flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--dim);font-weight:700;font-size:13px;cursor:pointer\">🧤 Catcher</button> </div>", mech: "heavy" },
-      { el: "div", attrs: {"id":"gd-pitcher"}, blocks: [
-        { html: "<p class=\"lede\">Trevor Bauer's full pre-game routine, walked through in his <b>Baseball 401 · Game Day Warmup Routine</b> video — his most in-depth warm-up. He runs different warm-ups for a lift, a bullpen or a recovery day; <b>this is the one before a start.</b> The order is the point: it slowly builds the body from measurement and mobility up to a full-effort bullpen.</p>", mech: "heavy" },
-        { html: "<div class=\"card gold\"> <div class=\"card-head\"> <div class=\"card-title\">The sequence, in order</div> <span class=\"badge gold\">From the video</span> </div> <ul> <li><b>1 · Daily measurements</b> — sleep, HRV, shoulder &amp; grip strength, force plates</li> <li><b>2 · Hot tub + dress</b> — raise core temp (optional / personal)</li> <li><b>3 · Foam roll + T-spine</b> mobility</li> <li><b>4 · Hip</b> mobility</li> <li><b>5 · Core activation</b> — the \"scorpion\"</li> <li><b>6 · Cuff weights</b> — 10 lb, 4 drills</li> <li><b>7 · Weighted balls</b> — a <em>core</em> warm-up, not a shoulder one</li> <li><b>8 · Shoulder tube</b> routine</li> <li><b>9 · Long toss</b> — out to max, pull down (~50 throws)</li> <li><b>10 · Pregame bullpen</b> — sequencing &amp; command (~42 throws)</li> </ul> <div class=\"cue\">Bauer adjusts the routine off his morning numbers — poor sleep or low HRV and he changes what he does to \"trick the body\" into the right place for the game.</div> </div>", mech: "heavy" },
-        { html: "<h3>The Routine (in order)</h3>", mech: "heavy" },
-        { el: "ul", attrs: {"class":"steplist"}, blocks: [
-          { step: "gd-measure" },
-          { step: "gd-hottub" },
-          { step: "gd-mobility" },
-          { step: "gd-hips" },
-          { step: "gd-activation" },
-          { step: "gd-cuff" },
-          { step: "gd-balls" },
-          { step: "gd-tube" },
-          { step: "gd-longtoss" },
-          { step: "gd-bullpen" }
-        ] },
-        { html: "<div class=\"info\" style=\"margin-top:18px\"> <strong>Source:</strong> Trevor Bauer — \"Game Day Warmup Routine\" (Baseball 401), youtube.com/@trevorbauer. Demo clips are short references trimmed from that video; the full walkthrough is worth watching once. </div>", mech: "heavy" }
-      ], note: "/gd-pitcher" },
-      { html: "<div id=\"gd-catcher\" style=\"display:none\"> <p class=\"lede\">Patrick Bailey's complete catcher pregame — the routine a starting MLB catcher runs before every game. <b>Four sections, in order.</b> Structure, sequence, and pacing from a pro who does this 162 times a year.</p> <div class=\"card blue\"> <div class=\"card-head\"> <div class=\"card-title\">The sequence, in order</div> <span class=\"badge blue\">Bailey Pregame</span> </div> <ul> <li><b>1 · Pregame Routine</b> — full warmup framework overview</li> <li><b>2 · Receiving Warmup</b> — soft hands, mitt presentation, progressive intensity</li> <li><b>3 · Throwing Warmup</b> — pop-ups, snap throws, down &amp; tag</li> <li><b>4 · Rep Work</b> — rapid-fire blocking &amp; receiving volume</li> </ul> <div class=\"cue\">Work through each section in order. The sequence matters as much as the individual drills.</div> </div> <div style=\"display:flex;flex-direction:column;gap:8px;margin-top:12px\"> <button class=\"clip-btn\" onclick=\"scrollToStep('bougie-bailey-routine')\" style=\"text-align:left\">→ B-29 · Bailey Pregame Routine</button> <button class=\"clip-btn\" onclick=\"scrollToStep('bougie-bailey-recv')\" style=\"text-align:left\">→ B-30 · Bailey: Receiving Warmup</button> <button class=\"clip-btn\" onclick=\"scrollToStep('bougie-bailey-throw')\" style=\"text-align:left\">→ B-31 · Bailey: Throwing Warmup</button> <button class=\"clip-btn\" onclick=\"scrollToStep('bougie-bailey-reps')\" style=\"text-align:left\">→ B-32 · Bailey: Rep Work</button> </div> <div class=\"info\" style=\"margin-top:18px\"> <strong>Source:</strong> Catching Made Simple (Coach Bougie) — Patrick Bailey pregame breakdown. The drills live in the Catching section; these buttons take you straight to each one. </div> </div>", mech: "heavy", note: "/gd-catcher" }
-    ] }
+    { html: "<div id=\"gd-tabs\" style=\"display:flex;gap:8px;margin:0 0 16px\"> <button class=\"gd-tab-btn active\" data-gdtab=\"pitcher\" onclick=\"switchGdTab('pitcher')\" style=\"flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--line);background:var(--gold);color:var(--bg);font-weight:700;font-size:13px;cursor:pointer\">⚾ Pitcher</button> <button class=\"gd-tab-btn\" data-gdtab=\"catcher\" onclick=\"switchGdTab('catcher')\" style=\"flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--dim);font-weight:700;font-size:13px;cursor:pointer\">🧤 Catcher</button> </div>", mech: "heavy" },
+    { el: "div", attrs: {"id":"gd-pitcher"}, blocks: [
+      { html: "<p class=\"lede\">Trevor Bauer's full pre-game routine, walked through in his <b>Baseball 401 · Game Day Warmup Routine</b> video — his most in-depth warm-up. He runs different warm-ups for a lift, a bullpen or a recovery day; <b>this is the one before a start.</b> The order is the point: it slowly builds the body from measurement and mobility up to a full-effort bullpen.</p>", mech: "heavy" },
+      { html: "<div class=\"card gold\"> <div class=\"card-head\"> <div class=\"card-title\">The sequence, in order</div> <span class=\"badge gold\">From the video</span> </div> <ul> <li><b>1 · Daily measurements</b> — sleep, HRV, shoulder &amp; grip strength, force plates</li> <li><b>2 · Hot tub + dress</b> — raise core temp (optional / personal)</li> <li><b>3 · Foam roll + T-spine</b> mobility</li> <li><b>4 · Hip</b> mobility</li> <li><b>5 · Core activation</b> — the \"scorpion\"</li> <li><b>6 · Cuff weights</b> — 10 lb, 4 drills</li> <li><b>7 · Weighted balls</b> — a <em>core</em> warm-up, not a shoulder one</li> <li><b>8 · Shoulder tube</b> routine</li> <li><b>9 · Long toss</b> — out to max, pull down (~50 throws)</li> <li><b>10 · Pregame bullpen</b> — sequencing &amp; command (~42 throws)</li> </ul> <div class=\"cue\">Bauer adjusts the routine off his morning numbers — poor sleep or low HRV and he changes what he does to \"trick the body\" into the right place for the game.</div> </div>", mech: "heavy" },
+      { html: "<h3>The Routine (in order)</h3>", mech: "heavy" },
+      { el: "ul", attrs: {"class":"steplist"}, blocks: [
+        { step: "gd-measure" },
+        { step: "gd-hottub" },
+        { step: "gd-mobility" },
+        { step: "gd-hips" },
+        { step: "gd-activation" },
+        { step: "gd-cuff" },
+        { step: "gd-balls" },
+        { step: "gd-tube" },
+        { step: "gd-longtoss" },
+        { step: "gd-bullpen" }
+      ] },
+      { html: "<div class=\"info\" style=\"margin-top:18px\"> <strong>Source:</strong> Trevor Bauer — \"Game Day Warmup Routine\" (Baseball 401), youtube.com/@trevorbauer. Demo clips are short references trimmed from that video; the full walkthrough is worth watching once. </div>", mech: "heavy" }
+    ], note: "/gd-pitcher" },
+    { html: "<div id=\"gd-catcher\" style=\"display:none\"> <p class=\"lede\">Patrick Bailey's complete catcher pregame — the routine a starting MLB catcher runs before every game. <b>Four sections, in order.</b> Structure, sequence, and pacing from a pro who does this 162 times a year.</p> <div class=\"card blue\"> <div class=\"card-head\"> <div class=\"card-title\">The sequence, in order</div> <span class=\"badge blue\">Bailey Pregame</span> </div> <ul> <li><b>1 · Pregame Routine</b> — full warmup framework overview</li> <li><b>2 · Receiving Warmup</b> — soft hands, mitt presentation, progressive intensity</li> <li><b>3 · Throwing Warmup</b> — pop-ups, snap throws, down &amp; tag</li> <li><b>4 · Rep Work</b> — rapid-fire blocking &amp; receiving volume</li> </ul> <div class=\"cue\">Work through each section in order. The sequence matters as much as the individual drills.</div> </div> <div style=\"display:flex;flex-direction:column;gap:8px;margin-top:12px\"> <button class=\"clip-btn\" onclick=\"scrollToStep('bougie-bailey-routine')\" style=\"text-align:left\">→ B-29 · Bailey Pregame Routine</button> <button class=\"clip-btn\" onclick=\"scrollToStep('bougie-bailey-recv')\" style=\"text-align:left\">→ B-30 · Bailey: Receiving Warmup</button> <button class=\"clip-btn\" onclick=\"scrollToStep('bougie-bailey-throw')\" style=\"text-align:left\">→ B-31 · Bailey: Throwing Warmup</button> <button class=\"clip-btn\" onclick=\"scrollToStep('bougie-bailey-reps')\" style=\"text-align:left\">→ B-32 · Bailey: Rep Work</button> </div> <div class=\"info\" style=\"margin-top:18px\"> <strong>Source:</strong> Catching Made Simple (Coach Bougie) — Patrick Bailey pregame breakdown. The drills live in the Catching section; these buttons take you straight to each one. </div> </div>", mech: "heavy", note: "/gd-catcher" }
   ] }
 ] });
 BATTERY.register('arm.layout', { section: "fieldwork", regions: [
@@ -254,24 +250,20 @@ BATTERY.register('arm.layout', { section: "washington", regions: [
       { step: "bougie-steal-positions" },
       { step: "bougie-steal-screw" },
       { html: "<div class=\"plyo-youth-only\"> <div class=\"card blue\" style=\"margin-top:8px\"> <p>Pop time drills and pro pregame routines are for high-school catchers and up. The fundamentals above — stance, receiving, blocking, and footwork — build a complete young catcher.</p> </div> </div>", altCard: true },
-      { el: "div", attrs: {"class":"plyo-heavy"}, blocks: [
-        { step: "bougie-poptime-glute" },
-        { step: "bougie-poptime-timing" },
-        { step: "bougie-poptime-result" },
-        { step: "bougie-pop30-assess" },
-        { step: "bougie-pop30-feet" },
-        { step: "bougie-pop30-transfer" },
-        { step: "bougie-pop30-armpath" },
-        { step: "bougie-bailey-routine" },
-        { step: "bougie-bailey-recv" },
-        { step: "bougie-bailey-throw" },
-        { step: "bougie-bailey-reps", note: "/plyo-heavy catching-advanced B-22..B-32" }
-      ] },
+      { step: "bougie-poptime-glute" },
+      { step: "bougie-poptime-timing" },
+      { step: "bougie-poptime-result" },
+      { step: "bougie-pop30-assess" },
+      { step: "bougie-pop30-feet" },
+      { step: "bougie-pop30-transfer" },
+      { step: "bougie-pop30-armpath" },
+      { step: "bougie-bailey-routine" },
+      { step: "bougie-bailey-recv" },
+      { step: "bougie-bailey-throw" },
+      { step: "bougie-bailey-reps", note: "/plyo-heavy catching-advanced B-22..B-32" },
       { step: "bougie-lean-drill" },
       { step: "bougie-lean-sticky" },
-      { el: "div", attrs: {"class":"plyo-heavy"}, blocks: [
-        { step: "bougie-lean-rotate", note: "/plyo-heavy catching-advanced B-35" }
-      ] },
+      { step: "bougie-lean-rotate", note: "/plyo-heavy catching-advanced B-35" },
       { step: "bougie-throw1-elbow" },
       { step: "bougie-throw1-hips" },
       { step: "bougie-solo-drills" },
@@ -336,43 +328,41 @@ BATTERY.register('arm.layout', { section: "pitching", regions: [
 ] });
 BATTERY.register('arm.layout', { section: "recovery", regions: [
   { id: "recovery#2", blocks: [
-    { el: "div", attrs: {"class":"youth-hide"}, blocks: [
-      { html: "<div class=\"card gold\"> <div class=\"card-head\"> <div class=\"card-title\">Post-Throwing Stack</div> <span class=\"badge gold\">After Every Throw Day</span> </div> <ul> <li><b>1. Ice/cold</b> — 10-15 min on shoulder + elbow within 30 min of last throw</li> <li><b>2. J-Bands light</b> — 60% effort, same 11 exercises — flushes the muscles</li> <li><b>3. Marc Pro / TENS</b> — 30-60 min, low setting</li> <li><b>4. Sleep</b> — 8 hrs minimum, ideally with cold room</li> <li><b>5. Protein</b> — 30g within 1 hour, hydrate aggressively</li> </ul> <div class=\"cue\">\"The single biggest recovery tool I have is sleep. Everything else is supplementary.\" — Bauer, Tips with Trev Ep. 24</div> </div>", mech: "youthHide" },
-      { html: "<h3>Soft Tissue &amp; Stretch · Bauer in Japan</h3>", mech: "youthHide" },
-      { html: "<p class=\"lede\">Cut from Bauer's own footage during his season in Japan -- the foam-roller work he does in the weight room and the team stretch circle after practice. All optional / +bonus; the roller steps need a roller, and the stretch circle is a model rather than a prescription.</p>", mech: "youthHide" },
-      { el: "ul", attrs: {"class":"steplist"}, blocks: [
-        { step: "rc-roll-tspine" },
-        { step: "rc-roll-hips" },
-        { step: "rc-roll-text" },
-        { step: "rc-roll-lats" },
-        { step: "rc-ball-pecminor" },
-        { step: "rc-ball-infra" },
-        { step: "rc-ball-trap" },
-        { step: "rc-ball-rhomboid" },
-        { step: "rc-teamstretch" },
-        { step: "rc-core-floor" }
-      ] },
-      { html: "<h3>Bauer Recovery Science</h3>", mech: "youthHide" },
-      { html: "<p class=\"lede\">Bauer's specific recovery protocols -- eccentric and isometric work, and the CP warmup. These are the \"how\" behind the post-throwing stack above.</p>", mech: "youthHide" },
-      { el: "ul", attrs: {"class":"steplist"}, blocks: [
-        { step: "rc-eccentric" },
-        { step: "rc-iso" },
-        { step: "rc-cp-warmup" }
-      ] },
-      { html: "<h3>Shoulder &amp; Mobility</h3>", mech: "youthHide" },
-      { html: "<p class=\"lede\">Shoulder tube work (for recovery-day maintenance, not the pre-throwing warmup -- that lives on the Shoulder Tube tab) and face pull exercises for posterior-chain health.</p>", mech: "youthHide" },
-      { el: "ul", attrs: {"class":"steplist"}, blocks: [
-        { step: "rc-tube-overhead" },
-        { step: "rc-tube-forward" },
-        { step: "rc-tube-lateral" },
-        { step: "rc-tube-throwing" },
-        { step: "rc-facepull1" },
-        { step: "rc-facepull2" }
-      ] },
-      { html: "<h3>Facility-Specific (If Available)</h3>", mech: "youthHide" },
-      { html: "<ul> <li><b>Cold plunge:</b> 3-5 min, immediately post-session. Skip if sore the next day from previous session.</li> <li><b>Sauna:</b> 15-20 min, AFTER cold plunge (not before). Heat-cold contrast for circulation.</li> <li><b>Recovery tools:</b> Theragun / Hyperice — focus on lats, pec minor, and forearms.</li> </ul>", mech: "youthHide" },
-      { html: "<div class=\"warn\"> <strong>Skip recovery once, no problem. Skip three sessions in a row,</strong> and that's where adult arms break down mid-season. </div>", mech: "youthHide" }
-    ] }
+    { html: "<div class=\"card gold\"> <div class=\"card-head\"> <div class=\"card-title\">Post-Throwing Stack</div> <span class=\"badge gold\">After Every Throw Day</span> </div> <ul> <li><b>1. Ice/cold</b> — 10-15 min on shoulder + elbow within 30 min of last throw</li> <li><b>2. J-Bands light</b> — 60% effort, same 11 exercises — flushes the muscles</li> <li><b>3. Marc Pro / TENS</b> — 30-60 min, low setting</li> <li><b>4. Sleep</b> — 8 hrs minimum, ideally with cold room</li> <li><b>5. Protein</b> — 30g within 1 hour, hydrate aggressively</li> </ul> <div class=\"cue\">\"The single biggest recovery tool I have is sleep. Everything else is supplementary.\" — Bauer, Tips with Trev Ep. 24</div> </div>", mech: "youthHide" },
+    { html: "<h3>Soft Tissue &amp; Stretch · Bauer in Japan</h3>", mech: "youthHide" },
+    { html: "<p class=\"lede\">Cut from Bauer's own footage during his season in Japan -- the foam-roller work he does in the weight room and the team stretch circle after practice. All optional / +bonus; the roller steps need a roller, and the stretch circle is a model rather than a prescription.</p>", mech: "youthHide" },
+    { el: "ul", attrs: {"class":"steplist"}, blocks: [
+      { step: "rc-roll-tspine" },
+      { step: "rc-roll-hips" },
+      { step: "rc-roll-text" },
+      { step: "rc-roll-lats" },
+      { step: "rc-ball-pecminor" },
+      { step: "rc-ball-infra" },
+      { step: "rc-ball-trap" },
+      { step: "rc-ball-rhomboid" },
+      { step: "rc-teamstretch" },
+      { step: "rc-core-floor" }
+    ] },
+    { html: "<h3>Bauer Recovery Science</h3>", mech: "youthHide" },
+    { html: "<p class=\"lede\">Bauer's specific recovery protocols -- eccentric and isometric work, and the CP warmup. These are the \"how\" behind the post-throwing stack above.</p>", mech: "youthHide" },
+    { el: "ul", attrs: {"class":"steplist"}, blocks: [
+      { step: "rc-eccentric" },
+      { step: "rc-iso" },
+      { step: "rc-cp-warmup" }
+    ] },
+    { html: "<h3>Shoulder &amp; Mobility</h3>", mech: "youthHide" },
+    { html: "<p class=\"lede\">Shoulder tube work (for recovery-day maintenance, not the pre-throwing warmup -- that lives on the Shoulder Tube tab) and face pull exercises for posterior-chain health.</p>", mech: "youthHide" },
+    { el: "ul", attrs: {"class":"steplist"}, blocks: [
+      { step: "rc-tube-overhead" },
+      { step: "rc-tube-forward" },
+      { step: "rc-tube-lateral" },
+      { step: "rc-tube-throwing" },
+      { step: "rc-facepull1" },
+      { step: "rc-facepull2" }
+    ] },
+    { html: "<h3>Facility-Specific (If Available)</h3>", mech: "youthHide" },
+    { html: "<ul> <li><b>Cold plunge:</b> 3-5 min, immediately post-session. Skip if sore the next day from previous session.</li> <li><b>Sauna:</b> 15-20 min, AFTER cold plunge (not before). Heat-cold contrast for circulation.</li> <li><b>Recovery tools:</b> Theragun / Hyperice — focus on lats, pec minor, and forearms.</li> </ul>", mech: "youthHide" },
+    { html: "<div class=\"warn\"> <strong>Skip recovery once, no problem. Skip three sessions in a row,</strong> and that's where adult arms break down mid-season. </div>", mech: "youthHide" }
   ] }
 ] });
 BATTERY.register('arm.layout', { section: "extras", regions: [
@@ -397,73 +387,71 @@ BATTERY.register('arm.layout', { section: "extras", regions: [
 ] });
 BATTERY.register('arm.layout', { section: "lifting", regions: [
   { id: "lifting#2", blocks: [
-    { el: "div", attrs: {"class":"youth-hide"}, blocks: [
-      { html: "<p class=\"lede\">Strength work in service of the four goals: pitching first, general conditioning, first-base/position defense, and a hard focus on hitting. Everything here is <b>optional</b> — it counts as +bonus and never gates the daily arm-care ratio.</p>", mech: "youthHide" },
-      { html: "<div class=\"split-bar\" id=\"split-bar\"> <div class=\"split-chip\" data-split=\"all\" onclick=\"setSplit('all')\">All</div> <div class=\"split-chip\" data-split=\"3day\" onclick=\"setSplit('3day')\">3-Day</div> <div class=\"split-chip\" data-split=\"2day\" onclick=\"setSplit('2day')\">2-Day</div> </div>", mech: "youthHide" },
-      { html: "<div class=\"split-day\" id=\"split-day\"></div>", mech: "youthHide" },
-      { html: "<div class=\"split-note\" id=\"split-note\"></div>", mech: "youthHide", note: "Free-form lifting log (backlog item 4). Inside .youth-hide by construction: the whole weight-room block is adult-only per §4.3." },
-      { html: "<div id=\"liftlog-card\" class=\"card\"></div>", mech: "youthHide" },
-      { html: "<div class=\"card gold\"> <div class=\"card-head\"> <div class=\"card-title\">How to read this page</div> <span class=\"badge gold\">Coach notes</span> </div> <ul> <li><b>Pull ≥ push.</b> Throwers should row at least as much as they press — throwing is already an anterior-dominant stress; the back side is what protects the shoulder.</li> <li><b>Know which effect you're training.</b> Same lift, different rep range = different adaptation. The quarter squat below is listed twice on purpose.</li> <li><b>Rotation is where the money is.</b> Pitching velocity and bat speed come from hip/trunk rotation speed — not trunk flexion. The rotational block is the highest-transfer addition for both stated goals.</li> </ul> <div class=\"cue\">Coaching guidance, not medical advice. Numbers are starting points — form and controlled fatigue are always the real limits.</div> </div>", mech: "youthHide" },
-      { el: "ul", attrs: {"class":"steplist"}, blocks: [
-        { step: "lift-row" },
-        { step: "lift-press" },
-        { step: "lift-curls" },
-        { step: "lift-triceps" },
-        { step: "lift-qsq-power" },
-        { step: "lift-qsq-endur" },
-        { step: "lift-deadlift" },
-        { step: "lift-goblet" },
-        { step: "lift-lunge" },
-        { step: "lift-abs", note: "Item 5: these four were already in the routine, but three of them existed only as PROSE inside the Ab Progression entry -- crunches, regular/decline sit-ups, side crunches. Prose cannot be ticked, and it cannot be logged either -- the lifting log builds its picker from .step[data-ex], so a movement buried in a paragraph is invisible to it. Promoted to real entries, marked .opt so they count as bonus rather than inflating the required ratio: they are VARIANTS within a block the athlete already owes, not four new obligations. The parent Ab Progression entry is left untouched so no existing history is orphaned." },
-        { step: "lift-crunch-iso" },
-        { step: "lift-decline-situp" },
-        { step: "lift-side-crunch" },
-        { step: "lift-side-plank-dip" },
-        { step: "lift-rotcore" },
-        { step: "lift-db-bench" },
-        { step: "lift-db-incline" },
-        { step: "lift-cable-fly" },
-        { step: "lift-pushup" },
-        { step: "lift-db-row" },
-        { step: "lift-pulldown" },
-        { step: "lift-facepull" },
-        { step: "lift-db-press" },
-        { step: "lift-lat-raise" },
-        { step: "lift-rear-fly" },
-        { step: "lift-hammer" },
-        { step: "lift-incline-curl" },
-        { step: "lift-pushdown" },
-        { step: "lift-oh-ext" },
-        { step: "lift-bench-dip" },
-        { step: "lift-smith-squat" },
-        { step: "lift-db-rdl" },
-        { step: "lift-step-up" },
-        { step: "lift-calf" },
-        { step: "lift-machine-incline" },
-        { step: "lift-pec-deck" },
-        { step: "lift-pullup" },
-        { step: "lift-cable-row" },
-        { step: "lift-shrug" },
-        { step: "lift-back-ext" },
-        { step: "lift-farmer-walk" },
-        { step: "lift-dead-hang" },
-        { step: "lift-pull-apart" },
-        { step: "lift-front-raise" },
-        { step: "lift-cable-lat" },
-        { step: "lift-rev-pec" },
-        { step: "lift-cable-curl" },
-        { step: "lift-preacher" },
-        { step: "lift-rev-curl" },
-        { step: "lift-rope-oh" },
-        { step: "lift-kickback" },
-        { step: "lift-cgbp" },
-        { step: "lift-leg-ext" },
-        { step: "lift-leg-curl" },
-        { step: "lift-hip-thrust" },
-        { step: "lift-seated-calf" },
-        { step: "lift-deadbug" },
-        { step: "lift-pallof" }
-      ] }
+    { html: "<p class=\"lede\">Strength work in service of the four goals: pitching first, general conditioning, first-base/position defense, and a hard focus on hitting. Everything here is <b>optional</b> — it counts as +bonus and never gates the daily arm-care ratio.</p>", mech: "youthHide" },
+    { html: "<div class=\"split-bar\" id=\"split-bar\"> <div class=\"split-chip\" data-split=\"all\" onclick=\"setSplit('all')\">All</div> <div class=\"split-chip\" data-split=\"3day\" onclick=\"setSplit('3day')\">3-Day</div> <div class=\"split-chip\" data-split=\"2day\" onclick=\"setSplit('2day')\">2-Day</div> </div>", mech: "youthHide" },
+    { html: "<div class=\"split-day\" id=\"split-day\"></div>", mech: "youthHide" },
+    { html: "<div class=\"split-note\" id=\"split-note\"></div>", mech: "youthHide", note: "Free-form lifting log (backlog item 4). Inside .youth-hide by construction: the whole weight-room block is adult-only per §4.3." },
+    { html: "<div id=\"liftlog-card\" class=\"card\"></div>", mech: "youthHide" },
+    { html: "<div class=\"card gold\"> <div class=\"card-head\"> <div class=\"card-title\">How to read this page</div> <span class=\"badge gold\">Coach notes</span> </div> <ul> <li><b>Pull ≥ push.</b> Throwers should row at least as much as they press — throwing is already an anterior-dominant stress; the back side is what protects the shoulder.</li> <li><b>Know which effect you're training.</b> Same lift, different rep range = different adaptation. The quarter squat below is listed twice on purpose.</li> <li><b>Rotation is where the money is.</b> Pitching velocity and bat speed come from hip/trunk rotation speed — not trunk flexion. The rotational block is the highest-transfer addition for both stated goals.</li> </ul> <div class=\"cue\">Coaching guidance, not medical advice. Numbers are starting points — form and controlled fatigue are always the real limits.</div> </div>", mech: "youthHide" },
+    { el: "ul", attrs: {"class":"steplist"}, blocks: [
+      { step: "lift-row" },
+      { step: "lift-press" },
+      { step: "lift-curls" },
+      { step: "lift-triceps" },
+      { step: "lift-qsq-power" },
+      { step: "lift-qsq-endur" },
+      { step: "lift-deadlift" },
+      { step: "lift-goblet" },
+      { step: "lift-lunge" },
+      { step: "lift-abs", note: "Item 5: these four were already in the routine, but three of them existed only as PROSE inside the Ab Progression entry -- crunches, regular/decline sit-ups, side crunches. Prose cannot be ticked, and it cannot be logged either -- the lifting log builds its picker from .step[data-ex], so a movement buried in a paragraph is invisible to it. Promoted to real entries, marked .opt so they count as bonus rather than inflating the required ratio: they are VARIANTS within a block the athlete already owes, not four new obligations. The parent Ab Progression entry is left untouched so no existing history is orphaned." },
+      { step: "lift-crunch-iso" },
+      { step: "lift-decline-situp" },
+      { step: "lift-side-crunch" },
+      { step: "lift-side-plank-dip" },
+      { step: "lift-rotcore" },
+      { step: "lift-db-bench" },
+      { step: "lift-db-incline" },
+      { step: "lift-cable-fly" },
+      { step: "lift-pushup" },
+      { step: "lift-db-row" },
+      { step: "lift-pulldown" },
+      { step: "lift-facepull" },
+      { step: "lift-db-press" },
+      { step: "lift-lat-raise" },
+      { step: "lift-rear-fly" },
+      { step: "lift-hammer" },
+      { step: "lift-incline-curl" },
+      { step: "lift-pushdown" },
+      { step: "lift-oh-ext" },
+      { step: "lift-bench-dip" },
+      { step: "lift-smith-squat" },
+      { step: "lift-db-rdl" },
+      { step: "lift-step-up" },
+      { step: "lift-calf" },
+      { step: "lift-machine-incline" },
+      { step: "lift-pec-deck" },
+      { step: "lift-pullup" },
+      { step: "lift-cable-row" },
+      { step: "lift-shrug" },
+      { step: "lift-back-ext" },
+      { step: "lift-farmer-walk" },
+      { step: "lift-dead-hang" },
+      { step: "lift-pull-apart" },
+      { step: "lift-front-raise" },
+      { step: "lift-cable-lat" },
+      { step: "lift-rev-pec" },
+      { step: "lift-cable-curl" },
+      { step: "lift-preacher" },
+      { step: "lift-rev-curl" },
+      { step: "lift-rope-oh" },
+      { step: "lift-kickback" },
+      { step: "lift-cgbp" },
+      { step: "lift-leg-ext" },
+      { step: "lift-leg-curl" },
+      { step: "lift-hip-thrust" },
+      { step: "lift-seated-calf" },
+      { step: "lift-deadbug" },
+      { step: "lift-pallof" }
     ] }
   ] }
 ] });

@@ -1,4 +1,4 @@
-// ARM STEP-REGION GENERATOR  (rewrite Stage-2, v259 — E-owned; the data is src/arm/*, the output is the marked regions of arm.html)
+// ARM STEP-REGION GENERATOR  (rewrite Stage-2, v259/v260 — E-owned; the data is src/arm/*, the output is the marked regions of arm.html)
 //
 //   node tools/gen-arm.mjs            regenerate every  <!-- gen:arm-region ID --> … <!-- /gen:arm-region ID -->  region of arm.html in place
 //   node tools/gen-arm.mjs --check    verify committed arm.html == generate(data); exit 1 with a first-diff report if not (the gate runs this)
@@ -7,7 +7,10 @@
 // WHAT IS NOT: everything outside the marker pairs (page chrome, pos-cards, set-toggle, flow-jump, the runtime weavers) stays hand-edited.
 // SOURCES (never shipped to a browser — nothing loads src/): src/arm/bodies.js (arm.step-body), src/arm/layout.js (arm.layout);
 //   modules/arm/steps.js (arm.steps) stays the SINGLE source of the §4.3 flags (heavy / youthHide / youth) and of the BOOTED order.
-// v259: wrappers are EXPLICIT el blocks in the layout and are VALIDATED against the flags (V-WRAP-*). v260 will derive them instead.
+// v260: the six §4.3 wrappers (.plyo-heavy / .youth-hide) are DERIVED here from the arm.steps flags (+ island `mech`); a hand-placed wrapper in layout.js is REFUSED (V-WRAP-EXPLICIT).
+//   R1 a step's mech = its arm.steps flag · R2 an island declares mech only if it must be hidden; an el's mech = the common mech of its descendants, else 'mixed'
+//   R3 in any sibling list a MAXIMAL RUN of consecutive blocks sharing one non-safe mech gets ONE wrapper div, at the HIGHEST level where the whole run shares it; nothing inside a wrapper is re-wrapped
+//   R4 altCard islands are safe by definition and SPLIT runs · R5 fail-closed refusals (V-FLAGS, V-WRAP-EXPLICIT, V-ISLAND-GAP, V-ALTCARD, V-PLACE…) · R6 verifyDerived() re-proves ancestry <=> flags on the OUTPUT.
 // Needs only node builtins (so Lane M's static gate can run it). Every validation refusal is a named code the gate has a RED test for.
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm'; import { fileURLToPath } from 'node:url';
 
@@ -72,41 +75,77 @@ export function validate(data) {
       const m = DOSE.exec(txt); if (m) bad('V-DOSE', `${id}: youth-safe row carries a dose/weight token "${m[0]}"`);
     }
   });
-  // placement + wrapper consistency over the layout tree
+  // placement + island/wrapper authoring rules over the layout tree (the wrappers themselves are DERIVED, see derive())
   const placed = new Map(); const seenRegion = new Set();
   regions.forEach((r) => {
     if (seenRegion.has(r.id)) bad('V-REGION-DUP', `region ${r.id} registered twice`); seenRegion.add(r.id);
-    const walk = (blocks, wrapper, inWrapEl) => blocks.forEach((b, i) => {
+    const walk = (blocks) => blocks.forEach((b, i) => {
       const where = `${r.id}[${i}]`;
       if ('step' in b) {
         const row = steps.get(b.step);
         if (!row) { bad('V-PLACE', `${where}: step "${b.step}" is not an arm.steps row`); return; }
         placed.set(b.step, (placed.get(b.step) || 0) + 1);
         if (row.section !== r.section) bad('V-PLACE', `${where}: step "${b.step}" belongs to section "${row.section}" but is placed in "${r.section}"`);
-        const f = flagOf(row), w = wrapper || 'safe';
-        if (f !== w) bad('V-WRAP-STEP', `${where}: step "${b.step}" is flagged ${f} but sits ${wrapper ? 'inside a ' + WRAP_CLASS[wrapper] + ' wrapper' : 'outside every wrapper'}`);
       } else if ('el' in b) {
         if (typeof b.el !== 'string' || !/^[a-z][a-z0-9]*$/.test(b.el)) bad('V-EL', `${where}: bad tag "${b.el}"`);
-        const w = wrapOf(b);
-        if (w && wrapper) bad('V-WRAP-NEST', `${where}: a ${WRAP_CLASS[w]} wrapper inside a ${WRAP_CLASS[wrapper]} wrapper`);
-        if (b.attrs && b.attrs.class && /\b(plyo-heavy|youth-hide)\b/.test(b.attrs.class) && !w) bad('V-WRAP-EL', `${where}: a youth-hide/plyo-heavy class on something that is not a plain <div> wrapper`);
-        walk(b.blocks || [], w || wrapper, !!w);
+        if (b.attrs && b.attrs.class && /\b(plyo-heavy|youth-hide)\b/.test(b.attrs.class)) bad('V-WRAP-EXPLICIT', `${where}: a hand-placed plyo-heavy/youth-hide wrapper — wrappers are DERIVED from the arm.steps flags (+ island mech); delete the node`);
+        walk(b.blocks || []);
       } else if ('html' in b) {
-        const inside = wrapper;   // 'heavy' | 'youthHide' | null
-        if (b.altCard) {
-          if (b.mech) bad('V-ALTCARD', `${where}: an altCard must not carry mech`);
-          if (inside) bad('V-ALTCARD', `${where}: an altCard (youth-VISIBLE) sits inside a ${WRAP_CLASS[inside]} wrapper — youth would never see it`);
-        } else if ((b.mech || null) !== inside) {
-          bad('V-WRAP-ISLAND', `${where}: island mech "${b.mech || 'none'}" but it sits ${inside ? 'inside a ' + WRAP_CLASS[inside] + ' wrapper' : 'outside every wrapper'}`);
-        }
+        if (b.altCard && b.mech) bad('V-ALTCARD', `${where}: an altCard (youth-VISIBLE by definition) must not carry mech`);
+        if (b.mech && !WRAP_CLASS[b.mech]) bad('V-MECH', `${where}: island mech "${b.mech}" must be heavy or youthHide`);
         if (!b.mech) { const m = DOSE.exec(textOf(b.html)); if (m) bad('V-DOSE', `${where}: youth-visible island carries a dose/weight token "${m[0]}"`); }
       } else bad('V-BLOCK', `${where}: block is none of {step}/{el}/{html}`);
     });
-    walk(r.blocks || [], null, false);
+    walk(r.blocks || []);
+    gapCheck(r.blocks || [], steps, r.id, bad);
   });
   steps.forEach((row, id) => { const n = placed.get(id) || 0; if (n !== 1) bad('V-PLACE', `${id}: placed ${n}x in the layout (must be exactly once)`); });
   return v;
 }
+
+// ---- DERIVATION (R1–R4): mech of a block, ambiguity check, wrapper insertion ----
+export function mechOf(b, steps) {
+  if ('step' in b) { const row = steps.get(b.step); return row ? flagOf(row) : 'safe'; }
+  if ('html' in b) return b.altCard ? 'safe' : (b.mech || 'safe');
+  const kids = (b.blocks || []).map((k) => mechOf(k, steps)); if (!kids.length) return 'safe';
+  const set = new Set(kids); return set.size === 1 ? kids[0] : 'mixed';
+}
+const HIDDEN = (m) => m === 'heavy' || m === 'youthHide';
+// V-ISLAND-GAP: a mech-less, non-altCard island between two blocks of ONE hidden mech is ambiguous (hidden? visible?) — the author must say.
+function gapCheck(blocks, steps, where, bad) {
+  blocks.forEach((b, i) => {
+    if ('html' in b && !b.altCard && !b.mech && i > 0 && i < blocks.length - 1) {
+      const a = mechOf(blocks[i - 1], steps), c = mechOf(blocks[i + 1], steps);
+      if (HIDDEN(a) && a === c) bad('V-ISLAND-GAP', `${where}[${i}]: a youth-visible island sits between two ${WRAP_CLASS[a]} blocks — mark it mech:"${a}" (hidden) or altCard (an alternative card); it cannot be left ambiguous`);
+    }
+    if ('el' in b) gapCheck(b.blocks || [], steps, `${where}[${i}]`, bad);
+  });
+}
+export function derive(blocks, steps) {
+  const out = []; let i = 0;
+  while (i < blocks.length) {
+    const m = mechOf(blocks[i], steps);
+    if (HIDDEN(m)) { let j = i; while (j < blocks.length && mechOf(blocks[j], steps) === m) j++; out.push({ el: 'div', attrs: { class: WRAP_CLASS[m] }, blocks: blocks.slice(i, j) }); i = j; continue; }
+    const b = blocks[i++]; out.push('el' in b ? { ...b, blocks: derive(b.blocks || [], steps) } : b);
+  }
+  return out;
+}
+// R6: re-prove on the DERIVED OUTPUT that ancestry <=> flags (returns [{code,msg}]; empty = sound)
+export function verifyDerived(regions, steps) {
+  const v = [], bad = (code, msg) => v.push({ code, msg });
+  regions.forEach((r) => {
+    const walk = (blocks, wrapper) => blocks.forEach((b) => {
+      const w = wrapOf(b);
+      if (w) { if (wrapper) bad('V-DERIVE-NEST', `${r.id}: nested wrapper`); walk(b.blocks || [], w); return; }
+      if ('step' in b) { const f = flagOf(steps.get(b.step)); if (f !== (wrapper || 'safe')) bad('V-DERIVE-STEP', `${r.id}: step "${b.step}" is ${f} but derived ${wrapper ? 'inside ' + WRAP_CLASS[wrapper] : 'outside every wrapper'}`); }
+      else if ('html' in b) { if (b.altCard && wrapper) bad('V-DERIVE-ALT', `${r.id}: an altCard was derived INSIDE a ${WRAP_CLASS[wrapper]} wrapper`); if (!b.altCard && (b.mech || null) !== wrapper) bad('V-DERIVE-ISLAND', `${r.id}: island mech "${b.mech || 'none'}" but derived ${wrapper ? 'inside ' + WRAP_CLASS[wrapper] : 'outside every wrapper'}`); }
+      else walk(b.blocks || [], wrapper);
+    });
+    walk(r.blocks, null);
+  });
+  return v;
+}
+export function deriveRegions(regions, steps) { return regions.map((r) => ({ ...r, blocks: derive(r.blocks || [], steps) })); }
 
 // ---- RENDER ----
 function renderStep(r, ind) {
@@ -143,7 +182,7 @@ function renderBlocks(blocks, bodies, ind) {
     return `${ind}<${b.el}${at}>\n${renderBlocks(b.blocks || [], bodies, ind + '  ')}\n${ind}</${b.el}>`;
   }).join('\n');
 }
-export function renderRegion(region, bodies, ind = '') { return renderBlocks(region.blocks, bodies, ind); }
+export function renderRegion(region, bodies, ind = '', steps = null) { return renderBlocks(steps ? derive(region.blocks, steps) : region.blocks, bodies, ind); }
 
 // ---- SPLICE into arm.html ----
 export function markerIds(src) { return [...src.matchAll(/<!-- gen:arm-region ([a-z0-9-]+#\d+) -->/g)].map((m) => m[1]); }
@@ -158,7 +197,7 @@ export function generate(src, data) {
     const ls = out.lastIndexOf('\n', a - 1) + 1, ind = out.slice(ls, a);
     if (!/^[ \t]*$/.test(ind)) throw new Error(`marker for ${r.id} must start its own line`);
     const eLs = out.lastIndexOf('\n', b - 1) + 1;   // the END marker line keeps its own indentation
-    out = out.slice(0, a + s.length) + '\n' + renderRegion(r, data.bodies, ind) + '\n' + out.slice(eLs);
+    out = out.slice(0, a + s.length) + '\n' + renderRegion(r, data.bodies, ind, data.steps) + '\n' + out.slice(eLs);
   }
   return out;
 }
