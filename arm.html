@@ -6985,7 +6985,9 @@
      owner's rule from item 3.x, applied uniformly so a new way of hiding a step
      cannot silently leave it in the denominator. */
   function trackHidden(s){ return s.classList.contains('track-hidden'); }
-  function stepDisabled(s){ if(document.body.classList.contains('youth')&&s.closest('.plyo-heavy'))return true; return jxDisabledStep(s) || setStepOff(s) || splitHidden(s) || trackHidden(s); }
+  /* v264: a youth is counted only against what a youth can SEE -- BOTH §4.3 wrappers hide steps (.plyo-heavy = heavy-ball/plyo, .youth-hide = recovery + lifting). Before this
+     only .plyo-heavy was uncounted, so a youth's Today's-order card read "Recover 0/19" and "The work 0/128" (58 hidden lifting steps) -- stages they cannot open or finish. */
+  function stepDisabled(s){ if(document.body.classList.contains('youth')&&s.closest('.plyo-heavy, .youth-hide'))return true; return jxDisabledStep(s) || setStepOff(s) || splitHidden(s) || trackHidden(s); }
 
   /* ===== WASHINGTON: SIMPLE vs FULL METHOD (owner ask) =====
      Two genuinely different users, so two tracks rather than one compromise.
