@@ -8709,7 +8709,21 @@
   function openClip(name){
     if(_clipModal){ _clipModal.open(name); return; }
     var u=officialFor(name||'')||((sourceFor(name||'')||[])[2]||null);
-    if(u){ try{ window.open(u,'_blank','noopener'); }catch(e){} }
+    if(u){ try{ window.open(u,'_blank','noopener'); }catch(e){} return; }
+    clipLibMissingNotice();   /* v266 (R §E.2, other half): lib missing AND no url used to be a silent no-op -- say so, in words */
+  }
+  /* words-only, role=alert, auto-clears; same wording as the card's own lib-missing fallback in buildClipCard() */
+  function clipLibMissingNotice(){
+    try{
+      var old=document.getElementById('clip-lib-missing'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+      var n=document.createElement('div'); n.id='clip-lib-missing'; n.setAttribute('role','alert');
+      n.style.cssText='position:fixed;left:12px;right:12px;bottom:16px;z-index:60;max-width:420px;margin:0 auto;padding:10px 12px;border-radius:10px;background:var(--panel,#161b22);border:1px solid var(--gold,#d4a017);color:var(--gold-bright,#f0b832);font-size:12.5px;text-align:center';
+      n.appendChild(document.createTextNode('Clip player failed to load. '));
+      var rl=document.createElement('a'); rl.href='#'; rl.textContent='Reload'; rl.style.color='inherit'; rl.style.textDecoration='underline';
+      rl.addEventListener('click', function(ev){ ev.preventDefault(); location.reload(); }); n.appendChild(rl);
+      document.body.appendChild(n);
+      setTimeout(function(){ try{ if(n.parentNode) n.parentNode.removeChild(n); }catch(e){} }, 7000);
+    }catch(e){}
   }
   function closeClip(){ if(_clipModal) _clipModal.close(); }
   window.setClipRate = function(r){ if(_clipModal) _clipModal.setRate(r); };
