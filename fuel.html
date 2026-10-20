@@ -974,7 +974,7 @@
   .qa-btn { position: relative; }
   .qa-btn .qa-menu-dot {
     position: absolute; top: 2px; right: 4px; padding: 0 4px;
-    color: #6e7681; font-weight: 700; font-size: 11px; line-height: 1.2;
+    color: var(--faint); font-weight: 700; font-size: 11px; line-height: 1.2;
     opacity: 0.4;
   }
   .qa-btn:hover .qa-menu-dot { opacity: 1; }
@@ -982,7 +982,7 @@
   .qa-btn.qa-mine { position: relative; }
   .qa-x {
     position: absolute; top: 2px; left: 4px; padding: 0 4px;
-    color: #6e7681; font-weight: 700; font-size: 13px; line-height: 1.2;
+    color: var(--faint); font-weight: 700; font-size: 13px; line-height: 1.2;
   }
   .qa-x:hover { color: #f85149; }
   .qa-add {
@@ -1230,7 +1230,7 @@
   .fav-btn .fav-star.fav-freq { color: var(--dim); }
   .fav-btn .fav-more {
     position: absolute; top: 2px; right: 4px; padding: 0 4px;
-    color: #6e7681; font-weight: 700; font-size: 11px; line-height: 1.2;
+    color: var(--faint); font-weight: 700; font-size: 11px; line-height: 1.2;
     opacity: 0.4;
   }
   /* Favorites imagery: a favorite whose label resolves to a catalog item (_favImgFor) wears that
@@ -2642,7 +2642,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
 
 <!-- ============== WEEKLY ============== -->
 
-  <div style="text-align:center;font-size:11px;color:#6e7681;margin:10px 0 14px">For backup &amp; restore, use the <b style="color:var(--bone)">DATA ⚙️</b> tab.</div>
+  <div style="text-align:center;font-size:11px;color:var(--faint);margin:10px 0 14px">For backup &amp; restore, use the <b style="color:var(--bone)">DATA ⚙️</b> tab.</div>
 
 
 <!-- ============== EVENTS ============== -->
@@ -7448,7 +7448,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       // in _bundlesFor() (electrolyte-carrying bundles never render for youth).
       let bh='';
       if(bundles.length){
-        bh='<div style="font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
+        bh='<div style="font-size:9px;letter-spacing:1.2px;color:var(--faint);'+
           'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin:7px 0 4px">📦 Bundles · one tap</div>'+
           '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px">'+bundles.map(b=>{
             const parts=[];
@@ -7481,7 +7481,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       [['water','💧 Water'],['electrolyte','⚡ Electrolytes'],['protein','🥤 Protein']].forEach(g=>{
         const arr=grp[g[0]]; if(!arr.length) return;
         const tinge = g[0]==='water' ? 'rgba(88,166,255,0.08)' : (g[0]==='protein' ? 'rgba(212,160,23,0.08)' : 'transparent');
-        h+='<div style="font-size:9px;letter-spacing:1.2px;color:#6e7681;'+
+        h+='<div style="font-size:9px;letter-spacing:1.2px;color:var(--faint);'+
           'font-family:\'SF Mono\',monospace;text-transform:uppercase;margin:7px 0 4px">'+g[1]+'</div>'+
           '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;background:'+tinge+';padding:6px;border-radius:8px">'+arr.map(favChip).join('')+'</div>';
       });
@@ -7525,7 +7525,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
           rows+='<div onclick="batteryEditDay(\''+key+'\')" style="display:flex;align-items:center;'+
             'justify-content:space-between;padding:10px 12px;background:#161b22;border:1px solid '+
             (hit?'#3fb95055':'#2d333b')+';border-radius:10px;margin-bottom:6px;cursor:pointer">'+
-            '<div style="font-size:13px;color:#e6edf3">'+lbl+'<span style="color:#6e7681;font-size:11px"> · '+key.slice(5)+'</span></div>'+
+            '<div style="font-size:13px;color:#e6edf3">'+lbl+'<span style="color:var(--faint);font-size:11px"> · '+key.slice(5)+'</span></div>'+
             '<div style="font-family:\'SF Mono\',monospace;font-size:12px">'+
               '<span style="color:#d4a017">'+(fy()?(occOf(key)+'×'):(Math.round(tot.protein)+'g'))+'</span> · '+
               '<span style="color:#58a6ff">'+Math.round(tot.water)+'oz</span>'+
@@ -7572,13 +7572,13 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
           const c=e.type==='protein'?'#d4a017':(e.type==='water'?'#58a6ff':'#3fb950');
           const u=e.type==='protein'?'g':(e.type==='water'?'oz':'');
           return '<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;background:#0d1117;border:1px solid #2d333b;border-radius:9px;margin-bottom:6px">'+
-            '<span style="color:#6e7681;font-family:\'SF Mono\',monospace;font-size:11px;min-width:42px">'+(e.t||'—')+'</span>'+
+            '<span style="color:var(--faint);font-family:\'SF Mono\',monospace;font-size:11px;min-width:42px">'+(e.t||'—')+'</span>'+
             /* §4.3: the day-editor lists every entry with its amount; a protein
                row printed grams straight back at a youth athlete. */
             '<span style="color:'+c+';font-family:\'SF Mono\',monospace;font-size:13px;min-width:46px">'+((e.type==='protein'&&fy())?'✓':('+'+e.amount+u))+'</span>'+
             '<span style="color:#c9d1d9;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(e.label||e.type)+'</span>'+
             '<button onclick="window._dayDel('+e.id+')" style="background:none;border:1px solid #da3633;color:#da3633;border-radius:7px;padding:5px 9px;font-size:12px;cursor:pointer">✕</button></div>';
-        }).join('') : '<div style="color:#6e7681;font-size:13px;text-align:center;padding:14px">No entries this day.</div>';
+        }).join('') : '<div style="color:var(--faint);font-size:13px;text-align:center;padding:14px">No entries this day.</div>';
         // goal vs actual header (1.2). §4.3: protein side is a gram figure;
         // water stays since oz is not a macro.
         const goalLine = g.protein
@@ -7612,7 +7612,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
           '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
           _planFields.map(function(f){
             var on=!!_plan[f];
-            return '<button onclick="window._dayTogglePlan(\''+f+'\')" style="background:'+(on?'#d4a01733':'#0d1117')+';border:1px solid '+(on?'#d4a017':'#2d333b')+';color:'+(on?'#d4a017':'#6e7681')+';border-radius:999px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:\'SF Mono\',monospace;text-transform:uppercase;font-weight:'+(on?'700':'400')+'">'+f+'</button>';
+            return '<button onclick="window._dayTogglePlan(\''+f+'\')" style="background:'+(on?'#d4a01733':'#0d1117')+';border:1px solid '+(on?'#d4a017':'#2d333b')+';color:'+(on?'#d4a017':'var(--faint)')+';border-radius:999px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:\'SF Mono\',monospace;text-transform:uppercase;font-weight:'+(on?'700':'400')+'">'+f+'</button>';
           }).join('')+
           '</div></div>';
 
@@ -7720,7 +7720,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
               '<div id="_dayTypeChips" style="display:flex;gap:6px;margin-bottom:10px">'+
               types.map(function(d){
                 var on=parts.indexOf(d)>=0;
-                return '<button data-day="'+d+'" onclick="window._daySetType(\''+d+'\')" style="flex:1;padding:8px 4px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:1.5px solid '+(on?'#d4a017':'#2d333b')+';background:'+(on?'#d4a017':'#161b22')+';color:'+(on?'#0d1117':'#6e7681')+'">'+DAY_TARGETS[d].label+'</button>';
+                return '<button data-day="'+d+'" onclick="window._daySetType(\''+d+'\')" style="flex:1;padding:8px 4px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:1.5px solid '+(on?'#d4a017':'#2d333b')+';background:'+(on?'#d4a017':'#161b22')+';color:'+(on?'#0d1117':'var(--faint)')+'">'+DAY_TARGETS[d].label+'</button>';
               }).join('')+'</div>';
           })()+
           planSec+sleepSec+feelSec+
@@ -7734,12 +7734,12 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
           '</div>'+
           '<div style="display:flex;gap:7px;align-items:center;margin-bottom:9px">'+
             '<input id="_dTime" type="time" style="flex:1;min-width:0;background:#0d1117;border:1px solid #2d333b;color:#79b8ff;padding:10px;border-radius:9px;font-size:14px">'+
-            '<span style="color:#6e7681;font-size:11px;font-family:\'SF Mono\',monospace">optional</span>'+
+            '<span style="color:var(--faint);font-size:11px;font-family:\'SF Mono\',monospace">optional</span>'+
           '</div>'+
           '<button onclick="window._dayAdd()" style="width:100%;background:#d4a017;border:none;color:#0d1117;border-radius:9px;padding:12px;font-weight:700;font-size:14px;cursor:pointer">+ ADD ITEM</button>'+
           '</div>'+
           armExSec+suppSec+
-          '<div style="font-size:10px;color:#6e7681;margin-top:10px;text-align:center;font-family:\'SF Mono\',monospace">Unified editor · all sections update live</div>'+
+          '<div style="font-size:10px;color:var(--faint);margin-top:10px;text-align:center;font-family:\'SF Mono\',monospace">Unified editor · all sections update live</div>'+
           '</div>';
       }
       function fmtTime(hhmm){
@@ -8125,7 +8125,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       if((_ltNote==='today'||_ltNote==='yesterday') && !isYouth){
         armNote='<div style="margin-top:8px;padding:9px 11px;border-left:2px solid #3fb950;background:#0d1117;border-radius:0 8px 8px 0;font-size:12px;color:#c9d1d9;line-height:1.5"><b style="color:#3fb950">Arm:</b> you threw '+_ltNote+' — protein consistency aids recovery. Don\'t skimp even if appetite is low.</div>';
       }
-      const tagColor={solid:'#d4a017',liquid:'#58a6ff',sip:'#6e7681',go:'#3fb950'};
+      const tagColor={solid:'#d4a017',liquid:'#58a6ff',sip:'var(--faint)',go:'#3fb950'};
       const tagLabel={solid:'SOLID OK',liquid:'LIQUID',sip:'WATER ONLY',go:'GO'};
       const rows=windows.map(w=>
         '<div style="display:flex;gap:10px;padding:10px 12px;background:#161b22;border:1px solid #2d333b;border-radius:10px;margin-bottom:6px">'+
@@ -8136,7 +8136,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       host.innerHTML='<div style="background:#11151c;border:1px solid #3fb950;border-radius:13px;padding:14px">'+
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
           '<div style="font-size:13px;font-weight:700;color:#3fb950;font-family:\'SF Mono\',monospace;letter-spacing:1px">🏋 FUEL RUNWAY</div>'+
-          '<button onclick="batterySetTrain(\'\')" style="background:none;border:none;color:#6e7681;font-size:12px;cursor:pointer;font-family:\'SF Mono\',monospace">clear ✕</button></div>'+
+          '<button onclick="batterySetTrain(\'\')" style="background:none;border:none;color:var(--faint);font-size:12px;cursor:pointer;font-family:\'SF Mono\',monospace">clear ✕</button></div>'+
         '<div style="font-size:12px;color:#8b949e;margin-bottom:10px;font-family:\'SF Mono\',monospace">Training '+fmt(train)+' · '+hLeft+' out'+(!isYouth&&pLeft>0?' · '+pLeft+'g protein to go':'')+'</div>'+
         rows+zepNote+armNote+
         '<button onclick="batteryRunwayPrompt()" style="width:100%;margin-top:8px;background:none;border:1px solid #2d333b;color:#8b949e;font-family:\'SF Mono\',monospace;font-size:11px;padding:8px;border-radius:9px;cursor:pointer">change time</button></div>';
@@ -8155,7 +8155,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:15px;font-weight:700;color:#e6edf3">When are you training?</div>'+
         '<button onclick="document.getElementById(\'battery-train-modal\').remove()" style="background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer">✕</button></div>'+
         '<div style="display:flex;gap:8px;margin-bottom:10px">'+
-          opts.map(o=>'<button onclick="batterySetTrain(\''+hm(o.d)+'\');document.getElementById(\'battery-train-modal\').remove()" style="flex:1;background:#0d1117;border:1px solid #3fb950;color:#3fb950;border-radius:10px;padding:13px 6px;cursor:pointer;font-family:\'SF Mono\',monospace;font-size:13px">'+o.l+'<br><span style="color:#6e7681;font-size:10px">'+fmt(o.d)+'</span></button>').join('')+'</div>'+
+          opts.map(o=>'<button onclick="batterySetTrain(\''+hm(o.d)+'\');document.getElementById(\'battery-train-modal\').remove()" style="flex:1;background:#0d1117;border:1px solid #3fb950;color:#3fb950;border-radius:10px;padding:13px 6px;cursor:pointer;font-family:\'SF Mono\',monospace;font-size:13px">'+o.l+'<br><span style="color:var(--faint);font-size:10px">'+fmt(o.d)+'</span></button>').join('')+'</div>'+
         '<div style="display:flex;gap:8px;align-items:center"><input type="time" id="_trainCustom" style="flex:1;background:#0d1117;border:1px solid #2d333b;color:#79b8ff;padding:11px;border-radius:10px;font-size:15px">'+
           '<button onclick="(function(){var v=document.getElementById(\'_trainCustom\').value;if(v){batterySetTrain(v);document.getElementById(\'battery-train-modal\').remove();}})()" style="background:#3fb950;border:none;color:#0d1117;font-weight:700;border-radius:10px;padding:11px 16px;cursor:pointer">set</button></div>'+
         '<label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:#8b949e;cursor:pointer"><input type="checkbox" id="_trainSaveEvent" style="width:16px;height:16px"> Also save as a workout event</label></div>';
@@ -8269,7 +8269,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       // optional tail: next game if not already the lead
       let tail='';
       if(game && game.d>2 && !lead.includes('Game')){
-        tail='<div style="font-size:11px;color:#6e7681;margin-top:5px;font-family:\'SF Mono\',monospace">next: '+(game.notes||game.type)+' in '+game.d+'d</div>';
+        tail='<div style="font-size:11px;color:var(--faint);margin-top:5px;font-family:\'SF Mono\',monospace">next: '+(game.notes||game.type)+' in '+game.d+'d</div>';
       }
       host.innerHTML='<div style="background:#11161d;border-left:3px solid '+accent+';border-radius:0 11px 11px 0;padding:11px 13px">'+
         '<div style="font-size:13.5px;color:#e6edf3;line-height:1.45">'+lead+'</div>'+tail+'</div>';
