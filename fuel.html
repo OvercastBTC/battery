@@ -8373,6 +8373,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       return cat?cat.timing:'';
     }
     function suppCheckNotify(training, active, done){
+      if((window.BATTERY_TIER||'youth')!=='adult') return;   /* §4.3 belt (v272): never compose a supplement notification for youth - the host sink (notifSend) also drops it; every source fails closed */
       if(!training) return;
       if(active.indexOf('collagen')<0) return;
       if(done.indexOf('collagen')>=0) return;
