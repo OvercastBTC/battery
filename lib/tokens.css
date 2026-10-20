@@ -29,7 +29,7 @@
   --line-bright: #444c56;
   --bone: #e6edf3;
   --dim: #8b949e;
-  --faint: #6e7681;
+  --faint: #808994;   /* v271: was #6e7681 (4.12/3.77/3.52:1 on ink/steel/steel-2 = sub-AA). #808994 = 5.34/4.88/4.57:1 -- the 4.57 on --steel-2 (raised cards) is a THIN margin: re-check --faint if --steel-2 is ever darkened. */
   --gold: #d4a017;
   --gold-bright: #f0b832;
   --blood: #da3633;
