@@ -1709,10 +1709,10 @@ BATTERY.register('arm.step-body', { section: "lifting", bodies: [
       ]
     },
     {
-      id: "lift-db-bench", title: "DB Bench Press", target: "Chest · Front Delt · Tris", reps: "3 × 8-12", attrs: {"mg":"chest","sub":"mid","eq":"db"}, youth: "adult",
+      id: "lift-db-bench", title: "DB Floor Press", target: "Chest · Front Delt · Tris", reps: "3 × 8-12", attrs: {"mg":"chest","sub":"mid","eq":"db"}, youth: "adult",
       detail: [
-        { t: "p", h: "Flat bench, dumbbells. Lower to chest level with control, press without locking hard at the top." },
-        { t: "em", h: "Hotel-gym staple — no rack needed, and DBs let each side work independently." }
+        { t: "p", h: "Lie on the floor, dumbbells. Lower until your upper arms rest on the floor (elbows ~90°), pause a beat, then press up — don't lock hard at the top." },
+        { t: "em", h: "No bench on purpose. The floor stops your elbows before the shoulder is dragged into deep extension, and your shoulder blades stay free instead of pinned flat — a flat bench trains the anterior tilt a thrower is fighting. Same pressing strength without that cost. No bench, no rack; DBs let each side work on its own." }
       ]
     },
     {

@@ -258,7 +258,7 @@ BATTERY.register('arm.steps', { section: 'lifting', steps: [
   { id: 'lift-db-incline', name: 'DB Incline Press', order: 1, youth: 'adult', youthHide: true, muscle: 'chest', sub: 'upper', eq: 'db' },
   { id: 'lift-machine-incline', name: 'Incline Press · machine or Smith', order: 2, youth: 'adult', youthHide: true, muscle: 'chest', sub: 'upper', eq: 'machine' },
   { id: 'lift-press', name: 'Standing Press · plate machine', order: 3, youth: 'adult', youthHide: true, muscle: 'chest', sub: 'mid', eq: 'machine' },
-  { id: 'lift-db-bench', name: 'DB Bench Press', order: 4, youth: 'adult', youthHide: true, muscle: 'chest', sub: 'mid', eq: 'db' },
+  { id: 'lift-db-bench', name: 'DB Floor Press', order: 4, youth: 'adult', youthHide: true, muscle: 'chest', sub: 'mid', eq: 'db' },
   { id: 'lift-pushup', name: 'Push-Ups', order: 5, youth: 'adult', youthHide: true, muscle: 'chest', sub: 'mid', eq: 'bw' },
   { id: 'lift-cable-fly', name: 'Cable / Band Fly', order: 6, youth: 'adult', youthHide: true, muscle: 'chest', sub: 'fly', eq: 'cable' },
   { id: 'lift-pec-deck', name: 'Pec Deck · or banded fly', order: 7, youth: 'adult', youthHide: true, muscle: 'chest', sub: 'fly', eq: 'machine' },
