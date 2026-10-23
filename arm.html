@@ -7013,6 +7013,7 @@
     return stepGroup(s);
   }
   function groupCount(g){
+    if(g==='lift') return liftCoverage(viewDayKey(), domDoneSet());   // v280: GROUP coverage for the viewed day (the exercise-level count made the ring uncompletable)
     let done=0,total=0,optDone=0,optTotal=0;
     document.querySelectorAll('.step').forEach(s=>{
       if(stepCountGroup(s)!==g) return;
@@ -7030,6 +7031,7 @@
   function todayGroupCount(g){
     var set;
     try { var raw = storeGet(armDoneKey(), ''); set = new Set(raw ? raw.split(',') : []); } catch(e){ set = new Set(); }
+    if(g==='lift') return liftCoverage(armLocalDay(), set);   // v280: today's group coverage from today's stored done-set
     var done=0,total=0,optDone=0,optTotal=0;
     document.querySelectorAll('.step').forEach(function(s){
       if(stepCountGroup(s)!==g) return;
@@ -7347,7 +7349,7 @@
     }
     updateCounter();
   }
-  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof loadDone==='function') loadDone(); if(typeof postCounts==='function') postCounts(); } else if(d.type==='bat-active-date'&&d.date){var today=armLocalDay(new Date());_armActiveDate=(d.date===today)?null:d.date;if(typeof loadDone==='function')loadDone();} });
+  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof loadDone==='function') loadDone(); if(typeof postCounts==='function') postCounts(); } else if(d.type==='bat-active-date'&&d.date){var today=armLocalDay(new Date());_armActiveDate=(d.date===today)?null:d.date;if(typeof loadDone==='function')loadDone();try{if(typeof renderSplit==='function')renderSplit();}catch(e){}} });
 
   /* ===== ARM FLOW — the sequence as ONE continuous page =====
      Owner's ask, restated: warm-up, tube, J-Bands and plyo should physically lay
@@ -7944,6 +7946,56 @@
      it can never drift from the catalogue: adding a lift to the markup adds it to the
      picker with no second list to maintain. */
   var MG_LABELS = {chest:'Chest',back:'Back',shoulders:'Shoulders',bis:'Biceps',tris:'Triceps',legs:'Legs',core:'Core'};
+  /* ===== v280 LIFT GROUP COVERAGE =====
+     The LIFT ring used to count individual exercises (17 under the 3-day 'Chest + Bis' split), but a real session trains 1-3 exercises per muscle group - the ring could never close.
+     Goal unit = muscle GROUP. A group is TRAINED when ANY step in it is ticked OR the free-form log (arm-care-liftlog-<date>) has >=1 set for an exercise in it.
+     ring = (selected groups trained) / (selected groups). The selection is PER DATE (arm-care-liftgroups-<date>; the viewed day, per the active-date model):
+       - an explicit selection wins;
+       - else TODAY only: the active split day's groups (the owner's opposing-groups pairing) if a split is on;
+       - else FREEFORM: the denominator is the distinct groups actually logged (min 1), so any logging registers and can close - never a dead 0/N.
+     Core is a normal selectable group; it rides along VISIBLE on split days (unchanged) but is never force-added to a denominator (it would recreate the uncompletable trap).
+     Youth: unchanged - lift stays zeroed/hidden (postCounts zeroes it; the Lifting page is .youth-hide). */
+  var LIFT_COMBOS = [
+    ['cb','Chest + Bis',['chest','bis']], ['bt','Back + Tris',['back','tris']], ['sl','Shoulders + Legs',['shoulders','legs']],
+    ['cbs','Chest + Bis + Shoulders',['chest','bis','shoulders']], ['btl','Back + Tris + Legs',['back','tris','legs']],
+    ['up','Upper',['chest','back','shoulders','bis','tris']], ['lo','Lower',['legs']], ['full','Full',['chest','back','shoulders','bis','tris','legs','core']]
+  ];
+  function viewDayKey(){ return _armActiveDate || armLocalDay(); }   // zero-padded key of the day the ARM view is on
+  function loadLiftSel(key){ try { var a = JSON.parse(storeGet('arm-care-liftgroups-' + key, '[]')) || []; return a.filter(function(g){ return MG_ORDER.indexOf(g) >= 0; }); } catch(e){ return []; } }
+  function saveLiftSel(key, arr){ storeSet('arm-care-liftgroups-' + key, JSON.stringify(arr)); }
+  function splitDayGroups(){ var pat = getSplit(); if(pat === 'all' || typeof SPLITS === 'undefined' || !SPLITS[pat]) return null; var day = getSplitDay(); var d = SPLITS[pat].days.filter(function(x){ return x[0] === day; })[0] || SPLITS[pat].days[0]; return d[2].slice(); }
+  function effectiveLiftSel(key){ var s = loadLiftSel(key); if(s.length) return s; if(key === armLocalDay()){ var g = splitDayGroups(); if(g) return g; } return []; }
+  function domDoneSet(){ var s = new Set(); document.querySelectorAll('#page-lifting .step[data-ex].done').forEach(function(x){ s.add(x.dataset.ex); }); return s; }
+  function liftTrained(key, doneSet){
+    var mgOf = {}, t = {};
+    document.querySelectorAll('#page-lifting .step[data-ex][data-mg]').forEach(function(s){ mgOf[s.dataset.ex] = s.dataset.mg; if(doneSet.has(s.dataset.ex)) t[s.dataset.mg] = 1; });
+    var rows = []; try { rows = JSON.parse(storeGet('arm-care-liftlog-' + key, '[]')) || []; } catch(e){ rows = []; }
+    rows.forEach(function(r){ if(r && r.ex && mgOf[r.ex] && r.sets && r.sets.length) t[mgOf[r.ex]] = 1; });
+    return t;
+  }
+  function liftCoverage(key, doneSet){
+    try {
+      var sel = effectiveLiftSel(key), trained = liftTrained(key, doneSet);
+      if(sel.length) return {done: sel.filter(function(g){ return trained[g]; }).length, total: sel.length, optDone: 0, optTotal: 0};
+      var n = Object.keys(trained).length;
+      return {done: n, total: Math.max(1, n), optDone: 0, optTotal: 0};   // freeform: any logging registers; never a dead 0/N
+    } catch(e){ return {done: 0, total: 0, optDone: 0, optTotal: 0}; }   // boot-order safety: a count must never throw into postCounts
+  }
+  window.toggleLiftGroup = function(g){ var k = viewDayKey(), s = loadLiftSel(k), i = s.indexOf(g); if(i >= 0) s.splice(i, 1); else s.push(g); saveLiftSel(k, MG_ORDER.filter(function(x){ return s.indexOf(x) >= 0; })); renderSplit(); updateCounter(); };
+  window.setLiftCombo = function(id){ var c = LIFT_COMBOS.filter(function(x){ return x[0] === id; })[0]; if(!c) return; saveLiftSel(viewDayKey(), c[2].slice()); renderSplit(); updateCounter(); };
+  window.clearLiftGroups = function(){ saveLiftSel(viewDayKey(), []); renderSplit(); updateCounter(); };
+  function renderLiftGroupBar(){
+    var note = document.getElementById('split-note'); if(!note) return;
+    var bar = document.getElementById('lift-groups-bar');
+    if(!bar){ bar = document.createElement('div'); bar.id = 'lift-groups-bar'; bar.style.cssText = 'margin:8px 0 10px'; note.insertAdjacentElement('afterend', bar); }
+    var key = viewDayKey(), sel = loadLiftSel(key), eff = effectiveLiftSel(key), cov = liftCoverage(key, domDoneSet()), past = (key !== armLocalDay());
+    var h = '<div style="font-size:10px;letter-spacing:1px;color:var(--faint);margin-bottom:6px">GROUPS TRAINED ' + (past ? 'THAT DAY' : 'TODAY') + ' · <b style="color:var(--bone)">' + cov.done + '/' + cov.total + '</b>' + (sel.length ? '' : (eff.length ? ' · from your split day' : ' · freeform')) + '</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">';
+    MG_ORDER.forEach(function(g){ h += '<div class="split-chip' + (sel.indexOf(g) >= 0 ? ' on' : '') + '" onclick="toggleLiftGroup(\'' + g + '\')">' + MG_NAME[g] + '</div>'; });
+    h += '</div><div style="display:flex;flex-wrap:wrap;gap:6px">';
+    LIFT_COMBOS.forEach(function(c){ var on = sel.length === c[2].length && c[2].every(function(g){ return sel.indexOf(g) >= 0; }); h += '<div class="split-chip' + (on ? ' on' : '') + '" onclick="setLiftCombo(\'' + c[0] + '\')">' + c[1] + '</div>'; });
+    h += '<div class="split-chip" onclick="clearLiftGroups()">Clear</div></div>';
+    bar.innerHTML = h;
+  }
   function liftCatalogue(){
     var out = [];
     document.querySelectorAll('#page-lifting .step[data-ex]').forEach(function(st){
@@ -8360,11 +8412,14 @@
       groups=sel[2];
       if(note) note.textContent='Showing '+sel[1]+' (+ core). Opposing groups are paired on purpose — bench already taxes the tris.';
     }
+    var _vsel=loadLiftSel(viewDayKey());   // v280: an explicit per-date group selection drives the visible set (core still rides along)
+    if(_vsel.length){ groups=_vsel; if(note) note.textContent='Showing '+_vsel.map(function(g){return MG_NAME[g];}).join(' + ')+' (your selection for this day). Core rides along and counts when logged.'; }
     document.querySelectorAll('#page-lifting [data-mg]').forEach(function(st){
       var mg=st.getAttribute('data-mg');
       st.classList.toggle('mg-hidden', !(!groups || mg==='core' || groups.indexOf(mg)>=0));
     });
     renderLiftGroups();
+    try{ renderLiftGroupBar(); }catch(e){}
   }
   window.renderSplit=renderSplit;
 
@@ -8376,6 +8431,7 @@
     document.getElementById('counter-today').textContent = `${c.done} / ${c.total}${bonus}`;
     const sumToday = document.getElementById('summary-today');
     if (sumToday) sumToday.textContent = `${c.done}/${c.total}${bonus}`;
+    try{ renderLiftGroupBar(); }catch(e){}   // v280: the group-coverage readout follows every tick
     postCounts();
   }
 
