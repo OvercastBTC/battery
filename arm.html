@@ -7313,7 +7313,10 @@
         body: todayGroupCount('body'),
         lift: _liftYouth ? {done:0,total:0,optDone:0,optTotal:0} : todayGroupCount('lift')
       };
-      parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills'),body:groupCount('body'),lift:lift,today:today},'*');
+      /* v277: additive `date` = the (zero-padded) day the MAIN counts describe, so the host can reject a reply that predates its own date switch (stale-by-one-hop = silent wrong). */
+      var _dd=new Date(), _dtoday=_dd.getFullYear()+'-'+String(_dd.getMonth()+1).padStart(2,'0')+'-'+String(_dd.getDate()).padStart(2,'0');
+      var _bdate=(typeof _armActiveDate!=='undefined'&&_armActiveDate)?_armActiveDate:_dtoday;
+      parent.postMessage({type:'bat-counts',arm:groupCount('arm'),drills:groupCount('drills'),body:groupCount('body'),lift:lift,today:today,date:_bdate},'*');
     }catch(e){}
   }
   function applyGroup(group){

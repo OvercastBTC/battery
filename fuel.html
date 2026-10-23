@@ -1035,6 +1035,7 @@
      the only numerals are day-counts ("every 3 days") and dates, so the §4.3
      youth sweep stays clean. recovery-context reminders are filtered out of
      render entirely (deferred, no host section). */
+  body.fuel-viewing-past #battery-runway, body.fuel-viewing-past #pace-line { display: none !important; }   /* v277: today-only live widgets never show on a past day */
   #page-reminders .rem-duebar { font-size: 12px; color: var(--gold); margin: 0 0 12px; font-weight: 600; }
   .rem-item { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
     background: var(--steel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 13px; margin-bottom: 9px; }
@@ -4380,6 +4381,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
   }
   function _selectDate(dateKey) {
     _selectedDate = (dateKey === todayKey()) ? null : dateKey;
+    try { document.body.classList.toggle('fuel-viewing-past', !!_selectedDate); } catch (e) {}   // v277: hides the today-only live widgets (pace line, runway)
     refreshProgress();
     refreshLog();
     _renderSelectedBanner();
@@ -4729,18 +4731,18 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       if (!fy()) { host.innerHTML = ''; return; }                 // adult mg tally = P3 (CAF_ADULT_TALLY=false)
       var ceil = cafCeilingFor('youth', _cafAgeNow());
       if (!ceil) { host.innerHTML = ''; return; }                 // fail-closed: no usable ceiling => nothing (tiles are locked anyway)
-      var today = window.fuelCaffeineFor(activeKey()).mg, any = today > 0, dots = '';
+      var today = window.fuelCaffeineFor(activeKey()).mg, any = today > 0, dots = '', _cref = activeKey(), _cwhen = (_cref === todayKey()) ? 'today' : 'that day';
       for (var i = 6; i >= 0; i--) {
-        var mg = window.fuelCaffeineFor(dateKeyForOffset(i)).mg; if (mg > 0) any = true;
+        var mg = window.fuelCaffeineFor(dateKeyFrom(_cref, i)).mg; if (mg > 0) any = true;
         dots += '<i class="' + cafDayClass(mg, ceil) + '" title="caffeine day"></i>';
       }
       if (!any) { host.innerHTML = ''; return; }                  // no nagging: widget appears once caffeine is logged in the last 7 days
       var st = cafStateFor(today, ceil), n = cafCellsFor(today, ceil), col = st === 'over' ? 'r' : st === 'near' ? 'a' : 'g', cells = '';
       for (var k = 0; k < 4; k++) cells += '<i class="' + (k < n ? 'on ' + col : '') + '"></i>';
-      var aria = 'Caffeine today: ' + (st === 'over' ? 'over a full day for your age' : st === 'near' ? 'close to a full day for your age' : st === 'low' ? 'a little' : 'none');
-      host.innerHTML = '<div class="caf-tally-card s-' + st + '" role="group" aria-label="' + aria + '"><div class="top"><span class="lab">⚡ Caffeine today</span><div class="cells">' + cells + '</div></div>'
+      var aria = 'Caffeine ' + _cwhen + ': ' + (st === 'over' ? 'over a full day for your age' : st === 'near' ? 'close to a full day for your age' : st === 'low' ? 'a little' : 'none');
+      host.innerHTML = '<div class="caf-tally-card s-' + st + '" role="group" aria-label="' + aria + '"><div class="top"><span class="lab">⚡ Caffeine ' + _cwhen + '</span><div class="cells">' + cells + '</div></div>'
         + (st !== 'none' ? '<div class="txt">' + cafLadderYouth(today, ceil) + '</div>' : '')
-        + '<div class="wk"><span>this week</span>' + dots + '</div></div>';
+        + '<div class="wk"><span>' + (_cwhen === 'today' ? 'this week' : 'that week') + '</span>' + dots + '</div></div>';
     } catch (e) { host.innerHTML = ''; }
   }
   window.renderCafTally = renderCafTally;
@@ -5836,7 +5838,11 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     }
     const runway=getRunwayStatus();
     var hostTot = _selectedDate ? getTotalsForDate(todayKey()) : tot;
-    try { parent.postMessage({ type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:liveT.water, tProtein:liveT.protein, tWaterStretch:liveT.water + _waterBumpGet() + _waterCarryGet().oz, day:liveT.label, runway:runway }, '*'); } catch (e) {}
+    try {
+      const _bf = { type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:liveT.water, tProtein:liveT.protein, tWaterStretch:liveT.water + _waterBumpGet() + _waterCarryGet().oz, day:liveT.label, runway:runway };
+      const _sel = _buildSel(t, tot); if (_sel) _bf.sel = _sel;   // v277: additive; present ONLY while a past date is selected (top-level fields stay TODAY for old hosts)
+      parent.postMessage(_bf, '*');
+    } catch (e) {}
 
     // Also refresh mini stats / strip / calendar / suggestions each time
     refreshMiniStrip();
@@ -5906,6 +5912,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
   function renderPaceLine(t, tot){
     const el = document.getElementById('pace-line'), tx = document.getElementById('pace-txt');
     if (!el || !tx) return;
+    if (_selectedDate) { el.style.display = 'none'; return; }   // v277: 'by now ≈' is a wall-clock concept - meaningless on a finished day
     const END = 22, wk = wakeHours();
     const now = new Date(), hr = now.getHours() + now.getMinutes()/60;
     const frac = (hr - wk) / Math.max(1, END - wk);
@@ -6615,20 +6622,46 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     return { dayName: days[d.getDay()], date: `${d.getMonth()+1}/${d.getDate()}` };
   }
+  /* v277 AS-OF-DATE: every cross-date DERIVED value (streak, 7-day avg/strip, history, supp streak, caffeine dots) is anchored on a REFERENCE KEY (the selected date, else today)
+     instead of "now". Day keys are LOCAL zero-padded; arithmetic uses setDate on a local-midnight Date (never ms math: DST-safe). */
+  function dateKeyFrom(refKey, back) {
+    const p = String(refKey).split('-'); const d = new Date(+p[0], +p[1] - 1, +p[2]);
+    d.setDate(d.getDate() - back);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function dayLabelFrom(refKey, back) {
+    const p = String(refKey).split('-'); const d = new Date(+p[0], +p[1] - 1, +p[2]);
+    d.setDate(d.getDate() - back);
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    return { dayName: days[d.getDay()], date: `${d.getMonth()+1}/${d.getDate()}` };
+  }
+  /* where a past day's goal came from, so a FINAL view can say "goal estimated" instead of presenting a fallback as a snapshot:
+     'snap' (fuel-goalsnap saved) -> 'daytype' (rebuilt from that day's stored day-type) -> 'baseline' (the fixed ['train'] default). READ-ONLY: never writes. */
+  function _buildSel(t, tot) {
+    if (!_selectedDate) return null;
+    const types = String(getTotalsForDate(_selectedDate).day || '').split(',').filter(d => DAY_TYPE_NAME[d]);
+    const m = { date: _selectedDate, water: Math.round(tot.water), tWater: t.water, day: (types.length ? types : ['train']).map(dayTypeName).join(' + '), goalSrc: _goalSrcForDate(_selectedDate), final: true };
+    if ((window.BATTERY_TIER || 'youth') === 'adult') { m.protein = Math.round(tot.protein); m.tProtein = t.protein; }   // §4.3: FUEL decides, fail-closed - a youth sel has NO protein field at all
+    return m;
+  }
+  function _goalSrcForDate(key) {
+    try { if (localStorage.getItem('fuel-goalsnap-' + key)) return 'snap'; } catch (e) {}
+    return storeGet('fuel-day-' + key, null) ? 'daytype' : 'baseline';
+  }
 
   // For each of the last 7 days, classify: 'both' (both goals met), 'partial' (both ≥80%), 'low', 'empty'
-  function classifyDay(daysAgo) {
-    const key = dateKeyForOffset(daysAgo);
+  function classifyDay(key) {
+    const isToday = (key === todayKey());   // D2: derived from the KEY, never an offset - isToday=true makes _goalForDate WRITE fuel-goalsnap-<key>
     const tot = getTotalsForDate(key);
     // BATTERY (Lane D fix part 1): judge each day against the goal that was active THAT day —
     // the frozen per-day snapshot via _goalForDate, the SAME source calcStreak uses — not the
     // live DAY_TARGETS table, which floats with today's profile + day-type chip and made every
     // past day's checkmark move when you changed today. dayTypes is kept below for the
     // tooltip/label only; it no longer drives the threshold.
-    const target = _goalForDate(key, daysAgo === 0);
+    const target = _goalForDate(key, isToday);
     let dayTypes = [];
     if (tot.day) dayTypes = tot.day.split(',').filter(d => DAY_TARGETS[d]);
-    else if (daysAgo === 0) dayTypes = Array.from(activeDays);
+    else if (isToday) dayTypes = Array.from(activeDays);
     if (dayTypes.length === 0) dayTypes = ['train'];
     if (tot.protein === 0 && tot.water === 0) return { tier: 'empty', pPct: 0, wPct: 0, target, tot, dayTypes };
     const pPct = target.protein > 0 ? tot.protein / target.protein : 0;
@@ -6647,19 +6680,20 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     };
   }
 
-  function calcStreak() {
+  function calcStreak(refKey) {
+    const ref = refKey || todayKey(), refIsToday = (ref === todayKey());   // v277: streak AS OF `ref` (default today)
     // BATTERY: judge each day against the goal that was active THAT day (snapshot),
     // so changing your profile/goal later never retroactively breaks the streak.
     let streak = 0;
     const trk = trackedAreas();   // 3.0: streak runs on tracked areas only
     for (let i = 0; i < 400; i++) {
-      const key = dateKeyForOffset(i);
-      const isToday = (i === 0);
+      const key = dateKeyFrom(ref, i);
+      const isToday = (key === todayKey());   // D2: key, not index
       const tot = getTotalsForDate(key);
       const g = _goalForDate(key, isToday);
       const both = (fy() || !trk.protein || tot.protein >= g.protein) && (!trk.water || tot.water >= g.water);   // §4.3: youth streak = water only
-      if (i === 0 && !both) {
-        // today not yet hit — streak can still stand on yesterday; keep going
+      if (i === 0 && !both && refIsToday) {
+        // LIVE today not yet hit — streak can still stand on yesterday; keep going. (A PAST reference day is complete: a miss there ends the streak = 0.)
         continue;
       }
       if (both) streak++;
@@ -6672,11 +6706,12 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     const strip = document.getElementById('mini-strip');
     if (!strip) return;
     let html = '';
+    const ref = activeKey();   // v277: the 7-day strip is the 7 days ENDING on the selected date
     for (let i = 6; i >= 0; i--) {
-      const d = classifyDay(i);
-      const lbl = dayLabelForOffset(i);
-      const dk = dateKeyForOffset(i);
-      const today = (i === 0);
+      const dk = dateKeyFrom(ref, i);
+      const d = classifyDay(dk);
+      const lbl = dayLabelFrom(ref, i);
+      const today = (dk === todayKey());
       const sel = (dk === _selectedDate);
       const fillPct = Math.min(100, (fy() ? d.wPct : Math.max(d.pPct, d.wPct)) * 100);   // §4.3: youth pip height follows water only
       const tip = fy() ? `${lbl.dayName} ${lbl.date} · W ${Math.round(d.wPct*100)}%` : `${lbl.dayName} ${lbl.date} · P ${Math.round(d.pPct*100)}% · W ${Math.round(d.wPct*100)}%`;
@@ -6746,8 +6781,9 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
 
   function refreshMiniStats() {
     let pSum = 0, wSum = 0, count = 0;
+    const ref = activeKey();   // v277: 7-day avg / streak AS OF the selected date
     for (let i = 0; i < 7; i++) {
-      const tot = getTotalsForDate(dateKeyForOffset(i));
+      const tot = getTotalsForDate(dateKeyFrom(ref, i));
       if (tot.protein > 0 || tot.water > 0) {
         pSum += tot.protein;
         wSum += tot.water;
@@ -6756,14 +6792,13 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     }
     const pAvg = count > 0 ? Math.round(pSum / count) : 0;
     const wAvg = count > 0 ? Math.round(wSum / count) : 0;
-    const streak = calcStreak();
+    const streak = calcStreak(ref);
     document.getElementById('mini-streak').innerHTML = `${streak}<span class="u">d</span>`;
     /* youth: days he actually ate something, not an average dose */
     if (fy()) {
       let pd = 0;
       for (let i = 0; i < 7; i++) {
-        const dd = new Date(); dd.setDate(dd.getDate() - i);
-        const kk = dd.getFullYear() + '-' + String(dd.getMonth()+1).padStart(2,'0') + '-' + String(dd.getDate()).padStart(2,'0');
+        const kk = dateKeyFrom(ref, i);
         if (occOf(kk) > 0) pd++;
       }
       document.getElementById('mini-p-avg').innerHTML = `${pd}<span class="u">/7d</span>`;
@@ -6892,10 +6927,34 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
   }
 
   /* ===== SUGGESTIONS ===== */
+  /* v277: on a PAST date there is no 'remaining' and no clock - show how that day ENDED, against that day's FROZEN goal. Youth: water in oz (already youth-visible) + a meals COUNT, never grams (§4.3). */
+  function renderFinalDay(body, subEl) {
+    const key = _selectedDate, t = effTargets(_goalForDate(key, false)), tot = getTotals(), lines = [];
+    const y = (window.BATTERY_TIER || 'youth') !== 'adult', p = key.split('-');
+    if (subEl) subEl.textContent = 'final · ' + (+p[1]) + '/' + (+p[2]);
+    if (tot.water === 0 && tot.protein === 0 && !(y && occOf(key) > 0)) { body.innerHTML = '<div class="suggest-line">Nothing was logged for this day.</div>'; return; }
+    if (t.water > 0) lines.push(tot.water >= t.water
+      ? `<div class="suggest-line"><span class="gap water met">✓ Water goal hit.</span> ${Math.round(tot.water)}/${Math.round(t.water)}oz.</div>`
+      : `<div class="suggest-line"><span class="gap water">${Math.round(tot.water)}/${Math.round(t.water)}oz water</span> — ${Math.round(t.water - tot.water)}oz short of the goal.</div>`);
+    if (y) {
+      const occ = occOf(key);
+      lines.push(`<div class="suggest-line"><span class="gap ${occ >= YOUTH_OCCASIONS ? 'met' : ''}">${occ >= YOUTH_OCCASIONS ? '✓ ' : ''}${occ} of ${YOUTH_OCCASIONS} meals</span></div>`);
+    } else {
+      if (t.protein > 0) lines.push(tot.protein >= t.protein
+        ? `<div class="suggest-line"><span class="gap met">✓ Protein goal hit.</span> ${Math.round(tot.protein)}/${Math.round(t.protein)}g.</div>`
+        : `<div class="suggest-line"><span class="gap">${Math.round(tot.protein)}/${Math.round(t.protein)}g protein</span> — ${Math.round(t.protein - tot.protein)}g short of the goal.</div>`);
+      if (tot.electrolytes > 0) lines.push(`<div class="suggest-line">⚡ ${tot.electrolytes} electrolyte stick${tot.electrolytes === 1 ? '' : 's'} logged.</div>`);
+    }
+    if (_goalSrcForDate(key) !== 'snap') lines.push('<div class="suggest-line" style="opacity:.7">Goal estimated — no snapshot was saved for this day.</div>');
+    body.innerHTML = lines.join('');
+  }
   function refreshSuggestions() {
     const body = document.getElementById('suggest-body');
     const subEl = document.getElementById('suggest-sub');
     if (!body) return;
+    const _ttl = document.querySelector('#suggest-card .suggest-title');
+    if (_selectedDate) { if (_ttl) _ttl.textContent = '◆ How the day went'; renderFinalDay(body, subEl); return; }
+    if (_ttl) _ttl.textContent = '◆ Game plan · remaining';
     const t = effTargets(computedTarget());   // untracked area -> gap 0 -> no suggestions for it
     const tot = getTotals();
     const pGap = Math.max(0, t.protein - tot.protein);
@@ -7502,10 +7561,9 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     }
 
     /* proper day label — returns a STRING (fixes [object Object]) */
-    function dayLabelStr(i, key){
-      if(i===0) return 'Today';
-      if(i===1) return 'Yesterday';
-      try{ const o=dayLabelForOffset(i); if(o&&o.dayName) return o.dayName; }catch(e){}
+    function dayLabelStr(i, key){   // v277: by KEY (the window now ends at the selected date, so an offset no longer means 'days ago')
+      if(key===todayKey()) return 'Today';
+      if(key===dateKeyForOffset(1)) return 'Yesterday';
       const d=new Date(key+'T00:00:00');
       return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
     }
@@ -7520,10 +7578,11 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       const open=histOpen();
       let rows='';
       if(open){
+        const _hr=activeKey();   // v277: history = the 8 days ENDING on the selected date
         for(let i=0;i<8;i++){
-          const key=dateKeyForOffset(i);
+          const key=dateKeyFrom(_hr,i);
           const tot=getTotalsForDate(key);
-          const g=(typeof _goalForDate==='function')?_goalForDate(key,i===0):{protein:0,water:0};
+          const g=(typeof _goalForDate==='function')?_goalForDate(key,key===todayKey()):{protein:0,water:0};   // D2: key, not loop index
           const hit = g.protein && tot.protein>=g.protein && tot.water>=g.water;
           const lbl = dayLabelStr(i,key);
           rows+='<div onclick="batteryEditDay(\''+key+'\')" style="display:flex;align-items:center;'+
@@ -8411,7 +8470,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       storeSet('fuel-supp-done-'+dk,arr.join(','));
     }
     window.toggleSupp=function(id){
-      var dk=todayKey();
+      var dk=activeKey();   // v277: a past view toggles THAT day's supplements, never today's
       var done=getSuppDone(dk);
       var idx=done.indexOf(id);
       if(idx>=0) done.splice(idx,1); else done.push(id);
@@ -8550,11 +8609,11 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
         if(caret) caret.style.transform='rotate(0)';
         return;
       }
-      var dk=todayKey();
+      var dk=activeKey();
       var done=getSuppDone(dk);
       var prof=loadProfile();
       var training=isTrainDay();
-      suppCheckNotify(training,active,done);
+      if(dk===todayKey()) suppCheckNotify(training,active,done);   // the pre-training cue is a today-only live signal
       var list=document.getElementById('supp-list');
       if(list){
         list.innerHTML=active.map(function(id){
@@ -8592,7 +8651,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
       var streakEl=document.getElementById('supp-streak');
       if(streakEl){
         var streak=0;
-        var d=new Date(); d.setDate(d.getDate()-1);
+        var d=new Date(+dk.slice(0,4), +dk.slice(5,7)-1, +dk.slice(8,10)); d.setDate(d.getDate()-1);   // v277: streak AS OF the viewed day
         for(var i=0;i<30;i++){
           var k=dkey(d);
           var sd=getSuppDone(k);
