@@ -283,7 +283,14 @@ BATTERY.register('arm.layout', { section: "washington", regions: [
       { step: "propoint-block-timing" },
       { step: "propoint-recv-underball" },
       { step: "propoint-recv-getbehind" },
-      { step: "propoint-recv-matchangle" }
+      { step: "propoint-recv-matchangle" },
+      { step: "bougie-xfer-5drills" },
+      { step: "bougie-toehang-explain" },
+      { step: "bougie-toehang-drills" },
+      { step: "propoint-popcase" },
+      { step: "propoint-throwacc" },
+      { step: "propoint-lowerbody" },
+      { step: "propoint-reads" }
     ] }
   ] }
 ] });
@@ -292,8 +299,12 @@ BATTERY.register('arm.layout', { section: "pitching", regions: [
     { el: "ul", attrs: {"class":"steplist"}, blocks: [
       { step: "pitch-hipfire" },
       { step: "pitch-gloveside" },
+      { step: "pitch-fastballfix" },
       { step: "pitch-hipsep" },
       { step: "pitch-armspiral" },
+      { step: "pitch-patience" },
+      { step: "pitch-armlag" },
+      { step: "pitch-velosource" },
       { step: "pitch-pulldown" },
       { step: "pitch-clockdrill" },
       { step: "pitch-warmup3" }
@@ -302,6 +313,7 @@ BATTERY.register('arm.layout', { section: "pitching", regions: [
   { id: "pitching#6", blocks: [
     { el: "ul", attrs: {"class":"steplist"}, blocks: [
       { step: "pitch-fosh" },
+      { step: "pitch-oneill-grip" },
       { step: "pitch-spin-theory" },
       { step: "pitch-cutter-axis" },
       { step: "pitch-curve-spin" }

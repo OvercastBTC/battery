@@ -1273,6 +1273,48 @@ BATTERY.register('arm.step-body', { section: "washington", bodies: [
         { t: "p", h: "Match-angle drill — turn the hand so the glove face matches the pitch's angle of entry. A turned-hand position on the corners presents the pocket to the umpire instead of the back of the glove." },
         { t: "em", h: "The glove does not move to the ball. The glove rotates to face the ball. One looks like a catch, the other looks like a reach." }
       ]
+    },
+    {
+      id: "bougie-xfer-5drills", title: "B-52 · Transfer: 5 Drills", target: "Catch-It-Back · Dunk · Rocker · Shuffle-Throw · Through-the-Legs", reps: "Watch + drill", optional: true, attrs: {"clip":"clips/bougie-transfer-5drills.mp4"}, youth: "safe",
+      detail: [
+        { t: "p", h: "Five transfer drills for 10U catchers: catch-it-back, dunk, rocker, a preset shuffle-and-throw, and the through-the-legs drill." }
+      ]
+    },
+    {
+      id: "bougie-toehang-explain", title: "B-53 · Toe Hang: What It Is", target: "Glove Heel Down · Forearm ~45°", reps: "Watch", optional: true, attrs: {"clip":"clips/bougie-toehang-explain.mp4"}, youth: "safe",
+      detail: [
+        { t: "p", h: "Toe hang is the glove heel down, the forearm flat at about 45°, and the glove staying on the pitch plane." }
+      ]
+    },
+    {
+      id: "bougie-toehang-drills", title: "B-54 · Toe Hang: Drills", target: "Mallet Drill · Heavy-Ball Paddle Flip", reps: "Watch + drill", optional: true, attrs: {"clip":"clips/bougie-toehang-drills.mp4"}, youth: "adult",
+      detail: [
+        { t: "p", h: "Two drills to practice toe hang: a mallet drill, and a paddle flip with a heavy ball." }
+      ]
+    },
+    {
+      id: "propoint-popcase", title: "B-55 · Pop Time Case Study", target: "2.09 to 1.91 In One Week", reps: "Watch", optional: true, attrs: {"clip":"clips/propoint-popcase-demo.mp4"}, youth: "adult",
+      detail: [
+        { t: "p", h: "A case study of how one catcher cut his pop time from 2.09 to 1.91 in a week." }
+      ]
+    },
+    {
+      id: "propoint-throwacc", title: "B-56 · Throwing Accuracy: 3 Drills", target: "Catcher Throwing Accuracy", reps: "Watch + drill", optional: true, attrs: {"clip":"clips/propoint-throwacc-demo.mp4"}, youth: "safe",
+      detail: [
+        { t: "p", h: "Three drills to improve a catcher’s throwing accuracy." }
+      ]
+    },
+    {
+      id: "propoint-lowerbody", title: "B-57 · Lower-Body Throwing Velocity", target: "Lower-Body Secrets For Catchers", reps: "Watch", optional: true, attrs: {"clip":"clips/propoint-lowerbody-demo.mp4"}, youth: "adult",
+      detail: [
+        { t: "p", h: "Lower-body secrets for catcher throwing velocity." }
+      ]
+    },
+    {
+      id: "propoint-reads", title: "B-58 · Block or Receive: Making the Read", target: "Decisions · Reads", reps: "Watch", optional: true, attrs: {"clip":"clips/propoint-reads-demo.mp4"}, youth: "safe",
+      detail: [
+        { t: "p", h: "How to decide when to block a pitch and when to receive it — making the read." }
+      ]
     }
 ] });
 BATTERY.register('arm.step-body', { section: "pitching", bodies: [
@@ -1427,6 +1469,36 @@ BATTERY.register('arm.step-body', { section: "pitching", bodies: [
       id: "strat-jp-same-seq", title: "Same Sequence Repetition", target: "Deliberate Repetition", reps: "Watch", attrs: {"clip":"clips/jp-seq-same-sequence.mp4"}, youth: "safe",
       detail: [
         { t: "p", h: "\"Exact same sequence as the first guy\" -- deliberate sequence repetition against a second lefty. When the sequence worked, running it again is a decision, not laziness." }
+      ]
+    },
+    {
+      id: "pitch-fastballfix", title: "One Fix for a Better Fastball", target: "Glove Side · Linearness · Shoulder Deploy", reps: "Watch", attrs: {"clip":"clips/bauer-pitch-fastballfix-short.mp4"}, youth: "safe",
+      detail: [
+        { t: "p", h: "Three cues for a better fastball, shown in a two-person demo: the glove side, how linear the move toward the plate is, and when the shoulder deploys." }
+      ]
+    },
+    {
+      id: "pitch-patience", title: "Velocity Comes From Patience", target: "Arm Sequencing · Patient Arm", reps: "Watch", attrs: {"clip":"clips/bauer-pitch-patience-short.mp4"}, youth: "safe",
+      detail: [
+        { t: "p", h: "A rushed arm “dumps” and lags behind the body. A patient arm waits: the body rotates before the hand, and then the forearm deploys. Watch the two side by side." }
+      ]
+    },
+    {
+      id: "pitch-armlag", title: "The Pitching Mechanic Everyone Gets Wrong", target: "Arm Lag · Coil · Rotation", reps: "Watch", attrs: {"clip":"clips/bauer-mech-armlag-short.mp4"}, youth: "safe",
+      detail: [
+        { t: "p", h: "Arm lag, coil and rotation — and how the timing of the upper body fits with the lower half." }
+      ]
+    },
+    {
+      id: "pitch-velosource", title: "Where Your Velocity Comes From", target: "Relaxed Hips · Move, Then Rotate", reps: "Watch", attrs: {"clip":"clips/bauer-mech-velosource-short.mp4"}, youth: "safe",
+      detail: [
+        { t: "p", h: "Velocity comes from relaxed hips: a forward move, then rotation. The clip compares linear movement with rotational movement." }
+      ]
+    },
+    {
+      id: "pitch-oneill-grip", title: "Ball Grip & Finger Placement", target: "Grip · Finger Placement", reps: "Watch", attrs: {"clip":"clips/oneill-grip-simple-short.mp4"}, youth: "safe",
+      detail: [
+        { t: "p", h: "A coach shows the ball grip and finger placement to the camera — a short, simple demo of how the ball sits in the hand." }
       ]
     }
 ] });
