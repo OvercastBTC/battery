@@ -5839,7 +5839,7 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     const runway=getRunwayStatus();
     var hostTot = _selectedDate ? getTotalsForDate(todayKey()) : tot;
     try {
-      const _bf = { type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:liveT.water, tProtein:liveT.protein, tWaterStretch:liveT.water + _waterBumpGet() + _waterCarryGet().oz, day:liveT.label, runway:runway };
+      const _bf = { type:'bat-fuel', water:Math.round(hostTot.water), protein:Math.round(hostTot.protein), tWater:liveT.water, tProtein:liveT.protein, tWaterStretch:liveT.water + _waterBumpGet() + _waterCarryGet().oz, day:_todayDayName(liveT), runway:runway };
       const _sel = _buildSel(t, tot); if (_sel) _bf.sel = _sel;   // v277: additive; present ONLY while a past date is selected (top-level fields stay TODAY for old hosts)
       parent.postMessage(_bf, '*');
     } catch (e) {}
@@ -6637,6 +6637,12 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
   }
   /* where a past day's goal came from, so a FINAL view can say "goal estimated" instead of presenting a fallback as a snapshot:
      'snap' (fuel-goalsnap saved) -> 'daytype' (rebuilt from that day's stored day-type) -> 'baseline' (the fixed ['train'] default). READ-ONLY: never writes. */
+  /* v278 (R's P4): the top-level bat-fuel.day feeds the host's HOME note + GAME card. For youth liveT.label is the flat 'Youth' (one target for every day type), so the host showed "YOUTH DAY" while sel.day correctly named the type. Same root as the v275 editor chips. Adult is unchanged (liveT.label). */
+  function _todayDayName(liveT) {
+    if ((window.BATTERY_TIER || 'youth') === 'adult') return liveT.label;
+    const n = Array.from(activeDays).filter(d => DAY_TYPE_NAME[d]).map(dayTypeName);
+    return n.length ? n.join(' + ') : 'Train';
+  }
   function _buildSel(t, tot) {
     if (!_selectedDate) return null;
     const types = String(getTotalsForDate(_selectedDate).day || '').split(',').filter(d => DAY_TYPE_NAME[d]);
