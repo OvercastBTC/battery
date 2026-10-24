@@ -2332,7 +2332,7 @@ document.getElementById('gd-date').addEventListener('input',function(){var s=doc
 function exportGameICS(){
   const youth=(profileTier(profile)==='youth');
   const dateEl=document.getElementById('gd-date');
-  const dateStr=(dateEl&&dateEl.value)||new Date().toISOString().slice(0,10); // the chosen date (defaults to today)
+  const dateStr=(dateEl&&dateEl.value)||_todayStr(); // the chosen date (defaults to TODAY - local; was toISOString = UTC, which is tomorrow after 5pm Pacific)
   const base=new Date(dateStr+'T00:00:00');
   const fp=(document.getElementById('gd-time').value||'09:00').split(':').map(Number);
   base.setHours(fp[0],fp[1],0,0);
@@ -3463,10 +3463,13 @@ function renderToday(){
         var splitProg=localStorage.getItem('arm-care-liftsplit')||'all';
         var splitDay=localStorage.getItem('arm-care-liftday')||'';
         var splitTag='';
-        if(splitProg==='3day'&&splitDay)splitTag=' · 3-Day '+splitDay;
-        else if(splitProg==='2day'&&splitDay)splitTag=' · 2-Day '+splitDay;
+        /* v281: the split program is ONE global setting that describes TODAY's session - a FINAL past day's row must not wear today's '3-Day A' label (its own groups come from its per-date selection). */
+        if(!viewPast()){
+          if(splitProg==='3day'&&splitDay)splitTag=' · 3-Day '+splitDay;
+          else if(splitProg==='2day'&&splitDay)splitTag=' · 2-Day '+splitDay;
+        }
         var liftInt='';
-        try{var af=document.getElementById('f-arm');if(af&&af.contentWindow&&af.contentWindow.liftIntensityFor){var li=af.contentWindow.liftIntensityFor(todayPlanKey());if(li&&li.sets>0)liftInt=' · '+(li.intensity==='heavy'?'HEAVY':'TRAIN');}}catch(e){}
+        try{var af=document.getElementById('f-arm');if(af&&af.contentWindow&&af.contentWindow.liftIntensityFor){var li=af.contentWindow.liftIntensityFor(activeDateStr());if(li&&li.sets>0)liftInt=' · '+(li.intensity==='heavy'?'HEAVY':'TRAIN');}}catch(e){}
         rows+='<div onclick="goTab(\'body\',\'lifting\')" style="cursor:pointer;margin:6px 0;padding:9px 10px;border-radius:9px;border-left:3px solid '+(lfull?'var(--green)':'#e0a339')+';background:transparent'+(ldim?';opacity:.55':'')+'">' +
           '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:3px">'+
           '<span style="color:var(--dim);letter-spacing:1px;display:inline-flex;align-items:center">'+batIcon(lpct,'#e0a339')+'LIFT'+lTBadge+'<span style="color:var(--faint);font-size:9px;letter-spacing:0;font-weight:400">'+splitTag+liftInt+'</span></span>'+
