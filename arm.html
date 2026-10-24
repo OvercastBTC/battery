@@ -7349,7 +7349,7 @@
     }
     updateCounter();
   }
-  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof loadDone==='function') loadDone(); if(typeof postCounts==='function') postCounts(); } else if(d.type==='bat-active-date'&&d.date){var today=armLocalDay(new Date());_armActiveDate=(d.date===today)?null:d.date;if(typeof loadDone==='function')loadDone();try{if(typeof renderSplit==='function')renderSplit();}catch(e){}} });
+  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof loadDone==='function') loadDone(); if(typeof postCounts==='function') postCounts(); } else if(d.type==='bat-active-date'&&d.date){var today=armLocalDay(new Date());_armActiveDate=(d.date===today)?null:d.date;if(typeof loadDone==='function')loadDone();try{if(typeof renderSplit==='function')renderSplit();}catch(e){}try{if(typeof renderLiftLog==='function')renderLiftLog();}catch(e){}} });
 
   /* ===== ARM FLOW — the sequence as ONE continuous page =====
      Owner's ask, restated: warm-up, tube, J-Bands and plyo should physically lay
@@ -7936,7 +7936,9 @@
 
      §4.3: lives inside .youth-hide with the rest of the weight room. Youth never see
      a weight input, and nothing here is rendered for them. */
-  function liftLogKey(d){ return 'arm-care-liftlog-' + armLocalDay(d); }
+  /* v281: with no date the key is the VIEWED day (the active-date model), not today. Before, renderLiftLog / the ADD SET form / syncLiftLogDone all used today's log while viewing a PAST day: a set logged
+     from a past view landed in TODAY's log, and syncLiftLogDone() ticked today's exercises onto the viewed day's checklist (then saveDone() wrote them into the viewed day's done-set). Callers that pass a Date are unchanged. */
+  function liftLogKey(d){ return 'arm-care-liftlog-' + (d ? armLocalDay(d) : viewDayKey()); }
   function loadLiftLog(d){
     try { return JSON.parse(storeGet(liftLogKey(d), '[]')) || []; } catch(e){ return []; }
   }
