@@ -6949,6 +6949,31 @@
   <div id="arm-hist-list"></div>
 </div>
 
+<!-- ARM UX unit 4: Practice retro-log ("this is what we did"). Hand-authored (no gen:arm-region); state in arm-care-practice-<YYYY-MM-DD>. Ticks only: no numbers, no load math (§4.3). -->
+<div class="page" id="page-practice">
+  <style>
+    #page-practice .pr-step{font-family:'Courier New',monospace;font-size:11px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;margin:0 0 8px}
+    #page-practice .pr-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px;align-items:center}
+    #page-practice .pr-row .chip{min-height:44px;display:inline-flex;align-items:center}
+    #page-practice .pr-tick{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 12px;margin:6px 0;border:1.5px solid var(--line);background:var(--steel);color:var(--bone);cursor:pointer;user-select:none}
+    #page-practice .pr-tick i{flex:0 0 22px;height:22px;border:1.5px solid var(--line-bright);display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-weight:700;color:var(--bg)}
+    #page-practice .pr-tick.on{border-color:var(--gold)}
+    #page-practice .pr-tick.on i{background:var(--gold);border-color:var(--gold)}
+    #page-practice .pr-btn{display:block;width:100%;min-height:48px;margin:10px 0 0;padding:12px;border:1.5px solid var(--gold);background:var(--gold);color:var(--bg);font-family:'Courier New',monospace;font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+    #page-practice .pr-btn.ghost{background:transparent;color:var(--dim);border-color:var(--line)}
+    #page-practice .pr-btn[disabled]{opacity:.45;cursor:default}
+    #page-practice .pr-date{min-height:44px;padding:6px 10px;background:var(--steel);border:1.5px solid var(--line);color:var(--bone);font-family:'Courier New',monospace}
+    #page-practice .pr-gl{font-family:'Courier New',monospace;font-size:11px;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;margin:14px 0 4px}
+    #page-practice .pr-rec{display:block;width:100%;text-align:left;min-height:48px;padding:8px 12px;margin:6px 0;border:1.5px solid var(--line);background:var(--steel);color:var(--bone);cursor:pointer}
+    #page-practice .pr-rec small{display:block;color:var(--faint);margin-top:2px}
+  </style>
+  <h2>Practice</h2>
+  <p class="lede">Log what you did &mdash; after the fact is fine. Tick what happened and you&rsquo;re done.</p>
+  <div class="card gold"><div id="pr-body"></div></div>
+  <h3>Recent practices</h3>
+  <div id="pr-recent"></div>
+</div>
+
 
 </div>
 
@@ -7524,6 +7549,7 @@
     }
     // Render read-only history on demand
     if (tabName === 'history') renderArmHistory();
+    if (tabName === 'practice' && typeof window.practiceShow === 'function') window.practiceShow();
     // The lifting log reads storage, so rebuild it on show rather than only at boot --
     // otherwise a set logged, then a tab switch away and back, shows a stale card.
     if (tabName === 'lifting' && typeof renderLiftLog === 'function') renderLiftLog();
@@ -9359,6 +9385,154 @@
     if(document.readyState!=='loading') setTimeout(function(){ renderShelf(); window.maybeAwardCrossStickers(); }, 320);
     else document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ renderShelf(); window.maybeAwardCrossStickers(); }, 320); });
   })();
+</script>
+
+<script>
+/* ===== ARM UX unit 4 -- PRACTICE RETRO-LOG ("this is what we did") =====
+   Steps: 1 What did we do (BP warm-up / BP live / PFPs) -> 2 Positions + drill ticks (only if PFPs) -> 3 Threw today? (ADULT only).
+   Record: localStorage 'arm-care-practice-<zero-padded YYYY-MM-DD>' = {b:[block ids], p:[positions], d:['C:block',...], t:savedMs}.
+   'arm-care-' prefix on purpose (CLAUDE.md §7: any other prefix silently vanishes on a profile switch). Ticks only -- no counts, no load math.
+   §4.3: step 3 (pitch count) is NOT rendered for youth -- the youth-sees-pitch-numbers relaxation is HELD until the owner gives it directly; the door
+   opens the host's existing armGuardLog sheet (one source of truth), never a second pitch-count input. Fail-closed: unknown tier => youth. */
+(function(){
+  var KEY = 'arm-care-practice-';
+  var BLOCKS = [['bpw','BP · Warm-up'],['bpl','BP · Live'],['pfp','PFPs']];
+  var POS = ['C','1B','2B'];
+  var DRILLS = {
+    'C':  [['block','Blocking'],['recv','Receiving'],['frame','Framing'],['throw','Throw-downs']],
+    '1B': [['stretch','The stretch at the bag'],['scoop','Short-hop scoops'],['angles','Picks from every angle']],
+    '2B': [['front','Get the ball out front'],['downhill','Go downhill'],['align','Alignment']]
+  };
+  var st = { step: 0, date: null, b: {}, p: {}, d: {}, done: false };
+
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function local(d){ return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function todayKey(){ return local(new Date()); }
+  function dayKey(offset){ var d = new Date(); d.setDate(d.getDate() - offset); return local(d); }
+  function validDate(s){ return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && s <= todayKey() && local(new Date(+s.slice(0,4), +s.slice(5,7) - 1, +s.slice(8,10))) === s; }
+  function isYouth(){
+    try { var t = localStorage.getItem('battery-boot-tier'); if (t !== 'adult') return true; } catch (e) { return true; }
+    return document.body.classList.contains('youth') || document.documentElement.classList.contains('youth');
+  }
+  function canLogPitches(){ try { return !isYouth() && window.parent && window.parent !== window && typeof window.parent.armGuardLog === 'function'; } catch (e) { return false; } }
+  function label(date){ try { var p = date.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }); } catch (e) { return date; } }
+  function known(list, ids){ var ok = {}; list.forEach(function(x){ ok[x] = 1; }); return (Array.isArray(ids) ? ids : []).filter(function(i){ return ok[i]; }); }
+
+  function allDrillIds(){ var o = []; POS.forEach(function(p){ DRILLS[p].forEach(function(d){ o.push(p + ':' + d[0]); }); }); return o; }
+  function read(date){
+    try {
+      var r = JSON.parse(localStorage.getItem(KEY + date) || 'null');
+      if (!r || typeof r !== 'object') return null;
+      return { b: known(BLOCKS.map(function(x){ return x[0]; }), r.b), p: known(POS, r.p), d: known(allDrillIds(), r.d), t: r.t || 0 };
+    } catch (e) { return null; }
+  }
+  function load(date){
+    st.date = date; st.b = {}; st.p = {}; st.d = {};
+    var r = read(date);
+    if (r) { r.b.forEach(function(i){ st.b[i] = 1; }); r.p.forEach(function(i){ st.p[i] = 1; }); r.d.forEach(function(i){ st.d[i] = 1; }); }
+  }
+  function keys(o){ return Object.keys(o); }
+  function steps(){ var s = ['blocks']; if (st.b.pfp) s.push('pos'); if (canLogPitches()) s.push('pitch'); return s; }
+  function summary(r){
+    var names = BLOCKS.filter(function(x){ return r.b.indexOf(x[0]) > -1; }).map(function(x){ return x[1]; });
+    var s = names.join(', ') || 'Practice';
+    if (r.p.length) s += ' (' + r.p.join(', ') + ')';
+    return s;
+  }
+  function save(){
+    var rec = { b: keys(st.b).filter(function(i){ return BLOCKS.some(function(x){ return x[0] === i; }); }),
+                p: st.b.pfp ? keys(st.p) : [],
+                d: st.b.pfp ? keys(st.d).filter(function(k){ return st.p[k.split(':')[0]]; }) : [], t: Date.now() };
+    try { localStorage.setItem(KEY + st.date, JSON.stringify(rec)); } catch (e) {}
+    st.done = true; st.step = 0; render(); renderRecent();
+  }
+  function clearDay(){
+    (async function(){
+      var ok = true;
+      try { ok = await uiConfirm('Remove this practice?', 'This clears the practice you logged for ' + label(st.date) + '.', true); } catch (e) {}
+      if (!ok) return;
+      try { localStorage.removeItem(KEY + st.date); } catch (e) {}
+      load(st.date); st.done = false; st.step = 0; render(); renderRecent();
+    })();
+  }
+
+  function tick(on, attr, text){ return '<div class="pr-tick' + (on ? ' on' : '') + '" role="checkbox" aria-checked="' + (on ? 'true' : 'false') + '" tabindex="0" ' + attr + '><i>' + (on ? '✓' : '') + '</i>' + text + '</div>'; }
+  function dateRow(){
+    var t = todayKey(), y = dayKey(1);
+    return '<div class="pr-row"><span class="chip' + (st.date === t ? ' active' : '') + '" data-pd="' + t + '">Today</span>' +
+      '<span class="chip' + (st.date === y ? ' active' : '') + '" data-pd="' + y + '">Yesterday</span>' +
+      '<input type="date" class="pr-date" id="pr-date" max="' + t + '" value="' + st.date + '" aria-label="Practice date"></div>';
+  }
+
+  function render(){
+    var host = document.getElementById('pr-body'); if (!host) return;
+    if (!st.date) load(viewDay());
+    var h = '';
+    if (st.done) {
+      h = '<div class="pr-step">Saved</div><h3 style="margin:0 0 6px">Practice logged ✓</h3><p>' + label(st.date) + ' · ' + summary(read(st.date) || { b: [], p: [] }) + '</p>' +
+          '<button class="pr-btn" data-act="edit">Edit this practice</button><button class="pr-btn ghost" data-act="another">Log another day</button>';
+    } else {
+      var seq = steps(), idx = st.step, which = seq[idx] || 'blocks', last = idx >= seq.length - 1;
+      h = '<div class="pr-step">Step ' + (idx + 1) + ' of ' + seq.length + ' · ' + (which === 'blocks' ? 'What did we do?' : which === 'pos' ? 'Positions' : 'Threw today?') + '</div>';
+      if (which === 'blocks') {
+        h += dateRow() + BLOCKS.map(function(x){ return tick(!!st.b[x[0]], 'data-b="' + x[0] + '"', x[1]); }).join('');
+      } else if (which === 'pos') {
+        h += '<p style="margin:0 0 6px">Who worked where?</p><div class="pr-row">' + POS.map(function(p){ return '<span class="chip' + (st.p[p] ? ' active' : '') + '" data-p="' + p + '">' + p + '</span>'; }).join('') + '</div>';
+        POS.filter(function(p){ return st.p[p]; }).forEach(function(p){
+          h += '<div class="pr-gl">' + p + ' drills</div>' + DRILLS[p].map(function(d){ return tick(!!st.d[p + ':' + d[0]], 'data-d="' + p + ':' + d[0] + '"', d[1]); }).join('');
+        });
+      } else {
+        h += '<p style="margin:0 0 6px">Did you throw? Log the count once &mdash; BATTERY handles rest days.</p><button class="pr-btn ghost" data-act="pitch">Log pitches</button>';
+      }
+      if (last) h += '<button class="pr-btn" data-act="save"' + (keys(st.b).length ? '' : ' disabled') + '>Save practice</button>';
+      else h += '<button class="pr-btn" data-act="next"' + (keys(st.b).length ? '' : ' disabled') + '>Next</button>';
+      if (idx > 0) h += '<button class="pr-btn ghost" data-act="back">Back</button>';
+      if (idx === 0 && read(st.date)) h += '<button class="pr-btn ghost" data-act="clear">Remove this day’s practice</button>';
+    }
+    host.innerHTML = h;
+  }
+
+  function renderRecent(){
+    var host = document.getElementById('pr-recent'); if (!host) return;
+    var days = [];
+    try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf(KEY) === 0 && validDate(k.slice(KEY.length))) days.push(k.slice(KEY.length)); } } catch (e) {}
+    days.sort().reverse();
+    if (!days.length) { host.innerHTML = '<p style="color:var(--faint)">Nothing logged yet.</p>'; return; }
+    host.innerHTML = days.slice(0, 8).map(function(d){ var r = read(d) || { b: [], p: [] }; return '<button class="pr-rec" data-rd="' + d + '"><b>' + label(d) + '</b><small>' + summary(r) + '</small></button>'; }).join('');
+  }
+
+  function viewDay(){ try { if (typeof viewDayKey === 'function') { var v = viewDayKey(); if (validDate(v)) return v; } } catch (e) {} return todayKey(); }
+  window.practiceShow = function(){ st.done = false; st.step = 0; load(viewDay()); render(); renderRecent(); };
+
+  /* 'Log another day' = the nearest recent day with NOTHING logged yet (yesterday, then back up to two weeks), so it never silently reopens a day that already has a record. */
+  function nextOpenDay(){ for (var i = 1; i <= 14; i++) { var k = dayKey(i); if (!read(k)) return k; } return dayKey(1); }
+  function toggle(o, k){ if (o[k]) delete o[k]; else o[k] = 1; }
+  function onTap(e){
+    var t = e.target.closest ? e.target.closest('[data-b],[data-p],[data-d],[data-pd],[data-act],[data-rd]') : null; if (!t) return;
+    var seq = steps();
+    if (t.dataset.pd) { load(t.dataset.pd); }
+    else if (t.dataset.rd) { st.done = false; st.step = 0; load(t.dataset.rd); window.scrollTo({ top: 0, behavior: 'auto' }); }
+    else if (t.dataset.b) { toggle(st.b, t.dataset.b); if (!st.b.pfp) { st.p = {}; st.d = {}; } }
+    else if (t.dataset.p) { toggle(st.p, t.dataset.p); if (!st.p[t.dataset.p]) keys(st.d).forEach(function(k){ if (k.split(':')[0] === t.dataset.p) delete st.d[k]; }); }
+    else if (t.dataset.d) { toggle(st.d, t.dataset.d); }
+    else if (t.dataset.act === 'next') { st.step = Math.min(st.step + 1, seq.length - 1); }
+    else if (t.dataset.act === 'back') { st.step = Math.max(st.step - 1, 0); }
+    else if (t.dataset.act === 'save') { save(); return; }
+    else if (t.dataset.act === 'edit') { st.done = false; st.step = 0; }
+    else if (t.dataset.act === 'another') { st.done = false; st.step = 0; load(nextOpenDay()); }
+    else if (t.dataset.act === 'clear') { clearDay(); return; }
+    else if (t.dataset.act === 'pitch') { try { window.parent.armGuardLog(); } catch (er) {} return; }
+    render();
+  }
+  function wire(){
+    var page = document.getElementById('page-practice'); if (!page) return;
+    page.addEventListener('click', onTap);
+    page.addEventListener('keydown', function(e){ if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('.pr-tick')) { e.preventDefault(); onTap(e); } });
+    page.addEventListener('change', function(e){ if (e.target && e.target.id === 'pr-date') { if (validDate(e.target.value)) load(e.target.value); render(); } });
+    window.practiceShow();
+  }
+  if (document.readyState !== 'loading') wire(); else document.addEventListener('DOMContentLoaded', wire);
+})();
 </script>
 
 </body>

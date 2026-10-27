@@ -19,6 +19,7 @@ BATTERY.register('arm.section', {
     { id: 'sources',    label: 'Sources',       group: 'arm',    order: 13, pageOrder: 13, youth: 'safe',                  drawerGroup: 'info', img: 'sources' },
     { id: 'extras',     label: 'Daily Extras',  group: 'body',   order: 14, pageOrder: 14, youth: 'safe', optional: true,                       img: 'extras',     positions: ['pitcher','c','3b'] },
     { id: 'lifting',    label: 'Lifting',       group: 'body',   order: 15, pageOrder: 15, youth: 'safe',                                       img: 'lifting',    countStream: 'lift' },
-    { id: 'history',    label: 'History',       group: 'arm',    order: 16, pageOrder: 16, youth: 'safe',                  drawerGroup: 'info', img: 'history' }
+    { id: 'history',    label: 'History',       group: 'arm',    order: 16, pageOrder: 16, youth: 'safe',                  drawerGroup: 'info', img: 'history' },
+    { id: 'practice',   label: 'Practice',      group: 'drills', order: 17, pageOrder: 17, youth: 'safe',                                       img: 'practice' }
   ]
 });
