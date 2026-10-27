@@ -157,6 +157,20 @@ Lifecycle: **REQUEST** → **STORY** → **PLANNED** → **IMPLEMENTED** → **S
 **Context:** Tapping a pip only called `_selectDate(dk)` (changed the tracker view). User expected it to also open `batteryEditDay(dk)`. Selected-banner already shows "Viewing: 9/6 ↩ Today" when a non-today date is selected.
 **Status:** SHIPPED — pip click handler calls both `_selectDate(dk)` and `batteryEditDay(dk)` in fuel.html:5434. Deployed 26.09.12.120.
 
+### REQ-037: Pain Point Navigator (symptom → exercise cross-reference)
+**Source:** Owner feedback 2026-09-30 — "organize by specific joints and common pain points — this hurts → do this"
+**Context:** Current ARM organization is exercise-centric (grouped by tool and muscle group). Works for daily routine execution but doesn't answer "my front shoulder hurts, what do I do?" Proposed: a cross-reference navigator that maps pain locations to existing exercises across all tabs. NOT a reorganization — a second navigation layer that links into exercises wherever they already live (Recovery, Warm Up, Lifting, J-Band).
+**Structure:**
+- SHOULDER: Front (coracoid/clavicle) | Top (AC joint/upper trap) | Back (posterior cuff) | Deep (rotator cuff)
+- ELBOW: Inside (medial/UCL) | Outside (lateral epicondyle)
+- UPPER BACK: Between blades (rhomboid) | Mid-back (T-spine)
+- HIP / LOW BACK: Hip flexor | SI joint | Low back
+Each pain point maps to 3-5 exercises with direct links to open them in their home tab.
+**Implementation options:** New tab in BODY group, interactive body silhouette, or collapsible reference card.
+**Key design principle:** Exercises have multiple pain-point applications (dead hangs help shoulder, upper back, AND low back). Cross-reference avoids DOM duplication.
+**Touches:** ARM iframe (`arm.html`) — new tab or section in BODY group, cross-reference data structure, navigation links.
+**Status:** PARKED idea (Q 2026-10-27; recovered from a 2026-10-03 stash) — awaiting owner direction on UX model (tab vs body map vs card). Design-led (D→A→E); fold into the ARM UX rework batch if adopted.
+
 ### REQ-024: Firefox icon final art
 **Source:** Owner — "iOS metal, modern, badass"
 **Context:** Current Firefox iOS home-screen icon is self-hosted (92de94f). Owner wants better source art. Unblocked when owner delivers new art assets.
