@@ -7374,7 +7374,7 @@
     }
     updateCounter();
   }
-  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab) switchTab(d.tab); else if(d.type==='bat-poll'){ if(typeof loadDone==='function') loadDone(); if(typeof postCounts==='function') postCounts(); } else if(d.type==='bat-active-date'&&d.date){var today=armLocalDay(new Date());_armActiveDate=(d.date===today)?null:d.date;if(typeof loadDone==='function')loadDone();try{if(typeof renderSplit==='function')renderSplit();}catch(e){}try{if(typeof renderLiftLog==='function')renderLiftLog();}catch(e){}} });
+  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab){ switchTab(d.tab); anchorSubPage(d.tab); } else if(d.type==='bat-poll'){ if(typeof loadDone==='function') loadDone(); if(typeof postCounts==='function') postCounts(); } else if(d.type==='bat-active-date'&&d.date){var today=armLocalDay(new Date());_armActiveDate=(d.date===today)?null:d.date;if(typeof loadDone==='function')loadDone();try{if(typeof renderSplit==='function')renderSplit();}catch(e){}try{if(typeof renderLiftLog==='function')renderLiftLog();}catch(e){}} });
 
   /* ===== ARM FLOW — the sequence as ONE continuous page =====
      Owner's ask, restated: warm-up, tube, J-Bands and plyo should physically lay
@@ -7472,6 +7472,23 @@
 
   /* Scroll a section under the sticky tab strip rather than under the viewport top,
      otherwise the heading lands behind the nav and reads as the wrong section. */
+  /* Drills/Body sub-pages sit under the shared area header (FIELD // DRILLS + position + training-days blocks, ~640px). switchTab() resets to y=0, so a drawer tap on
+     Practice / Field Work / Pitching landed on that header and the tapped page started below the fold (looked like nothing happened). When the HOST drawer navigates (bat-nav),
+     scroll the tapped page's start to just under the sticky dock. Only drawer-nav + only drills/body groups: the ARM area's pages keep the old behaviour, flow tabs have
+     flowScrollTo, and applyGroup()/boot (which also call switchTab) are NOT drawer taps so the position selector stays visible there. Layout-only: no content, no youth surface. */
+  function anchorSubPage(tabName) {
+    try {
+      if (!document.body.classList.contains('drawer-nav') || isFlowTab(tabName)) return;
+      var g = tabGroup(tabName); if (g !== 'drills' && g !== 'body') return;
+      var go = function () {
+        var pg = document.getElementById('page-' + tabName); if (!pg) return;
+        var dock = document.getElementById('sec-dock'), off = dock ? dock.getBoundingClientRect().height : 0;
+        window.scrollTo({ top: Math.max(0, pg.getBoundingClientRect().top + window.pageYOffset - off - 8), behavior: 'auto' });
+      };
+      go(); if (window.requestAnimationFrame) requestAnimationFrame(function () { requestAnimationFrame(go); });   // again after the host's go() has resized/shown the iframe
+    } catch (e) {}
+  }
+
   function flowScrollTo(tabName, smooth) {
     var pg = document.getElementById('page-' + tabName);
     if (!pg) return;
