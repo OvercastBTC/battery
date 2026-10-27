@@ -7374,7 +7374,7 @@
     }
     updateCounter();
   }
-  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab){ switchTab(d.tab); anchorSubPage(d.tab); } else if(d.type==='bat-poll'){ if(typeof loadDone==='function') loadDone(); if(typeof postCounts==='function') postCounts(); } else if(d.type==='bat-active-date'&&d.date){var today=armLocalDay(new Date());_armActiveDate=(d.date===today)?null:d.date;if(typeof loadDone==='function')loadDone();try{if(typeof renderSplit==='function')renderSplit();}catch(e){}try{if(typeof renderLiftLog==='function')renderLiftLog();}catch(e){}} });
+  window.addEventListener('message', function(e){ const d=e&&e.data; if(!d)return; if(d.type==='bat-group') applyGroup(d.group); else if(d.type==='bat-nav'&&d.tab){ switchTab(d.tab); anchorSubPage(d.tab); } else if(d.type==='bat-poll'){ if(typeof loadDone==='function') loadDone(); if(typeof postCounts==='function') postCounts(); } else if(d.type==='bat-active-date'&&d.date){var today=armLocalDay(new Date());_armActiveDate=(d.date===today)?null:d.date;if(typeof loadDone==='function')loadDone();try{if(typeof renderSplit==='function')renderSplit();}catch(e){}try{if(typeof renderLiftLog==='function')renderLiftLog();}catch(e){}try{if(typeof window.practiceShow==='function')window.practiceShow();}catch(e){}} });
 
   /* ===== ARM FLOW — the sequence as ONE continuous page =====
      Owner's ask, restated: warm-up, tube, J-Bands and plyo should physically lay
