@@ -1673,7 +1673,7 @@ BATTERY.register('arm.step-body', { section: "extras", bodies: [
 ] });
 BATTERY.register('arm.step-body', { section: "lifting", bodies: [
     {
-      id: "lift-row", title: "Standing Row · plate machine", target: "Lats · Rhomboids · Rear Delt", reps: "3 × 25", attrs: {"mg":"back","sub":"horizontal","eq":"machine"}, youth: "adult",
+      id: "lift-row", title: "Standing Row · plate machine", target: "Lats · Rhomboids · Rear Delt", reps: "3 × 25", attrs: {"mg":"back","sub":"horizontal","eq":"machine","clip":"clips/lift-row-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Chest tall, pull the handles to the ribs, squeeze the blades, slow return. Current working load ~45+35/side." },
         { t: "em", h: "The pull side of the pull-≥-push rule — never let press volume outgrow this." },
@@ -1702,7 +1702,7 @@ BATTERY.register('arm.step-body', { section: "lifting", bodies: [
       ]
     },
     {
-      id: "lift-qsq-power", title: "Quarter Squat · POWER day", target: "Drive-leg power @ pitching depth", reps: "3 × 4–6 heavy", attrs: {"mg":"legs","sub":"quad","eq":"bar"}, youth: "adult",
+      id: "lift-qsq-power", title: "Quarter Squat · POWER day", target: "Drive-leg power @ pitching depth", reps: "3 × 4–6 heavy", attrs: {"mg":"legs","sub":"quad","eq":"bar","clip":"clips/lift-qsq-power-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "The reason to squat PARTIAL is to load the exact joint angle of the drive leg — heavy, low reps, move the bar with intent. That's the power adaptation partials are programmed for." },
         { t: "p", h: "<b>Warm-up ramp:</b> 2–5 progressive sets working from ~40% up to 70–80% of your working weight before the actual working sets. Primes the nervous system for full force output and measurably improves both strength and reps-at-load (NSCA)." },
@@ -1727,13 +1727,13 @@ BATTERY.register('arm.step-body', { section: "lifting", bodies: [
       ]
     },
     {
-      id: "lift-goblet", title: "Goblet / KB Squat", target: "Full-ROM legs · Trunk brace", reps: "3 × 10", attrs: {"mg":"legs","sub":"quad","eq":"db"}, youth: "adult",
+      id: "lift-goblet", title: "Goblet / KB Squat", target: "Full-ROM legs · Trunk brace", reps: "3 × 10", attrs: {"mg":"legs","sub":"quad","eq":"db","clip":"clips/lift-goblet-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Full range, bell at the chest. 3×10 or run the 12-10-8 pyramid. Back in the rotation — you flagged these as paused; this card is the resume button." }
       ]
     },
     {
-      id: "lift-lunge", title: "Walking Lunges", target: "Single-leg strength · Balance", reps: "3 × 10 / leg", attrs: {"mg":"legs","sub":"glute","eq":"bw"}, youth: "adult",
+      id: "lift-lunge", title: "Walking Lunges", target: "Single-leg strength · Balance", reps: "3 × 10 / leg", attrs: {"mg":"legs","sub":"glute","eq":"bw","clip":"clips/lift-lunge-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Long controlled steps, torso tall. Single-leg work is the defense-and-baserunning carryover the bilateral lifts don't give you." }
       ]
@@ -1774,14 +1774,14 @@ BATTERY.register('arm.step-body', { section: "lifting", bodies: [
       ]
     },
     {
-      id: "lift-rotcore", title: "🔥 Rotational Core", badge: {"text":"(NEW — highest transfer)","style":"color:var(--gold);font-size:11px"}, target: "Hip/Trunk Rotation Speed", reps: "3 × 8–10 / side", attrs: {"mg":"core","sub":"antirot","eq":"band"}, youth: "adult",
+      id: "lift-rotcore", title: "🔥 Rotational Core", badge: {"text":"(NEW — highest transfer)","style":"color:var(--gold);font-size:11px"}, target: "Hip/Trunk Rotation Speed", reps: "3 × 8–10 / side", attrs: {"mg":"core","sub":"antirot","eq":"band","clip":"clips/lift-rotcore-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Pick one per session: <b>med-ball rotational throws</b> (into a wall, hips lead), <b>wood-choppers</b> (band or cable, high-to-low and low-to-high), or <b>standing rotational twists</b>. Explosive out, controlled back." },
         { t: "em", h: "Pitching velocity and bat speed are rotation — this is the one thing the routine was missing for BOTH of your top goals." }
       ]
     },
     {
-      id: "lift-db-bench", title: "DB Floor Press", target: "Chest · Front Delt · Tris", reps: "3 × 8-12", attrs: {"mg":"chest","sub":"mid","eq":"db"}, youth: "adult",
+      id: "lift-db-bench", title: "DB Floor Press", target: "Chest · Front Delt · Tris", reps: "3 × 8-12", attrs: {"mg":"chest","sub":"mid","eq":"db","clip":"clips/lift-db-bench-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Lie on the floor, dumbbells. Lower until your upper arms rest on the floor (elbows ~90°), pause a beat, then press up — don't lock hard at the top." },
         { t: "em", h: "No bench on purpose. The floor stops your elbows before the shoulder is dragged into deep extension, and your shoulder blades stay free instead of pinned flat — a flat bench trains the anterior tilt a thrower is fighting. Same pressing strength without that cost. No bench, no rack; DBs let each side work on its own." }
@@ -1813,7 +1813,7 @@ BATTERY.register('arm.step-body', { section: "lifting", bodies: [
       ]
     },
     {
-      id: "lift-pulldown", title: "Lat Pulldown", target: "Lat · Teres", reps: "3 × 10-12", attrs: {"mg":"back","sub":"vertical","eq":"cable"}, youth: "adult",
+      id: "lift-pulldown", title: "Lat Pulldown", target: "Lat · Teres", reps: "3 × 10-12", attrs: {"mg":"back","sub":"vertical","eq":"cable","clip":"clips/lift-pulldown-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Chest tall, drive the elbows down and back. If there is no pulldown, a band anchored high works." }
       ]
@@ -1874,20 +1874,20 @@ BATTERY.register('arm.step-body', { section: "lifting", bodies: [
       ]
     },
     {
-      id: "lift-smith-squat", title: "Smith Squat", target: "Quads · Glutes", reps: "3 × 8-10", attrs: {"mg":"legs","sub":"quad","eq":"smith"}, youth: "adult",
+      id: "lift-smith-squat", title: "Smith Squat", target: "Quads · Glutes", reps: "3 × 8-10", attrs: {"mg":"legs","sub":"quad","eq":"smith","clip":"clips/lift-smith-squat-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "When there is no real rack. Feet slightly forward, controlled depth." },
         { t: "em", h: "Hotel-gym substitute for the barbell squat — the Smith is usually the only squatting option on the road." }
       ]
     },
     {
-      id: "lift-db-rdl", title: "DB Romanian Deadlift", target: "Hamstrings · Glutes", reps: "3 × 10", attrs: {"mg":"legs","sub":"ham","eq":"db"}, youth: "adult",
+      id: "lift-db-rdl", title: "DB Romanian Deadlift", target: "Hamstrings · Glutes", reps: "3 × 10", attrs: {"mg":"legs","sub":"ham","eq":"db","clip":"clips/lift-db-rdl-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Hinge at the hips, soft knees, DBs close to the legs. Stop where the low back would round." }
       ]
     },
     {
-      id: "lift-step-up", title: "Step-Up", target: "Single-Leg · Balance", reps: "3 × 10 / side", attrs: {"mg":"legs","sub":"glute","eq":"db"}, youth: "adult",
+      id: "lift-step-up", title: "Step-Up", target: "Single-Leg · Balance", reps: "3 × 10 / side", attrs: {"mg":"legs","sub":"glute","eq":"db","clip":"clips/lift-step-up-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Bench or box at knee height. Drive through the whole foot, control the way down." }
       ]
@@ -1934,14 +1934,14 @@ BATTERY.register('arm.step-body', { section: "lifting", bodies: [
       ]
     },
     {
-      id: "lift-back-ext", title: "Back Extension · bench or floor", target: "Spinal Erectors · Posterior Chain", reps: "3 × 12-15", attrs: {"mg":"back","sub":"hinge","eq":"bw"}, youth: "adult",
+      id: "lift-back-ext", title: "Back Extension · bench or floor", target: "Spinal Erectors · Posterior Chain", reps: "3 × 12-15", attrs: {"mg":"back","sub":"hinge","eq":"bw","clip":"clips/lift-back-ext-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Roman chair if there is one, otherwise a hip hinge over a bench or a floor superman. Squeeze the glutes at the top, do not hyperextend the low back." },
         { t: "em", h: "Hinge option that costs the nervous system far less than a deadlift -- use it in season." }
       ]
     },
     {
-      id: "lift-farmer-walk", title: "Farmer Walk · loaded carry", target: "Upper Traps · Full Posterior Chain", reps: "3 × 40-60s", attrs: {"mg":"back","sub":"carry","eq":"db"}, youth: "adult",
+      id: "lift-farmer-walk", title: "Farmer Walk · loaded carry", target: "Upper Traps · Full Posterior Chain", reps: "3 × 40-60s", attrs: {"mg":"back","sub":"carry","eq":"db","clip":"clips/lift-farmer-walk-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Heavy dumbbells or trap bar. Walk with shoulders packed down, chest up, core braced. Grip will limit before traps do — that is fine." },
         { t: "em", h: "Loads the entire superficial back line from feet to skull under sustained tension. The only exercise that trains the fascial chain as one continuous unit — nothing else does this." }
@@ -2040,7 +2040,7 @@ BATTERY.register('arm.step-body', { section: "lifting", bodies: [
       ]
     },
     {
-      id: "lift-hip-thrust", title: "DB Hip Thrust", target: "Glutes · Hip Extension", reps: "3 × 10-12", attrs: {"mg":"legs","sub":"glute","eq":"db"}, youth: "adult",
+      id: "lift-hip-thrust", title: "DB Hip Thrust", target: "Glutes · Hip Extension", reps: "3 × 10-12", attrs: {"mg":"legs","sub":"glute","eq":"db","clip":"clips/lift-hip-thrust-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Shoulders on a bench, dumbbell across the hips on a pad or towel. Squeeze hard at the top and hold a beat, ribs down." },
         { t: "em", h: "Hip extension power is the base of the drive leg. Cheapest strength-per-set on the page." }
@@ -2054,14 +2054,14 @@ BATTERY.register('arm.step-body', { section: "lifting", bodies: [
       ]
     },
     {
-      id: "lift-deadbug", title: "Dead Bug", target: "Anti-Extension · Rib Position", reps: "3 × 8 each side", attrs: {"mg":"core","sub":"antiext","eq":"bw"}, youth: "adult",
+      id: "lift-deadbug", title: "Dead Bug", target: "Anti-Extension · Rib Position", reps: "3 × 8 each side", attrs: {"mg":"core","sub":"antiext","eq":"bw","clip":"clips/lift-deadbug-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "On the back, low back pressed flat and kept there. Extend the opposite arm and leg slowly. The moment the back arches, the set is over." },
         { t: "em", h: "Teaches the rib position everything else on this page depends on." }
       ]
     },
     {
-      id: "lift-pallof", title: "Pallof Press", target: "Anti-Rotation", reps: "3 × 10 each side", attrs: {"mg":"core","sub":"antirot","eq":"cable"}, youth: "adult",
+      id: "lift-pallof", title: "Pallof Press", target: "Anti-Rotation", reps: "3 × 10 each side", attrs: {"mg":"core","sub":"antirot","eq":"cable","clip":"clips/lift-pallof-demo.mp4"}, youth: "adult",
       detail: [
         { t: "p", h: "Cable or band at chest height from the side. Press straight out and resist the pull toward the anchor. Do not let the ribs turn." },
         { t: "em", h: "Rotation power is built by RESISTING rotation first. This is the drill that transfers to a throw." }
