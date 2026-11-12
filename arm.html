@@ -1074,6 +1074,11 @@
   .split-chip.on { border-color:var(--gold); color:var(--ink); background:var(--gold); font-weight:700; }
   .split-day { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 2px; }
   .split-note { font-size:11px; color:var(--dim); font-style:italic; margin:6px 0 2px; }
+  /* lift-scheme: set-scheme preset row (display-only; stamps the .step-reps badge) */
+  .scheme-bar { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:8px 0 2px; }
+  .scheme-bar .scheme-lbl { font-family:'Courier New',monospace; font-size:10px; letter-spacing:.8px; text-transform:uppercase; color:var(--dim); margin-right:2px; }
+  .scheme-note { font-size:11px; color:var(--dim); font-style:italic; margin:4px 0 2px; min-height:14px; }
+  .step-reps.scheme-on { color:var(--gold); }
   .step.mg-hidden { display:none; }
   .step.track-hidden { display:none; }
   .youth-only { display: none; }
@@ -8034,6 +8039,48 @@
     renderSplit();
   };
   window.setSplitDay=function(d){ storeSet('arm-care-liftday',d); renderSplit(); };
+  /* ===== SET SCHEMES (lift-scheme) =====
+     One tap stamps a set/rep scheme on every REP-BASED lift's .step-reps badge so the
+     prescription is not hand-read per card. DISPLAY-ONLY: the authored text is kept in
+     data-reps0 and restored on "Authored"; no body data, completion state or log row is
+     touched. Timed / distance / to-failure prescriptions (40-60s carries, wall sit, dead
+     hang, crunch hold, max-2 pull-ups, the heavy quarter squat) keep their own wording. */
+  var SET_SCHEMES = [
+    { id: 'str-553',    label: '5·5·5·5·5', sets: [5,5,5,5,5], note: 'Strength — 5 heavy sets, long rest (2–5 min).' },
+    { id: 'hyp-101010', label: '10·10·10',        sets: [10,10,10],  note: 'Hypertrophy — 3 straight sets, 60–90 s rest.' },
+    { id: 'pyr-1208',   label: '12·10·8',         sets: [12,10,8],   note: 'Ascending-load pyramid — add weight each set.' },
+    { id: 'pyr-10864',  label: '10·8·6·4',   sets: [10,8,6,4],  note: 'Steep pyramid — build to a heavy 4.' },
+    { id: 'end-20210',  label: '20·20·10',        sets: [20,20,10],  note: 'Endurance / finisher — 2 high-rep sets + 1 moderate.' }
+  ];
+  function schemeGet(){ var v = storeGet('arm-care-liftscheme',''); return SET_SCHEMES.some(function(s){ return s.id === v; }) ? v : ''; }
+  function schemeRepBased(txt){ return !/(\d\s*(s|sec|secs|min|yd|yds)\b)|max|heavy/i.test(txt || ''); }
+  function renderLiftScheme(){
+    var host = document.querySelector('#page-lifting #split-note');
+    if(!host) return;
+    var bar = document.getElementById('scheme-bar');
+    if(!bar){
+      bar = document.createElement('div'); bar.id = 'scheme-bar'; bar.className = 'scheme-bar';
+      var h = '<span class="scheme-lbl">Set scheme</span><div class="split-chip" data-scheme="" onclick="setLiftScheme(\'\')">Authored</div>';
+      SET_SCHEMES.forEach(function(s){ h += '<div class="split-chip" data-scheme="' + s.id + '" onclick="setLiftScheme(\'' + s.id + '\')">' + s.label + '</div>'; });
+      bar.innerHTML = h;
+      var note = document.createElement('div'); note.id = 'scheme-note'; note.className = 'scheme-note';
+      host.parentNode.insertBefore(bar, host.nextSibling);
+      bar.parentNode.insertBefore(note, bar.nextSibling);
+    }
+    var id = schemeGet(), sc = SET_SCHEMES.filter(function(s){ return s.id === id; })[0] || null;
+    bar.querySelectorAll('.split-chip').forEach(function(c){ c.classList.toggle('on', (c.getAttribute('data-scheme') || '') === id); });
+    var nt = document.getElementById('scheme-note'); if(nt) nt.textContent = sc ? sc.note : 'Pick a scheme to stamp it on every rep-based lift. Timed holds and carries keep their own prescription.';
+    document.querySelectorAll('#page-lifting .step[data-mg] .step-reps').forEach(function(el){
+      if(el.getAttribute('data-reps0') === null) el.setAttribute('data-reps0', el.textContent);
+      var o = el.getAttribute('data-reps0');
+      if(sc && schemeRepBased(o)){
+        var m = o.match(/(\/\s*(?:side|leg)|each side)\s*$/i);
+        el.textContent = sc.sets.join(' · ') + (m ? ' ' + m[1].replace(/\s+/g, ' ') : '');
+        el.classList.add('scheme-on');
+      } else { el.textContent = o; el.classList.remove('scheme-on'); }
+    });
+  }
+  window.setLiftScheme = function(id){ storeSet('arm-care-liftscheme', schemeGet() === id ? '' : id); renderLiftScheme(); };
   /* 4.0 -- muscle groups and SUB-groups inside Lifting.
      Headers are injected and the steps are reordered in the DOM at render time
      rather than hard-coded between the list items. Source order can then never
@@ -8833,6 +8880,7 @@
   try{ renderWashTrack(); }catch(e){}   // simple vs full Washington method
   try{ renderSplit(); }catch(e){}
   try{ renderSplit(); }catch(e){}
+  try{ renderLiftScheme(); }catch(e){}   // lift-scheme: restore the saved set-scheme stamp
   // 5.x: first-week onboarding card — stays until dismissed once (per profile)
   if (storeGet('arm-care-firstweek', '') === 'done') {
     const fw = document.getElementById('fw-card');
