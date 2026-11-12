@@ -1079,6 +1079,11 @@
   .scheme-bar .scheme-lbl { font-family:'Courier New',monospace; font-size:10px; letter-spacing:.8px; text-transform:uppercase; color:var(--dim); margin-right:2px; }
   .scheme-note { font-size:11px; color:var(--dim); font-style:italic; margin:4px 0 2px; min-height:14px; }
   .step-reps.scheme-on { color:var(--gold); }
+  /* lift-focus tiers (soft: dimmed rows stay fully tappable) */
+  #page-lifting .step.lift-focus { border-left:3px solid var(--gold); }
+  #page-lifting .step.lift-related { border-left:3px solid var(--line-bright); }
+  #page-lifting .step.lift-dim, #page-lifting .lift-mg.lift-dim, #page-lifting .lift-sub.lift-dim { opacity:.5; }
+  #page-lifting .lift-rest { list-style:none; margin:18px 0 0; padding:6px 0; text-align:center; font-family:'Courier New',monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); border-top:1px dashed var(--line-bright); }
   .step.mg-hidden { display:none; }
   .step.track-hidden { display:none; }
   .youth-only { display: none; }
@@ -8063,23 +8068,29 @@
       var h = '<span class="scheme-lbl">Set scheme</span><div class="split-chip" data-scheme="" onclick="setLiftScheme(\'\')">Authored</div>';
       SET_SCHEMES.forEach(function(s){ h += '<div class="split-chip" data-scheme="' + s.id + '" onclick="setLiftScheme(\'' + s.id + '\')">' + s.label + '</div>'; });
       bar.innerHTML = h;
+      bar.insertAdjacentHTML('beforeend', '<div class="split-chip" id="scheme-scope" onclick="toggleSchemeScope()" style="display:none">Focus only</div>');
       var note = document.createElement('div'); note.id = 'scheme-note'; note.className = 'scheme-note';
       host.parentNode.insertBefore(bar, host.nextSibling);
       bar.parentNode.insertBefore(note, bar.nextSibling);
     }
     var id = schemeGet(), sc = SET_SCHEMES.filter(function(s){ return s.id === id; })[0] || null;
-    bar.querySelectorAll('.split-chip').forEach(function(c){ c.classList.toggle('on', (c.getAttribute('data-scheme') || '') === id); });
+    bar.querySelectorAll('.split-chip[data-scheme]').forEach(function(c){ c.classList.toggle('on', (c.getAttribute('data-scheme') || '') === id); });
     var nt = document.getElementById('scheme-note'); if(nt) nt.textContent = sc ? sc.note : 'Pick a scheme to stamp it on every rep-based lift. Timed holds and carries keep their own prescription.';
+    var Fq = focusGet(), scopeOn = storeGet('arm-care-liftscheme-scope', '') === 'focus' && Fq.length > 0;
+    var sco = document.getElementById('scheme-scope');
+    if(sco){ sco.style.display = Fq.length ? '' : 'none'; sco.classList.toggle('on', scopeOn); }
     document.querySelectorAll('#page-lifting .step[data-mg] .step-reps').forEach(function(el){
       if(el.getAttribute('data-reps0') === null) el.setAttribute('data-reps0', el.textContent);
       var o = el.getAttribute('data-reps0');
-      if(sc && schemeRepBased(o)){
+      var inScope = !scopeOn || (el.closest('.step') && el.closest('.step').classList.contains('lift-focus'));
+      if(sc && inScope && schemeRepBased(o)){
         var m = o.match(/(\/\s*(?:side|leg)|each side)\s*$/i);
         el.textContent = sc.sets.join(' · ') + (m ? ' ' + m[1].replace(/\s+/g, ' ') : '');
         el.classList.add('scheme-on');
       } else { el.textContent = o; el.classList.remove('scheme-on'); }
     });
   }
+  window.toggleSchemeScope = function(){ storeSet('arm-care-liftscheme-scope', storeGet('arm-care-liftscheme-scope', '') === 'focus' ? '' : 'focus'); renderLiftScheme(); };
   window.setLiftScheme = function(id){ storeSet('arm-care-liftscheme', schemeGet() === id ? '' : id); renderLiftScheme(); };
   /* 4.0 -- muscle groups and SUB-groups inside Lifting.
      Headers are injected and the steps are reordered in the DOM at render time
@@ -8101,6 +8112,48 @@
     core:[['antiext','Anti-extension'],['flexion','Flexion \u00b7 the ab ladder'],
           ['lateral','Lateral \u00b7 side chain'],['antirot','Anti-rotation']]
   };
+  /* ===== LIFT FOCUS (lift-focus) =====
+     Pick the muscle groups you are training and they float to the top, with their training neighbours
+     right behind and everything else below (dimmed, still tappable). SOFT: nothing is filtered out.
+     Persists to arm-care-liftfocus (JSON array of MG keys). Distinct from the per-day group SELECTION
+     above, which HIDES groups; the two compose (a hidden group stays hidden). */
+  var MUSCLE_ADJ = {
+    chest:     ['tris', 'shoulders'],
+    back:      ['bis', 'shoulders', 'core'],
+    shoulders: ['chest', 'tris', 'back'],
+    bis:       ['back', 'tris'],
+    tris:      ['chest', 'shoulders', 'bis'],
+    legs:      ['core'],
+    core:      ['legs', 'back']
+  };
+  function focusGet(){ try { var a = JSON.parse(storeGet('arm-care-liftfocus', '[]')) || []; return MG_ORDER.filter(function(g){ return a.indexOf(g) >= 0; }); } catch(e){ return []; } }
+  function focusTier(mg, F){
+    if(!F || !F.length) return 0;
+    if(F.indexOf(mg) >= 0) return 1;
+    for(var i = 0; i < F.length; i++){ if((MUSCLE_ADJ[F[i]] || []).indexOf(mg) >= 0) return 2; }
+    return 3;
+  }
+  function renderLiftFocus(){
+    var host = document.querySelector('#page-lifting #split-note');
+    if(!host) return;
+    var bar = document.getElementById('focus-bar');
+    var F = focusGet();
+    if(!bar){
+      bar = document.createElement('div'); bar.id = 'focus-bar'; bar.className = 'scheme-bar';
+      var h = '<span class="scheme-lbl">Focus</span>';
+      MG_ORDER.forEach(function(g){ h += '<div class="split-chip" data-focus="' + g + '" onclick="toggleLiftFocus(\'' + g + '\')">' + MG_NAME[g] + '</div>'; });
+      h += '<div class="split-chip" data-focus="" onclick="clearLiftFocus()">Clear</div>';
+      bar.innerHTML = h;
+      host.parentNode.insertBefore(bar, host.nextSibling);
+    }
+    bar.querySelectorAll('.split-chip').forEach(function(c){
+      var g = c.getAttribute('data-focus');
+      c.classList.toggle('on', !!g && F.indexOf(g) >= 0);
+      if(!g) c.style.display = F.length ? '' : 'none';
+    });
+  }
+  window.toggleLiftFocus = function(g){ var F = focusGet(), i = F.indexOf(g); if(i >= 0) F.splice(i, 1); else F.push(g); storeSet('arm-care-liftfocus', JSON.stringify(F)); renderLiftGroups(); renderLiftFocus(); try { renderLiftScheme(); } catch(e){} };
+  window.clearLiftFocus = function(){ storeSet('arm-care-liftfocus', '[]'); renderLiftGroups(); renderLiftFocus(); try { renderLiftScheme(); } catch(e){} };
   /* ===== FREE-FORM LIFTING LOG (backlog item 4) =====
      The lifting page could only ever record THAT a lift happened, never how much.
      This logs actual sets -- exercise, reps, weight -- so the work is reviewable and
@@ -8529,14 +8582,28 @@
     var list = document.querySelector('#page-lifting .steplist');
     if(!list) return;
     /* headers are rebuilt every pass -- cheap, and never goes stale */
-    list.querySelectorAll('.lift-mg, .lift-sub').forEach(function(h){ h.remove(); });
+    list.querySelectorAll('.lift-mg, .lift-sub, .lift-rest').forEach(function(h){ h.remove(); });
     var steps = [].slice.call(list.querySelectorAll('.step[data-mg]'));
-    MG_ORDER.forEach(function(mg){
+    /* lift-focus: SOFT prioritise -- the picked muscle groups (tier 1) and their training neighbours (tier 2)
+       float above everything else (tier 3, dimmed but fully reachable). Only the ORDER of whole muscle blocks
+       and a tier class change; no row is ever removed, hidden or re-ordered inside its block. */
+    var F = focusGet();
+    var order = MG_ORDER.slice();
+    if(F.length) order.sort(function(x, y){ return (focusTier(x, F) - focusTier(y, F)) || (MG_ORDER.indexOf(x) - MG_ORDER.indexOf(y)); });
+    var restDone = false;
+    steps.forEach(function(st){ st.classList.remove('lift-focus', 'lift-related', 'lift-dim'); });
+    order.forEach(function(mg){
       var mine = steps.filter(function(st){ return st.getAttribute('data-mg') === mg; });
       var live = mine.filter(function(st){ return !st.classList.contains('mg-hidden'); });
       if(!mine.length) return;
+      var tcls = ['', 'lift-focus', 'lift-related', 'lift-dim'][focusTier(mg, F)];
+      if(F.length && tcls === 'lift-dim' && !restDone && live.length){
+        var rest = document.createElement('li'); rest.className = 'lift-rest'; rest.textContent = '— everything else —';
+        list.appendChild(rest); restDone = true;
+      }
+      mine.forEach(function(st){ if(tcls) st.classList.add(tcls); });
       var h = document.createElement('li');
-      h.className = 'lift-mg' + (live.length ? '' : ' mg-hidden');
+      h.className = 'lift-mg' + (live.length ? '' : ' mg-hidden') + (tcls ? ' ' + tcls : '');
       h.setAttribute('data-mg', mg);
       h.appendChild(document.createTextNode(MG_NAME[mg] || mg));
       var n = document.createElement('span');
@@ -8550,7 +8617,7 @@
         var inSub = mine.filter(function(st){ return st.getAttribute('data-sub') === sb[0]; });
         if(!inSub.length) return;
         var sh = document.createElement('li');
-        sh.className = 'lift-sub' + (live.length ? '' : ' mg-hidden');
+        sh.className = 'lift-sub' + (live.length ? '' : ' mg-hidden') + (tcls ? ' ' + tcls : '');
         sh.setAttribute('data-mg', mg);
         sh.textContent = sb[1];
         list.appendChild(sh);
@@ -8881,6 +8948,7 @@
   try{ renderSplit(); }catch(e){}
   try{ renderSplit(); }catch(e){}
   try{ renderLiftScheme(); }catch(e){}   // lift-scheme: restore the saved set-scheme stamp
+  try{ renderLiftFocus(); }catch(e){}   // lift-focus: restore the saved focus chips (renderSplit above already sorted the list by it)
   // 5.x: first-week onboarding card — stays until dismissed once (per profile)
   if (storeGet('arm-care-firstweek', '') === 'done') {
     const fw = document.getElementById('fw-card');
