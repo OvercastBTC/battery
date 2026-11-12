@@ -463,7 +463,13 @@ BATTERY.register('arm.layout', { section: "lifting", regions: [
       { step: "lift-hip-thrust" },
       { step: "lift-seated-calf" },
       { step: "lift-deadbug" },
-      { step: "lift-pallof" }
+      { step: "lift-pallof" },
+      { step: "lift-lateral-lunge" },
+      { step: "lift-cossack-squat" },
+      { step: "lift-bulgarian-split" },
+      { step: "lift-ffe-split" },
+      { step: "lift-step-down" },
+      { step: "lift-wall-sit" }
     ] }
   ] }
 ] });

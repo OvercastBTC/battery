@@ -41,7 +41,7 @@ BATTERY.register('arm.step-body', { section: "warmup", bodies: [
       ]
     },
     {
-      id: "fd6", title: "06 · Side-Lying T-Spine Rotation", target: "Thoracic Spine · Posterior Chain", reps: "8 each side", youth: "safe",
+      id: "fd6", title: "06 · Side-Lying T-Spine Rotation", target: "Thoracic Spine · Posterior Chain", reps: "8 each side", optional: true, youth: "safe",
       detail: [
         { t: "p", h: "Lie on side. Top leg crossed over with knee at 90°, planted. Both arms extended forward together. Open the top arm out and across to the other side, following with the eyes. Hold 5 seconds. Return. 8 reps each side." },
         { t: "em", h: "T-spine rotation is the missing link in adult throwers. Don't skip." }
@@ -72,7 +72,7 @@ BATTERY.register('arm.step-body', { section: "warmup", bodies: [
       ]
     },
     {
-      id: "fs2", title: "08 · Couch Stretch", target: "Hip Flexors · Quads", reps: "2 min each leg", youth: "safe",
+      id: "fs2", title: "08 · Couch Stretch", target: "Hip Flexors · Quads", reps: "2 min each leg", optional: true, youth: "safe",
       detail: [
         { t: "p", h: "Kneel with the back foot up against a wall, couch back, or bench (top of foot on the surface). Front leg in 90° lunge. Drive hips forward, torso upright. 2-minute hold." },
         { t: "p", style: "margin-top:6px", h: "Active version: flex into the stretch for 10–15 reps. Watch film while doing it — it's that long." },
@@ -80,35 +80,35 @@ BATTERY.register('arm.step-body', { section: "warmup", bodies: [
       ]
     },
     {
-      id: "fs3", title: "09 · 90/90 Hip Stretch", target: "Hip Internal/External Rotation", reps: "30s each side", youth: "safe",
+      id: "fs3", title: "09 · 90/90 Hip Stretch", target: "Hip Internal/External Rotation", reps: "30s each side", optional: true, youth: "safe",
       detail: [
         { t: "p", h: "Sit on the floor. Front leg bent at 90° in front (external rotation). Back leg bent at 90° behind (internal rotation). Keep spine tall. Lean forward over the front leg to feel a stretch in the hip." },
         { t: "em", h: "Hip rotation translates directly to bat speed and throwing power" }
       ]
     },
     {
-      id: "fs4", title: "10 · Shoulder Cross-Body Stretch", target: "Posterior Shoulder Capsule", reps: "30s each arm", youth: "safe",
+      id: "fs4", title: "10 · Shoulder Cross-Body Stretch", target: "Posterior Shoulder Capsule", reps: "30s each arm", optional: true, youth: "safe",
       detail: [
         { t: "p", h: "Pull one arm across the chest, opposite hand holding above the elbow. Pull gently. Hold 30 seconds. Then move the same arm overhead, palm down, gently bend at the elbow." },
         { t: "em", h: "The posterior shoulder is the deceleration brake — tight here means injury risk" }
       ]
     },
     {
-      id: "fs5", title: "11 · Wrist Flexor Stretch", target: "Forearm · UCL Region", reps: "30s each arm", youth: "safe",
+      id: "fs5", title: "11 · Wrist Flexor Stretch", target: "Forearm · UCL Region", reps: "30s each arm", optional: true, youth: "safe",
       detail: [
         { t: "p", h: "Extend one arm forward, palm up. Use the opposite hand to gently pull back on the fingers. Then flip — palm down, pull fingers down. Hold 30 seconds each position." },
         { t: "em", h: "Reduces risk of elbow injury and bicep tendonitis — both common in adult throwers" }
       ]
     },
     {
-      id: "fs6", title: "12 · Calf / Ankle Dorsiflexion", target: "Ankle Mobility · Achilles", reps: "30s each leg", youth: "safe",
+      id: "fs6", title: "12 · Calf / Ankle Dorsiflexion", target: "Ankle Mobility · Achilles", reps: "30s each leg", optional: true, youth: "safe",
       detail: [
         { t: "p", h: "Step forward into a small lunge with back leg straight, heel pressed to ground. Hold. Then bend back knee slightly to shift to soleus." },
         { t: "em", h: "Catchers especially — squat depth requires ankle dorsiflexion. Often missing in adult athletes." }
       ]
     },
     {
-      id: "fs7", title: "13 · Doorway Pec Stretch", target: "Pec Minor · Pec Major · Anterior Shoulder · Clavicular Fascia", reps: "3 × 30s each side", youth: "safe",
+      id: "fs7", title: "13 · Doorway Pec Stretch", target: "Pec Minor · Pec Major · Anterior Shoulder · Clavicular Fascia", reps: "3 × 30s each side", optional: true, youth: "safe",
       detail: [
         { t: "p", h: "Stand in a doorway. Place your forearm flat on the door frame with your elbow AT or ABOVE shoulder height. Step through with the near-side foot and lean forward until you feel a stretch across the front of the chest and shoulder. Hold 30 seconds. Three sets per side." },
         { t: "p", style: "margin-top:6px", h: "<b>Elbow height matters.</b> At shoulder height you stretch pec major. Above shoulder height (elbow at ear level) you bias pec minor — the deeper muscle that tilts the scapula forward. Do both positions." },
@@ -2065,6 +2065,48 @@ BATTERY.register('arm.step-body', { section: "lifting", bodies: [
       detail: [
         { t: "p", h: "Cable or band at chest height from the side. Press straight out and resist the pull toward the anchor. Do not let the ribs turn." },
         { t: "em", h: "Rotation power is built by RESISTING rotation first. This is the drill that transfers to a throw." }
+      ]
+    },
+    {
+      id: "lift-lateral-lunge", title: "Lateral Lunge → Goblet Drop", target: "Frontal-plane legs · Adductors · Hips", reps: "3 × 8 / side", attrs: {"mg":"legs","sub":"uni","eq":"db","clip":"clips/lift-lateral-lunge-demo.mp4"}, youth: "adult",
+      detail: [
+        { t: "p", h: "Step wide to one side, sit the hip back and bend THAT knee while the trail leg stays long — then drop straight into a goblet squat over the bent leg. One DB or KB at the chest. This is the \"side squat\" you described: lateral lunge in, squat down over the working leg, drive back to center." },
+        { t: "em", h: "Frontal-plane strength is what bilateral squats skip — it protects the groin/adductor and shows up in lateral shuffles and range balls." }
+      ]
+    },
+    {
+      id: "lift-cossack-squat", title: "Cossack Squat", target: "Deep frontal-plane · Adductor mobility", reps: "3 × 6 / side", attrs: {"mg":"legs","sub":"uni","eq":"bw","clip":"clips/lift-cossack-squat-demo.mp4"}, youth: "adult",
+      detail: [
+        { t: "p", h: "Feet wide, shift fully over one leg into a deep single-leg squat, other leg straight with toes up. Stay low and shift side to side, or do reps per side. Bodyweight first; hold a light DB at the chest for load." },
+        { t: "em", h: "The mobility end of the lateral-lunge family — owns the bottom range the lunge trains in the middle." }
+      ]
+    },
+    {
+      id: "lift-bulgarian-split", title: "Bulgarian Split Squat · rear-foot elevated", target: "Single-leg quad/glute · Balance", reps: "3 × 8 / leg", attrs: {"mg":"legs","sub":"uni","eq":"db","clip":"clips/lift-bulgarian-split-demo.mp4"}, youth: "adult",
+      detail: [
+        { t: "p", h: "Rear foot up on a bench, front foot forward. Drop straight down over the front leg, torso tall, front knee tracking the toes. DBs at the sides. The single hardest-transfer lower-body lift for a thrower — this is the \"back-leg-on-a-bench single-leg squat\" you described." },
+        { t: "em", h: "Marriott-proof: just a bench + DBs. The rear-foot-elevated version biases glute + stability over the front-foot-elevated quad bias below." }
+      ]
+    },
+    {
+      id: "lift-ffe-split", title: "Front-Foot-Elevated Split Squat", target: "Quad-biased single-leg · Deep ROM", reps: "3 × 8 / leg", attrs: {"mg":"legs","sub":"uni","eq":"db","clip":"clips/lift-ffe-split-demo.mp4"}, youth: "adult",
+      detail: [
+        { t: "p", h: "Front foot up on a low plate/step, rear foot back on the floor. Front-foot elevation lets the front knee travel further forward for a deeper quad stretch. The quad-bias counterpart to the Bulgarian — the \"front-leg version\" you asked for." },
+        { t: "em", h: "Pair FFE (quad) and Bulgarian (glute) across a cycle to hit the single-leg pattern from both ends." }
+      ]
+    },
+    {
+      id: "lift-step-down", title: "Step-Down · eccentric control", target: "Single-leg eccentric · Knee control", reps: "3 × 8 / leg", attrs: {"mg":"legs","sub":"uni","eq":"bw","clip":"clips/lift-step-down-demo.mp4"}, youth: "adult",
+      detail: [
+        { t: "p", h: "Stand on a box/bench on one leg. Lower the OTHER heel slowly to tap the floor (3-count down), then drive back up — all on the standing leg. The eccentric partner to the step-up: step up to build, step down to control." },
+        { t: "em", h: "Bodyweight first; hold DBs to load. Teaches the deceleration the step-up does not." }
+      ]
+    },
+    {
+      id: "lift-wall-sit", title: "Wall Sit · isometric", target: "Quad isometric · Tendon stiffness", reps: "3 × 30–45 s", attrs: {"mg":"legs","sub":"quad","eq":"bw","clip":"clips/lift-wall-sit-demo.mp4"}, youth: "adult",
+      detail: [
+        { t: "p", h: "Back flat on a wall, slide down to thighs-parallel, knees over ankles, hold. No gear, do it anywhere. Finisher or a low-fatigue quad day." },
+        { t: "em", h: "Isometrics build tendon stiffness with almost no eccentric soreness — a smart hotel-day or in-season option." }
       ]
     }
 ] });
