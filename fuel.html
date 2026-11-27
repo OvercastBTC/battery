@@ -969,7 +969,10 @@
   /* §4.3 (5.2): the ⋯ grid menu exposes gram amounts (header "+Xg" + the size/count
      steppers), and the menu-dot is not otherwise youth-gated. Hide it for youth on the
      protein section so youth can't open a macro surface. Water dots (oz) are unaffected. */
-  html.fuel-youth .quickadd-section.protein .qa-menu-dot, body.fuel-youth .quickadd-section.protein .qa-menu-dot { display: none; }
+  html.fuel-youth .quickadd-section.protein .qa-menu-dot:not(.ym), body.fuel-youth .quickadd-section.protein .qa-menu-dot:not(.ym) { display: none; }
+  /* 1.1/1.2 (A.26.11.26.1): .ym is stamped ONLY when YOUTH_PIECE_MENU is on AND the item opted in (it.ym).
+     That flag ships OFF (owner decision pending). When on, gridMenu() renders a GRAM-FREE menu for youth
+     (piece/size labels only: no header +Xg, no per-row grams, no macro line) -- see gridMenu §4.3 branch. */
   /* stage 2: user-created items */
   .qa-btn { position: relative; }
   .qa-btn .qa-menu-dot {
@@ -4829,6 +4832,48 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     {id:'nuts-and-seeds',t:'Nuts & seeds'},
     {id:'sides-and-fast-food',t:'Sides & fast food'}
   ];
+  /* ===== 1.1 PORTION-EQUIVALENCE (A.26.11.26.1, Adam 2026-11-26) =====
+     Adam logs by NATURAL UNIT ("I ate 5 pieces of turkey -- breast and dark -- what is that?").
+     An item opts in with  portion:PORTIONS.<set>  (additive field; id / l / p / n are untouched, so favourites,
+     history and every existing test keep working). The ⋯ menu then offers "Log by piece": one stepper row per
+     opt (so a MIXED plate -- 3 breast + 2 dark -- is ONE entry), a live equivalence line (pieces ~ oz ~ protein)
+     and ONE undoable entry labelled  <lbl> · 3 breast + 2 dark.
+       p   = protein grams PER UNIT, ROUNDED DOWN (same rule as the catalog: under-credit rather than over-credit)
+       oz  = food weight per unit (cooked where cooked:true) -- the "what does one piece mean" the note states out loud
+       ls/lp = singular/plural word used in the LOG LABEL (never a number+g, never the word 'stick' -- see _favIsYouthSafe)
+     Sources: USDA FoodData Central roasted turkey/chicken meat-only (breast ~30g, dark ~28g protein / 100g);
+     per-oz figures floored. All est: approximations of a typical piece, not a weighed one.
+     §4.3: grams (p) live ONLY in the adult branch of gridMenu(); the youth branch (YOUTH_PIECE_MENU, ships OFF)
+     renders piece counts and oz, never protein. */
+  let YOUTH_PIECE_MENU = false;  /* owner call: flip to true only on Adam's direct word -- gram-free menu for youth */
+  const PORTIONS = {
+    turkey:{lbl:'Turkey', cooked:true, max:30, opts:[
+      {ls:'breast', lp:'breast', l:'Breast', u:'slice', up:'slices', p:8, oz:1, note:'white meat, leanest'},
+      {ls:'dark', lp:'dark', l:'Dark meat', u:'piece', up:'pieces', p:7, oz:1, note:'thigh / leg, a little more fat, nearly the same protein'}]},
+    chicken:{lbl:'Chicken', cooked:true, max:30, opts:[
+      {ls:'breast', lp:'breast', l:'Breast', u:'piece', up:'pieces', p:7, oz:1, note:'white meat'},
+      {ls:'thigh', lp:'thighs', l:'Thigh', u:'thigh', up:'thighs', p:13, oz:2, note:'meat only, no bone'},
+      {ls:'leg', lp:'legs', l:'Drumstick', u:'drumstick', up:'drumsticks', p:11, oz:1.5, note:'meat only, no bone'},
+      {ls:'wing', lp:'wings', l:'Wing', u:'wing', up:'wings', p:5, oz:0.8, note:'meat only, no bone'}]},
+    egg:{lbl:'Eggs', max:30, opts:[
+      {ls:'whole', lp:'whole', l:'Whole egg', u:'egg', up:'eggs', p:6, oz:1.8, note:'1 large egg'},
+      {ls:'white', lp:'whites', l:'Egg white', u:'white', up:'whites', p:3, oz:1.2, note:'white only'}]},
+    deli:{lbl:'Deli meat', cooked:false, max:30, opts:[
+      {ls:'slice', lp:'slices', l:'Slice', u:'slice', up:'slices', p:6, oz:1, note:'turkey / ham / roast beef, a typical pre-sliced slice'}]}
+  };
+  /* pure math for the "Log by piece" menu -- exposed for the test suite (no DOM, no storage) */
+  function fuelPortionCalc(set, counts){
+    var p=0, oz=0, pcs=0, parts=[];
+    if(!set||!set.opts) return {p:0,oz:0,pcs:0,label:''};
+    set.opts.forEach(function(o,i){
+      var n=Math.max(0,Math.min(set.max||30,Math.floor(+(counts||[])[i]||0)));
+      if(!n) return;
+      p+=n*(+o.p||0); oz+=n*(+o.oz||0); pcs+=n; parts.push(n+' '+(n===1?o.ls:o.lp));
+    });
+    return {p:p, oz:Math.round(oz*10)/10, pcs:pcs, label: parts.length ? (set.lbl+' · '+parts.join(' + ')) : ''};
+  }
+  window._fuelPortionCalc = fuelPortionCalc;
+  window.__FUEL_PORTIONS = PORTIONS;
   const FUEL_ITEMS = [
     /* PR #16 (Lane D, owner-reviewed): switched daily driver from Thorne to
        Sports Research (2 scoops = 25g/scoop, matching qcShakeAdd()'s existing
@@ -4864,13 +4909,13 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     {id:'beef-stew',g:'soups-and-stews',p:22,w:0,l:'Beef stew',n:'Beef stew / chili'},
     {id:'clam-chowder',g:'soups-and-stews',p:18,w:0,l:'Clam chowder',n:'Clam chowder / bisque'},
     {id:'tomato-soup-cheese',g:'soups-and-stews',p:15,w:0,l:'Tomato soup + cheese',n:'Tomato soup + grilled cheese'},
-    {id:'chicken-breast',g:'proteins-and-eggs',p:28,w:0,l:'Chicken breast',n:'Chicken breast · 4oz'},
+    {id:'chicken-breast',g:'proteins-and-eggs',p:28,w:0,l:'Chicken breast',n:'Chicken breast · 4oz',portion:PORTIONS.chicken,ym:1},
     {id:'ground-beef-4oz',g:'proteins-and-eggs',p:28,w:0,l:'Ground beef 4oz',n:'Ground beef · 4oz'},
     {id:'steak-fish-6oz',g:'proteins-and-eggs',p:40,w:0,l:'Steak / fish 6oz',n:'Steak / fish · 6oz'},
     {id:'salmon-4oz',g:'proteins-and-eggs',p:25,w:0,l:'Salmon 4oz',n:'Salmon · 4oz'},
-    {id:'deli-meat-3oz',g:'proteins-and-eggs',p:20,w:0,l:'Deli meat 3oz',n:'Deli turkey / ham · 3oz'},
+    {id:'deli-meat-3oz',g:'proteins-and-eggs',p:20,w:0,l:'Deli meat 3oz',n:'Deli turkey / ham · 3oz',portion:PORTIONS.deli,ym:1},
     {id:'tuna-pouch',g:'proteins-and-eggs',p:20,w:0,l:'Tuna pouch',n:'Tuna pouch / can'},
-    {id:'3-eggs',g:'proteins-and-eggs',p:18,w:0,l:'3 eggs',n:'3 eggs'},
+    {id:'3-eggs',g:'proteins-and-eggs',p:18,w:0,l:'3 eggs',n:'3 eggs',portion:PORTIONS.egg,ym:1},
     {id:'3-eggs-2-bacon',g:'proteins-and-eggs',p:24,w:0,l:'3 eggs + 2 bacon',n:'3 eggs + 2 strips bacon'},
     {id:'2-bacon',g:'proteins-and-eggs',p:6,w:0,l:'2 bacon',n:'2 strips bacon'},
     {id:'pbandj',g:'dairy-and-snacks',p:13,w:0,l:'PB&J',n:'PB&J · 2 slices'},
@@ -4920,7 +4965,38 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     /* Protein singles (orphan images, est macros) */
     {id:'pork-chop',g:'proteins-and-eggs',p:26,w:0,l:'Pork Chop',n:'Pork chop \u00b7 4oz',est:true},
     {id:'shrimp',g:'proteins-and-eggs',p:20,w:0,l:'Shrimp',n:'Shrimp \u00b7 3oz \u00b7 ~7 large',est:true},
-    {id:'turkey-breast',g:'proteins-and-eggs',p:24,w:0,l:'Turkey Breast',n:'Turkey breast \u00b7 3oz',est:true},
+    {id:'turkey-breast',g:'proteins-and-eggs',p:24,w:0,l:'Turkey Breast',n:'Turkey breast \u00b7 3oz',est:true,portion:PORTIONS.turkey,ym:1},
+    /* ===== A.26.11.26.1 (Adam 2026-11-26 batch) -- catalog gap fill + natural-unit portions + McDonalds nuggets =====
+       Every p is a ROUNDED-DOWN common reference value (est:true), same rule as the rest of the catalog. \u00a74.3: NO gram
+       numeral in any n/l below -- grams live only in p (rendered into the youth-hidden .qa-igram / .qa-amt span).
+       Images: FOOD_IMAGES[id] (numeral-free renders, eyeballed -- see HANDOFF). */
+    {id:'turkey-dark',g:'proteins-and-eggs',p:21,w:0,l:'Turkey Dark Meat',n:'Turkey dark meat \u00b7 3oz',est:true,portion:PORTIONS.turkey,ym:1},
+    {id:'chicken-thigh',g:'proteins-and-eggs',p:13,w:0,l:'Chicken Thigh',n:'Chicken thigh \u00b7 1 thigh',est:true,portion:PORTIONS.chicken,ym:1},
+    {id:'chicken-drumsticks',g:'proteins-and-eggs',p:22,w:0,l:'Chicken Drumsticks',n:'Chicken drumsticks \u00b7 2',est:true,portion:PORTIONS.chicken,ym:1},
+    {id:'chicken-wings',g:'proteins-and-eggs',p:30,w:0,l:'Chicken Wings',n:'Chicken wings \u00b7 6',est:true,portion:PORTIONS.chicken,ym:1},
+    {id:'rotisserie-chicken',g:'proteins-and-eggs',p:30,w:0,l:'Rotisserie Chicken',n:'Rotisserie chicken \u00b7 \u00bc bird',est:true},
+    {id:'ground-turkey-4oz',g:'proteins-and-eggs',p:24,w:0,l:'Ground Turkey 4oz',n:'Ground turkey \u00b7 4oz',est:true},
+    {id:'white-fish-4oz',g:'proteins-and-eggs',p:22,w:0,l:'White Fish 4oz',n:'Cod / tilapia \u00b7 4oz',est:true},
+    {id:'egg-whites',g:'proteins-and-eggs',p:13,w:0,l:'Egg Whites',n:'Egg whites \u00b7 \u00bd cup',est:true,portion:PORTIONS.egg,ym:1},
+    {id:'breakfast-sausage',g:'proteins-and-eggs',p:7,w:0,l:'Breakfast Sausage',n:'Breakfast sausage \u00b7 2 links',est:true},
+    {id:'ham-steak',g:'proteins-and-eggs',p:20,w:0,l:'Ham Steak',n:'Ham steak \u00b7 4oz',est:true},
+    {id:'beans-half-cup',g:'proteins-and-eggs',p:7,w:0,l:'Beans',n:'Black / pinto beans \u00b7 \u00bd cup',est:true},
+    {id:'peanut-butter-2tbsp',g:'dairy-and-snacks',p:7,w:0,l:'Peanut Butter',n:'Peanut butter \u00b7 2 tbsp',est:true},
+    {id:'hot-dog',g:'sides-and-fast-food',p:9,w:0,l:'Hot Dog',n:'Hot dog + bun \u00b7 1',est:true},
+    {id:'cheese-pizza-slice',g:'sides-and-fast-food',p:10,w:0,l:'Cheese Pizza',n:'Cheese pizza \u00b7 1 large slice',est:true},
+    /* 1.2 McDonalds Chicken McNuggets, US counts. ONE tile + the existing sized-tile machinery (sticky size, \u22ef "Log a size").
+       p = McDonalds US published protein, floored (4pc 9 / 6pc 14 / 10pc 23 / 20pc 46). 40pc is NOT published in the sources
+       checked: it is 2x the 20pc row and flagged est. m = full per-count macros (kcal / carb g / fat g) -- shown ONLY in the adult
+       \u22ef menu as an info line; FUEL tracks protein + water, nothing else is written. Youth: tile name + count only. */
+    {id:'chicken-mcnuggets',g:'sides-and-fast-food',p:14,w:0,l:'Chicken McNuggets',n:'Chicken McNuggets \u00b7 6 pc',defSize:1,ym:1,sizesNote:'McDonalds US',est:true,
+      sizes:[{l:'4 pc',p:9,m:{k:170,c:10,f:10}},{l:'6 pc',p:14,m:{k:250,c:15,f:15}},{l:'10 pc',p:23,m:{k:410,c:26,f:24}},{l:'20 pc',p:46,m:{k:830,c:51,f:49}},{l:'40 pc',p:92,m:{k:1660,c:102,f:98},est:1}]},
+    {id:'fast-chicken-sandwich',g:'sandwiches-and-wraps',p:24,w:0,l:'Chicken Sandwich',n:'Chicken sandwich \u00b7 fast food',est:true},
+    {id:'egg-cheese-sandwich',g:'sandwiches-and-wraps',p:17,w:0,l:'Egg and Cheese Sandwich',n:'Egg + cheese breakfast sandwich',est:true},
+    {id:'breakfast-burrito',g:'sandwiches-and-wraps',p:16,w:0,l:'Breakfast Burrito',n:'Breakfast burrito \u00b7 1',est:true},
+    {id:'chicken-quesadilla',g:'sandwiches-and-wraps',p:30,w:0,l:'Chicken Quesadilla',n:'Chicken quesadilla \u00b7 1',est:true},
+    {id:'burrito-full',g:'sandwiches-and-wraps',p:30,w:0,l:'Burrito',n:'Burrito \u00b7 chicken or beef',est:true},
+    {id:'mac-and-cheese',g:'meals-and-combos',p:10,w:0,l:'Mac and Cheese',n:'Mac and cheese \u00b7 1 cup',est:true},
+    {id:'chicken-rice-plate',g:'meals-and-combos',p:36,w:0,l:'Chicken + Rice',n:'Chicken + rice \u00b7 plate',est:true},
     {id:'protein-bar',g:'dairy-and-snacks',p:20,w:0,l:'Protein Bar',n:'Protein bar \u00b7 1 bar',est:true},
     /* Meal combos + carb-staple combos (est macros; staple shot = meal poster) */
     {id:'steak-rice-veggies',g:'meals-and-combos',p:48,w:0,l:'Steak + Rice + Veg',n:'Steak \u00b7 rice \u00b7 veg',est:true},
@@ -4949,6 +5025,9 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
   }
   function saveCustomItems(a){ storeSet('fuel-items-custom', JSON.stringify(a||[])); }
   window.fuelAllItems = function(){ return FUEL_ITEMS.concat(loadCustomItems()); };
+  window.__FUEL_ITEMS = FUEL_ITEMS;   // test hook (portion/youth sweeps)
+  /* test hook ONLY: the gate flips the gram-free youth piece menu in-test to exercise + sweep it while the shipped flag is OFF */
+  window.__setYouthPieceMenu = function(v){ YOUTH_PIECE_MENU = !!v; try{ renderProteinQuickAdds(); }catch(e){} };
   /* Favorites -> catalog item -> image. Favorites are LABEL-keyed (fuel-favorites / entry log store
      the label string; that contract never changes) while FOOD_IMAGES is keyed by item.id. This is a
      read-only LOOKUP over the existing catalogs by (label, then amount) — no store/key is touched.
@@ -5202,7 +5281,8 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
           nm.appendChild(document.createTextNode(it.n));
           b.appendChild(amt); b.appendChild(nm);
         }
-        var dot=document.createElement('span'); dot.className='qa-menu-dot'; dot.textContent='⋯';
+        /* 1.1/1.2: .ym keeps the dot visible for youth ONLY when YOUTH_PIECE_MENU is on AND the item opted in (gram-free menu). */
+        var dot=document.createElement('span'); dot.className='qa-menu-dot'+((YOUTH_PIECE_MENU && it.ym)?' ym':''); dot.textContent='⋯';
         dot.addEventListener('click', function(ev){ ev.stopPropagation(); if(window._qaGridMenu) window._qaGridMenu(b,'protein',it.l,+it.p||0,0,+it.w||0,it); });
         b.appendChild(dot);
         b.addEventListener('click', function(){
@@ -6258,6 +6338,14 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
     if (!label) return null;
     const pool = FUEL_ITEMS.concat(FUEL_W_ITEMS);
     for (let i = 0; i < pool.length; i++) if (pool[i].l === label) return pool[i];
+    /* 1.1/1.2: size / count / portion composites the menus write ("Chicken McNuggets · 10 pc", "Chicken Fingers ×3",
+       "Turkey · 3 breast + 2 dark") resolve to their built-in item, so a youth-visible tile's composite log row shows and
+       Undo works instead of falling to the keyword list (which would hide e.g. a "...drumstick..." row: 'stick'). */
+    for (let i = 0; i < pool.length; i++) {
+      const it = pool[i];
+      if (it.l && (label.indexOf(it.l + ' · ') === 0 || label.indexOf(it.l + ' ×') === 0)) return it;
+      if (it.portion && it.portion.lbl && label.indexOf(it.portion.lbl + ' · ') === 0) return it;
+    }
     return null;
   }
   function _favIsYouthSafe(item) {
@@ -8987,45 +9075,94 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
 
     function gridMenu(btn, type, label, amount, elec, pairedOz, it){
       closeMenu();
+      /* §4.3 (1.1/1.2): a YOUTH protein menu is fail-CLOSED -- it opens only when YOUTH_PIECE_MENU is on AND the item opted in
+         (it.ym), and then renders piece/size labels + oz only: no header +Xg, no per-row grams, no macro line, no Pin/Copy rows. */
+      var _yth = (type!=='water') && document.body.classList.contains('fuel-youth');
+      if(_yth && !(YOUTH_PIECE_MENU && it && it.ym)) return;
       var r=btn.getBoundingClientRect();
-      menu=document.createElement('div'); menu.className='fav-ctx';
-      menu.style.cssText='position:fixed;z-index:9999;background:#161b22;border:1px solid #30363d;border-radius:11px;padding:5px;box-shadow:0 8px 28px #000c;display:flex;flex-direction:column;min-width:160px';
+      menu=document.createElement('div'); menu.className='fav-ctx'+(_yth?' fav-ctx-youth':'');
+      menu.style.cssText='position:fixed;z-index:9999;background:#161b22;border:1px solid #30363d;border-radius:11px;padding:5px;box-shadow:0 8px 28px #000c;display:flex;flex-direction:column;min-width:160px;max-height:'+(window.innerHeight-16)+'px;overflow-y:auto';
       menu.style.left=Math.max(8,Math.min(r.left,window.innerWidth-176))+'px';
       menu.style.top=Math.min(r.bottom+4,window.innerHeight-210)+'px';
       var unit=type==='water'?'oz':'g';
       var hd=document.createElement('div');
-      hd.textContent=(label||'item')+' · +'+amount+unit;
+      hd.textContent=_yth ? (label||'item') : ((label||'item')+' · +'+amount+unit);
       hd.style.cssText='font-size:10px;color:#8b949e;padding:6px 12px;border-bottom:1px solid #21262d;margin-bottom:3px;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px';
       menu.appendChild(hd);
-      function mi(txt,fn){ var b=document.createElement('button'); b.textContent=txt; b.style.cssText='background:none;border:none;color:#e6edf3;text-align:left;padding:10px 12px;font-size:13px;font-family:inherit;cursor:pointer;border-radius:7px'; b.addEventListener('click',function(ev){ ev.stopPropagation(); closeMenu(); fn(); }); menu.appendChild(b); }
+      function mi(txt,fn){ var b=document.createElement('button'); b.textContent=txt; b.style.cssText='background:none;border:none;color:#e6edf3;text-align:left;padding:10px 12px;font-size:13px;font-family:inherit;cursor:pointer;border-radius:7px'; b.addEventListener('click',function(ev){ ev.stopPropagation(); closeMenu(); fn(); }); menu.appendChild(b); return b; }
       var pinned=false;
-      try{ pinned=typeof _favIsPinned==='function'&&_favIsPinned({type:type,amount:amount,label:label,e:elec||0,w:pairedOz||0}); }catch(e){}
-      mi(pinned?'☆ Unpin from ★':'★ Pin to Favorites', function(){ togglePinFromLog(type,amount,label,elec||0,pairedOz||0); });
-      var other=type==='water'?'protein':'water';
-      var otherLabel=type==='water'?'Protein ★':'Water ★';
-      mi('⎘ Copy to '+otherLabel, function(){
-        copyFavTo({amount:amount,label:label,e:elec||0,w:pairedOz||0}, other);
-      });
+      if(!_yth){
+        try{ pinned=typeof _favIsPinned==='function'&&_favIsPinned({type:type,amount:amount,label:label,e:elec||0,w:pairedOz||0}); }catch(e){}
+        mi(pinned?'☆ Unpin from ★':'★ Pin to Favorites', function(){ togglePinFromLog(type,amount,label,elec||0,pairedOz||0); });
+        var other=type==='water'?'protein':'water';
+        var otherLabel=type==='water'?'Protein ★':'Water ★';
+        mi('⎘ Copy to '+otherLabel, function(){
+          copyFavTo({amount:amount,label:label,e:elec||0,w:pairedOz||0}, other);
+        });
+      }
       /* 5.2 (REQ-052): size variants (fries) + count stepper (chicken-fingers).
          Extends this menu rather than adding a new control (Q-approved). it is
          passed only from the protein grid; water calls omit it -> no stepper UI.
          Log labels carry the size/count so history + favourites stay distinct. */
-      if(it && ((it.sizes && it.sizes.length) || it.stepper==='count')){
+      if(it && ((it.sizes && it.sizes.length) || it.stepper==='count' || it.portion)){
         var _sep=document.createElement('div'); _sep.style.cssText='border-top:1px solid #21262d;margin:4px 0 2px'; menu.appendChild(_sep);
       }
       if(it && it.sizes && it.sizes.length){
-        var _szl=document.createElement('div'); _szl.textContent='Log a size'; _szl.style.cssText='font-size:10px;color:#8b949e;padding:4px 12px 2px;font-family:monospace'; menu.appendChild(_szl);
+        var _szl=document.createElement('div'); _szl.textContent='Log a size'+((!_yth && it.sizesNote)?' · '+it.sizesNote:''); _szl.style.cssText='font-size:10px;color:#8b949e;padding:4px 12px 2px;font-family:monospace'; menu.appendChild(_szl);
         /* 5.3b: water sizes show oz + log water/elec; protein sizes show g + log protein.
            Picking a size LOGS it AND sets it sticky (fuel-size-<id>) so the tile re-renders
            to that size's accurate image + label + body-tap. Shared across all sized items. */
         it.sizes.forEach(function(sz,_ix){
-          var _mlab = (type==='water') ? (sz.l+' · +'+(+sz.w||0)+'oz') : (sz.l+' · +'+(+sz.p||0)+'g');
-          mi(_mlab, function(){
+          var _mlab = (type==='water') ? (sz.l+' · +'+(+sz.w||0)+'oz') : (_yth ? sz.l : (sz.l+' · +'+(+sz.p||0)+'g'));
+          var _mb = mi(_mlab, function(){
             if(type==='water') addItem({water:+sz.w||0, elec:+sz.e||0, label: it.l+' · '+sz.l});
             else addItem({protein:+sz.p||0, water:+it.w||0, label: it.l+' · '+sz.l});
             if(window._fuelSetSize) window._fuelSetSize(it.id,_ix);
           });
+          /* 1.2: per-count macro info line (kcal / carb / fat) -- ADULT menu only (§4.3: never in the youth menu). Display only; nothing extra is logged. */
+          if(!_yth && type!=='water' && sz.m){
+            var _ml=document.createElement('div'); _ml.className='qa-size-macros';
+            _ml.textContent=(+sz.m.k||0)+' cal · '+(+sz.m.c||0)+'g carb · '+(+sz.m.f||0)+'g fat'+(sz.est?' (est.)':'');
+            _ml.style.cssText='font-size:10px;color:#8b949e;font-family:monospace;margin-top:2px';
+            _mb.appendChild(_ml);
+          }
         });
+      }
+      /* 1.1 "Log by piece": one stepper row per unit so a MIXED plate (3 breast + 2 dark) is ONE undoable entry.
+         Adult line: pieces ~ oz ~ protein. Youth line (YOUTH_PIECE_MENU only): pieces ~ oz, NO protein. */
+      if(it && it.portion && type!=='water'){
+        var _PS=it.portion, _cnt=_PS.opts.map(function(){ return 0; }), _els=[];
+        var _ph=document.createElement('div'); _ph.textContent='Log by piece'; _ph.style.cssText='font-size:10px;color:#8b949e;padding:4px 12px 2px;font-family:monospace'; menu.appendChild(_ph);
+        var _sum=document.createElement('div'); _sum.className='qa-portion-sum'; _sum.style.cssText='font-size:12px;color:#e6edf3;font-family:monospace;padding:2px 12px 6px';
+        var _go=document.createElement('button'); _go.className='qa-portion-log';
+        function _pbtn(t){ var b=document.createElement('button'); b.textContent=t; b.style.cssText='width:30px;height:30px;border-radius:8px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font-size:16px;cursor:pointer;line-height:1;font-family:inherit'; return b; }
+        function _psync(){
+          var c=window._fuelPortionCalc(_PS,_cnt);
+          _sum.textContent = c.pcs ? (c.pcs+' pc ≈ '+c.oz+' oz'+(_PS.cooked?' cooked':'')+(_yth?'':' · +'+c.p+'g protein')) : 'Pick how many';
+          _go.disabled=!c.pcs; _go.style.opacity=c.pcs?'1':'.45';
+          _els.forEach(function(el,i){ if(el) el.textContent='×'+_cnt[i]; });
+        }
+        _PS.opts.forEach(function(o,i){
+          var wrap=document.createElement('div'); wrap.style.cssText='padding:4px 12px';
+          var row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:8px';
+          var nm=document.createElement('span'); nm.textContent=o.l; nm.style.cssText='flex:1;font-size:13px;color:#e6edf3';
+          var mn=_pbtn('−'), pl=_pbtn('+');
+          var ct=document.createElement('span'); ct.style.cssText='min-width:30px;text-align:center;font-family:monospace;font-size:13px;color:#e6edf3'; _els[i]=ct;
+          mn.addEventListener('click',function(ev){ ev.stopPropagation(); if(_cnt[i]>0){ _cnt[i]--; _psync(); } });
+          pl.addEventListener('click',function(ev){ ev.stopPropagation(); if(_cnt[i]<(_PS.max||30)){ _cnt[i]++; _psync(); } });
+          row.appendChild(nm); row.appendChild(mn); row.appendChild(ct); row.appendChild(pl); wrap.appendChild(row);
+          var nt=document.createElement('div'); nt.className='qa-portion-note'; nt.style.cssText='font-size:10px;color:#8b949e;font-family:monospace;margin-top:2px';
+          nt.textContent='1 '+o.u+' ≈ '+o.oz+' oz'+(_PS.cooked?' cooked':'')+(_yth?'':' · +'+o.p+'g'+(o.note?' · '+o.note:''));   /* §4.3: the note talks macros ("more fat, same protein") -> ADULT only; youth gets "1 slice ≈ 1 oz cooked" and nothing else */
+          wrap.appendChild(nt); menu.appendChild(wrap);
+        });
+        menu.appendChild(_sum);
+        _go.textContent='✓ Log this'; _go.style.cssText='background:#238636;border:none;color:#fff;text-align:center;padding:10px 12px;font-size:13px;font-family:inherit;cursor:pointer;border-radius:7px;margin:0 6px 4px';
+        _go.addEventListener('click',function(ev){
+          ev.stopPropagation();
+          var c=window._fuelPortionCalc(_PS,_cnt); if(!c.pcs) return;
+          closeMenu(); addItem({protein:c.p, water:+it.w||0, label:c.label});
+        });
+        menu.appendChild(_go); _psync();
       }
       if(it && it.stepper==='count'){
         var _per=+it.perUnitP||+it.p||0;
@@ -9043,6 +9180,12 @@ window.__yvAllowed=function(changeId){ try{ return typeof window.youthVisAllowed
         mi('✓ Log this count', function(){ addItem({protein:_per*_n, water:+it.w||0, label: it.l+' ×'+_n}); });
       }
       document.body.appendChild(menu);
+      /* re-clamp to the viewport now that the real size is known (portion menus are taller/wider than the 210px guess) */
+      try{
+        var _mw=menu.offsetWidth, _mh=menu.offsetHeight;
+        menu.style.left=Math.max(8,Math.min(r.left,window.innerWidth-_mw-8))+'px';
+        menu.style.top=Math.max(8,Math.min(r.bottom+4,window.innerHeight-_mh-8))+'px';
+      }catch(e){}
     }
     window._qaGridMenu = gridMenu;
   })();
