@@ -72,21 +72,6 @@ BATTERY.register('arm.step-body', { section: "warmup", bodies: [
       ]
     },
     {
-      id: "fs2", title: "08 · Couch Stretch", target: "Hip Flexors · Quads", reps: "2 min each leg", optional: true, youth: "safe",
-      detail: [
-        { t: "p", h: "Kneel with the back foot up against a wall, couch back, or bench (top of foot on the surface). Front leg in 90° lunge. Drive hips forward, torso upright. 2-minute hold." },
-        { t: "p", style: "margin-top:6px", h: "Active version: flex into the stretch for 10–15 reps. Watch film while doing it — it's that long." },
-        { t: "em", h: "For pitchers: focus on the lead leg's hip flexor. Most-tight muscle in throwers and hitters." }
-      ]
-    },
-    {
-      id: "fs3", title: "09 · 90/90 Hip Stretch", target: "Hip Internal/External Rotation", reps: "30s each side", optional: true, youth: "safe",
-      detail: [
-        { t: "p", h: "Sit on the floor. Front leg bent at 90° in front (external rotation). Back leg bent at 90° behind (internal rotation). Keep spine tall. Lean forward over the front leg to feel a stretch in the hip." },
-        { t: "em", h: "Hip rotation translates directly to bat speed and throwing power" }
-      ]
-    },
-    {
       id: "fs4", title: "10 · Shoulder Cross-Body Stretch", target: "Posterior Shoulder Capsule", reps: "30s each arm", optional: true, youth: "safe",
       detail: [
         { t: "p", h: "Pull one arm across the chest, opposite hand holding above the elbow. Pull gently. Hold 30 seconds. Then move the same arm overhead, palm down, gently bend at the elbow." },
@@ -98,13 +83,6 @@ BATTERY.register('arm.step-body', { section: "warmup", bodies: [
       detail: [
         { t: "p", h: "Extend one arm forward, palm up. Use the opposite hand to gently pull back on the fingers. Then flip — palm down, pull fingers down. Hold 30 seconds each position." },
         { t: "em", h: "Reduces risk of elbow injury and bicep tendonitis — both common in adult throwers" }
-      ]
-    },
-    {
-      id: "fs6", title: "12 · Calf / Ankle Dorsiflexion", target: "Ankle Mobility · Achilles", reps: "30s each leg", optional: true, youth: "safe",
-      detail: [
-        { t: "p", h: "Step forward into a small lunge with back leg straight, heel pressed to ground. Hold. Then bend back knee slightly to shift to soleus." },
-        { t: "em", h: "Catchers especially — squat depth requires ankle dorsiflexion. Often missing in adult athletes." }
       ]
     },
     {
@@ -469,6 +447,17 @@ BATTERY.register('arm.step-body', { section: "plyo", bodies: [
       ]
     }
 ] });
+BATTERY.register('arm.step-body', { section: "long", bodies: [
+    {
+      id: "cp-everyday", title: "Catch Play · Easy Everyday Catch", target: "Light Throwing Volume · Fielding Reps · Fun", reps: "30–60 min, easy effort", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Just play catch — the regular kind. Easy effort at a comfortable distance, no ladder and no max-effort throws. Mix in pop flies and ground balls so the legs and glove get as much work as the arm." },
+        { t: "p", h: "<b>Load: light to moderate, everyday.</b> This is not long toss and not an arm-stress session. The moment you start thinking \"hard throw\" or stretching the distance out, switch to The Ladder above — that is a different day." },
+        { t: "em", h: "A bonus throwing option, not a replacement for warm-up and arm care: do Warm Up, Shoulder Tube and J-Bands first, then play catch. Great with a kid, a teammate or a parent — and it still counts toward your throws for the week." },
+        { t: "kid", cls: "kid-cue", h: "💬 Kid cue: this is the fun part — play catch, scoop a few grounders, track a few pop flies, and quit the second your arm feels tired or hurts." }
+      ]
+    }
+] });
 BATTERY.register('arm.step-body', { section: "gameday", bodies: [
     {
       id: "gd-measure", title: "01 · Daily Measurements", target: "Sleep · HRV · strength baseline", reps: "~2 min", attrs: {"clip":"clips/bauer-gd-measure.mp4"}, youth: "adult",
@@ -554,6 +543,34 @@ BATTERY.register('arm.step-body', { section: "gameday", bodies: [
     }
 ] });
 BATTERY.register('arm.step-body', { section: "fieldwork", bodies: [
+    {
+      id: "pf1", title: "F1 · Lateral Shuffle + Crossover Run", target: "Hips · Groin · Lateral Quickness", reps: "10 yards each way, 2 rounds", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Low athletic stance. Shuffle sideways 10 yards without crossing the feet, then turn and run 10 yards with the crossover step, then reverse. Stay low and keep the chest up." },
+        { t: "em", h: "Gets the hips and legs ready for the range you cover in the infield. Pairs with: infield drills · pregame infield." }
+      ]
+    },
+    {
+      id: "pf2", title: "F2 · Spiderman Lunge with Reach", target: "Hips · Groin · T-Spine", reps: "6 each side", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Step into a long lunge and bring both hands inside the front foot. Drop the back knee toward the ground if you can, and reach the inside arm up and over. Step through to the other side." },
+        { t: "em", h: "Opens the hips and groin for low positions and wide steps. Pairs with: infield drills · ground-ball work." }
+      ]
+    },
+    {
+      id: "pf3", title: "F3 · Ankle Rocks (Dynamic)", target: "Ankles · Calves", reps: "10 each leg", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Half-kneeling or in a standing lunge with the front foot flat. Rock the knee forward over the toes with the heel staying down, then back. Smooth reps, no bouncing." },
+        { t: "em", h: "Ankle range is what lets you get low and stay balanced on a short hop. Pairs with: infield drills · catcher work." }
+      ]
+    },
+    {
+      id: "pf4", title: "F4 · Ready-Position Quick Feet", target: "Calves · Quads · Reaction", reps: "3 × 10 sec", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "In the ready position, knees bent and glove out, chop your feet as fast as you can for 10 seconds, then break into two quick shuffles each way on your partner’s point. Rest and repeat." },
+        { t: "em", h: "Wakes up the quick first step. Pairs with: infield drills · pregame infield." }
+      ]
+    },
     {
       id: "fw-sprint-90", title: "90-Foot Sprints", target: "Acceleration · Home-to-First", reps: "4-6 × 90ft", youth: "safe",
       detail: [
@@ -1668,6 +1685,147 @@ BATTERY.register('arm.step-body', { section: "extras", bodies: [
       detail: [
         { t: "p", h: "Standard catch-play, but every throw is preceded by a defined footwork sequence (drop step, crossover, shuffle). LMB pitcher conditioning integrates fielding-style movement into throwing prep." },
         { t: "em", h: "Bridges arm care into actual baseball movement — bonus for non-pitchers since it's literally what you do in a game" }
+      ]
+    },
+    {
+      id: "fs2", title: "08 · Couch Stretch", target: "Hip Flexors · Quads", reps: "2 min each leg", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Kneel with the back foot up against a wall, couch back, or bench (top of foot on the surface). Front leg in 90° lunge. Drive hips forward, torso upright. 2-minute hold." },
+        { t: "p", style: "margin-top:6px", h: "Active version: flex into the stretch for 10–15 reps. Watch film while doing it — it's that long." },
+        { t: "em", h: "For pitchers: focus on the lead leg's hip flexor. Most-tight muscle in throwers and hitters." }
+      ]
+    },
+    {
+      id: "fs3", title: "09 · 90/90 Hip Stretch", target: "Hip Internal/External Rotation", reps: "30s each side", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Sit on the floor. Front leg bent at 90° in front (external rotation). Back leg bent at 90° behind (internal rotation). Keep spine tall. Lean forward over the front leg to feel a stretch in the hip." },
+        { t: "em", h: "Hip rotation translates directly to bat speed and throwing power" }
+      ]
+    },
+    {
+      id: "fs6", title: "12 · Calf / Ankle Dorsiflexion", target: "Ankle Mobility · Achilles", reps: "30s each leg", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Step forward into a small lunge with back leg straight, heel pressed to ground. Hold. Then bend back knee slightly to shift to soleus." },
+        { t: "em", h: "Catchers especially — squat depth requires ankle dorsiflexion. Often missing in adult athletes." }
+      ]
+    },
+    {
+      id: "nm1", title: "N1 · Standing Toe Touch", target: "Hamstrings · Low Back · Calves", reps: "2 × 30 sec", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Stand tall, feet hip-width. Soften the knees, hinge at the hips and let your arms hang toward your toes — reach as far as is comfortable, no bouncing. Breathe out and relax the neck. Hold 30 seconds, come up slowly, repeat." },
+        { t: "em", h: "The easy entry to the nightly routine. Pairs with: nightly · after lifting · after practice." }
+      ]
+    },
+    {
+      id: "nm2", title: "N2 · Seated Toe Touch", target: "Hamstrings · Low Back", reps: "2 × 30 sec", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Sit with both legs straight out in front, toes up. Sit tall, then fold from the hips and reach for your toes (or shins — wherever you can get without rounding hard). Hold 30 seconds and let it soften with each breath." },
+        { t: "em", h: "Sitting takes the balance out of it, so the hamstrings and low back get the whole stretch. Pairs with: nightly · after lifting." }
+      ]
+    },
+    {
+      id: "nm3", title: "N3 · Figure-4 Toe Touch", target: "Glutes · Outer Hip (Piriformis) · Hamstring", reps: "30 sec each side", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Sit with one leg straight. Fold the other leg into a figure-4: ankle across the straight leg’s thigh, knee out to the side. Sit tall, then reach toward the toes of the straight leg. Hold 30 seconds, switch sides." },
+        { t: "em", h: "The outer hip is where most throwers and hitters lock up. Pairs with: nightly · after practice." }
+      ]
+    },
+    {
+      id: "nm4", title: "N4 · Figure-4 → Straight Leg Back (Hip)", target: "Hip Flexor · Glute · Front of Hip", reps: "30 sec each position, each side", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Start in the figure-4 seat. Keep the folded leg in front and slide the other leg back behind you until it is long. Hold it <b>angled</b> out to the side at about 45° for 30 seconds, then swing it so it is <b>straight</b> back behind you for 30 seconds. Stay tall over the front leg. Switch sides." },
+        { t: "em", h: "Two angles, two different slices of the hip. Pairs with: nightly." }
+      ]
+    },
+    {
+      id: "nm5", title: "N5 · Quad Stretch", target: "Quads · Hip Flexors", reps: "30 sec each leg", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Stand (one hand on a wall for balance) or lie on your side. Pull one heel toward your glute with the knees together and the hips tucked slightly so the low back stays flat. Hold 30 seconds, switch legs." },
+        { t: "em", h: "Tight quads pull on the knee and tilt the pelvis. Pairs with: nightly · after lifting legs · after practice." }
+      ]
+    },
+    {
+      id: "nm6", title: "N6 · Step-Over (Hips · Back · SI)", target: "Hips · Low Back · Sacroiliac (SI) Joint", reps: "30 sec each side", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "The same seat as the figure-4 work, but this time <b>step over</b>: sit with one leg straight, cross the other foot over and plant it flat outside the straight knee. Hug that bent knee with the opposite arm and rotate your torso toward the planted leg, sitting tall. Hold 30 seconds, switch sides." },
+        { t: "em", h: "A gentle rotation that reaches the hip, low back and SI joint in one move. Go slowly — no jerking. Pairs with: nightly · after lifting." }
+      ]
+    },
+    {
+      id: "nm7", title: "N7 · Calf Stretch — Straight Knee", target: "Gastrocnemius · Achilles", reps: "30 sec each leg", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Hands on a wall, one foot back with the heel down and the knee straight. Lean your hips toward the wall until you feel it high in the calf. Hold 30 seconds, switch legs." },
+        { t: "em", h: "New to the nightly routine — calves and ankles feed the knees and hips. Pairs with: nightly · after practice." }
+      ]
+    },
+    {
+      id: "nm8", title: "N8 · Calf Stretch — Bent Knee", target: "Soleus · Achilles · Ankle", reps: "30 sec each leg", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Same wall position, but now bend the back knee slightly and sink the hips down with the heel still flat. The stretch moves lower, toward the Achilles. Hold 30 seconds, switch legs." },
+        { t: "em", h: "The bent-knee version reaches the deeper calf muscle (soleus) that the straight-knee stretch misses. Pairs with: nightly." }
+      ]
+    },
+    {
+      id: "nm9", title: "N9 · Pec Stretch", target: "Pecs · Front of Shoulder", reps: "30 sec each side", optional: true, youth: "safe",
+      detail: [
+        { t: "p", h: "Forearm flat on a door frame or wall, elbow about shoulder height. Step through and turn away until you feel the stretch across the chest. Hold 30 seconds, switch sides." },
+        { t: "em", h: "Last on the list — opens the chest after a day of desk, throwing and lifting. The longer version (both elbow heights) is the Doorway Pec Stretch on Warm Up. Pairs with: nightly · after lifting." }
+      ]
+    },
+    {
+      id: "pc1", title: "C1 · Arm Swings (Hug & Open)", target: "Chest · Front Shoulder · Upper Back", reps: "2 × 10 swings", optional: true, youth: "adult",
+      detail: [
+        { t: "p", h: "Stand tall, arms out wide at shoulder height. Swing both arms across the body in a big hug (alternate which arm is on top), then open wide again, letting the chest stretch at the end of each swing. Smooth and loose — not a violent fling." },
+        { t: "em", h: "Wakes up the pecs and the muscles that pull the shoulder blades back. Pairs with: chest day · push work · bench." }
+      ]
+    },
+    {
+      id: "pc2", title: "C2 · Scap Push-Up", target: "Serratus · Shoulder Blades · Chest", reps: "2 × 10", optional: true, youth: "adult",
+      detail: [
+        { t: "p", h: "Start in a push-up position with straight arms. Without bending the elbows, let your chest sink between your shoulder blades, then push the floor away and round the upper back. Slow, full range." },
+        { t: "em", h: "Warms up the stabilizers every press depends on. Pairs with: chest day · any push work." }
+      ]
+    },
+    {
+      id: "pc3", title: "C3 · Wall Pec Opener (Reach-Back)", target: "Pecs · Front Shoulder · T-Spine", reps: "8 each side", optional: true, youth: "adult",
+      detail: [
+        { t: "p", h: "Stand sideways beside a wall, near hand on the wall at shoulder height. Rotate your chest away from the wall and reach the far arm behind you, then rotate back in. Pause one second at the end of each rep — a dynamic opener, not a long hold." },
+        { t: "em", h: "Opens the chest through movement so it is ready to press. Pairs with: chest day · before bench." }
+      ]
+    },
+    {
+      id: "pc4", title: "C4 · Band Pull-Apart", target: "Rear Delts · Mid-Back", reps: "2 × 15", optional: true, youth: "adult",
+      detail: [
+        { t: "p", h: "Hold a light band at chest height, arms straight. Pull the band apart by squeezing your shoulder blades together, then return slowly. Keep the band light — the goal is blood flow, not a workout." },
+        { t: "em", h: "Balances the push work and sets the shoulder blades. Pairs with: chest day · push work." }
+      ]
+    },
+    {
+      id: "pl1", title: "L1 · Squat-to-Stand", target: "Hamstrings · Hips · Ankles", reps: "2 × 8", optional: true, youth: "adult",
+      detail: [
+        { t: "p", h: "Feet shoulder-width. Hinge and grab your toes, then drop your hips into a deep squat while keeping the toes in hand and the chest up. Stand by straightening the legs and repeat." },
+        { t: "em", h: "Preps the hinge and the squat in one movement. Pairs with: leg day · squats and deadlifts." }
+      ]
+    },
+    {
+      id: "pl2", title: "L2 · Inchworm with Reach", target: "Hamstrings · Core · Shoulders", reps: "6 reps", optional: true, youth: "adult",
+      detail: [
+        { t: "p", h: "From standing, fold forward and walk your hands out to a long plank. Reach one arm to the ceiling, then the other, walk the hands back to the feet and stand up." },
+        { t: "em", h: "A total-body warm-up for any lift day. Pairs with: any lifting day." }
+      ]
+    },
+    {
+      id: "pl3", title: "L3 · World’s Greatest Stretch", target: "Hips · Hamstrings · T-Spine", reps: "5 each side", optional: true, youth: "adult",
+      detail: [
+        { t: "p", h: "Step into a deep lunge with both hands inside the front foot. Rotate the inside arm up toward the ceiling and follow it with your eyes, then bring the hand back down and switch legs." },
+        { t: "em", h: "Hits the hips, hamstrings and upper back in one move. Pairs with: leg day · lifting day · practice." }
+      ]
+    },
+    {
+      id: "pl4", title: "L4 · Glute Bridge March", target: "Glutes · Hamstrings · Core", reps: "2 × 10", optional: true, youth: "adult",
+      detail: [
+        { t: "p", h: "On your back, knees bent, feet flat. Lift the hips into a bridge and keep them level as you march one knee toward the chest, then the other." },
+        { t: "em", h: "Wakes up the glutes so the hips do the work in squats and hinges. Pairs with: leg day · deadlifts · hip-hinge work." }
       ]
     }
 ] });

@@ -9,11 +9,7 @@
 BATTERY.register('arm.layout', { section: "warmup", regions: [
   { id: "warmup#5", blocks: [
     { el: "ul", attrs: {"class":"steplist"}, blocks: [
-      { step: "fd1" },
       { step: "fd2" },
-      { step: "fd3" },
-      { step: "fd4" },
-      { step: "fd5" },
       { step: "fd6" },
       { step: "fd7" },
       { step: "fd8" }
@@ -21,16 +17,21 @@ BATTERY.register('arm.layout', { section: "warmup", regions: [
   ] },
   { id: "warmup#8", blocks: [
     { el: "ul", attrs: {"class":"steplist"}, blocks: [
+      { step: "fd1" },
+      { step: "fd3" },
+      { step: "fd4" },
+      { step: "fd5" }
+    ] }
+  ] },
+  { id: "warmup#11", blocks: [
+    { el: "ul", attrs: {"class":"steplist"}, blocks: [
       { step: "fs1" },
-      { step: "fs2" },
-      { step: "fs3" },
       { step: "fs4" },
       { step: "fs5" },
-      { step: "fs6" },
       { step: "fs7" }
     ] }
   ] },
-  { id: "warmup#12", blocks: [
+  { id: "warmup#15", blocks: [
     { el: "ul", attrs: {"class":"steplist"}, blocks: [
       { step: "fb1a" },
       { step: "fb1b" },
@@ -102,6 +103,18 @@ BATTERY.register('arm.layout', { section: "plyo", regions: [
     ] }
   ] }
 ] });
+BATTERY.register('arm.layout', { section: "long", regions: [
+  { id: "long#7", blocks: [
+    { el: "div", attrs: {"class":"subsection"}, blocks: [
+      { html: "<div class=\"subsection-tag\">CATCH PLAY · EVERYDAY OPTION</div>" },
+      { html: "<h3>Playing catch — not long toss</h3>" },
+      { html: "<p>The regular kind of catch: an easy, fun session with a partner (a kid, a teammate, a parent) — about 30–60 minutes, with pop flies and grounders mixed in. It is light-to-moderate throwing volume and it is <b>not</b> the ladder above: no distance goals, no pull-downs, no max-effort throws. Check it off when you have played.</p>" },
+      { el: "ul", attrs: {"class":"steplist"}, blocks: [
+        { step: "cp-everyday" }
+      ] }
+    ] }
+  ] }
+] });
 BATTERY.register('arm.layout', { section: "gameday", regions: [
   { id: "gameday#2", blocks: [
     { html: "<div id=\"gd-tabs\" style=\"display:flex;gap:8px;margin:0 0 16px\"> <button class=\"gd-tab-btn active\" data-gdtab=\"pitcher\" onclick=\"switchGdTab('pitcher')\" style=\"flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--line);background:var(--gold);color:var(--bg);font-weight:700;font-size:13px;cursor:pointer\">⚾ Pitcher</button> <button class=\"gd-tab-btn\" data-gdtab=\"catcher\" onclick=\"switchGdTab('catcher')\" style=\"flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--dim);font-weight:700;font-size:13px;cursor:pointer\">🧤 Catcher</button> </div>", mech: "heavy" },
@@ -127,40 +140,53 @@ BATTERY.register('arm.layout', { section: "gameday", regions: [
   ] }
 ] });
 BATTERY.register('arm.layout', { section: "fieldwork", regions: [
-  { id: "fieldwork#4", blocks: [
+  { id: "fieldwork#3", blocks: [
+    { el: "div", attrs: {"class":"subsection"}, blocks: [
+      { html: "<div class=\"subsection-tag\">IF PREP SET · BEFORE INFIELD WORK</div>" },
+      { html: "<h3 id=\"prep-if\">Warm up for the infield</h3>" },
+      { html: "<p style=\"font-size:12px;color:var(--dim);margin:4px 0 10px\">A focused dynamic set for infield drills and pregame infield — legs, hips and ankles, nothing held. Do it after the arm prep (Warm Up 1a) and before the drills.</p>" },
+      { el: "ul", attrs: {"class":"steplist"}, blocks: [
+        { step: "pf1" },
+        { step: "pf2" },
+        { step: "pf3" },
+        { step: "pf4" }
+      ] }
+    ] }
+  ] },
+  { id: "fieldwork#5", blocks: [
     { el: "ul", attrs: {"class":"steplist"}, blocks: [
       { step: "fw-sprint-90" },
       { step: "fw-first-step" },
       { step: "fw-tempo-jog" }
     ] }
   ] },
-  { id: "fieldwork#6", blocks: [
+  { id: "fieldwork#7", blocks: [
     { el: "ul", attrs: {"class":"steplist"}, blocks: [
       { step: "fw-popfly-if" },
       { step: "fw-popfly-of" }
     ] }
   ] },
-  { id: "fieldwork#8", blocks: [
+  { id: "fieldwork#9", blocks: [
     { el: "ul", attrs: {"class":"steplist"}, blocks: [
       { step: "fw-lateral-shuffle" },
       { step: "fw-dig-lr" },
       { step: "fw-backhand-dirt" }
     ] }
   ] },
-  { id: "fieldwork#10", blocks: [
+  { id: "fieldwork#11", blocks: [
     { el: "ul", attrs: {"class":"steplist"}, blocks: [
       { step: "fw-1b-stretch" },
       { step: "fw-1b-scoop" },
       { step: "fw-1b-angles" }
     ] }
   ] },
-  { id: "fieldwork#12", blocks: [
+  { id: "fieldwork#13", blocks: [
     { el: "ul", attrs: {"class":"steplist"}, blocks: [
       { step: "fw-box-jump" },
       { step: "fw-broad-jump" }
     ] }
   ] },
-  { id: "fieldwork#14", blocks: [
+  { id: "fieldwork#15", blocks: [
     { el: "ul", attrs: {"class":"steplist"}, blocks: [
       { step: "fw-posture-squat" },
       { step: "fw-highknees" }
@@ -395,10 +421,60 @@ BATTERY.register('arm.layout', { section: "extras", regions: [
       { html: "<div class=\"card\"> <div class=\"card-head\"> <div class=\"card-title\">Bauer's International Channels</div> <span class=\"badge gold\">Confirmed</span> </div> <p>Bauer documents his international training on:</p> <ul> <li><b>Trevor Bauer (YouTube)</b> — main channel, has Japan/Mexico content</li> <li><b>Momentum (@WatchMomentum)</b> — his production company</li> <li><b>BauerOutage TikTok</b> — short-form training clips</li> <li><b>X/Twitter (@BauerOutage)</b> — workout updates, daily content</li> </ul> <div class=\"cue\">Search his channels for \"Japan training\", \"Diablos Rojos workout\", \"Ducks training\" to find specific videos. Routine names vary by post.</div> </div>" },
       { html: "<div class=\"warn\"> <strong>Honest note:</strong> Bauer hasn't published a comprehensive international training PDF or named protocol. The exercises above represent documented training PATTERNS from his international era, not a verbatim \"Bauer NPB routine.\" Treat as well-informed inference, not verbatim instruction. </div>" }
     ] }
+  ] },
+  { id: "extras#4", blocks: [
+    { el: "div", attrs: {"class":"subsection"}, blocks: [
+      { html: "<div class=\"subsection-tag\">SECTION 02 · FLEXIBILITY</div>" },
+      { html: "<h3>Mobility by context</h3>" },
+      { html: "<p>Stretching is not one list. <b>Dynamic</b> (moving) comes before you throw, play or lift; <b>static</b> (held) comes after, and at night. The arm-specific prep and the arm statics stay on <b>Warm Up</b>. This page holds everything that is not arm-specific, filed by when you actually use it. Backed by meta-analysis showing static stretching pre-activity decreases power output 2–5%.</p>" },
+      { html: "<div class=\"card gold\"> <div class=\"card-head\"> <div class=\"card-title\">Pick the prep set for the work you are about to do</div> <span class=\"badge gold\">Context</span> </div> <ul> <li><b>Arm work, pre-game, bullpen</b> — Warm Up: arm &amp; shoulder prep (1a).</li> <li><b>Infield drills</b> — IF prep set, at the top of Field Work.</li> <li><b>Any session</b> — Warm Up: whole-body dynamic (1b) is the generic warm-up when no focused set fits.</li> <li><b>After practice or a game</b> — arm statics on Warm Up, lower-body statics below.</li> <li><b>Nightly</b> — the base-stretch routine below, pre-bed.</li> </ul> <div class=\"cue\">Dynamic sets before the work, held stretches after it. Each set is only the moves that matter for that block.</div> </div>" },
+      { html: "<p style=\"font-size:12px;color:var(--dim);margin:8px 0 0\"><b>Chest / push day</b> — Chest prep, below. <b>Lifting / leg day</b> — Lifting prep, below.</p>", mech: "youthHide" },
+      { html: "<h3 id=\"prep-chest\" style=\"margin-top:20px\">Chest prep — before chest / push work</h3>", mech: "youthHide" },
+      { html: "<p style=\"font-size:12px;color:var(--dim);margin:4px 0 10px\">Dynamic. Open the chest and set the shoulder blades before you press.</p>", mech: "youthHide" },
+      { el: "ul", attrs: {"class":"steplist"}, blocks: [
+        { step: "pc1" },
+        { step: "pc2" },
+        { step: "pc3" },
+        { step: "pc4" }
+      ] },
+      { html: "<h3 id=\"prep-lift\" style=\"margin-top:20px\">Lifting prep — before leg / lower-body lifting</h3>", mech: "youthHide" },
+      { html: "<p style=\"font-size:12px;color:var(--dim);margin:4px 0 10px\">Dynamic. Hinge, squat and hip positions — then ramp up with light sets of your first lift.</p>", mech: "youthHide" },
+      { el: "ul", attrs: {"class":"steplist"}, blocks: [
+        { step: "pl1" },
+        { step: "pl2" },
+        { step: "pl3" },
+        { step: "pl4" }
+      ] },
+      { html: "<h3 style=\"margin-top:20px\">After practice or a game — lower-body statics</h3>" },
+      { html: "<p style=\"font-size:12px;color:var(--dim);margin:4px 0 10px\">Hold each. Only once the work is done and you are still warm. (Arm and shoulder statics are on Warm Up.)</p>" },
+      { el: "ul", attrs: {"class":"steplist"}, blocks: [
+        { step: "fs2" },
+        { step: "fs3" },
+        { step: "fs6" }
+      ] },
+      { html: "<h3 style=\"margin-top:20px\">Nightly mobility — base stretches</h3>" },
+      { html: "<p style=\"font-size:12px;color:var(--dim);margin:4px 0 10px\">The pre-bed routine, in this order: toe touches, figure-4 work, quads, step-over, calves, pecs. Slow, relaxed holds — nothing here should hurt. It can follow a lift or practice, or stand alone on a rest day.</p>" },
+      { el: "ul", attrs: {"class":"steplist"}, blocks: [
+        { step: "nm1" },
+        { step: "nm2" },
+        { step: "nm3" },
+        { step: "nm4" },
+        { step: "nm5" },
+        { step: "nm6" },
+        { step: "nm7" },
+        { step: "nm8" },
+        { step: "nm9" }
+      ] },
+      { html: "<div class=\"pos-card\" data-pos=\"pitcher\"> <div class=\"pos-card-label\">★ PITCHER PRIORITY</div> <p>Don't skip the Sleeper Stretch (#07). It's the most-cited shoulder stretch for pitcher longevity. Also prioritize lead-leg Couch Stretch (#08).</p> </div>" },
+      { html: "<div class=\"pos-card\" data-pos=\"c\"> <div class=\"pos-card-label\">★ CATCHER PRIORITY</div> <p>Calf/dorsiflexion (#12), 90/90 hip (#09), couch stretch (#08). Catchers live in the squat — these are non-negotiable.</p> </div>" },
+      { html: "<div class=\"pos-card\" data-pos=\"3b\"> <div class=\"pos-card-label\">★ 3B PRIORITY</div> <p>Hip mobility (#09) and T-spine rotation (#06 dynamic) — both critical for charging slow rollers and the cross-diamond throw.</p> </div>" },
+      { html: "<div class=\"warn\"> <strong>Pre-activity vs post-activity:</strong> Don't do static stretches before throwing — they reduce explosive power 2–5% per meta-analysis. Save Sleeper Stretch and Couch Stretch for AFTER throwing, recovery sessions, or off-days. </div>" }
+    ] }
   ] }
 ] });
 BATTERY.register('arm.layout', { section: "lifting", regions: [
   { id: "lifting#2", blocks: [
+    { html: "<div class=\"card blue\" style=\"margin-top:8px\"> <div class=\"card-head\"> <div class=\"card-title\">Prep sets for this block</div> <span class=\"badge blue\">Warm-up</span> </div> <p style=\"font-size:12px;color:var(--dim);margin:6px 0 10px\">Focused dynamic prep for chest / push days and leg / lower-body days lives in Daily Extras → Flexibility.</p> <button class=\"clip-btn\" onclick=\"jumpPrep('prep-chest')\">Chest prep →</button> <button class=\"clip-btn\" onclick=\"jumpPrep('prep-lift')\">Lifting prep →</button> </div>", mech: "youthHide" },
     { html: "<p class=\"lede\">Strength work in service of the four goals: pitching first, general conditioning, first-base/position defense, and a hard focus on hitting. Everything here is <b>optional</b> — it counts as +bonus and never gates the daily arm-care ratio.</p>", mech: "youthHide" },
     { html: "<div class=\"split-bar\" id=\"split-bar\"> <div class=\"split-chip\" data-split=\"all\" onclick=\"setSplit('all')\">All</div> <div class=\"split-chip\" data-split=\"3day\" onclick=\"setSplit('3day')\">3-Day</div> <div class=\"split-chip\" data-split=\"2day\" onclick=\"setSplit('2day')\">2-Day</div> </div>", mech: "youthHide" },
     { html: "<div class=\"split-day\" id=\"split-day\"></div>", mech: "youthHide" },

@@ -11,31 +11,28 @@
    MIRROR: DOM authoritative until Stage 2; edit BOTH, gate enforces parity. arm.html's authored <li class="step"> markup (and its .plyo-heavy / .youth-hide wrappers, which also wrap non-step cards) is still the source of truth for ARM rendering; this registry is the parity-checked data copy FUEL reads. Any change to a step's id/name/order/flags/data-* must be made in arm.html AND here - step4-domdiff.mjs (booted DOM, both tiers) fails the gate on drift. Stage 2 (regenerate the step shells from this registry, ARM-side) retires the mirror.
    LOAD ORDER (Lane A, 2026-10-17): the register() payloads below are in BOOTED-document order (warmup > tube > jbands > plyo > gameday > fieldwork > washington > pitching > recovery > extras > lifting) - buildFlow() moves tube before jbands and fieldwork before washington - so a flat items('arm.steps') walk equals the old buildExNameMap() key order. Row data is untouched; this is the only difference from Lane D's source file. */
 BATTERY.register('arm.steps', { section: 'warmup', steps: [
-  { id: 'fd1', name: '01 · Leg Swings (Forward/Back + Side/Side)', order: 1, youth: 'safe' },
-  { id: 'fd2', name: '02 · Arm Circles', order: 2, youth: 'safe' },
-  { id: 'fd3', name: '03 · Walking Lunge with Twist', order: 3, youth: 'safe' },
-  { id: 'fd4', name: '04 · High Knees + Butt Kicks', order: 4, youth: 'safe' },
-  { id: 'fd5', name: '05 · Hip Circles (All-Fours)', order: 5, youth: 'safe' },
-  { id: 'fd6', name: '06 · Side-Lying T-Spine Rotation', order: 6, youth: 'safe', optional: true },
-  { id: 'fd7', name: '06b · Scapular CARS', order: 7, youth: 'safe' },
-  { id: 'fd8', name: '06c · Wall Slides', order: 8, youth: 'safe' },
+  { id: 'fd2', name: '02 · Arm Circles', order: 1, youth: 'safe' },
+  { id: 'fd6', name: '06 · Side-Lying T-Spine Rotation', order: 2, youth: 'safe', optional: true },
+  { id: 'fd7', name: '06b · Scapular CARS', order: 3, youth: 'safe' },
+  { id: 'fd8', name: '06c · Wall Slides', order: 4, youth: 'safe' },
+  { id: 'fd1', name: '01 · Leg Swings (Forward/Back + Side/Side)', order: 5, youth: 'safe' },
+  { id: 'fd3', name: '03 · Walking Lunge with Twist', order: 6, youth: 'safe' },
+  { id: 'fd4', name: '04 · High Knees + Butt Kicks', order: 7, youth: 'safe' },
+  { id: 'fd5', name: '05 · Hip Circles (All-Fours)', order: 8, youth: 'safe' },
   { id: 'fs1', name: '07 · Sleeper Stretch (★ PITCHER MVP)', order: 9, youth: 'safe' },
-  { id: 'fs2', name: '08 · Couch Stretch', order: 10, youth: 'safe', optional: true },
-  { id: 'fs3', name: '09 · 90/90 Hip Stretch', order: 11, youth: 'safe', optional: true },
-  { id: 'fs4', name: '10 · Shoulder Cross-Body Stretch', order: 12, youth: 'safe', optional: true },
-  { id: 'fs5', name: '11 · Wrist Flexor Stretch', order: 13, youth: 'safe', optional: true },
-  { id: 'fs6', name: '12 · Calf / Ankle Dorsiflexion', order: 14, youth: 'safe', optional: true },
-  { id: 'fs7', name: '13 · Doorway Pec Stretch', order: 15, youth: 'safe', optional: true },
-  { id: 'fb1a', name: '13a · Split Stretch at the Bag', order: 16, youth: 'safe', optional: true },
-  { id: 'fb1b', name: '13b · Copenhagen Adduction', order: 17, youth: 'safe', optional: true },
-  { id: 'fb2a', name: '14a · Knee-to-Wall Ankle Dorsiflexion', order: 18, youth: 'safe', optional: true },
-  { id: 'fb2b', name: '14b · Heel-Elevated Split Squat', order: 19, youth: 'safe', optional: true },
-  { id: 'fb3a', name: '15a · 90/90 Hip Switch', order: 20, youth: 'safe', optional: true },
-  { id: 'fb3b', name: '15b · 90/90 Lift-Offs', order: 21, youth: 'safe', optional: true },
-  { id: 'fb4a', name: '16a · Open-Book T-Spine Rotation', order: 22, youth: 'safe', optional: true },
-  { id: 'fb4b', name: '16b · Prone Y-T-W', order: 23, youth: 'safe', optional: true },
-  { id: 'fb5a', name: '17a · Wrist Flexor + Extensor Stretch', order: 24, youth: 'safe', optional: true },
-  { id: 'fb5b', name: '17b · Reverse Curl + Wrist Roller', order: 25, youth: 'safe', optional: true }
+  { id: 'fs4', name: '10 · Shoulder Cross-Body Stretch', order: 10, youth: 'safe', optional: true },
+  { id: 'fs5', name: '11 · Wrist Flexor Stretch', order: 11, youth: 'safe', optional: true },
+  { id: 'fs7', name: '13 · Doorway Pec Stretch', order: 12, youth: 'safe', optional: true },
+  { id: 'fb1a', name: '13a · Split Stretch at the Bag', order: 13, youth: 'safe', optional: true },
+  { id: 'fb1b', name: '13b · Copenhagen Adduction', order: 14, youth: 'safe', optional: true },
+  { id: 'fb2a', name: '14a · Knee-to-Wall Ankle Dorsiflexion', order: 15, youth: 'safe', optional: true },
+  { id: 'fb2b', name: '14b · Heel-Elevated Split Squat', order: 16, youth: 'safe', optional: true },
+  { id: 'fb3a', name: '15a · 90/90 Hip Switch', order: 17, youth: 'safe', optional: true },
+  { id: 'fb3b', name: '15b · 90/90 Lift-Offs', order: 18, youth: 'safe', optional: true },
+  { id: 'fb4a', name: '16a · Open-Book T-Spine Rotation', order: 19, youth: 'safe', optional: true },
+  { id: 'fb4b', name: '16b · Prone Y-T-W', order: 20, youth: 'safe', optional: true },
+  { id: 'fb5a', name: '17a · Wrist Flexor + Extensor Stretch', order: 21, youth: 'safe', optional: true },
+  { id: 'fb5b', name: '17b · Reverse Curl + Wrist Roller', order: 22, youth: 'safe', optional: true }
 ] });
 BATTERY.register('arm.steps', { section: 'tube', steps: [
   { id: 't1', name: '01 · Forward Plane', order: 1, youth: 'safe', clip: 'clips/tube-forward.mp4' },
@@ -79,6 +76,9 @@ BATTERY.register('arm.steps', { section: 'plyo', steps: [
   { id: 'plyo-mound', name: '10 · Mound / Stretch Throws', order: 10, youth: 'adult', heavy: true, clip: 'clips/plyo-mound.mp4' },
   { id: 'plyo-humpty', name: 'Bonus · Humpty Drill', order: 11, youth: 'adult', heavy: true, optional: true, clip: 'clips/ru-plyo-humpty.mp4' }
 ] });
+BATTERY.register('arm.steps', { section: 'long', steps: [
+  { id: 'cp-everyday', name: 'Catch Play · Easy Everyday Catch', order: 1, youth: 'safe', optional: true }
+] });
 BATTERY.register('arm.steps', { section: 'gameday', steps: [
   { id: 'gd-measure', name: '01 · Daily Measurements', order: 1, youth: 'adult', heavy: true, clip: 'clips/bauer-gd-measure.mp4' },
   { id: 'gd-hottub', name: '02 · Hot Tub + Dress', order: 2, youth: 'adult', heavy: true },
@@ -92,21 +92,25 @@ BATTERY.register('arm.steps', { section: 'gameday', steps: [
   { id: 'gd-bullpen', name: '10 · Pregame Bullpen', order: 10, youth: 'adult', heavy: true, clip: 'clips/bauer-gd-bullpen.mp4' }
 ] });
 BATTERY.register('arm.steps', { section: 'fieldwork', steps: [
-  { id: 'fw-sprint-90', name: '90-Foot Sprints', order: 1, youth: 'safe' },
-  { id: 'fw-first-step', name: 'First-Step / Lead Explosiveness', order: 2, youth: 'safe' },
-  { id: 'fw-tempo-jog', name: 'Tempo Jog', order: 3, youth: 'safe' },
-  { id: 'fw-popfly-if', name: 'Infield Pop Fly', order: 4, youth: 'safe' },
-  { id: 'fw-popfly-of', name: 'Outfield Reads', order: 5, youth: 'safe' },
-  { id: 'fw-lateral-shuffle', name: 'Lateral Shuffle Series', order: 6, youth: 'safe' },
-  { id: 'fw-dig-lr', name: 'Left/Right Leaping Digs', order: 7, youth: 'safe' },
-  { id: 'fw-backhand-dirt', name: 'Backhand Picks in the Dirt', order: 8, youth: 'safe' },
-  { id: 'fw-1b-stretch', name: 'The Stretch at the Bag', order: 9, youth: 'safe', clip: 'clips/fw-1b-stretch.mp4' },
-  { id: 'fw-1b-scoop', name: 'Short-Hop Scoops', order: 10, youth: 'safe', clip: 'clips/fw-1b-scoops.mp4' },
-  { id: 'fw-1b-angles', name: 'Picks From Every Angle', order: 11, youth: 'safe', clip: 'clips/fw-1b-stretch.mp4' },
-  { id: 'fw-box-jump', name: 'Box / Step Jumps', order: 12, youth: 'safe' },
-  { id: 'fw-broad-jump', name: 'Broad Jump', order: 13, youth: 'safe' },
-  { id: 'fw-posture-squat', name: 'Posture Squat Drill', order: 14, youth: 'safe', optional: true, clip: 'clips/jp2-drill-posturesquat.mp4' },
-  { id: 'fw-highknees', name: 'Team High Knees', order: 15, youth: 'safe', optional: true, clip: 'clips/ru-warmup-highknees.mp4' }
+  { id: 'pf1', name: 'F1 · Lateral Shuffle + Crossover Run', order: 1, youth: 'safe', optional: true },
+  { id: 'pf2', name: 'F2 · Spiderman Lunge with Reach', order: 2, youth: 'safe', optional: true },
+  { id: 'pf3', name: 'F3 · Ankle Rocks (Dynamic)', order: 3, youth: 'safe', optional: true },
+  { id: 'pf4', name: 'F4 · Ready-Position Quick Feet', order: 4, youth: 'safe', optional: true },
+  { id: 'fw-sprint-90', name: '90-Foot Sprints', order: 5, youth: 'safe' },
+  { id: 'fw-first-step', name: 'First-Step / Lead Explosiveness', order: 6, youth: 'safe' },
+  { id: 'fw-tempo-jog', name: 'Tempo Jog', order: 7, youth: 'safe' },
+  { id: 'fw-popfly-if', name: 'Infield Pop Fly', order: 8, youth: 'safe' },
+  { id: 'fw-popfly-of', name: 'Outfield Reads', order: 9, youth: 'safe' },
+  { id: 'fw-lateral-shuffle', name: 'Lateral Shuffle Series', order: 10, youth: 'safe' },
+  { id: 'fw-dig-lr', name: 'Left/Right Leaping Digs', order: 11, youth: 'safe' },
+  { id: 'fw-backhand-dirt', name: 'Backhand Picks in the Dirt', order: 12, youth: 'safe' },
+  { id: 'fw-1b-stretch', name: 'The Stretch at the Bag', order: 13, youth: 'safe', clip: 'clips/fw-1b-stretch.mp4' },
+  { id: 'fw-1b-scoop', name: 'Short-Hop Scoops', order: 14, youth: 'safe', clip: 'clips/fw-1b-scoops.mp4' },
+  { id: 'fw-1b-angles', name: 'Picks From Every Angle', order: 15, youth: 'safe', clip: 'clips/fw-1b-stretch.mp4' },
+  { id: 'fw-box-jump', name: 'Box / Step Jumps', order: 16, youth: 'safe' },
+  { id: 'fw-broad-jump', name: 'Broad Jump', order: 17, youth: 'safe' },
+  { id: 'fw-posture-squat', name: 'Posture Squat Drill', order: 18, youth: 'safe', optional: true, clip: 'clips/jp2-drill-posturesquat.mp4' },
+  { id: 'fw-highknees', name: 'Team High Knees', order: 19, youth: 'safe', optional: true, clip: 'clips/ru-warmup-highknees.mp4' }
 ] });
 BATTERY.register('arm.steps', { section: 'washington', steps: [
   { id: 'w0', name: '00 · The Arrow', order: 1, youth: 'safe', clip: 'clips/wash-arrow.mp4', track: 'full' },
@@ -264,7 +268,27 @@ BATTERY.register('arm.steps', { section: 'extras', steps: [
   { id: 'bi2', name: '02 · Bodyweight Squat Series', order: 2, youth: 'safe' },
   { id: 'bi3', name: '03 · Lateral Step-Overs', order: 3, youth: 'safe' },
   { id: 'bi4', name: '04 · Walking Lunges with Twist', order: 4, youth: 'safe' },
-  { id: 'bi5', name: '05 · Catch-Play with Footwork Pattern', order: 5, youth: 'safe' }
+  { id: 'bi5', name: '05 · Catch-Play with Footwork Pattern', order: 5, youth: 'safe' },
+  { id: 'pc1', name: 'C1 · Arm Swings (Hug & Open)', order: 6, youth: 'adult', youthHide: true, optional: true },
+  { id: 'pc2', name: 'C2 · Scap Push-Up', order: 7, youth: 'adult', youthHide: true, optional: true },
+  { id: 'pc3', name: 'C3 · Wall Pec Opener (Reach-Back)', order: 8, youth: 'adult', youthHide: true, optional: true },
+  { id: 'pc4', name: 'C4 · Band Pull-Apart', order: 9, youth: 'adult', youthHide: true, optional: true },
+  { id: 'pl1', name: 'L1 · Squat-to-Stand', order: 10, youth: 'adult', youthHide: true, optional: true },
+  { id: 'pl2', name: 'L2 · Inchworm with Reach', order: 11, youth: 'adult', youthHide: true, optional: true },
+  { id: 'pl3', name: 'L3 · World’s Greatest Stretch', order: 12, youth: 'adult', youthHide: true, optional: true },
+  { id: 'pl4', name: 'L4 · Glute Bridge March', order: 13, youth: 'adult', youthHide: true, optional: true },
+  { id: 'fs2', name: '08 · Couch Stretch', order: 14, youth: 'safe', optional: true },
+  { id: 'fs3', name: '09 · 90/90 Hip Stretch', order: 15, youth: 'safe', optional: true },
+  { id: 'fs6', name: '12 · Calf / Ankle Dorsiflexion', order: 16, youth: 'safe', optional: true },
+  { id: 'nm1', name: 'N1 · Standing Toe Touch', order: 17, youth: 'safe', optional: true },
+  { id: 'nm2', name: 'N2 · Seated Toe Touch', order: 18, youth: 'safe', optional: true },
+  { id: 'nm3', name: 'N3 · Figure-4 Toe Touch', order: 19, youth: 'safe', optional: true },
+  { id: 'nm4', name: 'N4 · Figure-4 → Straight Leg Back (Hip)', order: 20, youth: 'safe', optional: true },
+  { id: 'nm5', name: 'N5 · Quad Stretch', order: 21, youth: 'safe', optional: true },
+  { id: 'nm6', name: 'N6 · Step-Over (Hips · Back · SI)', order: 22, youth: 'safe', optional: true },
+  { id: 'nm7', name: 'N7 · Calf Stretch — Straight Knee', order: 23, youth: 'safe', optional: true },
+  { id: 'nm8', name: 'N8 · Calf Stretch — Bent Knee', order: 24, youth: 'safe', optional: true },
+  { id: 'nm9', name: 'N9 · Pec Stretch', order: 25, youth: 'safe', optional: true }
 ] });
 BATTERY.register('arm.steps', { section: 'lifting', steps: [
   { id: 'lift-db-incline', name: 'DB Incline Press', order: 1, youth: 'adult', youthHide: true, muscle: 'chest', sub: 'upper', eq: 'db' },
